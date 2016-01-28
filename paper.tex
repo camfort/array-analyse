@@ -1,0 +1,105 @@
+\documentclass[10pt]{sigplanconf}
+
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{stmaryrd}
+\usepackage{color}
+\usepackage{graphics}
+
+\definecolor{darkgreen}{rgb}{0.0,0.5,0.0}
+\definecolor{darkpurple}{rgb}{0.6,0.0,0.6}
+\definecolor{orange}{rgb}{0.8,0.4,0.0}
+\definecolor{darkorange}{rgb}{0.5,0.2,0.0}
+\definecolor{marco}{rgb}{0.0,0.3,0.5}
+\definecolor{gray}{rgb}{0.2,0.2,0.2}
+
+\newcommand{\dnote}[1]{\textcolor{darkpurple}{Dom: #1}}
+
+\newcounter{block}
+
+\newtheorem{theorem}[block]{Theorem}
+\newtheorem{lemma}[block]{Lemma}
+\newtheorem{proposition}[block]{Proposition}
+%\newtheorem{definition}[block]{Definition}
+
+\theoremstyle{definition}
+\newtheorem{remark}[block]{Remark}
+\newtheorem{example}[block]{Example}
+\newtheorem{definition}[block]{Definition}
+
+% Writing macros
+\newcommand{\ie}{\emph{i.e..}}
+\newcommand{\eg}{\emph{e.g.}}
+
+% Semantics related
+\newcommand{\interp}[1]{\llbracket{#1}\rrbracket}
+
+\title{Abstract Shape Specifications for Stencil Verification}
+\authorinfo{}{}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+\end{abstract}
+
+\bibliographystyle{plain}
+
+\section{Introduction}
+
+
+\section{Specification language}
+
+\begin{align*}
+spec ::= & \; S  \; \texttt{,} \; spec \, \mid \, \epsilon \\ \\
+%
+S ::= &  \; \texttt{forward} \; [\textit{ixs}] \; [\textit{depth}] \\
+& \; \mid \texttt{backward} \; [\textit{ixs}] \; [\textit{depth}] \\
+& \; \mid \texttt{centered} \; [\textit{ixs}] \; [\textit{depth}] \\
+& \; \mid \texttt{unspecified} \; [\textit{ixs}]
+\end{align*}
+
+\section{Static analysis}
+
+\begin{definition}[Induction variable]
+
+\end{definition}
+
+\begin{definition}[Constant translations]
+An indexing expression $e$ is a \emph{constant translation} if,
+for an \emph{induction variable} $i$, then $e \equiv i + a$ or $e \equiv i - a$ 
+where $a$ is a constant. The relation $\equiv$ is used which
+represents term equality up-to commutativity of $+$ and the inverse
+relation of $+$ and $-$ (\eg{}, $(-b) + i \equiv i - b$). 
+In the following, we classify constant translation expressions 
+using the predicate $\textsf{trans}$.
+\end{definition}
+
+\paragraph{Step 1: Data-access analysis}
+
+\dnote{Might want to do 'stencil' (gather) and 'mould' (scatter)
+  patterns separately}
+\begin{align*}
+\begin{array}{lll}
+\interp{e_1 = e_2}    & = \interp{e_2} \\
+\interp{e_1 e_2}      & = \interp{e_1} \cup \interp{e_2} \\
+\interp{a(\tilde{e})} & = \{e | e \in \tilde{e}, \textsf{trans}(e)\} & \textit{where each $e \in
+                                          \tilde{e}$ is a constant or constant translation}
+\end{array}
+\end{align*}
+
+Index analysis is a \emph{coeffect analysis}.
+
+\paragraph{Step 2: Coalesce contiguous indices into regions}
+
+% fairly mechanical
+
+\section{Evaluation}
+
+\section{Discussion}
+
+
+\bibliography{references}
+
+\end{document}

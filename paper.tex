@@ -52,12 +52,16 @@
 \section{Specification language}
 
 \begin{align*}
-spec ::= & \; S  \; \texttt{,} \; spec \, \mid \, \epsilon \\ \\
+spec ::= & \; S  \; \texttt{,} \; spec \, \mid \, S \\[0.5em]
 %
-S ::= &  \; \texttt{forward} \; [\textit{ixs}] \; [\textit{depth}] \\
-& \; \mid \texttt{backward} \; [\textit{ixs}] \; [\textit{depth}] \\
-& \; \mid \texttt{centered} \; [\textit{ixs}] \; [\textit{depth}] \\
-& \; \mid \texttt{unspecified} \; [\textit{ixs}]
+S ::= &  \; \texttt{forward} \; \textit{depth} \; \textit{dims} \\
+& \; \mid \texttt{backward} \; \textit{depth} \; \textit{dims} \\
+& \; \mid \texttt{centered} \; \textit{depth} \; \textit{dims} \\
+& \; \mid \texttt{unspecified} \; [\textit{dims}] \\
+& \; \mid \texttt{unique} \; S \\[0.5em]
+\textit{depth} ::= & \; \mathbb{N} \\
+\textit{dims}  ::= & \; \textit{var} \; \texttt{,} \; \textit{dims} \,
+                      \mid \, \textit{var}
 \end{align*}
 
 \section{Static analysis}

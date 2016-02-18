@@ -6,6 +6,14 @@
 \usepackage{stmaryrd}
 \usepackage{color}
 \usepackage{graphics}
+\usepackage{fancyvrb}
+\CustomVerbatimEnvironment{SpecVerbatim}{Verbatim}{fontsize=\footnotesize,xleftmargin=0.65cm,
+xrightmargin=0.2cm,commandchars=\\\{\},baselinestretch=0.97}
+\CustomVerbatimEnvironment{ExmVerbatim}{Verbatim}{fontsize=\footnotesize,xleftmargin=0.65cm,
+xrightmargin=0.2cm,commandchars=\\\{\},baselinestretch=0.97}
+\CustomVerbatimEnvironment{IVerbatim}{Verbatim}{fontsize=\relsize{-1},xleftmargin=0.65cm,
+xrightmargin=0.2cm,commandchars=\\\{\},baselinestretch=0.97}
+
 
 \definecolor{darkgreen}{rgb}{0.0,0.5,0.0}
 \definecolor{darkpurple}{rgb}{0.6,0.0,0.6}
@@ -54,27 +62,55 @@
 \begin{align*}
 spec ::= & \; S  \; \texttt{,} \; spec \, \mid \, S \\[0.5em]
 %
-S ::= &  \; \texttt{forward} \; \textit{depth} \; \textit{dims} \\
-& \; \mid \texttt{backward} \; \textit{depth} \; \textit{dims} \\
-& \; \mid \texttt{centered} \; \textit{depth} \; \textit{dims} \\
-& \; \mid \texttt{unspecified} \; [\textit{dims}] \\
-& \; \mid \texttt{unique} \; S \\[0.5em]
+S ::= &  \; \texttt{forward} \; \texttt{depth=}\textit{depth} \; \texttt{dims=}\textit{dims} \\
+& \; \mid \texttt{backward} \; \texttt{depth=}\textit{depth} \; \texttt{dims=}\textit{dims} \\
+& \; \mid \texttt{centered} \; \texttt{depth=}\textit{depth} \; \texttt{dims=}\textit{dims} \\
+& \; \mid \texttt{unspecified} \; \texttt{dims=}[\textit{dims}] \\
+& \; \mid \texttt{read-once} \; S \\[0.5em]
 \textit{depth} ::= & \; \mathbb{N} \\
 \textit{dims}  ::= & \; \textit{var} \; \texttt{,} \; \textit{dims} \,
                       \mid \, \textit{var}
 \end{align*}
 
+\subsection{Common patterns}
+
+\begin{example}[FTCS (Forward time, centered space)]
+
+  Otherwise known as the \emph{explicit method}, is a common
+  pattern since it tends to be more efficient than other approches
+  (see BTCS and CTCS below). However, its disadvantage is that it is
+  unstable if the resolution is not well chosen. 
+
+\begin{ExmVerbatim}
+b(x) = a(x) + r*(a(x-1) - 2*a(x) + a(x+1))
+\end{ExmVerbatim}
+%
+For this statement, the inference provides the specification: 
+%
+\begin{SpecVerbatim}
+a: centered depth=1, dims=0
+\end{SpecVerbatim}
+
+\end{example}
+
+\paragraph{BTCS (Backward time, centered space) -- implicit method}
+
+\paragraph{CTCS (Centered time, centered space) - Crank-Nicolson method}
+
+
+
 \section{Static analysis}
 
-\begin{definition}[Induction variable]
-
-\end{definition}
+In the following, we defined
+\emph{base induction variables} to be the variables
+ defined by a ``for'' loop (\eg{}, that get incremented each time the
+loop is re-entered). 
 
 \begin{definition}[Constant translations]
 An indexing expression $e$ is a \emph{constant translation} if,
-for an \emph{induction variable} $i$, then $e \equiv i + a$ or $e \equiv i - a$ 
-where $a$ is a constant. The relation $\equiv$ is used which
-represents term equality up-to commutativity of $+$ and the inverse
+for a base induction variable $i$, then $e \equiv i + a$ or $e \equiv i - a$ 
+where $a$ is a constant. The relation $\equiv$ identifies terms
+up-to commutativity of $+$ and the inverse
 relation of $+$ and $-$ (\eg{}, $(-b) + i \equiv i - b$). 
 In the following, we classify constant translation expressions 
 using the predicate $\textsf{trans}$.

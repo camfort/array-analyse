@@ -7,10 +7,12 @@
 \usepackage{color}
 \usepackage{graphics}
 \usepackage{fancyvrb}
+\usepackage{subfigure}
+
 \CustomVerbatimEnvironment{SpecVerbatim}{Verbatim}{fontsize=\footnotesize,xleftmargin=0.65cm,
 xrightmargin=0.2cm,commandchars=\\\{\},baselinestretch=0.97}
 \CustomVerbatimEnvironment{ExmVerbatim}{Verbatim}{fontsize=\footnotesize,xleftmargin=0.65cm,
-xrightmargin=0.2cm,commandchars=\\\{\},baselinestretch=0.97}
+xrightmargin=0.2cm,baselinestretch=0.97,numbers=left}
 \CustomVerbatimEnvironment{IVerbatim}{Verbatim}{fontsize=\relsize{-1},xleftmargin=0.65cm,
 xrightmargin=0.2cm,commandchars=\\\{\},baselinestretch=0.97}
 
@@ -40,10 +42,12 @@ xrightmargin=0.2cm,commandchars=\\\{\},baselinestretch=0.97}
 \newcommand{\ie}{\emph{i.e..}}
 \newcommand{\eg}{\emph{e.g.}}
 
+\newcommand{\dimId}{\texttt{dim}}
+
 % Semantics related
 \newcommand{\interp}[1]{\llbracket{#1}\rrbracket}
 
-\title{Abstract Shape Specifications for Stencil Verification}
+\title{Time and space specifications for stencils}
 \authorinfo{}{}
 
 \begin{document}
@@ -56,21 +60,207 @@ xrightmargin=0.2cm,commandchars=\\\{\},baselinestretch=0.97}
 
 \section{Introduction}
 
+\emph{Stencils} are a ubiquitous programming pattern in many numerical
+applications. Informally, a stencil computation computes
+an array, where the value at each index $i$ of this array is
+calculated from a set of neighbouring values to $i$ in some input
+array(s), \eg{}, the Game of Life, convolutions in image processing, 
+approximations to differential equations. For example, the following
+psuedo-code iteratively applies the discrete Laplace
+operator (an approximation to a derivative):
+%
+\begin{ExmVerbatim}
+do iter = 0, itermax
+   do i = 1, (n-1)
+      b(i) = a(i-1) - 2*a(i) + a(i+1)
+   a = b
+\end{ExmVerbatim}
+%
+Line 3 is the core of the stencil computation, calculating
+the value at \texttt{b[i]} from a neighbourhood of elements about
+\texttt{a[i]}. Line 4 swaps 
+\texttt{a} and \texttt{b} between iterations, where \texttt{b} becomes the
+input for the next iteration.
 
-\section{Specification language}
+%This stencil computation exhibits statically decideable
+%spatial and temporal relationships between $\texttt{a}$ and
+%$\texttt{b}$. 
+In this simple example, the spatial and temporal relationship
+between \texttt{a} and \texttt{b} is easy to understand. However,
+more complex stencil computations can be much harder to understand
+and subsequently more prone to error. For example, Figure~\ref{ref:navier-stokes-fragment}
+shows a couple of lines from a Navier-Stokes fluid simulator in
+which two arrays are read from with different data access patterns,
+across two dimensions. The interaction is much harder to understand,
+with the potential for the developer to accidentally introduce an
+error, for example writing $\texttt{(i-1,j)}$ instead of
+$\texttt{(i+1,j)}$.
 
+We introduce a simple specification for stencil comptuations
+that abstracts the fine grained detail of their access patterns.
+In practise, most stencil computations have a regular shape that
+can be described simply and abstractly. In the case of our
+first Laplace example, our analysis tool infers the following specification:
+%
+\begin{SpecVerbatim}
+a : centered depth=1 dims=1
+b : backward depth=1\{a\} dims=t
+\end{SpecVerbatim}
+%
+The first line explains that \texttt{a} is read from
+with a symmetrical stencil pattern (``centered'') to a depth
+of one in each direction in its first (and only) dimension.
+The second line explains the temporal relationship between
+\texttt{b} and \texttt{a}: that the previous time step for \texttt{b}
+is actually provided by \texttt{a}. The dimension \texttt{t} is a
+reserved dimension identifiers for temporal specifications. In
+the case of the Navier-Stokes example, its inferred stencil is shown
+in Figure~\ref{ref:navier-stokes-fragment}(b).
+
+This paper makes the following contributions:
+%
+\begin{itemize}
+\item introduces a specification language for
+stencil computations that captures many common forms
+of stencil (Section~\ref{sec:lang});
+\item we detail specification inference and checking
+algorithsm (Section~\ref{sec:analysis});
+\item we evaluate our implementation of the approach
+in the CamFort tool for Fortran verification, studying
+a number of example programs to assess the usefulness
+of this approach.
+\dnote{insert results here}
+\end{itemize}
+%
+
+\begin{figure}
+\begin{ExmVerbatim}[firstnumber=20]
+du2dx = ((u(i,j)+u(i+1,j))*(u(i,j)+u(i+1,j))+ 
+    gamma*abs(u(i,j)+u(i+1,j))*(u(i,j)-u(i+1,j))- 
+    (u(i-1,j)+u(i,j))*(u(i-1,j)+u(i,j))- 
+    gamma*abs(u(i-1,j)+u(i,j))*(u(i-1,j)-u(i,j))) 
+    /(4.0*delx)
+
+duvdy = ((v(i,j)+v(i+1,j))*(u(i,j)+u(i,j+1))+ 
+   gamma*abs(v(i,j)+v(i+1,j))*(u(i,j)-u(i,j+1))- 
+   (v(i,j-1)+v(i+1,j-1))*(u(i,j-1)+u(i,j))-  
+   gamma*abs(v(i,j-1)+v(i+1,j-1))*(u(i,j-1)-u(i,j))) 
+   /(4.0*dely)
+
+laplu = (u(i+1,j)-2.0*u(i,j)+u(i-1,j))/delx/delx+ 
+          (u(i,j+1)-2.0*u(i,j)+u(i,j-1))/dely/dely
+\end{ExmVerbatim} 
+(a). Excerpt from the Fortran code, 
+showing highly-detailed stencil computations. \\
+
+\begin{SpecVerbatim}[xleftmargin=0.1cm]
+20-24  u: centered depth=1 dim=1
+26-30  u: centered depth=1 dim=2
+       v: forward depth=1 dim=1, backward depth=1 dim=1
+32-33  u: centered depth=1 dim=1,2
+\end{SpecVerbatim}
+(b). Inferred stencil specification from CamFort
+\caption{Fragment of Navier-Stokes fluid simulator and its specification}
+\label{ref:navier-stokes-fragment}
+\end{figure}
+
+\section{Stencil specification language}
+\label{sec:lang}
+
+\begin{figure}
 \begin{align*}
 spec ::= & \; S  \; \texttt{,} \; spec \, \mid \, S \\[0.5em]
 %
-S ::= &  \; \texttt{forward} \; \texttt{depth=}\textit{depth} \; \texttt{dims=}\textit{dims} \\
-& \; \mid \texttt{backward} \; \texttt{depth=}\textit{depth} \; \texttt{dims=}\textit{dims} \\
-& \; \mid \texttt{centered} \; \texttt{depth=}\textit{depth} \; \texttt{dims=}\textit{dims} \\
-& \; \mid \texttt{unspecified} \; \texttt{dims=}[\textit{dims}] \\
+S ::= &  \; \texttt{forward} \; [\texttt{depth=}\textit{depth}] \; \texttt{dims=}\textit{dims} \\
+& \; \mid \texttt{backward} \; [\texttt{depth=}\textit{depth}] \; \texttt{dims=}\textit{dims} \\
+& \; \mid \texttt{centered} \; [\texttt{depth=}\textit{depth}] \; \texttt{dims=}\textit{dims} \\
+& \; \mid \texttt{unspecified} \; [\texttt{dims=}\textit{dims}] \\
 & \; \mid \texttt{read-once} \; S \\[0.5em]
-\textit{depth} ::= & \; \mathbb{N} \\
-\textit{dims}  ::= & \; \textit{var} \; \texttt{,} \; \textit{dims} \,
-                      \mid \, \textit{var}
+\textit{depth} ::= & \; \mathbb{N} \, \mid \, \textit{temp-spec} \\ 
+\textit{temp-spec} ::= & \mathbb{N}\{var\} \\
+\textit{dims}  ::= & \;\mathbb{N}_{>0} \; \texttt{,} \; \textit{dims} \,
+                      \mid \, \mathbb{N}_{>0} \, \mid \, 
+                     \texttt{t}
 \end{align*}
+\caption{Syntax of specifications}
+\end{figure}
+
+\begin{figure}
+\begin{align*}
+(\texttt{a} : \; \texttt{bwd} \; \texttt{depth=1\{b\}} \;
+  \texttt{dim=t})
+\, & \equiv \,
+(\texttt{b} : \; \texttt{bwd} \; \texttt{depth=1\{a\}} \;
+  \texttt{dim=t})
+\\ 
+(\texttt{a} : \; \texttt{fwd} \; \texttt{depth=1\{b\}} \;
+  \texttt{dim=t})
+\, & \equiv \,
+(\texttt{b} : \; \texttt{fwd} \; \texttt{depth=1\{a\}} \;
+  \texttt{dim=t})
+\\
+(a : \texttt{read-once} \; S) \; & \equiv \; (a : \texttt{read-once} \;\,
+  \texttt{read-once} \; \, S)
+\end{align*}
+\caption{Equations on specifications}
+\end{figure}
+
+\subsection{Time specifications}
+
+\begin{ExmVerbatim}
+for t = 1, itermax:
+   for i = 1, (n-1):
+      a[t, i] = a[t-1, i-1] - 2*a[t-1, i] + a[t-1, i+1]
+\end{ExmVerbatim}
+
+\begin{SpecVerbatim}
+a(t=0) : bwd, depth=1
+a(1)   : centered, depth=1
+\end{SpecVerbatim}
+
+\begin{SpecVerbatim}
+a : centered depth=1 dim=1
+a : backward depth=1 dim=0
+\end{SpecVerbatim}
+
+\subsection{Safety and sub-specifications}
+
+\begin{figure}[t]
+{\framebox{
+\begin{minipage}{0.88\linewidth}
+\begin{align*}
+\hspace{-0.7em}
+\begin{array}{c}
+\dfrac{}{S <: S}(\textsc{refl}) \qquad \dfrac{R <: S \quad S <: T}{R <:
+  T}(\textsc{trans}) \\[1.5em]
+\dfrac{}{S <: \; \texttt{unspecified dims=}ds}(\top) 
+\\[1.5em]
+\dfrac{}{\texttt{read-once} \, S <: S}(\textsc{rep})
+\\[1.5em]
+\setlength{\arraycolsep}{0.1em}
+\dfrac{\hspace{3em} ds \subseteq es \; \wedge \; n \leq m \hspace{3em}}
+{\begin{array}{rl}
+\texttt{fwd} \; \texttt{depth=}n \; \texttt{dim=}ds & <: \texttt{fwd} \;
+  \texttt{depth=}m \; \texttt{dim=}es 
+%& \;\, ds \subseteq es \wedge n \leq m 
+\\
+\wedge \; \texttt{bwd} \; \texttt{depth=}n \; \texttt{dim=}ds & <: \texttt{bwd} \;
+  \texttt{depth=}m \; \texttt{dim=}es 
+%& \;\, ds \subseteq es \wedge n \leq m 
+\\
+\wedge \; \texttt{fwd} \; \texttt{depth=}n \; \texttt{dim=}ds & <: \texttt{sym} \;
+  \texttt{depth=}m \; \texttt{dim=}es 
+%& \;\, ds \subseteq es \wedge n \leq m 
+\\
+\wedge \; \texttt{bwd} \; \texttt{depth=}n \; \texttt{dim=}ds & <: \texttt{sym} \;
+  \texttt{depth=}m \; \texttt{dim=}es 
+\end{array}}{\footnotesize{(\textsc{cover})}}\hspace{-0.1em}
+\end{array}
+\end{align*}
+\end{minipage}}}
+\caption{Definition of sub-specification relation}
+\end{figure}
+
 
 \subsection{Common patterns}
 
@@ -91,6 +281,8 @@ For this statement, the inference provides the specification:
 a: centered depth=1, dims=0
 \end{SpecVerbatim}
 
+
+
 \end{example}
 
 \paragraph{BTCS (Backward time, centered space) -- implicit method}
@@ -99,7 +291,8 @@ a: centered depth=1, dims=0
 
 
 
-\section{Static analysis}
+\section{Specification inference and checking}
+\label{sec:analysis}
 
 In the following, we defined
 \emph{base induction variables} to be the variables
@@ -134,6 +327,10 @@ Index analysis is a \emph{coeffect analysis}.
 \paragraph{Step 2: Coalesce contiguous indices into regions}
 
 % fairly mechanical
+
+\subsection{Infering temporal specifications}
+
+The reserved dimension \dimId{t}
 
 \section{Evaluation}
 

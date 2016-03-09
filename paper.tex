@@ -187,6 +187,7 @@ S ::= &  \; \texttt{forward} \; [\texttt{depth=}\textit{depth}] \; \texttt{dims=
 
 \begin{figure}
 \begin{align*}
+\framebox{$\texttt{v} : S \equiv \texttt{v'} : S'$} \\
 (\texttt{a} : \; \texttt{bwd} \; \texttt{depth=1\{b\}} \;
   \texttt{dim=t})
 \, & \equiv \,
@@ -198,12 +199,71 @@ S ::= &  \; \texttt{forward} \; [\texttt{depth=}\textit{depth}] \; \texttt{dims=
 \, & \equiv \,
 (\texttt{b} : \; \texttt{fwd} \; \texttt{depth=1\{a\}} \;
   \texttt{dim=t})
-\\
+\\ \\
+\framebox{$S \equiv S'$} \\
 (a : \texttt{read-once} \; S) \; & \equiv \; (a : \texttt{read-once} \;\,
   \texttt{read-once} \; \, S)
 \end{align*}
 \caption{Equations on specifications}
 \end{figure}
+
+\begin{figure*}
+\begin{align*}
+\begin{array}{c}
+\framebox{$\texttt{v} : S \equiv \texttt{v'} : S'$} \\ \\
+(\texttt{a} : \; \texttt{backward} \; \texttt{depth=1\{b\}} \;
+  \texttt{dim=t}) 
+\, \equiv \,
+(\texttt{b} : \; \texttt{backward} \; \texttt{depth=1\{a\}} \;
+  \texttt{dim=t})
+ \\ 
+(S \equiv S') \Rightarrow (\texttt{v} : S \equiv \texttt{v} : S')
+%(\texttt{a} : \; \texttt{fwd} \; \texttt{depth=1\{b\}} \;
+%  \texttt{dim=t})
+%\, & \equiv \,
+%(\texttt{b} : \; \texttt{fwd} \; \texttt{depth=1\{a\}} \;
+%  \texttt{dim=t})
+\\ \\
+\framebox{$S \equiv S'$} \\
+(\texttt{read-once} \; S) \; \equiv \; (\texttt{read-once} \;\,
+  \texttt{read-once} \; \, S) \\
+\end{array}
+\end{align*}
+
+\begin{align*}
+\hspace{-0.7em}
+\begin{array}{c}
+\dfrac{}{S <: S}(\textsc{refl}) \qquad \dfrac{R <: S \quad S <: T}{R <:
+  T}(\textsc{trans}) \\[1.5em]
+\dfrac{}{S <: \; \texttt{unspecified dims=}ds}(\top) 
+\\[1.5em]
+\dfrac{}{\texttt{read-once} \, S <: S}(\textsc{rep})
+\\[1.5em]
+\setlength{\arraycolsep}{0.1em}
+\dfrac{\hspace{3em} ds \subseteq es \; \wedge \; n \leq m \hspace{3em}}
+{\begin{array}{rl}
+\texttt{fwd} \; \texttt{depth=}n \; \texttt{dim=}ds & <: \texttt{fwd} \;
+  \texttt{depth=}m \; \texttt{dim=}es 
+%& \;\, ds \subseteq es \wedge n \leq m 
+\\
+\wedge \; \texttt{bwd} \; \texttt{depth=}n \; \texttt{dim=}ds & <: \texttt{bwd} \;
+  \texttt{depth=}m \; \texttt{dim=}es 
+%& \;\, ds \subseteq es \wedge n \leq m 
+\\
+\wedge \; \texttt{fwd} \; \texttt{depth=}n \; \texttt{dim=}ds & <: \texttt{sym} \;
+  \texttt{depth=}m \; \texttt{dim=}es 
+%& \;\, ds \subseteq es \wedge n \leq m 
+\\
+\wedge \; \texttt{bwd} \; \texttt{depth=}n \; \texttt{dim=}ds & <: \texttt{sym} \;
+  \texttt{depth=}m \; \texttt{dim=}es 
+\end{array}}
+%{\footnotesize{(\textsc{cover})}}
+%\hspace{-0.1em}
+\end{array}
+\end{align*}
+
+\caption{Equality and inequality on specifications}
+\end{figure*}
 
 \subsection{Time specifications}
 
@@ -254,7 +314,9 @@ a : backward depth=1 dim=0
 \\
 \wedge \; \texttt{bwd} \; \texttt{depth=}n \; \texttt{dim=}ds & <: \texttt{sym} \;
   \texttt{depth=}m \; \texttt{dim=}es 
-\end{array}}{\footnotesize{(\textsc{cover})}}\hspace{-0.1em}
+\end{array}}
+%{\footnotesize{(\textsc{cover})}}
+%\hspace{-0.1em}
 \end{array}
 \end{align*}
 \end{minipage}}}

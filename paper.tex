@@ -25,6 +25,7 @@ xrightmargin=0.2cm,commandchars=\\\{\},baselinestretch=0.97}
 \definecolor{gray}{rgb}{0.2,0.2,0.2}
 
 \newcommand{\dnote}[1]{\textcolor{darkpurple}{Dom: #1}}
+\newcommand{\mnote}[1]{\textcolor{darkgreen}{Mistral: #1}}
 
 \newcounter{block}
 
@@ -355,6 +356,17 @@ a: centered depth=1, dims=0
 
 \section{Specification inference and checking}
 \label{sec:analysis}
+
+\mnote{Few cases that we might like to consider (there are examples
+    of each in \#camfort-main Slack channel): 
+  \begin{itemize}
+    \item Matrix operator overloading $a + b$, where both are arrays
+    \item Scalar operator overloading $a + b$, where a is an array b is a 
+      scalar. $b$ is added to all.
+    \item Sliding. $a = b$ where the dimensionsare $a(1:10)$, $b(2:11)$,
+      so the assignment causes shifting.
+  \end{itemize}
+}
 
 In the following, we defined
 \emph{base induction variables} to be the variables

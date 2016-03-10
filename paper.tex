@@ -8,6 +8,7 @@
 \usepackage{graphics}
 \usepackage{fancyvrb}
 \usepackage{subfigure}
+\usepackage{amsthm}
 
 \CustomVerbatimEnvironment{SpecVerbatim}{Verbatim}{fontsize=\footnotesize,xleftmargin=0.65cm,
 xrightmargin=0.2cm,commandchars=\\\{\},baselinestretch=0.97}
@@ -24,17 +25,20 @@ xrightmargin=0.2cm,commandchars=\\\{\},baselinestretch=0.97}
 \definecolor{marco}{rgb}{0.0,0.3,0.5}
 \definecolor{gray}{rgb}{0.2,0.2,0.2}
 
+\newcommand{\bn}{\mathbb{N}}
+
 \newcommand{\dnote}[1]{\textcolor{darkpurple}{Dom: #1}}
 \newcommand{\mnote}[1]{\textcolor{darkgreen}{Mistral: #1}}
 
 \newcounter{block}
 
-\newtheorem{theorem}[block]{Theorem}
 \newtheorem{lemma}[block]{Lemma}
 \newtheorem{proposition}[block]{Proposition}
 %\newtheorem{definition}[block]{Definition}
 
 \theoremstyle{definition}
+
+\newtheorem{theorem}[block]{Theorem} 
 \newtheorem{remark}[block]{Remark}
 \newtheorem{example}[block]{Example}
 \newtheorem{definition}[block]{Definition}
@@ -118,14 +122,14 @@ reserved dimension identifiers for temporal specifications. In
 the case of the Navier-Stokes example, its inferred stencil is shown
 in Figure~\ref{ref:navier-stokes-fragment}(b).
 
-This paper makes the following contributions:
+In this paper, we make the following contributions:
 %
 \begin{itemize}
-\item introduces a specification language for
+\item we introduce a specification language for
 stencil computations that captures many common forms
-of stencil (Section~\ref{sec:lang});
-\item we detail specification inference and checking
-algorithsm (Section~\ref{sec:analysis});
+of data access pattern, both spatial and temporal (Section~\ref{sec:lang});
+\item we detail inference and checking
+algorithms for stencil specifications (Section~\ref{sec:analysis});
 \item we evaluate our implementation of the approach
 in the CamFort tool for Fortran verification, studying
 a number of example programs to assess the usefulness
@@ -168,105 +172,55 @@ showing highly-detailed stencil computations. \\
 \section{Stencil specification language}
 \label{sec:lang}
 
+Our specification system is based on the observation
+that most forms of array access in numberical code have 
+a fixed, statically-determined access pattern. For example, the 
+``\emph{five-point stencil}'' on a two-dimensional array reads from array
+indices $(i, j)$, $(i-1, j)$, $(i+1, j)$, $(i, j-1)$, and $(i, j+1)$
+for all $i, j$ within the inner boundary of the array (to avoid 
+out-of-bounds access at the edges). We revisit this hypothesis 
+in Section~\ref{sec:evaluation} where the inference of
+such regular stencil patterns on a corpus of numerical programs (both
+small and large). We found that indeed \dnote{..}. 
+
+We outline the specification language here. Section~\ref{sec:syntax}
+oultines the syntax. Section~\ref{sec:semantics} defines its semantics
+via a simple multi-set interpretation over indices. Section~\ref{sec:eqs} provides an
+equational theory for specifications via relation ($\equiv$) and a
+theory of approximation via relation ($<:$). These equations are then
+proven sound with respecto the multi-set semantics of Section~\ref{sec:semantics}.
+
+\subsection{Syntax}
+\label{sec:syntax}
+
+Figure~\ref{fig:syntax}
+gives the syntax, which we introduces in stages below. 
+%%
+
 \begin{figure}
 \begin{align*}
-spec ::= & \; S  \; \texttt{,} \; spec \, \mid \, S \\[0.5em]
+\textit{specs} ::= & \; \textit{spec} \; \texttt{;} \; \textit{specs} \, \mid \, \textit{spec} \\
 %
+\textit{spec} :: = & \; \texttt{v} : S \\[0.5em]
 S ::= &  \; \texttt{forward} \; [\texttt{depth=}\textit{depth}] \; \texttt{dims=}\textit{dims} \\
 & \; \mid \texttt{backward} \; [\texttt{depth=}\textit{depth}] \; \texttt{dims=}\textit{dims} \\
 & \; \mid \texttt{centered} \; [\texttt{depth=}\textit{depth}] \; \texttt{dims=}\textit{dims} \\
 & \; \mid \texttt{unspecified} \; [\texttt{dims=}\textit{dims}] \\
 & \; \mid \texttt{read-once} \; S \\[0.5em]
 \textit{depth} ::= & \; \mathbb{N} \, \mid \, \textit{temp-spec} \\ 
-\textit{temp-spec} ::= & \mathbb{N}\{var\} \\
-\textit{dims}  ::= & \;\mathbb{N}_{>0} \; \texttt{,} \; \textit{dims} \,
-                      \mid \, \mathbb{N}_{>0} \, \mid \, 
-                     \texttt{t}
+\textit{temp-spec} ::= & \; \mathbb{N}\{var\} \\
+\textit{dims} ::= & \; \mathbb{D} \; \texttt{,} \; \textit{dims} \, \mid
+                    \, \mathbb{D} \\
+\mathbb{D}  ::= & \; \mathbb{N}_{>0} \, \mid \, \texttt{t}
 \end{align*}
 \caption{Syntax of specifications}
+\label{fig:syntax}
 \end{figure}
 
-\begin{figure}
-\begin{align*}
-\framebox{$\texttt{v} : S \equiv \texttt{v'} : S'$} \\
-(\texttt{a} : \; \texttt{bwd} \; \texttt{depth=1\{b\}} \;
-  \texttt{dim=t})
-\, & \equiv \,
-(\texttt{b} : \; \texttt{bwd} \; \texttt{depth=1\{a\}} \;
-  \texttt{dim=t})
-\\ 
-(\texttt{a} : \; \texttt{fwd} \; \texttt{depth=1\{b\}} \;
-  \texttt{dim=t})
-\, & \equiv \,
-(\texttt{b} : \; \texttt{fwd} \; \texttt{depth=1\{a\}} \;
-  \texttt{dim=t})
-\\ \\
-\framebox{$S \equiv S'$} \\
-(a : \texttt{read-once} \; S) \; & \equiv \; (a : \texttt{read-once} \;\,
-  \texttt{read-once} \; \, S)
-\end{align*}
-\caption{Equations on specifications}
-\end{figure}
+\paragraph{Spatial specifications}
 
-\begin{figure*}
-\begin{align*}
-\begin{array}{c}
-\framebox{$\texttt{v} : S \equiv \texttt{v'} : S'$} \\ \\
-(\texttt{a} : \; \texttt{backward} \; \texttt{depth=1\{b\}} \;
-  \texttt{dim=t}) 
-\, \equiv \,
-(\texttt{b} : \; \texttt{backward} \; \texttt{depth=1\{a\}} \;
-  \texttt{dim=t})
- \\ 
-(S \equiv S') \Rightarrow (\texttt{v} : S \equiv \texttt{v} : S')
-%(\texttt{a} : \; \texttt{fwd} \; \texttt{depth=1\{b\}} \;
-%  \texttt{dim=t})
-%\, & \equiv \,
-%(\texttt{b} : \; \texttt{fwd} \; \texttt{depth=1\{a\}} \;
-%  \texttt{dim=t})
-\\ \\
-\framebox{$S \equiv S'$} \\
-(\texttt{read-once} \; S) \; \equiv \; (\texttt{read-once} \;\,
-  \texttt{read-once} \; \, S) \\
-\end{array}
-\end{align*}
-
-\begin{align*}
-\hspace{-0.7em}
-\begin{array}{c}
-\dfrac{}{S <: S}(\textsc{refl}) \qquad \dfrac{R <: S \quad S <: T}{R <:
-  T}(\textsc{trans}) \\[1.5em]
-\dfrac{}{S <: \; \texttt{unspecified dims=}ds}(\top) 
-\\[1.5em]
-\dfrac{}{\texttt{read-once} \, S <: S}(\textsc{rep})
-\\[1.5em]
-\setlength{\arraycolsep}{0.1em}
-\dfrac{\hspace{3em} ds \subseteq es \; \wedge \; n \leq m \hspace{3em}}
-{\begin{array}{rl}
-\texttt{fwd} \; \texttt{depth=}n \; \texttt{dim=}ds & <: \texttt{fwd} \;
-  \texttt{depth=}m \; \texttt{dim=}es 
-%& \;\, ds \subseteq es \wedge n \leq m 
-\\
-\wedge \; \texttt{bwd} \; \texttt{depth=}n \; \texttt{dim=}ds & <: \texttt{bwd} \;
-  \texttt{depth=}m \; \texttt{dim=}es 
-%& \;\, ds \subseteq es \wedge n \leq m 
-\\
-\wedge \; \texttt{fwd} \; \texttt{depth=}n \; \texttt{dim=}ds & <: \texttt{sym} \;
-  \texttt{depth=}m \; \texttt{dim=}es 
-%& \;\, ds \subseteq es \wedge n \leq m 
-\\
-\wedge \; \texttt{bwd} \; \texttt{depth=}n \; \texttt{dim=}ds & <: \texttt{sym} \;
-  \texttt{depth=}m \; \texttt{dim=}es 
-\end{array}}
-%{\footnotesize{(\textsc{cover})}}
-%\hspace{-0.1em}
-\end{array}
-\end{align*}
-
-\caption{Equality and inequality on specifications}
-\end{figure*}
-
-\subsection{Time specifications}
+\paragraph{Time specifications}
+\dnote{The below is old so probably out of date}
 
 \begin{ExmVerbatim}
 for t = 1, itermax:
@@ -284,7 +238,141 @@ a : centered depth=1 dim=1
 a : backward depth=1 dim=0
 \end{SpecVerbatim}
 
-\subsection{Safety and sub-specifications}
+\subsection{A semantic model for specifications}
+\label{sec:semantics}
+
+We give a model of our specifications which explains
+the range of indices which correspond to the specifications.
+The model is based on multi-sets since array indices my be repeated
+in an expression.
+
+Figure~\ref{fig:model} describes the model in terms of 
+an interpretation function $\interp{-}$ which maps specifications
+to multisets of relative indices. 
+
+\begin{definition}Relative indices are drawn
+from $(\mathbb{Z}_{\bot})^{\mathbb{D}}$, essentially an infinite
+tuple of offsets. For example, $(i, j+1)$ corresponds to
+the relative index $(0, 1, \bot, \bot, \ldots)$
+\end{definition}
+
+The main interpretation function is overloaded on lists of 
+variable-spec pairs $\interp{\overline{v : S}}$, 
+returning multisets of variable-relative-index pairs. This provides
+the top-level definition of the model, with $\interp{-}$ overloaded
+on $S$, $\interp{S}$ mqpping to multisets of
+relative indices not associated to an array avariable.
+
+\begin{figure}
+\begin{align*}
+\hspace{-2em}
+\begin{array}{c}
+\hspace{-1em}
+\setlength{\arraycolsep}{0.1em}
+\begin{array}{rl}
+\interp{\textit{spec}; \textit{specs}} & = \interp{spec} \cup
+  \interp{\textit{specs}} \\
+%% TEMPORAL SPECS
+% \interp{\texttt{v} : \texttt{forward} \; \texttt{depth}=n\texttt{\{u\}} \;
+%  \texttt{dims=t}} & =  \{ (\texttt{u}, \textit{ix})^m \mid \forall m,
+%                     ix : \mathbb{Z}^{\mathbb{D}}, \textit{ix} \,
+%                     \texttt{t} = 0 \} \\[0.4em]
+%% SPATIAL SPECS
+\interp{\texttt{v} : S} & = \{(\texttt{v}, ix)^m \mid ix^m \in
+  \interp{S}\} \\
+\end{array}\\[1em]
+%\framebox{$\interp{S}$} \\[1em]
+\begin{array}{ll}
+& \interp{\texttt{reflexive}}
+  = \\
+& \hspace{0.9em}  \{ ix^m \mid \forall m, \, ix : \mathbb{Z}^{\mathbb{D}}, d : \mathbb{D}
+  \, . \, d \in \textit{ds} \Rightarrow ix \, d = 0 \} \\[0.4em]
+& \interp{\texttt{forward} \;\; \texttt{depth}=n \;\;
+  \texttt{dims}=\textit{ds}}  = \;\; (\texttt{t} \not\in ds) \\
+& \hspace{0.9em}  \{ ix^m \mid \forall m, \, ix : \mathbb{Z}^{\mathbb{D}}, d : \mathbb{D}
+  \, . \, d \in \textit{ds} \Rightarrow 0 \leq (ix \, d) \leq n \} \\[0.4em]
+& \interp{\texttt{backward} \;\; \texttt{depth}=n \;\; \texttt{dims}=\textit{ds}}
+  = \; \; (\texttt{t} \not\in ds) \\
+& \hspace{0.9em}  \{ ix^m \mid \forall m, \, ix : \mathbb{Z}^{\mathbb{D}}, d : \mathbb{D}
+  \, . \, d \in \textit{ds} \Rightarrow (-n) \leq (ix \, d) \leq 0 \}
+  \\[0.4em]
+& \interp{\texttt{read-once} \; S} = \{ ix^1 \mid ix^m \in \interp{S}
+  \} 
+\end{array}
+\end{array}
+\end{align*}
+\textit{$a^m \in A$ means there are $n$ copies of $a$ in
+  the multi-set $A$}
+\caption{Multi-set model of specifications}
+\label{fig:model}
+\end{figure}
+
+\subsection{Equational theory and approximations}
+\label{sec:eqs}
+
+Figure~\ref{fig:equations}
+
+\begin{figure}
+\begin{align*}
+\hspace{-1em}
+\setlength{\arraycolsep}{0.05em}
+\begin{array}{c}
+\framebox{$\overline{\texttt{v} : S} \equiv \overline{\texttt{u} : T}$} \\[1em]
+\begin{array}{rl}
+(\textsc{coalesceF}) \;\; & (\texttt{a} : \texttt{fwd} \;
+                       \texttt{dims}=ds \; \texttt{depth}=n; \\
+&  \;\, \texttt{a} :  \texttt{fwd} \; \texttt{dims}=ds \; \texttt{depth}=n+1)\\
+\equiv \; & \texttt{a} :  \texttt{fwd} \; \texttt{depth}=n+1,
+         \texttt{dims}=ds \\[0.75em]
+(\textsc{coalesceB}) \;\; & (\texttt{a} : \texttt{bwd} \;
+                       \texttt{dims}=ds \; \texttt{depth}=n; \\
+&  \;\, \texttt{a} :  \texttt{bwd} \; \texttt{dims}=ds \; \texttt{depth}=n+1) \\
+\equiv \; & \texttt{a} :  \texttt{bwd} \; \texttt{depth}=n+1,
+         \texttt{dims}=ds \\[0.75em]
+(\textsc{idem}) \;\; & (\texttt{a} : S; \texttt{a} : S) \equiv (\texttt{a}
+                  : S)
+\end{array} \\ \\
+\framebox{$\texttt{v} : S \equiv \texttt{v'} : S'$} \\[1em]
+\begin{array}{ll}
+(\texttt{a} : \; \texttt{bwd} \; \texttt{depth=1\{b\}} \;
+  \texttt{dim=t})
+\, & \equiv \,
+(\texttt{b} : \; \texttt{bwd} \; \texttt{depth=1\{a\}} \;
+  \texttt{dim=t})
+\\ 
+(\texttt{a} : \; \texttt{fwd} \; \texttt{depth=1\{b\}}\;
+  \texttt{dim=t})
+\, & \equiv \,
+(\texttt{b} : \; \texttt{fwd} \; \texttt{depth=1\{a\}} \;
+  \texttt{dim=t})
+\end{array}
+\\ \\
+\framebox{$S \equiv S'$} \\[0.75em]
+\begin{array}{ll}
+(a : \texttt{read-once} \; S) \; & \equiv \; (a : \texttt{read-once} \;\,
+  \texttt{read-once} \; \, S)
+\end{array}
+\end{array}
+\end{align*}
+\caption{Equations on specifications}
+\label{fig:equations}
+\end{figure}
+
+
+\begin{theorem}[Soundness]
+\[
+\overline{\texttt{v} : S}\equiv \overline{\texttt{u} : T}
+\; \Rightarrow \;
+\interp{\overline{\texttt{v} : S}} = \interp{\overline{\texttt{u} : T}}
+\]
+\end{theorem}
+
+\paragraph{Proof} (see Appendix)
+
+
+\subsubsection{Safety and sub-specifications}
+
+Figure~\ref{fig:inequations}
 
 \begin{figure}[t]
 {\framebox{
@@ -322,10 +410,23 @@ a : backward depth=1 dim=0
 \end{align*}
 \end{minipage}}}
 \caption{Definition of sub-specification relation}
+\label{fig:inequations}
 \end{figure}
 
 
-\subsection{Common patterns}
+\begin{theorem}[Soundness]
+\[
+\overline{\texttt{v} : S} <: \overline{\texttt{u} : T}
+\; \Rightarrow \;
+\interp{\overline{\texttt{v} : S}} \subseteq \interp{\overline{\texttt{u} : T}}
+\]
+\end{theorem}
+
+\paragraph{Proof} (see Appendix)
+
+
+
+\section{Examples and common patterns}
 
 \begin{example}[FTCS (Forward time, centered space)]
 
@@ -351,8 +452,6 @@ a: centered depth=1, dims=0
 \paragraph{BTCS (Backward time, centered space) -- implicit method}
 
 \paragraph{CTCS (Centered time, centered space) - Crank-Nicolson method}
-
-
 
 \section{Specification inference and checking}
 \label{sec:analysis}
@@ -407,10 +506,47 @@ Index analysis is a \emph{coeffect analysis}.
 The reserved dimension \dimId{t}
 
 \section{Evaluation}
+\label{sec:evaluation}
 
 \section{Discussion}
+\label{sec:discussion}
 
 
 \bibliography{references}
+
+
+\onecolumn
+\appendix
+
+\section{Correctness}
+
+
+\begin{theorem}[Soundness]
+\[
+\overline{\texttt{v} : S}\equiv \overline{\texttt{u} : T}
+\; \Rightarrow \;
+\interp{\overline{\texttt{v} : S}} = \interp{\overline{\texttt{u} : T}}
+\]
+\end{theorem}
+
+\paragraph{Proof}
+\begin{itemize}
+\item \textsc{coalesceF}
+\begin{align*}
+\llbracket & \texttt{v} : \texttt{fwd} \; \texttt{dims}=ds \; \texttt{depth}=n; \,
+  \texttt{v} :  \texttt{fwd} \; \texttt{dims}=ds \;
+  \texttt{depth}=n+1)\rrbracket \\
+& =  \{ (\texttt{v}, ix)^m \mid \forall \, m, ix : \mathbb{Z}^{\mathbb{N}}, d : \mathbb{N}
+  \, . \, d \in \textit{ds} \Rightarrow ix \, d \leq (n+1) \} \; \cup \; \{ ix^m \mid \forall \, m, ix : \mathbb{Z}^{\mathbb{N}}, d : \mathbb{N}
+  \, . \, d \in \textit{ds} \Rightarrow ix \, d \leq n \}\\
+& =  \{ (\texttt{v}, ix)^m \mid \forall \, m, ix : \mathbb{Z}^{\mathbb{N}}, d : \mathbb{N}
+  \, . \, d \in \textit{ds} \Rightarrow ((ix \, d \leq (n+1)) \vee (ix \,
+  d \leq n)) \} \\
+& =  \{ (\texttt{v}, ix)^m \mid \forall \, m, ix : \mathbb{Z}^{\mathbb{N}}, d : \mathbb{N}
+  \, . \, d \in \textit{ds} \Rightarrow ix \, d \leq (n+1) \} \\
+& = \interp{\texttt{v} : \texttt{fwd} \; \texttt{dims}=ds \;
+  \texttt{depth}=n + 1} \qquad \Box
+\end{align*}
+\end{itemize}
 
 \end{document}

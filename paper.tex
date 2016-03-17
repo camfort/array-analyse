@@ -202,10 +202,11 @@ gives the syntax, which we introduces in stages below.
 \textit{specs} ::= & \; \textit{spec} \; \texttt{;} \; \textit{specs} \, \mid \, \textit{spec} \\
 %
 \textit{spec} :: = & \; \texttt{v} : S \\[0.5em]
-S ::= &  \; \texttt{forward} \; [\texttt{depth=}\textit{depth}] \; \texttt{dims=}\textit{dims} \\
-& \; \mid \texttt{backward} \; [\texttt{depth=}\textit{depth}] \; \texttt{dims=}\textit{dims} \\
-& \; \mid \texttt{centered} \; [\texttt{depth=}\textit{depth}] \; \texttt{dims=}\textit{dims} \\
-& \; \mid \texttt{unspecified} \; [\texttt{dims=}\textit{dims}] \\
+S ::= &  \; \texttt{forward}, \; [\texttt{depth=}\textit{depth}], \; \texttt{dims=}\textit{dims} \\
+& \; \mid \texttt{backward}, \; [\texttt{depth=}\textit{depth}], \; \texttt{dims=}\textit{dims} \\
+& \; \mid \texttt{centered}, \; [\texttt{depth=}\textit{depth}], \; \texttt{dims=}\textit{dims} \\
+& \; \mid \texttt{unspecified}, \; [\texttt{dims=}\textit{dims}] \\
+& \; \mid \textit{spec} \; \texttt{\&} \; \textit{spec} \\
 & \; \mid \texttt{read-once} \; S \\[0.5em]
 \textit{depth} ::= & \; \mathbb{N} \, \mid \, \textit{temp-spec} \\ 
 \textit{temp-spec} ::= & \; \mathbb{N}\{var\} \\
@@ -213,7 +214,7 @@ S ::= &  \; \texttt{forward} \; [\texttt{depth=}\textit{depth}] \; \texttt{dims=
                     \, \mathbb{D} \\
 \mathbb{D}  ::= & \; \mathbb{N}_{>0} \, \mid \, \texttt{t}
 \end{align*}
-\caption{Syntax of specifications}
+\caption{Specification syntax}
 \label{fig:syntax}
 \end{figure}
 

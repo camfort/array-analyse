@@ -4,11 +4,15 @@ Misc. / overall
 
 Implementation
  - Testing of inference
- - Parse signatures [including approximation]
+ M Infrastructure for specification comments
+ M Parse signatures [including approximation]
  - Checking
- - Emacs / vim integration [interactive insertion]
  - Testing on flows analysis and temporal specs
- ? Code generation
+ - Linearity checks [read once]
+ - Code generation
+ ? Emacs / vim integration [interactive insertion]
+ 
+ Impementation [2] 
  ? Investigate checking for C using ACSL
  ? might be possible to do inference using EVA
 

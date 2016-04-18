@@ -1,0 +1,27 @@
+Implementation
+ - Testing on inference
+ - Parse signatures
+ - Checking
+ ? Code generation
+ ? Investigate checking for C using ACSL
+ ? might be possible to do inference using EVA
+
+Evaluation
+ - Work out what we want to report on [specs per loop?]
+ - Run inference on corpus
+
+Theory
+ - Adapt multi-set model to include union-vs-product specs
+ - Look at equational theory for this new distinction
+ - Incorporate temporal specs into model [not yet done]
+ - Complete soundness proofs
+
+Misc.
+ - Figure out where to associate temporal specs in the code
+
+Paper
+ - Fix syntax for union-vs-product
+ - Write examples section
+ - Describe inference/checking procedure
+ - Write up evaluation
+ - Related work [see PLDI paper from this year]

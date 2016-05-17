@@ -1,4 +1,4 @@
-\documentclass[10pt]{sigplanconf}
+\documentclass[9pt]{sigplanconf}
 
 \usepackage{amssymb}
 \usepackage{amsmath}
@@ -197,7 +197,35 @@ Figure~\ref{fig:syntax}
 gives the syntax, which we introduces in stages below. 
 %%
 
+
+
 \begin{figure}
+\dnote{NEW grammar}
+\begin{align*}
+S_\odot ::= \; & \texttt{forward} \; [,\texttt{depth=}\mathbb{N}] \; 
+        , \texttt{dims}=\textit{dims}_\odot  \\
+\mid \; & \texttt{backward} \; [,\texttt{depth=}\mathbb{N}] \; , \texttt{dims=}\textit{dims}_\odot \\
+\mid \; & \texttt{centered} \; [,\texttt{depth=}\mathbb{N}] \; , \texttt{dims=}\textit{dims}_\odot \\ \\
+\textit{prodS} ::= \; & S_{\texttt{*}}  \; \texttt{*} \; Sprod \mid \epsilon \\
+\textit{sumS} ::= \; & \textit{prodS} \; \texttt{+} \; \textit{sumS} \mid S_{\texttt{+}} \; \texttt{+}
+          \; \textit{sumS} \mid \epsilon \\ 
+\textit{modS} ::= \; & 
+  [\texttt{read-once}] \\
+  & [, \texttt{reflexive} \; \texttt{dims=}\textit{dims}{\texttt{,}}] \\
+  & [, \texttt{irreflexive} \;
+    \texttt{dims=}\textit{dims}{\texttt{,}}] \; \textit{sumS} \\ 
+\textit{temporal} ::= \; & \ldots \\ 
+\textit{spec} ::= \; & \texttt{v :} \; [\textit{modS}] \; [\textit{temporal}]   \\ \\
+\textit{dims}_\odot ::= & \; \mathbb{D} \; \odot \; \textit{dims}_{\odot} \mid \mathbb{D}
+%
+%dims = dims+ | dims*
+%dims+ = D + dims+ | dims+
+%dims* = D * dims* | dims*%
+%
+%Smod = Linear Spa | NonLinear Spa
+\end{align*}
+
+\dnote{OLD grammar}
 \begin{align*}
 \textit{specs} ::= & \; \textit{spec} \; \texttt{;} \; \textit{specs} \, \mid \, \textit{spec} \\
 %
@@ -206,6 +234,8 @@ S ::= &  \; \texttt{forward}, \; [\texttt{depth=}\textit{depth}], \; \texttt{dim
 & \; \mid \texttt{backward}, \; [\texttt{depth=}\textit{depth}], \; \texttt{dims=}\textit{dims} \\
 & \; \mid \texttt{centered}, \; [\texttt{depth=}\textit{depth}], \; \texttt{dims=}\textit{dims} \\
 & \; \mid \texttt{unspecified}, \; [\texttt{dims=}\textit{dims}] \\
+& \; \mid \texttt{reflexive}\, \; 
+& \; \mid \texttt{irreflexive}, \; \textit{spec}
 & \; \mid \textit{spec} \; \texttt{\&} \; \textit{spec} \\
 & \; \mid \texttt{read-once} \; S \\[0.5em]
 \textit{depth} ::= & \; \mathbb{N} \, \mid \, \textit{temp-spec} \\ 

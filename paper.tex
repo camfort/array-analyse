@@ -38,7 +38,7 @@ xrightmargin=0.2cm,commandchars=\\\{\},baselinestretch=0.97}
 
 \theoremstyle{definition}
 
-\newtheorem{theorem}[block]{Theorem} 
+\newtheorem{theorem}[block]{Theorem}
 \newtheorem{remark}[block]{Remark}
 \newtheorem{example}[block]{Example}
 \newtheorem{definition}[block]{Definition}
@@ -51,6 +51,14 @@ xrightmargin=0.2cm,commandchars=\\\{\},baselinestretch=0.97}
 
 % Semantics related
 \newcommand{\interp}[1]{\llbracket{#1}\rrbracket}
+
+% Syntax macros
+\newcommand{\stenFwd}[2]{\texttt{forward} (\texttt{depth}=#1,
+  \texttt{dim}=#2)}
+\newcommand{\stenBwd}[2]{\texttt{backward} (\texttt{depth}=#1,
+  \texttt{dim}=#2)}
+\newcommand{\stenCen}[2]{\texttt{backward} (\texttt{depth}=#1,
+  \texttt{dim}=#2)}
 
 \title{Time and space specifications for stencils}
 \authorinfo{}{}
@@ -69,7 +77,7 @@ xrightmargin=0.2cm,commandchars=\\\{\},baselinestretch=0.97}
 applications. Informally, a stencil computation computes
 an array, where the value at each index $i$ of this array is
 calculated from a set of neighbouring values to $i$ in some input
-array(s), \eg{}, the Game of Life, convolutions in image processing, 
+array(s), \eg{}, the Game of Life, convolutions in image processing,
 approximations to differential equations. For example, the following
 psuedo-code iteratively applies the discrete Laplace
 operator (an approximation to a derivative):
@@ -83,13 +91,13 @@ do iter = 0, itermax
 %
 Line 3 is the core of the stencil computation, calculating
 the value at \texttt{b[i]} from a neighbourhood of elements about
-\texttt{a[i]}. Line 4 swaps 
+\texttt{a[i]}. Line 4 swaps
 \texttt{a} and \texttt{b} between iterations, where \texttt{b} becomes the
 input for the next iteration.
 
 %This stencil computation exhibits statically decideable
 %spatial and temporal relationships between $\texttt{a}$ and
-%$\texttt{b}$. 
+%$\texttt{b}$.
 In this simple example, the spatial and temporal relationship
 between \texttt{a} and \texttt{b} is easy to understand. However,
 more complex stencil computations can be much harder to understand
@@ -140,29 +148,37 @@ of this approach.
 
 \begin{figure}
 \begin{ExmVerbatim}[firstnumber=20]
-du2dx = ((u(i,j)+u(i+1,j))*(u(i,j)+u(i+1,j))+ 
-    gamma*abs(u(i,j)+u(i+1,j))*(u(i,j)-u(i+1,j))- 
-    (u(i-1,j)+u(i,j))*(u(i-1,j)+u(i,j))- 
-    gamma*abs(u(i-1,j)+u(i,j))*(u(i-1,j)-u(i,j))) 
+du2dx = ((u(i,j)+u(i+1,j))*(u(i,j)+u(i+1,j))+
+    gamma*abs(u(i,j)+u(i+1,j))*(u(i,j)-u(i+1,j))-
+    (u(i-1,j)+u(i,j))*(u(i-1,j)+u(i,j))-
+    gamma*abs(u(i-1,j)+u(i,j))*(u(i-1,j)-u(i,j)))
     /(4.0*delx)
 
-duvdy = ((v(i,j)+v(i+1,j))*(u(i,j)+u(i,j+1))+ 
-   gamma*abs(v(i,j)+v(i+1,j))*(u(i,j)-u(i,j+1))- 
-   (v(i,j-1)+v(i+1,j-1))*(u(i,j-1)+u(i,j))-  
-   gamma*abs(v(i,j-1)+v(i+1,j-1))*(u(i,j-1)-u(i,j))) 
+duvdy = ((v(i,j)+v(i+1,j))*(u(i,j)+u(i,j+1))+
+   gamma*abs(v(i,j)+v(i+1,j))*(u(i,j)-u(i,j+1))-
+   (v(i,j-1)+v(i+1,j-1))*(u(i,j-1)+u(i,j))-
+   gamma*abs(v(i,j-1)+v(i+1,j-1))*(u(i,j-1)-u(i,j)))
    /(4.0*dely)
 
-laplu = (u(i+1,j)-2.0*u(i,j)+u(i-1,j))/delx/delx+ 
+laplu = (u(i+1,j)-2.0*u(i,j)+u(i-1,j))/delx/delx+
           (u(i,j+1)-2.0*u(i,j)+u(i,j-1))/dely/dely
-\end{ExmVerbatim} 
-(a). Excerpt from the Fortran code, 
+\end{ExmVerbatim}
+(a). Excerpt from the Fortran code,
 showing highly-detailed stencil computations. \\
 
-\begin{SpecVerbatim}[xleftmargin=0.1cm]
-20-24  u: centered depth=1 dim=1
-26-30  u: centered depth=1 dim=2
-       v: forward depth=1 dim=1, backward depth=1 dim=1
-32-33  u: centered depth=1 dim=1,2
+%\begin{SpecVerbatim}[xleftmargin=0.1cm]
+%20-24  u: centered depth=1 dim=1
+%6-30  u: centered depth=1 dim=2
+%      v: forward depth=1 dim=1, backward depth=1 dim=1
+%32-33  u: centered depth=1 dim=1,2
+%\end{SpecVerbatim}
+
+\begin{SpecVerbatim}[xleftmargin=0.3cm]
+%= stencil (centered, depth=1, dim=1)
+%=       + (centered, depth=1, dim=2) :: u
+
+%= stencil (forward, depth=1, dim=1)
+%=       + (backward, depth=1, dim=1) :: v
 \end{SpecVerbatim}
 (b). Inferred stencil specification from CamFort
 \caption{Fragment of Navier-Stokes fluid simulator and its specification}
@@ -173,15 +189,15 @@ showing highly-detailed stencil computations. \\
 \label{sec:lang}
 
 Our specification system is based on the observation
-that most forms of array access in numberical code have 
-a fixed, statically-determined access pattern. For example, the 
+that most forms of array access in numberical code have
+a fixed, statically-determined access pattern. For example, the
 ``\emph{five-point stencil}'' on a two-dimensional array reads from array
 indices $(i, j)$, $(i-1, j)$, $(i+1, j)$, $(i, j-1)$, and $(i, j+1)$
-for all $i, j$ within the inner boundary of the array (to avoid 
-out-of-bounds access at the edges). We revisit this hypothesis 
+for all $i, j$ within the inner boundary of the array (to avoid
+out-of-bounds access at the edges). We revisit this hypothesis
 in Section~\ref{sec:evaluation} where the inference of
 such regular stencil patterns on a corpus of numerical programs (both
-small and large). We found that indeed \dnote{..}. 
+small and large). We found that indeed \dnote{..}.
 
 We outline the specification language here. Section~\ref{sec:syntax}
 oultines the syntax. Section~\ref{sec:semantics} defines its semantics
@@ -194,61 +210,46 @@ proven sound with respecto the multi-set semantics of Section~\ref{sec:semantics
 \label{sec:syntax}
 
 Figure~\ref{fig:syntax}
-gives the syntax, which we introduces in stages below. 
+gives the syntax, which we introduces in stages below.
+The top-level is given by the \textit{spec} production
+which splits into either a \textit{spatial} specification or
+a \textit{temporal specification}.
 %%
 
-
-
-\begin{figure}
-\dnote{NEW grammar}
+\begin{figure}[t]
 \begin{align*}
-S_\odot ::= \; & \texttt{forward} \; [,\texttt{depth=}\mathbb{N}] \; 
-        , \texttt{dims}=\textit{dims}_\odot  \\
+\def\arraystretch{1.2}
+\begin{array}{rl}
+\textit{spec} ::= \; & \textit{spatial} \mid \textit{temporal}   \\ \\
+\textit{spatial} ::= \; & [\textit{mod} \; \{, \textit{mod} \}] \; \textit{sumS} \\
+\textit{mod} ::= \; &
+ \texttt{read-once} \\
+& \mid \texttt{reflexive} \; \texttt{dim=}\textit{dim}{\texttt{,}} \\
+& \mid \texttt{irreflexive} \; \texttt{dim=}\textit{dim}{\texttt{,}} \\
+\textit{sumS} ::= \; & \textit{prodS} \;\, \texttt{+} \;\, \textit{sumS} \mid S_{\texttt{+}} \; \texttt{+}
+          \; \textit{sumS} \mid \epsilon \\
+\textit{prodS} ::= \; & S_{\texttt{*}}  \;\, \texttt{*} \;\, prodS
+                        \mid \epsilon \\ \\
+\textit{temporal} ::= \; & \texttt{dependency} \; (v \; \{ , v \})  \\ \\
+\multicolumn{2}{l}{(\textit{meta rules, where \textnormal{$\odot = \{\texttt{*}, \texttt{+}, \texttt{,}\}$}})} \\
+S_\odot ::= \; & \texttt{forward} \; [,\texttt{depth=}\mathbb{N}] \;
+        , \texttt{dims=}\textit{dims}_\odot  \\
 \mid \; & \texttt{backward} \; [,\texttt{depth=}\mathbb{N}] \; , \texttt{dims=}\textit{dims}_\odot \\
-\mid \; & \texttt{centered} \; [,\texttt{depth=}\mathbb{N}] \; , \texttt{dims=}\textit{dims}_\odot \\ \\
-\textit{prodS} ::= \; & S_{\texttt{*}}  \; \texttt{*} \; Sprod \mid \epsilon \\
-\textit{sumS} ::= \; & \textit{prodS} \; \texttt{+} \; \textit{sumS} \mid S_{\texttt{+}} \; \texttt{+}
-          \; \textit{sumS} \mid \epsilon \\ 
-\textit{modS} ::= \; & 
-  [\texttt{read-once}] \\
-  & [, \texttt{reflexive} \; \texttt{dims=}\textit{dims}{\texttt{,}}] \\
-  & [, \texttt{irreflexive} \;
-    \texttt{dims=}\textit{dims}{\texttt{,}}] \; \textit{sumS} \\ 
-\textit{temporal} ::= \; & \ldots \\ 
-\textit{spec} ::= \; & \texttt{v :} \; [\textit{modS}] \; [\textit{temporal}]   \\ \\
-\textit{dims}_\odot ::= & \; \mathbb{D} \; \odot \; \textit{dims}_{\odot} \mid \mathbb{D}
-%
-%dims = dims+ | dims*
-%dims+ = D + dims+ | dims+
-%dims* = D * dims* | dims*%
-%
-%Smod = Linear Spa | NonLinear Spa
-\end{align*}
-
-\dnote{OLD grammar}
-\begin{align*}
-\textit{specs} ::= & \; \textit{spec} \; \texttt{;} \; \textit{specs} \, \mid \, \textit{spec} \\
-%
-\textit{spec} :: = & \; \texttt{v} : S \\[0.5em]
-S ::= &  \; \texttt{forward}, \; [\texttt{depth=}\textit{depth}], \; \texttt{dims=}\textit{dims} \\
-& \; \mid \texttt{backward}, \; [\texttt{depth=}\textit{depth}], \; \texttt{dims=}\textit{dims} \\
-& \; \mid \texttt{centered}, \; [\texttt{depth=}\textit{depth}], \; \texttt{dims=}\textit{dims} \\
-& \; \mid \texttt{unspecified}, \; [\texttt{dims=}\textit{dims}] \\
-& \; \mid \texttt{reflexive}\, \; 
-& \; \mid \texttt{irreflexive}, \; \textit{spec}
-& \; \mid \textit{spec} \; \texttt{\&} \; \textit{spec} \\
-& \; \mid \texttt{read-once} \; S \\[0.5em]
-\textit{depth} ::= & \; \mathbb{N} \, \mid \, \textit{temp-spec} \\ 
-\textit{temp-spec} ::= & \; \mathbb{N}\{var\} \\
-\textit{dims} ::= & \; \mathbb{D} \; \texttt{,} \; \textit{dims} \, \mid
-                    \, \mathbb{D} \\
-\mathbb{D}  ::= & \; \mathbb{N}_{>0} \, \mid \, \texttt{t}
+\mid \; & \texttt{centered} \; [,\texttt{depth=}\mathbb{N}] \; ,
+          \texttt{dims=}\textit{dims}_\odot \\
+\textit{dims}_\odot ::= & \; \mathbb{N}_{>0} \; \odot \;
+                          \textit{dims}_{\odot} \; \mid \;
+                          \mathbb{N}_{> 0}
+\end{array}
 \end{align*}
 \caption{Specification syntax}
 \label{fig:syntax}
 \end{figure}
 
 \paragraph{Spatial specifications}
+
+
+
 
 \paragraph{Time specifications}
 \dnote{The below is old so probably out of date}
@@ -279,9 +280,9 @@ the range of indices which correspond to the specifications.
 The model is based on multi-sets since array indices my be repeated
 in an expression.
 
-Figure~\ref{fig:model} describes the model in terms of 
+Figure~\ref{fig:model} describes the model in terms of
 an interpretation function $\interp{-}$ which maps specifications
-to multisets of relative indices. 
+to multisets of relative indices.
 
 \begin{definition}Relative indices are drawn
 from $(\mathbb{Z}_{\bot})^{\mathbb{D}}$, essentially an infinite
@@ -289,53 +290,17 @@ tuple of offsets. For example, $(i, j+1)$ corresponds to
 the relative index $(0, 1, \bot, \bot, \ldots)$
 \end{definition}
 
-The main interpretation function is overloaded on lists of 
-variable-spec pairs $\interp{\overline{v : S}}$, 
+The main interpretation function is overloaded on lists of
+variable-spec pairs $\interp{\overline{v : S}}$,
 returning multisets of variable-relative-index pairs. This provides
 the top-level definition of the model, with $\interp{-}$ overloaded
 on $S$, $\interp{S}$ mqpping to multisets of
 relative indices not associated to an array avariable.
 
 \begin{figure}
-\begin{align*}
-\hspace{-2em}
-\begin{array}{c}
-\hspace{-1em}
-\setlength{\arraycolsep}{0.1em}
-\begin{array}{rl}
-\interp{\textit{spec}; \textit{specs}} & = \interp{spec} \cup
-  \interp{\textit{specs}} \\
-%% TEMPORAL SPECS
-% \interp{\texttt{v} : \texttt{forward} \; \texttt{depth}=n\texttt{\{u\}} \;
-%  \texttt{dims=t}} & =  \{ (\texttt{u}, \textit{ix})^m \mid \forall m,
-%                     ix : \mathbb{Z}^{\mathbb{D}}, \textit{ix} \,
-%                     \texttt{t} = 0 \} \\[0.4em]
-%% SPATIAL SPECS
-\interp{\texttt{v} : S} & = \{(\texttt{v}, ix)^m \mid ix^m \in
-  \interp{S}\} \\
-\end{array}\\[1em]
-%\framebox{$\interp{S}$} \\[1em]
-\begin{array}{ll}
-& \interp{\texttt{reflexive}}
-  = \\
-& \hspace{0.9em}  \{ ix^m \mid \forall m, \, ix : \relix, d : \mathbb{D}
-  \, . \, d \in \textit{ds} \Rightarrow ix \, d = 0 \} \\[0.4em]
-& \interp{\texttt{forward} \;\; \texttt{depth}=n \;\;
-  \texttt{dims}=\textit{ds}}  = \;\; (\texttt{t} \not\in ds) \\
-& \hspace{0.9em}  \{ ix^m \mid \forall m, \, ix : \relix, d : \mathbb{D}
-  \, . \, d \in \textit{ds} \Rightarrow 0 \leq (ix \, d) \leq n \} \\[0.4em]
-& \interp{\texttt{backward} \;\; \texttt{depth}=n \;\; \texttt{dims}=\textit{ds}}
-  = \; \; (\texttt{t} \not\in ds) \\
-& \hspace{0.9em}  \{ ix^m \mid \forall m, \, ix : \relix, d : \mathbb{D}
-  \, . \, d \in \textit{ds} \Rightarrow (-n) \leq (ix \, d) \leq 0 \}
-  \\[0.4em]
-& \interp{\texttt{read-once} \; S} = \{ ix^1 \mid ix^m \in \interp{S}
-  \} 
-\end{array}
-\end{array}
-\end{align*}
-\textit{$a^m \in A$ means there are $n$ copies of $a$ in
-  the multi-set $A$}
+\input{model.tex}
+%\textit{$a^m \in A$ means there are $n$ copies of $a$ in
+%  the multi-set $A$}
 \caption{Multi-set model of specifications}
 \label{fig:model}
 \end{figure}
@@ -372,7 +337,7 @@ Figure~\ref{fig:equations}
 \, & \equiv \,
 (\texttt{b} : \; \texttt{bwd} \; \texttt{depth=1\{a\}} \;
   \texttt{dim=t})
-\\ 
+\\
 (\texttt{a} : \; \texttt{fwd} \; \texttt{depth=1\{b\}}\;
   \texttt{dim=t})
 \, & \equiv \,
@@ -415,7 +380,7 @@ Figure~\ref{fig:inequations}
 \begin{array}{c}
 \dfrac{}{S <: S}(\textsc{refl}) \qquad \dfrac{R <: S \quad S <: T}{R <:
   T}(\textsc{trans}) \\[1.5em]
-\dfrac{}{S <: \; \texttt{unspecified dims=}ds}(\top) 
+\dfrac{}{S <: \; \texttt{unspecified dims=}ds}(\top)
 \\[1.5em]
 \dfrac{}{\texttt{read-once} \, S <: S}(\textsc{rep})
 \\[1.5em]
@@ -423,19 +388,19 @@ Figure~\ref{fig:inequations}
 \dfrac{\hspace{3em} ds \subseteq es \; \wedge \; n \leq m \hspace{3em}}
 {\begin{array}{rl}
 \texttt{fwd} \; \texttt{depth=}n \; \texttt{dim=}ds & <: \texttt{fwd} \;
-  \texttt{depth=}m \; \texttt{dim=}es 
-%& \;\, ds \subseteq es \wedge n \leq m 
+  \texttt{depth=}m \; \texttt{dim=}es
+%& \;\, ds \subseteq es \wedge n \leq m
 \\
 \wedge \; \texttt{bwd} \; \texttt{depth=}n \; \texttt{dim=}ds & <: \texttt{bwd} \;
-  \texttt{depth=}m \; \texttt{dim=}es 
-%& \;\, ds \subseteq es \wedge n \leq m 
+  \texttt{depth=}m \; \texttt{dim=}es
+%& \;\, ds \subseteq es \wedge n \leq m
 \\
 \wedge \; \texttt{fwd} \; \texttt{depth=}n \; \texttt{dim=}ds & <: \texttt{sym} \;
-  \texttt{depth=}m \; \texttt{dim=}es 
-%& \;\, ds \subseteq es \wedge n \leq m 
+  \texttt{depth=}m \; \texttt{dim=}es
+%& \;\, ds \subseteq es \wedge n \leq m
 \\
 \wedge \; \texttt{bwd} \; \texttt{depth=}n \; \texttt{dim=}ds & <: \texttt{sym} \;
-  \texttt{depth=}m \; \texttt{dim=}es 
+  \texttt{depth=}m \; \texttt{dim=}es
 \end{array}}
 %{\footnotesize{(\textsc{cover})}}
 %\hspace{-0.1em}
@@ -466,13 +431,13 @@ Figure~\ref{fig:inequations}
   Otherwise known as the \emph{explicit method}, is a common
   pattern since it tends to be more efficient than other approches
   (see BTCS and CTCS below). However, its disadvantage is that it is
-  unstable if the resolution is not well chosen. 
+  unstable if the resolution is not well chosen.
 
 \begin{ExmVerbatim}
 b(x) = a(x) + r*(a(x-1) - 2*a(x) + a(x+1))
 \end{ExmVerbatim}
 %
-For this statement, the inference provides the specification: 
+For this statement, the inference provides the specification:
 %
 \begin{SpecVerbatim}
 a: centered depth=1, dims=0
@@ -490,10 +455,10 @@ a: centered depth=1, dims=0
 \label{sec:analysis}
 
 \mnote{Few cases that we might like to consider (there are examples
-    of each in \#camfort-main Slack channel): 
+    of each in \#camfort-main Slack channel):
   \begin{itemize}
     \item Matrix operator overloading $a + b$, where both are arrays
-    \item Scalar operator overloading $a + b$, where a is an array b is a 
+    \item Scalar operator overloading $a + b$, where a is an array b is a
       scalar. $b$ is added to all.
     \item Sliding. $a = b$ where the dimensionsare $a(1:10)$, $b(2:11)$,
       so the assignment causes shifting.
@@ -503,15 +468,15 @@ a: centered depth=1, dims=0
 In the following, we defined
 \emph{base induction variables} to be the variables
  defined by a ``for'' loop (\eg{}, that get incremented each time the
-loop is re-entered). 
+loop is re-entered).
 
 \begin{definition}[Constant translations]
 An indexing expression $e$ is a \emph{constant translation} if,
-for a base induction variable $i$, then $e \equiv i + a$ or $e \equiv i - a$ 
+for a base induction variable $i$, then $e \equiv i + a$ or $e \equiv i - a$
 where $a$ is a constant. The relation $\equiv$ identifies terms
 up-to commutativity of $+$ and the inverse
-relation of $+$ and $-$ (\eg{}, $(-b) + i \equiv i - b$). 
-In the following, we classify constant translation expressions 
+relation of $+$ and $-$ (\eg{}, $(-b) + i \equiv i - b$).
+In the following, we classify constant translation expressions
 using the predicate $\textsf{trans}$.
 \end{definition}
 

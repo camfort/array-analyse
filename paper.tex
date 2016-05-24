@@ -34,7 +34,7 @@ xrightmargin=0.2cm,commandchars=\\\{\},baselinestretch=0.97}
 
 \newtheorem{lemma}[block]{Lemma}
 \newtheorem{proposition}[block]{Proposition}
-%\newtheorem{definition}[block]{Definition}
+%\newtheorem{definition}[block]{Definisssstion}
 
 \theoremstyle{definition}
 
@@ -53,12 +53,12 @@ xrightmargin=0.2cm,commandchars=\\\{\},baselinestretch=0.97}
 \newcommand{\interp}[1]{\llbracket{#1}\rrbracket}
 
 % Syntax macros
-\newcommand{\stenFwd}[2]{\texttt{forward} (\texttt{depth}=#1,
-  \texttt{dim}=#2)}
-\newcommand{\stenBwd}[2]{\texttt{backward} (\texttt{depth}=#1,
-  \texttt{dim}=#2)}
-\newcommand{\stenCen}[2]{\texttt{backward} (\texttt{depth}=#1,
-  \texttt{dim}=#2)}
+\newcommand{\stenFwd}[2]{\texttt{forward}, \texttt{depth}=#1,
+  \texttt{dim}=#2}
+\newcommand{\stenBwd}[2]{\texttt{backward}, \texttt{depth}=#1,
+  \texttt{dim}=#2}
+\newcommand{\stenCen}[2]{\texttt{backward}, \texttt{depth}=#1,
+  \texttt{dim}=#2}
 
 \title{Time and space specifications for stencils}
 \authorinfo{}{}
@@ -116,8 +116,8 @@ can be described simply and abstractly. In the case of our
 first Laplace example, our analysis tool infers the following specification:
 %
 \begin{SpecVerbatim}
-a : centered depth=1 dims=1
-b : backward depth=1\{a\} dims=t
+%=  stencil centered, depth=1 dims=1 :: a
+%=  stencil dependency a, mutual    :: b
 \end{SpecVerbatim}
 %
 The first line explains that \texttt{a} is read from
@@ -174,11 +174,11 @@ showing highly-detailed stencil computations. \\
 %\end{SpecVerbatim}
 
 \begin{SpecVerbatim}[xleftmargin=0.3cm]
-%= stencil (centered, depth=1, dim=1)
-%=       + (centered, depth=1, dim=2) :: u
+%=   stencil (centered, depth=1, dim=1)
+%=         + (centered, depth=1, dim=2) :: u
 
-%= stencil (forward, depth=1, dim=1)
-%=       + (backward, depth=1, dim=1) :: v
+%=   stencil (forward, depth=1, dim=1)
+%=         + (backward, depth=1, dim=1) :: v
 \end{SpecVerbatim}
 (b). Inferred stencil specification from CamFort
 \caption{Fragment of Navier-Stokes fluid simulator and its specification}
@@ -219,56 +219,45 @@ a \textit{temporal specification}.
 \begin{figure}[t]
 \begin{align*}
 \def\arraystretch{1.2}
+\setlength{\arraycolsep}{0.2em}
+\newcommand{\dimTy}{\mathbb{D}}
 \begin{array}{rl}
-\textit{spec} ::= \; & \textit{spatial} \mid \textit{temporal}   \\ \\
-\textit{spatial} ::= \; & [\textit{mod} \; \{, \textit{mod} \}] \; \textit{sumS} \\
-\textit{mod} ::= \; &
+\textit{specification} ::= & [\textit{regionDec} \; \{\texttt{$\backslash$n} \;\;
+                             \textit{regionDec} \}] \;
+                             \textit{specDec} \\
+\textit{specDec} ::= & \texttt{stencil} \; \textit{spec} \mid \epsilon
+  \\
+\textit{regionDec} ::= &  \texttt{region} \; \textit{rvar} \; \texttt{=} \;
+                         \textit{region}\\
+\textit{spec} ::= & \textit{spatial} \mid \textit{temporal}   \\[1em]
+\textit{spatial} ::= & [\textit{mod} \; \{, \textit{mod} \}] \; \textit{region} \\
+\textit{mod} ::= &
  \texttt{read-once} \\
-& \mid \texttt{reflexive} \; \texttt{dim=}\textit{dim}{\texttt{,}} \\
-& \mid \texttt{irreflexive} \; \texttt{dim=}\textit{dim}{\texttt{,}} \\
-\textit{sumS} ::= \; & \textit{prodS} \;\, \texttt{+} \;\, \textit{sumS} \mid S_{\texttt{+}} \; \texttt{+}
-          \; \textit{sumS} \mid \epsilon \\
-\textit{prodS} ::= \; & S_{\texttt{*}}  \;\, \texttt{*} \;\, prodS
-                        \mid \epsilon \\ \\
-\textit{temporal} ::= \; & \texttt{dependency} \; (v \; \{ , v \})  \\ \\
-\multicolumn{2}{l}{(\textit{meta rules, where \textnormal{$\odot = \{\texttt{*}, \texttt{+}, \texttt{,}\}$}})} \\
-S_\odot ::= \; & \texttt{forward} \; [,\texttt{depth=}\mathbb{N}] \;
-        , \texttt{dims=}\textit{dims}_\odot  \\
-\mid \; & \texttt{backward} \; [,\texttt{depth=}\mathbb{N}] \; , \texttt{dims=}\textit{dims}_\odot \\
-\mid \; & \texttt{centered} \; [,\texttt{depth=}\mathbb{N}] \; ,
-          \texttt{dims=}\textit{dims}_\odot \\
-\textit{dims}_\odot ::= & \; \mathbb{N}_{>0} \; \odot \;
-                          \textit{dims}_{\odot} \; \mid \;
-                          \mathbb{N}_{> 0}
+\mid \; & \texttt{reflexive} \; \texttt{dims=}\dimTy \{\texttt{,} \; \dimTy\} \\
+\mid \; & \texttt{irreflexive} \; \texttt{dims=}\dimTy \{\texttt{,} \;
+          \dimTy\} \\[0.1em]
+\textit{region} ::=
+     \; & \texttt{forward} \; [,\texttt{depth=}\mathbb{N}] \; , \texttt{dim=}\dimTy  \\
+\mid \; & \texttt{backward} \; [,\texttt{depth=}\mathbb{N}] \; , \texttt{dim=}\dimTy \\
+\mid \; & \texttt{centered} \; [,\texttt{depth=}\mathbb{N}] \; , \texttt{dim=}\dimTy \\
+\mid \; & \textit{region} \; \texttt{+} \; \textit{region} \\
+\mid \; & \textit{region} \; \texttt{*} \; \textit{region} \\
+\mid \; & \textit{rvar}  \\[0.5em]
+\textit{temporal} ::= \; & \texttt{dependency} \; (v \; \{ , v \})
+  \\[0.5em]
+\dimTy ::= \; & \mathbb{N}_{>0} \\
+\textit{rvar} ::= \; & [\text{\texttt{a}-\texttt{z}$\,$\texttt{A}-\texttt{Z}$\,$\texttt{0}-\texttt{9}}]+
 \end{array}
 \end{align*}
-\caption{Specification syntax}
+\caption{Specification syntax (EBNF grammar)}
 \label{fig:syntax}
 \end{figure}
 
 \paragraph{Spatial specifications}
 
 
+\paragraph{Temporal specifications}
 
-
-\paragraph{Time specifications}
-\dnote{The below is old so probably out of date}
-
-\begin{ExmVerbatim}
-for t = 1, itermax:
-   for i = 1, (n-1):
-      a[t, i] = a[t-1, i-1] - 2*a[t-1, i] + a[t-1, i+1]
-\end{ExmVerbatim}
-
-\begin{SpecVerbatim}
-a(t=0) : bwd, depth=1
-a(1)   : centered, depth=1
-\end{SpecVerbatim}
-
-\begin{SpecVerbatim}
-a : centered depth=1 dim=1
-a : backward depth=1 dim=0
-\end{SpecVerbatim}
 
 \subsection{A semantic model for specifications}
 \label{sec:semantics}
@@ -440,7 +429,7 @@ b(x) = a(x) + r*(a(x-1) - 2*a(x) + a(x+1))
 For this statement, the inference provides the specification:
 %
 \begin{SpecVerbatim}
-a: centered depth=1, dims=0
+%=  stencil centered, depth=1, dim=0 :: a
 \end{SpecVerbatim}
 
 

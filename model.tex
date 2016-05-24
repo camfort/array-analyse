@@ -1,0 +1,24 @@
+\newcommand{\singleEntry}[2]{\textbf{J}_{#2}^{#1}}
+\begin{align*}
+%
+% REGION model
+%
+\interp{\stenFwd{k}{d}}^r_n & =
+ \{i\singleEntry{d}{n} \mid i \in \{0, \ldots, k\} \} \\
+\interp{\stenBwd{k}{d}}^r_n & =
+ \{i\singleEntry{d}{n} \mid i \in \{-k, \ldots, 0\} \} \\
+\interp{\stenCen{k}{d}}^r_n & =
+ \{i\singleEntry{d}{n} \mid i \in \{-k, \ldots, k\} \} \\
+%
+% REGION PROD model
+%
+\interp{r_1 \; \texttt{$\ast$} \, \ldots \, \texttt{$\ast$} \; r_m}^{\ast}_n &
+= \interp{r_1}^r_n \otimes \ldots \otimes \interp{r_m}^r_n \\
+%
+%  REGION SUM model
+%
+\interp{r_1 \; \texttt{+} \, \ldots \, \texttt{+} \; r_m}^{+}_n &
+= \interp{r_1}^{\ast}_n \cup \ldots \cup \interp{r_m}^{\ast}_n \\
+\end{align*}
+%where $\singleEntry
+TODO: insert explanation for the $\textbf{J}$ notation (see Matrix textbook).

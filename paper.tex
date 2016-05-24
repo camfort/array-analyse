@@ -222,24 +222,28 @@ a \textit{temporal specification}.
 \setlength{\arraycolsep}{0.2em}
 \newcommand{\dimTy}{\mathbb{D}}
 \begin{array}{rl}
-\textit{specification} ::= & [\textit{regionDec} \; \{\texttt{$\backslash$n} \;\;
-                             \textit{regionDec} \}] \;
-                             \textit{specDec} \\
-\textit{specDec} ::= & \texttt{stencil} \; \textit{spec} \mid \epsilon
+\textit{specification} ::= & [\textit{regionDec} \;
+                             \{\texttt{$\backslash$n} \; \textit{regionDec} 
+                             \} \; \texttt{$\backslash$n}]
+                             \; [\textit{specDec}] \\
+\textit{specDec} ::= & \texttt{stencil} \; \textit{spec} 
   \\
 \textit{regionDec} ::= &  \texttt{region} \; \textit{rvar} \; \texttt{=} \;
                          \textit{region}\\
 \textit{spec} ::= & \textit{spatial} \mid \textit{temporal}   \\[1em]
-\textit{spatial} ::= & [\textit{mod} \; \{, \textit{mod} \}] \; \textit{region} \\
-\textit{mod} ::= &
- \texttt{read-once} \\
-\mid \; & \texttt{reflexive} \; \texttt{dims=}\dimTy \{\texttt{,} \; \dimTy\} \\
-\mid \; & \texttt{irreflexive} \; \texttt{dims=}\dimTy \{\texttt{,} \;
-          \dimTy\} \\[0.1em]
+\textit{spatial} ::= & [\textit{mod}] \;
+                       [\textit{approxMod},] \; [\textit{region}] \\
+\textit{mod} ::= & [\textit{modR},] \; [\textit{modRefl},] \; [\textit{modIrefl},] \\
+\textit{modR} ::= &
+ \texttt{readOnce} \\
+\textit{modRefl} ::= & \texttt{reflexive}, \; \texttt{dims=}\dimTy \{\texttt{,} \; \dimTy\} \\
+\textit{modIrrefl} ::= & \texttt{irreflexive}, \; \texttt{dims=}\dimTy \{\texttt{,}
+          \dimTy\}\\
+\textit{approxMod} ::= & \texttt{atMost} \; \mid \; \texttt{atLeast} \\[0.1em]
 \textit{region} ::=
-     \; & \texttt{forward} \; [,\texttt{depth=}\mathbb{N}] \; , \texttt{dim=}\dimTy  \\
-\mid \; & \texttt{backward} \; [,\texttt{depth=}\mathbb{N}] \; , \texttt{dim=}\dimTy \\
-\mid \; & \texttt{centered} \; [,\texttt{depth=}\mathbb{N}] \; , \texttt{dim=}\dimTy \\
+     \; & \texttt{forward}, \texttt{depth=}\mathbb{N}, \texttt{dim=}\dimTy  \\
+\mid \; & \texttt{backward}, \texttt{depth=}\mathbb{N}, \texttt{dim=}\dimTy \\
+\mid \; & \texttt{centered}, \texttt{depth=}\mathbb{N}, \texttt{dim=}\dimTy \\
 \mid \; & \textit{region} \; \texttt{+} \; \textit{region} \\
 \mid \; & \textit{region} \; \texttt{*} \; \textit{region} \\
 \mid \; & \textit{rvar}  \\[0.5em]

@@ -222,11 +222,11 @@ a \textit{temporal specification}.
 \setlength{\arraycolsep}{0.2em}
 \newcommand{\dimTy}{\mathbb{D}}
 \begin{array}{rl}
-\textit{specification} ::= & [\textit{regionDec} \;
-                             \{\texttt{$\backslash$n} \; \textit{regionDec} 
-                             \} \; \texttt{$\backslash$n}]
+\textit{specification} ::= & \{\textit{regionDec} \;
+                             \texttt{$\backslash$n}\}
                              \; [\textit{specDec}] \\
-\textit{specDec} ::= & \texttt{stencil} \; \textit{spec} 
+\textit{specDec} ::= & \texttt{stencil} \; \textit{spec} \;
+                       \texttt{::} \; \textit{var}
   \\
 \textit{regionDec} ::= &  \texttt{region} \; \textit{rvar} \; \texttt{=} \;
                          \textit{region}\\
@@ -247,7 +247,7 @@ a \textit{temporal specification}.
 \mid \; & \textit{region} \; \texttt{+} \; \textit{region} \\
 \mid \; & \textit{region} \; \texttt{*} \; \textit{region} \\
 \mid \; & \textit{rvar}  \\[0.5em]
-\textit{temporal} ::= \; & \texttt{dependency} \; (v \; \{ , v \})
+\textit{temporal} ::= \; & \texttt{dependency} \; (\textit{var} \; \{ , \textit{var} \})
   \\[0.5em]
 \dimTy ::= \; & \mathbb{N}_{>0} \\
 \textit{rvar} ::= \; & [\text{\texttt{a}-\texttt{z}$\,$\texttt{A}-\texttt{Z}$\,$\texttt{0}-\texttt{9}}]+

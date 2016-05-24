@@ -116,8 +116,8 @@ can be described simply and abstractly. In the case of our
 first Laplace example, our analysis tool infers the following specification:
 %
 \begin{SpecVerbatim}
-%=  stencil centered, depth=1 dims=1 :: a
-%=  stencil dependency a, mutual    :: b
+!=  stencil centered, depth=1 dims=1 :: a
+!=  stencil dependency a, mutual    :: b
 \end{SpecVerbatim}
 %
 The first line explains that \texttt{a} is read from
@@ -174,11 +174,11 @@ showing highly-detailed stencil computations. \\
 %\end{SpecVerbatim}
 
 \begin{SpecVerbatim}[xleftmargin=0.3cm]
-%=   stencil (centered, depth=1, dim=1)
-%=         + (centered, depth=1, dim=2) :: u
+!=   stencil (centered, depth=1, dim=1)
+!=         + (centered, depth=1, dim=2) :: u
 
-%=   stencil (forward, depth=1, dim=1)
-%=         + (backward, depth=1, dim=1) :: v
+!=   stencil (forward, depth=1, dim=1)
+!=         + (backward, depth=1, dim=1) :: v
 \end{SpecVerbatim}
 (b). Inferred stencil specification from CamFort
 \caption{Fragment of Navier-Stokes fluid simulator and its specification}
@@ -433,7 +433,7 @@ b(x) = a(x) + r*(a(x-1) - 2*a(x) + a(x+1))
 For this statement, the inference provides the specification:
 %
 \begin{SpecVerbatim}
-%=  stencil centered, depth=1, dim=0 :: a
+!=  stencil centered, depth=1, dim=0 :: a
 \end{SpecVerbatim}
 
 

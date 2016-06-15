@@ -502,14 +502,14 @@ In the following, we defined
  defined by a ``for'' loop (\eg{}, that get incremented each time the
 loop is re-entered).
 
-\begin{definition}[Constant translations]
-An indexing expression $e$ is a \emph{constant translation} if,
-for a base induction variable $i$, then $e \equiv i + a$ or $e \equiv i - a$
+\begin{definition}[Neighbourhood indices]
+An array subscript $e$ is a \emph{neighbourhood index} if,
+for an induction variable $i$, then $e \equiv i + a$ or $e \equiv i - a$
 where $a$ is a constant. The relation $\equiv$ identifies terms
 up-to commutativity of $+$ and the inverse
 relation of $+$ and $-$ (\eg{}, $(-b) + i \equiv i - b$).
-In the following, we classify constant translation expressions
-using the predicate $\textsf{trans}$.
+In the following, we classify neighbourhood indices 
+using the predicate $\textsf{neigh}$.
 \end{definition}
 
 \paragraph{Step 1: Data-access analysis}
@@ -520,7 +520,7 @@ using the predicate $\textsf{trans}$.
 \begin{array}{lll}
 \interp{e_1 = e_2}    & = \interp{e_2} \\
 \interp{e_1 e_2}      & = \interp{e_1} \cup \interp{e_2} \\
-\interp{a(\tilde{e})} & = \{e | e \in \tilde{e}, \textsf{trans}(e)\} & \textit{where each $e \in
+\interp{a(\tilde{e})} & = \{e | e \in \tilde{e}, \textsf{neigh}(e)\} & \textit{where each $e \in
                                           \tilde{e}$ is a constant or constant translation}
 \end{array}
 \end{align*}
@@ -533,7 +533,11 @@ Index analysis is a \emph{coeffect analysis}.
 
 \subsection{Infering temporal specifications}
 
-The reserved dimension \dimId{t}
+\begin{itemize}
+\item Extract from syntax finite map of variables
+to relative-index verctors representing the contributing
+array subscritps
+\end{itemize}
 
 \section{Evaluation}
 \label{sec:evaluation}

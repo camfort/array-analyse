@@ -9,6 +9,7 @@
 \usepackage{fancyvrb}
 \usepackage{subfigure}
 \usepackage{amsthm}
+\usepackage{tikz}
 
 \CustomVerbatimEnvironment{SpecVerbatim}{Verbatim}{fontsize=\footnotesize,xleftmargin=0.65cm,
 xrightmargin=0.2cm,commandchars=\\\{\},baselinestretch=0.97}
@@ -56,12 +57,12 @@ xrightmargin=0.2cm,commandchars=\\\{\},baselinestretch=0.97}
 \newcommand{\nonterm}[1]{\textit{#1}}
 \newcommand{\term}[1]{\texttt{#1}}
 
-\newcommand{\stenFwd}[2]{\texttt{forward}, \texttt{depth}=#1,
-  \texttt{dim}=#2}
-\newcommand{\stenBwd}[2]{\texttt{backward}, \texttt{depth}=#1,
-  \texttt{dim}=#2}
-\newcommand{\stenCen}[2]{\texttt{backward}, \texttt{depth}=#1,
-  \texttt{dim}=#2}
+\newcommand{\stenFwd}[2]{\texttt{forward} \, (\texttt{depth=}#1,
+  \texttt{dim=}#2)}
+\newcommand{\stenBwd}[2]{\texttt{backward} \, (\texttt{depth=}#1,
+  \texttt{dim=}#2)}
+\newcommand{\stenCen}[2]{\texttt{centered} \, (\texttt{depth=}#1,
+  \texttt{dim=}#2)}
 
 \title{Time and space specifications for stencils}
 \authorinfo{}{}
@@ -76,14 +77,14 @@ xrightmargin=0.2cm,commandchars=\\\{\},baselinestretch=0.97}
 
 \section{Introduction}
 
-\emph{Stencils} are a ubiquitous programming pattern in many numerical
-applications. Informally, a stencil computation computes
-an array, where the value at each index $i$ of this array is
-calculated from a set of neighbouring values to $i$ in some input
-array(s), \eg{}, the Game of Life, convolutions in image processing,
-approximations to differential equations. For example, the following
-psuedo-code iteratively applies the discrete Laplace
-operator (an approximation to a derivative):
+\emph{Stencils} are a ubiquitous programming pattern, common in
+scientific and numerical computing applications. Informally, a stencil
+computation computes an array value, where the value at each index $i$ of
+this array is calculated from a \emph{neighbourhood} of values around $i$ in
+some input array(s), \eg{}, the Game of Life, convolutions in image
+processing, approximations to differential equations. For example, the
+following iteratively computes the one-dimensional discrete Laplace
+transform (an approximation to a derivative): 
 %
 \begin{ExmVerbatim}
 do iter = 0, itermax
@@ -93,45 +94,79 @@ do iter = 0, itermax
 \end{ExmVerbatim}
 %
 Line 3 is the core of the stencil computation, calculating
-the value at \texttt{b[i]} from a neighbourhood of elements about
-\texttt{a[i]}. Line 4 swaps
+the value at \texttt{b(i)} from a neighbourhood of elements about
+\texttt{a(i)}. Line 4 swaps
 \texttt{a} and \texttt{b} between iterations, where \texttt{b} becomes the
-input for the next iteration.
+input for the next iteration. (Note, we use the parentheses syntax
+\texttt{( )} for
+array subscripts rather than the bracket syntax \texttt{[ ]}. 
 
 %This stencil computation exhibits statically decideable
 %spatial and temporal relationships between $\texttt{a}$ and
 %$\texttt{b}$.
-In this simple example, the spatial and temporal relationship
-between \texttt{a} and \texttt{b} is easy to understand. However,
-more complex stencil computations can be much harder to understand
-and subsequently more prone to error. For example, Figure~\ref{ref:navier-stokes-fragment}
-shows a couple of lines from a Navier-Stokes fluid simulator in
-which two arrays are read from with different data access patterns,
-across two dimensions. The interaction is much harder to understand,
-with the potential for the developer to accidentally introduce an
-error, for example writing $\texttt{(i-1,j)}$ instead of
-$\texttt{(i+1,j)}$.
+In this simple example, the dependencies between between \texttt{a}
+and \texttt{b} form a simple spatial relationship which is easily
+understood. This spatial relationship determines other aspects of the
+program and its efficient implementation: how much ``boundary'' is
+needed for the array, the most cache-efficient layout in memory,
+the partitioning shape for parallel implementations. 
 
-We introduce a simple specification for stencil comptuations
-that abstracts the fine grained detail of their access patterns.
-In practise, most stencil computations have a regular shape that
-can be described simply and abstractly. In the case of our
-first Laplace example, our analysis tool infers the following specification:
+More complex stencil computations can be much harder to understand and
+subsequently more prone to error. For example,
+Figure~\ref{ref:navier-stokes-fragment} shows three lines from a
+Navier-Stokes fluid simulator in which two arrays are read from with
+different data access patterns, across two dimensions. The interaction
+is much harder to understand, with the potential for the developer to
+accidentally introduce an error via simple textual mistakes, for
+example writing $\texttt{(i-1,j)}$ instead of $\texttt{(i+1,j)}$.
+
+In this work, we introduce a simple specification language for the
+spatial and temporal properties of stencil comptuations. The
+specifications abstract over the fine grained detail of stencil access
+patterns.  In practise, most stencil computations have a regular shape
+that can be described simply and abstractly, with a small set of
+coarse-grained descriptions. In the case of our first Laplace example,
+our inference procedure provides the specification:
 %
 \begin{SpecVerbatim}
-!=  stencil centered, depth=1 dims=1 :: a
-!=  stencil dependency a, mutual    :: b
+!=  stencil centered (depth=1, dim=1) :: a
+!=  stencil dependency a, mutual       :: b
 \end{SpecVerbatim}
 %
-The first line explains that \texttt{a} is read from
-with a symmetrical stencil pattern (``centered'') to a depth
-of one in each direction in its first (and only) dimension.
-The second line explains the temporal relationship between
-\texttt{b} and \texttt{a}: that the previous time step for \texttt{b}
-is actually provided by \texttt{a}. The dimension \texttt{t} is a
-reserved dimension identifiers for temporal specifications. In
-the case of the Navier-Stokes example, its inferred stencil is shown
-in Figure~\ref{ref:navier-stokes-fragment}(b).
+The first line explains that \texttt{a} is read from with a
+symmetrical stencil pattern (``centered'') to a depth of one in each
+direction in its first (and only) dimension.  The second line explains
+the temporal relationship between \texttt{b} and \texttt{a}: that
+previous time step for \texttt{b} is actually provided by \texttt{a},
+and vice versa. This is explained as a mutual dependence between
+\texttt{a} and \texttt{b}. In the case of the Navier-Stokes example of
+Figure~\ref{ref:navier-stokes-fragment}, its inferred specification is shown
+in Figure~\ref{ref:navier-stokes-fragment}(b). The 
+specification explains that, over the whole fragment, \texttt{u} is
+read from with a centered pattern to depth of 1 in both dimensions
+(this is known as the \emph{five point stencil}) and \texttt{v}
+is read from in a neighbourhood bounded by forward to depth of $1$ in
+the first dimension and backward to a depth of $1$ in the second
+dimension. These can drawn pictorially as follows where the horizontal
+dimensions is \text{dim=1} and the vertical is \texttt{dim=2}:
+
+\begin{center}
+\begin{tikzpicture}
+\node at (1.25,1.22) {i, j};
+\draw (1,1) rectangle (1.5,1.5);
+\draw (1.5,1) rectangle (2,1.5);
+\draw (1,0.5) rectangle (1.5,1);
+\draw (0.5,1) rectangle (1,1.5);
+\draw (1,1.5) rectangle (1.5,2);
+%
+\node at (4.25,1.22) {i, j};
+\draw (4,1) rectangle (4.5,1.5);
+\draw (4.5,1) rectangle (5,1.5);
+\draw (4.5,1.5) rectangle (5,2);
+\draw (4,1.5) rectangle (4.5,2);
+\end{tikzpicture}
+\end{center}
+
 
 In this paper, we make the following contributions:
 %
@@ -177,11 +212,11 @@ showing highly-detailed stencil computations. \\
 %\end{SpecVerbatim}
 
 \begin{SpecVerbatim}[xleftmargin=0.3cm]
-!=   stencil (centered, depth=1, dim=1)
-            + (centered, depth=1, dim=2) :: u
+!=   stencil centered(depth=1, dim=1)
+           + centered(depth=1, dim=2) :: u
 
-!=   stencil (forward, depth=1, dim=1)
-            + (backward, depth=1, dim=1) :: v
+!=   stencil forward(depth=1, dim=1)
+           * backward(depth=1, dim=2) :: v
 \end{SpecVerbatim}
 (b). Inferred stencil specification from CamFort
 \caption{Fragment of Navier-Stokes fluid simulator and its specification}
@@ -418,6 +453,11 @@ Figure~\ref{fig:inequations}
 
 \section{Examples and common patterns}
 
+% Implicit vs explicit differentiation methods
+% (forward implicit needs 'solver')
+% backward - Euler
+% runge-kutta 2nd-order
+
 \begin{example}[FTCS (Forward time, centered space)]
 
   Otherwise known as the \emph{explicit method}, is a common
@@ -534,7 +574,7 @@ The reserved dimension \dimId{t}
   d \leq n)) \} \\
 & =  \{ (\texttt{v}, ix)^m \mid \forall \, m, ix : \relix, d : \mathbb{N}
   \, . \, d \in \textit{ds} \Rightarrow ix \, d \leq (n+1) \} \\
-& = \interp{\texttt{v} : \texttt{fwd} \; \texttt{dims}=ds \;
+& = \interp{\texttt{v} : \texttt{fwd} \; \texttt{dim}=ds \;
   \texttt{depth}=n + 1} \qquad \Box
 \end{align*}
 \end{itemize}

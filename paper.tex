@@ -10,13 +10,14 @@
 \usepackage{subfigure}
 \usepackage{amsthm}
 \usepackage{tikz}
+\usepackage{multirow}
 
 \CustomVerbatimEnvironment{SpecVerbatim}{Verbatim}{fontsize=\footnotesize,xleftmargin=0.65cm,
-xrightmargin=0.2cm,commandchars=\\\{\},baselinestretch=0.97}
+xrightmargin=0.2cm,commandchars=\\\{\},baselinestretch=0.98}
 \CustomVerbatimEnvironment{ExmVerbatim}{Verbatim}{fontsize=\footnotesize,xleftmargin=0.65cm,
-xrightmargin=0.2cm,baselinestretch=0.97,numbers=left}
+xrightmargin=0.2cm,baselinestretch=0.98,numbers=left}
 \CustomVerbatimEnvironment{IVerbatim}{Verbatim}{fontsize=\relsize{-1},xleftmargin=0.65cm,
-xrightmargin=0.2cm,commandchars=\\\{\},baselinestretch=0.97}
+xrightmargin=0.2cm,commandchars=\\\{\},baselinestretch=0.98}
 
 
 \definecolor{darkgreen}{rgb}{0.0,0.5,0.0}
@@ -45,7 +46,7 @@ xrightmargin=0.2cm,commandchars=\\\{\},baselinestretch=0.97}
 \newtheorem{definition}[block]{Definition}
 
 % Writing macros
-\newcommand{\ie}{\emph{i.e..}}
+\newcommand{\ie}{\emph{i.e.}}
 \newcommand{\eg}{\emph{e.g.}}
 
 \newcommand{\dimId}{\texttt{dim}}
@@ -297,40 +298,6 @@ a \textit{temporal specification}.
 \paragraph{Temporal specifications}
 
 
-\subsection{A semantic model for specifications}
-\label{sec:semantics}
-
-\newcommand{\relix}{(\mathbb{Z}_\bot)^\mathbb{D}}
-
-We give a model of our specifications which explains
-the range of indices which correspond to the specifications.
-The model is based on multi-sets since array indices my be repeated
-in an expression.
-
-Figure~\ref{fig:model} describes the model in terms of
-an interpretation function $\interp{-}$ which maps specifications
-to multisets of relative indices.
-
-\begin{definition}Relative indices are drawn
-from $(\mathbb{Z}_{\bot})^{\mathbb{D}}$, essentially an infinite
-tuple of offsets. For example, $(i, j+1)$ corresponds to
-the relative index $(0, 1, \bot, \bot, \ldots)$
-\end{definition}
-
-The main interpretation function is overloaded on lists of
-variable-spec pairs $\interp{\overline{v : S}}$,
-returning multisets of variable-relative-index pairs. This provides
-the top-level definition of the model, with $\interp{-}$ overloaded
-on $S$, $\interp{S}$ mqpping to multisets of
-relative indices not associated to an array avariable.
-
-\begin{figure}
-\input{model.tex}
-%\textit{$a^m \in A$ means there are $n$ copies of $a$ in
-%  the multi-set $A$}
-\caption{Multi-set model of specifications}
-\label{fig:model}
-\end{figure}
 
 \subsection{Equational theory and approximations}
 \label{sec:eqs}
@@ -450,6 +417,41 @@ Figure~\ref{fig:inequations}
 \paragraph{Proof} (see Appendix)
 
 
+\section{Semantics of specifications; a model}
+\label{sec:semantics}
+
+\newcommand{\relix}{(\mathbb{Z}_\bot)^\mathbb{D}}
+
+We give a model of our specifications which explains
+the range of indices which correspond to the specifications.
+The model is based on multi-sets since array indices my be repeated
+in an expression.
+
+Figure~\ref{fig:model} describes the model in terms of
+an interpretation function $\interp{-}$ which maps specifications
+to multisets of relative indices.
+
+\begin{definition}Relative indices are drawn
+from $(\mathbb{Z}_{\bot})^{\mathbb{D}}$, essentially an infinite
+tuple of offsets. For example, $(i, j+1)$ corresponds to
+the relative index $(0, 1, \bot, \bot, \ldots)$
+\end{definition}
+
+The main interpretation function is overloaded on lists of
+variable-spec pairs $\interp{\overline{v : S}}$,
+returning multisets of variable-relative-index pairs. This provides
+the top-level definition of the model, with $\interp{-}$ overloaded
+on $S$, $\interp{S}$ mqpping to multisets of
+relative indices not associated to an array avariable.
+
+\begin{figure}
+\input{model.tex}
+%\textit{$a^m \in A$ means there are $n$ copies of $a$ in
+%  the multi-set $A$}
+\caption{Multi-set model of specifications}
+\label{fig:model}
+\end{figure}
+
 
 \section{Examples and common patterns}
 
@@ -483,7 +485,7 @@ For this statement, the inference provides the specification:
 
 \paragraph{CTCS (Centered time, centered space) - Crank-Nicolson method}
 
-\section{Specification inference and checking}
+\section{Inference, checking, and synthesis}
 \label{sec:analysis}
 
 \mnote{Few cases that we might like to consider (there are examples
@@ -497,39 +499,346 @@ For this statement, the inference provides the specification:
   \end{itemize}
 }
 
-In the following, we defined
-\emph{base induction variables} to be the variables
- defined by a ``for'' loop (\eg{}, that get incremented each time the
-loop is re-entered).
+\noindent
+We briefly sketch the algorithms for inferring and checking
+specifications and for synthesising programs from specifications.
+Checking and synthesis use the set-based semantic model of
+Section~\ref{sec:semantics}. 
 
-\begin{definition}[Neighbourhood indices]
+% SYNTAX OPERATIONS AND PREDICATES
+\newcommand{\neigh}{\textsf{neigh}}
+\newcommand{\arrayTy}{\textsf{array}}
+\newcommand{\rhsExp}{\textsf{rhsExp}}
+\newcommand{\var}{\textsf{var}}
+
+%% VECTOR NOTATIONS
+\newcommand{\vect}[1]{\textbf{#1}}
+\newcommand{\vtwo}[2]{\setlength{\arraycolsep}{0em}
+\left[\begin{array}{l}#1\\#2\end{array}\right]}
+\newcommand{\stwo}[4]
+%{\vtwo{#1}{#2}\!\vtwo{#3}{#4}}
+{\setlength{\arraycolsep}{0.1em}
+\left[\begin{array}{rr}$#1$ & $#3$\\$#2$ & $#4$\end{array}\right]}
+
+%% OPERATIONS ON SPANS and VECTORS 
+\newcommand{\containedin}{\sqsubseteq}
+
+\paragraph{Basic syntax definitions} In the following, $v$
+  ranges over variables, $s$ over statements, and $e$ over expressions
+  (which may be impure).  By ``variable'', we mean in the imperative
+  sense (\ie{}, named binders to memory cells) instead of mathematical
+  variables. The function \rhsExp{} maps statements to a set of
+  expressions which occur in right-hand positions (\ie{}, not the
+  target of an assignment). The function \var{} maps expressions to a
+  set of the variables used in right-hand positions. 
+
+\begin{definition}[Standard: base induction variable]
+An integer variable \textit{i} is a \emph{base induction variable} 
+within the scope of a ``for'' loop (or equivalent for the target
+language, \eg{}, \texttt{do} in Fortan for our implementation) if it
+is the control variable of the loop, incremented by $1$ per
+iteration. 
+\end{definition}
+
+\begin{definition}[Standard: array subscript]
+An \emph{array subscript} is an expression index an array, which in
+our abstract we write as $v(\bar{e})$ where $\bar{e}$ is shorthand for
+a syntactic list of indexing expressions. 
+\end{definition}
+
+\begin{definition}[Neighbourhood index]
 An array subscript $e$ is a \emph{neighbourhood index} if,
 for an induction variable $i$, then $e \equiv i + a$ or $e \equiv i - a$
-where $a$ is a constant. The relation $\equiv$ identifies terms
+where $a$ is a constant of integer type. The relation $\equiv$ identifies terms
 up-to commutativity of $+$ and the inverse
 relation of $+$ and $-$ (\eg{}, $(-b) + i \equiv i - b$).
 In the following, we classify neighbourhood indices 
-using the predicate $\textsf{neigh}$.
+using the predicate \neigh{}.
 \end{definition}
 
-\paragraph{Step 1: Data-access analysis}
+\subsection{Inference}
 
-\dnote{Might want to do 'stencil' (gather) and 'mould' (scatter)
-  patterns separately}
+We demonstate the main steps of the inference procedure over the
+following example program which computes the mean value 
+of a five-point stencil at each index of the input array:
+%%
+\begin{ExmVerbatim}
+do i = 1, (n-1)
+   do j = 1, (m-1)
+      x       = a(i-1, j) + a(i+1, j) 
+      y       = a(i, j-1) + a(i, j+1)
+      b(i, j) = (a(i, j) + x + y) / 5.0
+   end do
+end do
+\end{ExmVerbatim}
+%%
+\paragraph{Step 1: Standard control and dataflow analyses}
+The inference relies on some standard program analyses, computed
+before the main inference procedure:
+%
+\begin{enumerate}
+\item basic blocks (CFG);
+\item induction variables per basic block;
+\item (interprocedural) dataflow analysis, providing a \emph{flows to}
+  graph (as shorthand, the function
+  $\mathsf{flowTo}$ is used, implicitly parameterised by this graph,  
+  mapping an expression to the set of all expressions
+  with forwards dataflow to this expression, based on the transitive
+  closure of the flows graph);
+\item type information per variable, where we use the predicate
+\arrayTy{} to classify variables of array type. 
+\end{enumerate}
+%
+
+\paragraph{Step 2: Data-access analysis}
+
+For each assignment statement whose left-hand side is an array
+subscript on neighbourhood indices, a finite map is computed which
+maps array variables to a set of vectors representing array
+subscripts.  This finite map contains all array subscript expressions
+which flow to this statment. More formally, a function
+$\textsf{analyse}$ is applied to each statement in a program with the
+following clause:
+%
 \begin{align*}
-\begin{array}{lll}
-\interp{e_1 = e_2}    & = \interp{e_2} \\
-\interp{e_1 e_2}      & = \interp{e_1} \cup \interp{e_2} \\
-\interp{a(\tilde{e})} & = \{e | e \in \tilde{e}, \textsf{neigh}(e)\} & \textit{where each $e \in
-                                          \tilde{e}$ is a constant or constant translation}
+\begin{array}{lr}
+\textsf{analyse}(v(\overline{e_1}) = e_2)
+ := \qquad\qquad & \textit{where} \; \neigh(\overline{e_1}) \wedge \arrayTy(v)  \\[0.3em]
+\multicolumn{2}{l}{\qquad \bigcup\{v' \mapsto \{\textsf{convert}(\bar{e})\} \mid v'(\bar{e}) \leftarrow \mathsf{flowsTo}(e_2),
+  \arrayTy(v')\}}
 \end{array}
 \end{align*}
+%
+That is, we focus on assignments to an array subscript where each
+index indexing expression in $\bar{e}$ is a neighbourhood index.  For
+all array subscripts that flow to the right-hand side of this
+statement, a finite map is constructed from each array variable
+in this flow set to a representation of the subscripts, computed
+with \textsf{convert}.
 
-Index analysis is a \emph{coeffect analysis}.
+The \textsf{convert} function maps subscripts to a column vector
+representation with values drawn from $\mathbb{Z}_\top = \mathbb{Z} \cup \{\top\}$
+where $\mathbb{Z}$ represents the offset of a neighbourhood index
+and $\top$ represents any non-neighbourhood subscripts, defined:
+%
+\begin{align*}
+& \textsf{convert}((e_1, \ldots, e_n)) = [\textsf{conv}(e_1), \ldots,
+  \textsf{conv}(e_n)] \\
+& \textsf{conv}(e) \begin{cases}
+\pm a & \neigh(e) \wedge \, e \equiv i \pm a \\
+\top & \textit{otherwise} 
+\end{cases} 
+\end{align*}
+%
+For our example, the \textsf{analyse} function matches on
+line 5, with the following set for $\textsf{flowTo}(a(i, j) + x +
+  y)$:
+%
+\begin{align*}
+\{\texttt{a(i-1, j)}, \texttt{a(i+1, j)}, \texttt{a(i, j-1)},
+  \texttt{a(i, j+1)}, \texttt{a(i, j)}\}
+\end{align*}
+Subsequently the result of \textsf{analyse} on line 5 yields the map:
+\begin{align*}
+\texttt{a} \mapsto \{\vtwo{-1}{0}, \vtwo{1}{0},
+          \vtwo{0}{-1}, \vtwo{0}{1}, \vtwo{0}{0}\}
+\end{align*}
+%
 
-\paragraph{Step 2: Coalesce contiguous indices into regions}
+\paragraph{Step 3: Coalesce contiguous indices into regions}
 
-% fairly mechanical
+Let $M$ range over the finite maps generated by \textsf{analyse}.  For
+each $v \in \mathsf{dom}(M)$, the next step of the algorithm coalesces
+the set of relative index vectors $M(v)$ into contiguous regions within an
+$n$-dimensional space.
+
+Let $\vect{x}, \vect{y}, \vect{z}$ range over the column vectors of size
+$n$ whose values are drawn from $\mathbb{Z}_\top$.
+We write $\vect{x}_i$ for the $i$-th value of vector $\vect{x}$ (1
+indexed) and $\vect{x}_{i:j}$ for the subvector from entry $i$ to
+entry $j$ (inclusive). 
+
+\begin{definition}[Span]
+  A \emph{span} represents an $n$-dimensional box (\emph{hyperrectangle}) as
+  a pair of $n$-dimensional vectors (represented as a $2 \times n$
+  matrix) giving the co-ordinates of the lower-bound vertex (first
+  column) and the upper-bound vertex (second column). We use the
+  notation $[\vect{x}^L \; \vect{x}^U]$ for such a span to mark out
+  the lower and upper bound vecvtors. 
+\end{definition}
+
+Firstly, for all $v \in \mathsf{dom}(M)$ then a new map $M'$ is
+created where each vector is mapped to the trivial \emph{unit span} is
+created by pairing a vector with itself:
+%
+\begin{align*}
+N(v) = \{[\vect{x} \; 
+  \vect{x}] \mid \vect{x} \in M(v)\}
+\end{align*}
+%
+For our example, this yields:
+%%
+\begin{align*}
+N(\texttt{a}) = \stwo{0}{0}{0}{0} \stwo{1}{0}{1}{0} \stwo{-1}{0}{-1}{0} \stwo{0}{1}{0}{1} \stwo{0}{-1}{0}{-1}
+\end{align*}
+%%
+A fixed point is then compute for the following
+procedure \textsf{regions} which, for per variable
+in the map, coalesces spans into contiguous regions in
+the $n$-dimensional spaace. That is, we compute
+ $(\mu \; \textsf{regions}) N$ where \textsf{regions}
+is defined as follows for each variable in the map:
+%
+\begin{enumerate}
+
+\item Compute all permutations on the column vectors in a span, \ie{},
+  $[\vect{x}^L \vect{x}^U] \mapsto [\pi\vect{x}^L \, \pi\vect{x}^U]$
+for a permutation $\pi$. For each permutation function $\pi^n_i$
+(the $i$-th permutation for vectors of size $n$, we pair the
+permutation function with the set of permuted spans so that 
+the spans can be unpermuted later. 
+%
+\[
+P(v) = \bigcup_{i \in !n} (\pi^n_{i} , \; \{[\pi^n_i
+\vect{x}^L \; \pi^n_i\vect{x}^U] \, \mid \, [\vect{x}^L \; \vect{x}^U]
+\leftarrow N(v)\}
+\]
+%
+For our example, this yields:
+%
+\begin{align*}
+P(\texttt{a}) = 
+\{&(\pi^2_1, \{ \stwo{0}{0}{0}{0}
+\stwo{1}{0}{1}{0} 
+\stwo{-1}{0}{-1}{0} 
+\stwo{0}{1}{0}{1} 
+\stwo{0}{-1}{0}{-1} \})
+\\
+&(\pi^2_2, \{ 
+ \stwo{0}{0}{0}{0}
+ \stwo{0}{1}{0}{1}
+ \stwo{0}{-1}{0}{-1}
+ \stwo{1}{0}{1}{0}
+ \stwo{-1}{0}{-1}{0}\})\}
+\end{align*}
+%
+where $\pi^2_1$ is the identity permutation and $\pi^2_2$ is the
+permutation flips the order of the two elements in the column
+vectors. 
+
+\item Sort each permutation set into an ordered list, based on the ordering:
+\[
+\vect{x} \leq \vect{y} = \exists i \, . \; \vect{x}_i \leq \vect{y}_i 
+\; \wedge \; \vect{x}_{i:n} = \vect{y}_{i:n}
+\]
+%
+This yields:
+%%
+\begin{align*}
+\{&(\pi^2_1, [
+\stwo{0}{-1}{0}{-1}
+\stwo{-1}{0}{-1}{0} 
+\stwo{0}{0}{0}{0}
+\stwo{1}{0}{1}{0} 
+\stwo{0}{1}{0}{1}] )
+\\
+&(\pi^2_2, [
+\stwo{0}{-1}{0}{-1}
+\stwo{-1}{0}{-1}{0}
+\stwo{0}{0}{0}{0}
+\stwo{1}{0}{1}{0}
+\stwo{0}{1}{0}{1}])\}
+\end{align*}
+%%
+\item Fold each list pairwise by the following partial $\bullet$ which 
+coalescees and contiguous regions:
+%
+\begin{align*}
+& (\vect{x}^L,\vect{x}^U) \bullet (\vect{y}^L,\vect{y}^U) \\
+= &
+\begin{cases}
+(\vect{x}^L, \vect{y}^U) & \vect{x}^U_1 + 1 = \vect{y}^L_1 \; \wedge \;
+(\vect{x}^L_{1:n}, \vect{x}^U_{1:n}) = (\vect{y}^L_{1:n}, \vect{y}^U_{1:n}) \\
+\bot  & \textit{otherwise}
+\end{cases}
+\end{align*}
+For our example, this yields:
+%
+\begin{align*}
+Q(v) = \{&(\pi^2_1, [
+\stwo{0}{-1}{0}{-1}
+\stwo{-1}{0}{1}{0}, 
+\stwo{0}{1}{0}{1}, 
+]) \\
+&(\pi^2_2, [
+\stwo{0}{-1}{0}{-1},
+\stwo{-1}{0}{1}{0},
+\stwo{0}{1}{0}{1}])\}
+\end{align*}
+%
+\item Unpermute and union together, \ie{},
+%
+\[
+U(v) = \bigcup \{[\pi \vect{y}^L, \pi \vect{y}^U]
+ \mid [\vect{y}^L, \vect{y}^U] \leftarrow S, (\pi, S) \leftarrow Q(v)\}
+\]
+Which yields:
+%
+\begin{align*}
+U(\texttt{a}) = 
+\{\stwo{0}{-1}{0}{-1}
+\stwo{-1}{0}{1}{0}
+\stwo{0}{1}{0}{1}
+\stwo{-1}{0}{-1}{0}
+\stwo{0}{-1}{0}{1}
+\stwo{1}{0}{1}{0}\}
+\end{align*}
+%
+\item Filter by $\containedin$, defined: 
+%
+\begin{align*}
+(\vect{x}^L, \vect{x}^U) \containedin (\vect{y}^L, \vect{y}^U) = 
+\vect{y}^L_1 \leq \vect{x}^L_1 \wedge \vect{x}^U_1 \leq \vect{y}^U_1
+  \wedge (\vect{x}^L_{1:n}, \vect{x}^U_{1:n}) \containedin
+  (\vect{y}^L_{1:n}, \vect{y}^U_{1:n})
+\end{align*}
+
+Yields:
+\begin{align*}
+\stwo{-1}{0}{1}{0}, 
+\stwo{0}{-1}{0}{1}
+\end{align*}
+\end{enumerate}
+
+
+\begin{tikzpicture}
+\draw[step=0.5cm,lightgray,very thin] (0.5,0.5) grid (2,2);
+\draw[->] (0.5,2) -- (2,2);
+\node at (1.25,1.22) {i, j};
+\draw[thick] (1,1) rectangle (1.5,1.5);
+\draw[thick] (1.5,1) rectangle (2,1.5);
+\draw[thick] (1,0.5) rectangle (1.5,1);
+\draw[thick] (0.5,1) rectangle (1,1.5);
+\draw[thick] (1,1.5) rectangle (1.5,2);
+\end{tikzpicture}
+%
+\begin{tikzpicture}
+\draw[step=0.5cm,lightgray,very thin] (0.5,0.5) grid (2,2);
+\draw[->] (0.5,2) -- (2,2);
+\node at (1.25,1.22) {i, j};
+\draw[thick] (0.5,1) rectangle (2,1.5);
+\draw[thick] (1,0.5) rectangle (1.5,1);
+\draw[thick] (1,1.5) rectangle (1.5,2);
+\end{tikzpicture}
+%
+\begin{tikzpicture}
+\draw[step=0.5cm,lightgray,very thin] (0.5,0.5) grid (2,2);
+\draw[->] (0.5,2) -- (0.5,0.5);
+\node at (1.25,1.22) {i, j};
+\draw[thick] (0.5,1) rectangle (2,1.5);
+\draw[thick] (1,0.5) rectangle (1.5,1);
+\draw[thick] (1,1.5) rectangle (1.5,2);
+\end{tikzpicture}
 
 \subsection{Infering temporal specifications}
 

@@ -12,6 +12,8 @@ Corpus that doesn't work with 'camfort stencils-infer'
   * hande
       Has lots of Fortra 95 which prevents many files from being parsed
         (not just 'pure' and 'elemental' but some other weird stuff)
+  * geos-chem
+      Pre-processor stuff.
 	
 Untested
 

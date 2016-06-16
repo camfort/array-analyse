@@ -14,16 +14,17 @@ Corpus that doesn't work with 'camfort stencils-infer'
         (not just 'pure' and 'elemental' but some other weird stuff)
   * geos-chem
       Pre-processor stuff.
+  * computation-physics-1
+      Some works, some doesn't.
+      What in the world is this:   STIME = time(%REF(0))
 	
 Untested
 
-  * computational-physics-1
   * computational-physics-2
   * kpp
   * wrf-wps
   * wrf-wrfplus
   * wrf-wrfda
-  * geos-chem
   * e3mg-mark
   * e3mg-ea
   * e3mg-modernise

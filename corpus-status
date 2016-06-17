@@ -10,7 +10,7 @@ Corpus that doesn't work with 'camfort stencils-infer'
   * hybrid4
       Fortran77 but has INCLUDE
   * hande
-      Has lots of Fortra 95 which prevents many files from being parsed
+      Has lots of Fortran 95 which prevents many files from being parsed
         (not just 'pure' and 'elemental' but some other weird stuff)
   * geos-chem
       Pre-processor stuff.

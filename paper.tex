@@ -64,6 +64,36 @@ xrightmargin=0.2cm,commandchars=\\\{\},baselinestretch=0.98}
   \texttt{dim=}#2)}
 \newcommand{\stenCen}[2]{\texttt{centered} \, (\texttt{depth=}#1,
   \texttt{dim=}#2)}
+\newcommand{\stenFwdS}[2]{\texttt{fwd} \, (\texttt{depth=}#1,
+  \texttt{dim=}#2)}
+\newcommand{\stenBwdS}[2]{\texttt{bwd} \, (\texttt{depth=}#1,
+  \texttt{dim=}#2)}
+\newcommand{\stenCenS}[2]{\texttt{cen} \, (\texttt{depth=}#1,
+  \texttt{dim=}#2)}
+
+
+% SYNTAX OPERATIONS AND PREDICATES
+\newcommand{\neigh}{\textsf{neigh}}
+\newcommand{\arrayTy}{\textsf{array}}
+\newcommand{\rhsExp}{\textsf{rhsExp}}
+\newcommand{\var}{\textsf{var}}
+
+%% VECTOR NOTATIONS
+\newcommand{\vect}[1]{\textbf{#1}}
+\newcommand{\vtwo}[2]{\setlength{\arraycolsep}{0em}
+\left[\begin{array}{l}$#1$\\$#2$\end{array}\right]}
+\newcommand{\vthree}[3]{\setlength{\arraycolsep}{0em}
+\left[\begin{array}{l}$#1$\\$#2$\\$#3$\end{array}\right]}
+\newcommand{\stwo}[4]
+%{\vtwo{#1}{#2}\!\vtwo{#3}{#4}}
+{\setlength{\arraycolsep}{0.1em}
+\left[\begin{array}{rr}$#1$ & $#3$\\$#2$ & $#4$\end{array}\right]}
+
+\newcommand{\singleEntry}[2]{\textbf{J}_{#2}^{#1}}
+
+%% OPERATIONS ON SPANS and VECTORS 
+\newcommand{\containedin}{\sqsubseteq}
+
 
 \title{Time and space specifications for stencils}
 \authorinfo{}{}
@@ -276,13 +306,13 @@ a \textit{temporal specification}.
 \nonterm{modIrrefl} ::= & \term{irreflexive}, \; \term{dims=}\dimTy \{\term{,}
           \dimTy\}\\
 \nonterm{approxMod} ::= & \term{atMost} \; \mid \; \term{atLeast} \\[0.1em]
-\nonterm{region} ::= & \term{forward}, \term{depth=}\mathbb{N}, \term{dim=}\dimTy  \\
-\mid \; & \term{backward}, \term{depth=}\mathbb{N}, \term{dim=}\dimTy \\
-\mid \; & \term{centered}, \term{depth=}\mathbb{N}, \term{dim=}\dimTy \\
+\nonterm{region} ::= & \term{forward}, \term{depth=}\mathbb{N}_{>0}, \term{dim=}\dimTy  \\
+\mid \; & \term{backward}, \term{depth=}\mathbb{N}_{>0}, \term{dim=}\dimTy \\
+\mid \; & \term{centered}, \term{depth=}\mathbb{N}_{>0}, \term{dim=}\dimTy \\
 \mid \; & \nonterm{region} \; \term{+} \; \nonterm{region} \\
 \mid \; & \nonterm{region} \; \term{*} \; \nonterm{region} \\
 \mid \; & \nonterm{rvar}  \\[0.5em]
-\nonterm{temporal} ::= \; & \term{dependency} \; (v \; \{ , v \})
+\nonterm{temporal} ::= \; & \term{dependency} \; (v \; \{ , v \}) [, \texttt{mutual}]
   \\[0.5em]
 \dimTy ::= \; & \mathbb{N}_{>0} \\
 \nonterm{rvar} ::= \; & [\text{\term{a}-\term{z}$\,$\term{A}-\term{Z}$\,$\term{0}-\term{9}}]+
@@ -306,60 +336,85 @@ Figure~\ref{fig:equations}
 
 \begin{figure}
 \begin{align*}
-\hspace{-1em}
 \setlength{\arraycolsep}{0.05em}
 \begin{array}{c}
-\framebox{$\overline{\texttt{v} : S} \equiv \overline{\texttt{u} : T}$} \\[1em]
-\begin{array}{rl}
-(\textsc{coalesceF}) \;\; & (\texttt{a} : \texttt{fwd} \;
-                       \texttt{dims}=ds \; \texttt{depth}=n; \\
-&  \;\, \texttt{a} :  \texttt{fwd} \; \texttt{dims}=ds \; \texttt{depth}=n+1)\\
-\equiv \; & \texttt{a} :  \texttt{fwd} \; \texttt{depth}=n+1,
-         \texttt{dims}=ds \\[0.75em]
-(\textsc{coalesceB}) \;\; & (\texttt{a} : \texttt{bwd} \;
-                       \texttt{dims}=ds \; \texttt{depth}=n; \\
-&  \;\, \texttt{a} :  \texttt{bwd} \; \texttt{dims}=ds \; \texttt{depth}=n+1) \\
-\equiv \; & \texttt{a} :  \texttt{bwd} \; \texttt{depth}=n+1,
-         \texttt{dims}=ds \\[0.75em]
-(\textsc{idem}) \;\; & (\texttt{a} : S; \texttt{a} : S) \equiv (\texttt{a}
-                  : S)
+\framebox{$\textit{region} \equiv \textit{region}'$} \\[1em]
+\begin{array}{rll}
+(\textsc{F\; \texttt{+} \;F}) \;\; &
+\stenFwdS{n \, \textsf{max} \, m}{d} \\
+ \equiv \; & \stenFwdS{n}{d} \; \texttt{+} \; \stenFwdS{m}{d} \\[1em]
+%
+(\textsc{B\; \texttt{+} \;B}) \;\; &
+\stenBwdS{n \, \textsf{max} \, m}{d} \\
+ \equiv \; & \stenBwdS{n}{d} \; \texttt{+} \; \stenBwdS{m}{d} \\[1em]
+%
+(\textsc{C\; \texttt{+} \;C}) \;\; &
+\stenCenS{n \, \textsf{max} \, m}{d} \\
+\equiv \; & \stenCenS{n}{d} \; \texttt{+} \; \stenCenS{m}{d} \\[1em]
+%
+(\textsc{C\; \texttt{+} \;F}) \;\; & \stenCenS{n}{d} \\
+\textit{$m \leq n$} \; \equiv \; & \stenCenS{n}{d} \; \texttt{+} \;
+                      \stenFwdS{m}{d} \\[1em]
+%
+(\textsc{C\; \texttt{+} \;B}) \;\; & 
+\stenCenS{n}{d} \\
+\textit{$m \leq n$} \; \equiv \; & \stenCenS{n}{d} \; \texttt{+} \;
+                      \stenBwdS{m}{d} \\[1em]
+(\textsc{B\; \texttt{+} \;F}) \;\; & 
+\stenCenS{n}{d} \\
+\equiv \; & \stenFwdS{n}{d} \; \texttt{+} \; \stenBwdS{n}{d} \\[1em]
+%
+(\texttt{+}\textsc{comm}) \;\; & S \; \texttt{+} \; T \; \equiv \; T \;
+                       \texttt{+} \; S \\[0.5em]
+%
+(\texttt{+}\textsc{assoc}) \;\; & R \; \texttt{+} \; (S \; \texttt{+} \; T) \; \equiv \; (R \;
+                       \texttt{+} \; S) \; \texttt{+} \; T \\[0.5em]
+(\texttt{*}\textsc{comm}) \;\; & S \; \texttt{*} \; T \; \equiv \; T \;
+                       \texttt{*} \; S \\[0.5em]
+%
+(\texttt{*}\textsc{assoc}) \;\; & R \; \texttt{*} \; (S \; \texttt{*} \; T) \; \equiv \; (R \;
+                       \texttt{*} \; S) \; \texttt{*} \; T \\[0.5em] 
+(\textsc{dist}) \;\; & R \; \texttt{*} \; (S \; \texttt{+} \; T) \; \equiv \; (R \;
+                       \texttt{*} \; S) \; \texttt{+} \; (R
+                       \; \texttt{*} \; T) \\[0.5em] 
+(\textsc{inter}) \;\; & (S \; \texttt{+} \; S') \; \texttt{*} \;
+                              (T \; \texttt{+} \; T') \\
+ \equiv \; & (S \;  \texttt{*} \; S) 
+ \; \texttt{+} \; (S \; \texttt{*} \; T') 
+ \; \texttt{+} \; (S' \; \texttt{*} \; T)
+ \; \texttt{+} \; (S' \; \texttt{*} T')  \\[0.5em] 
 \end{array} \\ \\
-\framebox{$\texttt{v} : S \equiv \texttt{v'} : S'$} \\[1em]
-\begin{array}{ll}
-(\texttt{a} : \; \texttt{bwd} \; \texttt{depth=1\{b\}} \;
-  \texttt{dim=t})
-\, & \equiv \,
-(\texttt{b} : \; \texttt{bwd} \; \texttt{depth=1\{a\}} \;
-  \texttt{dim=t})
+%
+\framebox{$\overline{\textit{specDec} :: \texttt{v}} \equiv 
+\overline{\textit{specDec'} :: \texttt{v}}$} \\[1em]
+\begin{array}{rl}
+(\textsc{mutual}) \; & 
+\texttt{stencil} \; \texttt{dependency} (\texttt{v}), \texttt{mutual}
+  :: \texttt{w} 
 \\
-(\texttt{a} : \; \texttt{fwd} \; \texttt{depth=1\{b\}}\;
-  \texttt{dim=t})
-\, & \equiv \,
-(\texttt{b} : \; \texttt{fwd} \; \texttt{depth=1\{a\}} \;
-  \texttt{dim=t})
-\end{array}
-\\ \\
-\framebox{$S \equiv S'$} \\[0.75em]
-\begin{array}{ll}
-(a : \texttt{read-once} \; S) \; & \equiv \; (a : \texttt{read-once} \;\,
-  \texttt{read-once} \; \, S)
+\equiv \; & \texttt{stencil} \; \texttt{dependency} (\texttt{w}), \texttt{mutual} ::
+  \texttt{v} \\[0.5em]
+(\textsc{coalesce}) \; & 
+\texttt{stencil} \; \texttt{dependency} (\bar{v}) 
+  :: \texttt{v} \\
+& ; \texttt{stencil} \; \texttt{dependency} (\bar{w}) 
+  :: \texttt{v} 
+\\
+\equiv \; & \texttt{stencil} \; \texttt{dependency} (\bar{v}, \bar{w}) ::
+  \texttt{v} \\[0.5em]
+(\textsc{spatial}) \; &
+(\textit{region} \equiv \textit{region'}) \\
+\Rightarrow \; & (\texttt{stencil} \; [\textit{mod}] \; [\textit{approxMod},] \;
+\textit{region} \\
+& \!\!\equiv \; \texttt{stencil} \; [\textit{mod}] \;
+            [\textit{approxMod},] \;
+\textit{region}') \\
 \end{array}
 \end{array}
 \end{align*}
 \caption{Equations on specifications}
 \label{fig:equations}
 \end{figure}
-
-
-\begin{theorem}[Soundness]
-\[
-\overline{\texttt{v} : S}\equiv \overline{\texttt{u} : T}
-\; \Rightarrow \;
-\interp{\overline{\texttt{v} : S}} = \interp{\overline{\texttt{u} : T}}
-\]
-\end{theorem}
-
-\paragraph{Proof} (see Appendix)
 
 
 \subsubsection{Safety and sub-specifications}
@@ -406,17 +461,6 @@ Figure~\ref{fig:inequations}
 \end{figure}
 
 
-\begin{theorem}[Soundness]
-\[
-\overline{\texttt{v} : S} <: \overline{\texttt{u} : T}
-\; \Rightarrow \;
-\interp{\overline{\texttt{v} : S}} \subseteq \interp{\overline{\texttt{u} : T}}
-\]
-\end{theorem}
-
-\paragraph{Proof} (see Appendix)
-
-
 \section{Semantics of specifications; a model}
 \label{sec:semantics}
 
@@ -451,6 +495,26 @@ relative indices not associated to an array avariable.
 \caption{Multi-set model of specifications}
 \label{fig:model}
 \end{figure}
+
+\begin{theorem}[Soundness]
+\[
+\overline{\texttt{v} : S}\equiv \overline{\texttt{u} : T}
+\; \Rightarrow \;
+\interp{\overline{\texttt{v} : S}} = \interp{\overline{\texttt{u} : T}}
+\]
+\end{theorem}
+
+\paragraph{Proof} (see Appendix)
+
+\begin{theorem}[Soundness]
+\[
+\overline{\texttt{v} : S} <: \overline{\texttt{u} : T}
+\; \Rightarrow \;
+\interp{\overline{\texttt{v} : S}} \subseteq \interp{\overline{\texttt{u} : T}}
+\]
+\end{theorem}
+
+\paragraph{Proof} (see Appendix)
 
 
 \section{Examples and common patterns}
@@ -504,24 +568,6 @@ We briefly sketch the algorithms for inferring and checking
 specifications and for synthesising programs from specifications.
 Checking and synthesis use the set-based semantic model of
 Section~\ref{sec:semantics}. 
-
-% SYNTAX OPERATIONS AND PREDICATES
-\newcommand{\neigh}{\textsf{neigh}}
-\newcommand{\arrayTy}{\textsf{array}}
-\newcommand{\rhsExp}{\textsf{rhsExp}}
-\newcommand{\var}{\textsf{var}}
-
-%% VECTOR NOTATIONS
-\newcommand{\vect}[1]{\textbf{#1}}
-\newcommand{\vtwo}[2]{\setlength{\arraycolsep}{0em}
-\left[\begin{array}{l}$#1$\\$#2$\end{array}\right]}
-\newcommand{\stwo}[4]
-%{\vtwo{#1}{#2}\!\vtwo{#3}{#4}}
-{\setlength{\arraycolsep}{0.1em}
-\left[\begin{array}{rr}$#1$ & $#3$\\$#2$ & $#4$\end{array}\right]}
-
-%% OPERATIONS ON SPANS and VECTORS 
-\newcommand{\containedin}{\sqsubseteq}
 
 \renewcommand*{\arraystretch}{0.8}
 \paragraph{Basic syntax definitions} In the following, $v$

@@ -12,12 +12,12 @@
 \usepackage{tikz}
 \usepackage{multirow}
 
-\CustomVerbatimEnvironment{SpecVerbatim}{Verbatim}{fontsize=\footnotesize,xleftmargin=0.65cm,
-xrightmargin=0.2cm,commandchars=\\\{\},baselinestretch=0.98}
-\CustomVerbatimEnvironment{ExmVerbatim}{Verbatim}{fontsize=\footnotesize,xleftmargin=0.65cm,
-xrightmargin=0.2cm,baselinestretch=0.98,numbers=left}
-\CustomVerbatimEnvironment{IVerbatim}{Verbatim}{fontsize=\relsize{-1},xleftmargin=0.65cm,
-xrightmargin=0.2cm,commandchars=\\\{\},baselinestretch=0.98}
+\CustomVerbatimEnvironment{SpecVerbatim}{Verbatim}{fontsize=\footnotesize,xleftmargin=0.5cm,
+xrightmargin=0.2cm,commandchars=\\\{\},baselinestretch=0.98,numbersep=0.9em}
+\CustomVerbatimEnvironment{ExmVerbatim}{Verbatim}{fontsize=\footnotesize,xleftmargin=0.5cm,
+xrightmargin=0.2cm,baselinestretch=0.98,numbers=left,numbersep=0.9em}
+\CustomVerbatimEnvironment{IVerbatim}{Verbatim}{fontsize=\relsize{-1},xleftmargin=0.5cm,
+xrightmargin=0.2cm,commandchars=\\\{\},baselinestretch=0.98,numbersep=0.9em}
 
 
 \definecolor{darkgreen}{rgb}{0.0,0.5,0.0}
@@ -58,18 +58,18 @@ xrightmargin=0.2cm,commandchars=\\\{\},baselinestretch=0.98}
 \newcommand{\nonterm}[1]{\textit{#1}}
 \newcommand{\term}[1]{\texttt{#1}}
 
-\newcommand{\stenFwd}[2]{\texttt{forward} \, (\texttt{depth=}#1,
-  \texttt{dim=}#2)}
-\newcommand{\stenBwd}[2]{\texttt{backward} \, (\texttt{depth=}#1,
-  \texttt{dim=}#2)}
-\newcommand{\stenCen}[2]{\texttt{centered} \, (\texttt{depth=}#1,
-  \texttt{dim=}#2)}
-\newcommand{\stenFwdS}[2]{\texttt{fwd} \, (\texttt{depth=}#1,
-  \texttt{dim=}#2)}
-\newcommand{\stenBwdS}[2]{\texttt{bwd} \, (\texttt{depth=}#1,
-  \texttt{dim=}#2)}
-\newcommand{\stenCenS}[2]{\texttt{cen} \, (\texttt{depth=}#1,
-  \texttt{dim=}#2)}
+\newcommand{\stenFwd}[2]{\term{forward} \, (\term{depth=}#1,
+  \term{dim=}#2)}
+\newcommand{\stenBwd}[2]{\term{backward} \, (\term{depth=}#1,
+  \term{dim=}#2)}
+\newcommand{\stenCen}[2]{\term{centered} \, (\term{depth=}#1,
+  \term{dim=}#2)}
+\newcommand{\stenFwdS}[2]{\term{fwd} \, (\term{depth=}#1,
+  \term{dim=}#2)}
+\newcommand{\stenBwdS}[2]{\term{bwd} \, (\term{depth=}#1,
+  \term{dim=}#2)}
+\newcommand{\stenCenS}[2]{\term{cen} \, (\term{depth=}#1,
+  \term{dim=}#2)}
 
 
 % SYNTAX OPERATIONS AND PREDICATES
@@ -275,15 +275,118 @@ equational theory for specifications via relation ($\equiv$) and a
 theory of approximation via relation ($<:$). These equations are then
 proven sound with respecto the multi-set semantics of Section~\ref{sec:semantics}.
 
-\subsection{Syntax}
+\subsection{Notation and convention}
+\label{sec:notation}
+
+\renewcommand*{\arraystretch}{0.8}
+\paragraph{Target language syntax} Throughout, for the source language
+syntax, $v$ ranges over program variables, $s$ over statements, and
+$e$ over expressions (which may be impure).  By ``variable'', we mean
+in the imperative sense (\ie{}, named binders to memory cells) instead
+of mathematical variables. We make clear a number of standard notions
+used throughout.
+
+\begin{definition}[Base induction variable]
+  An variable \textit{v} of integer type is a \emph{base induction
+    variable} if it is the control variable of a ``for''
+  loop\footnote{Or equivalent for the target language, \eg{},
+    \texttt{do} in Fortan for our implementation}, incremented by $1$ per
+iteration. The variable is marked as a base induction variable
+only within the scope of the loop, and such variables will be ranged
+over by $i$, $j$, $k$. Since we do not use non-base induction
+variables (which are traditionally affine transformations of induction
+variables) we often simply say \emph{induction variable}. 
+\end{definition}
+
+\begin{definition}[Array subscript]
+  An \emph{array subscript} is an expression that indexes an array
+  (for the purpose or reading or writing an element), which we denote
+  by $v(\bar{e})$ for the source language where $\bar{e}$ is shorthand
+  for a syntactic list of indexing expressions. A \emph{relative
+    index} is a list $\bar{e}$ where each $e \in \bar{e}$ is defined
+  in terms of some base induction variable.
+\end{definition}
+
+\begin{definition}[Neighbourhood index and neighbourhood subscripts]
+  For an array subscript $v(\bar{e})$, we say say that $e \in \bar{e}$
+  is a \emph{neighbourhood index} if it is of the form 
+  $e \equiv i$, $e \equiv i + a$ or $e \equiv i - a$ where $a$ is a
+  constant of integer type. That is, a neighbourhood index is a
+  relative index defined as a constant translation of a base induction
+  variable. The relation $\equiv$ identifies terms up-to commutativity
+  of $+$ and the inverse relation of $+$ and $-$ (\eg{},
+  $(-b) + i \equiv i - b$).  We classify neighbourhood indices using
+  the predicate \neigh{}. An array subscript $v(\var{e})$ where every
+ $e \in \bar{e}$ is a neighbourhood index is called a 
+ \emph{neighbourhood subscript}. 
+\end{definition}
+
+
+\subsection{Specification syntax}
 \label{sec:syntax}
 
-Figure~\ref{fig:syntax}
-gives the syntax, which we introduces in stages below.
-The top-level is given by the \textit{spec} production
-which splits into either a \textit{spatial} specification or
-a \textit{temporal specification}.
+Figure~\ref{fig:syntax} gives the syntax of stencil specifications,
+which we introduces in stages below.  The top-level is given by the
+\nonterm{specification} production which splits into either a
+\nonterm{regionDec} (region declaration) or a \nonterm{specDec}
+(specification declaration). Specification declarations associate a
+specification to one or more program variables $\bar{v}$ (here given
+using the Fortran style syntax of $\ldots \; \texttt{::} \bar{v}$).
+Specification declarations are either \nonterm{spatial} or
+\nonterm{temporal} specifications and describe, for spatial
+specifcations how an array variable $v$ is read, and for temporal
+specifications what variables are used to define the array variable $v$.
 %%
+
+\subsubsection{Spatial specification syntax}
+
+\emph{Regions} are the central building blocks of spatial
+specifications. Regions can either be declared along with a
+\nonterm{regionDec}, assigning a region specification \nonterm{region} to
+a region variable \nonterm{rvar} or given directly within a
+\nonterm{spatial} specification.
+
+\paragraph{Region constants}
+
+Regions have as terminals the \emph{region constants}, denoted by 
+\term{forward}, \term{backward}, or \term{centered}. Each
+region constant is given a depth parameter $n$ (natural number greater
+than 0) and a dimension identifier $d$ (also a natural number greater than
+0). Region constants specify that an array is read from by a collection
+of indices which in the $d^{th}$ dimension are 
+neighbourhood indices ranging from $i + 0$ up to $i + n$ inclusively, \eg{}, the
+following is valid stencil, reading from \term{a} and writing to \term{b}:
+%%
+\begin{ExmVerbatim}
+!= stencil forward(depth=2, dim=1) :: a
+b(i, 0) = a(i, 0) + a(i+1, 0) + a(i+2, 0)
+\end{ExmVerbatim}
+%%
+were \texttt{i} is an induction variable.  The stencil specification
+is associated to the array variable \texttt{a}. Note that the second
+dimension is fixed at a constant here.
+
+A \term{backward} stencil
+is similar but has negative neighbourhood indices, \eg{}, 
+%
+\begin{ExmVerbatim}
+!= stencil backward(depth=2, dim=1) :: a
+b(i+1) = a(i) + a(i-1) + a(i-2)
+\end{ExmVerbatim}
+%
+Note that the left-hand subscript on \term{b} does not affect
+the stencil specification. The requirement on the left-hand side
+is merely that it is an array subscript with at least one neighbourhood index,
+but this may be on different induction variables to the right-hand
+side, which is the stencil we are concerened with. 
+
+A \texttt{centered} stencil is a combination of \texttt{forward}
+and \texttt{backward} stencils to the same depth, \eg{},
+%%
+\begin{ExmVerbatim}
+!= stencil centered(depth=1, dim=1) :: a
+b(i) = ( a(i) + a(i-1) + a(i+1) ) / 3.0
+\end{ExmVerbatim}
 
 \begin{figure}[t]
 \begin{align*}
@@ -292,7 +395,8 @@ a \textit{temporal specification}.
 \newcommand{\dimTy}{\mathbb{D}}
 \begin{array}{rl}
 \nonterm{specification} ::= & \nonterm{regionDec} \mid \nonterm{specDec} \\
-\nonterm{specDec} ::= & \term{stencil} \; \nonterm{spec}
+\nonterm{specDec} ::= & \term{stencil} \; \nonterm{spec} \;
+                        \texttt{::} \; v
   \\
 \nonterm{regionDec} ::= &  \texttt{region} \; \nonterm{rvar} \; \texttt{=} \;
                          \nonterm{region}\\
@@ -306,9 +410,9 @@ a \textit{temporal specification}.
 \nonterm{modIrrefl} ::= & \term{irreflexive}, \; \term{dims=}\dimTy \{\term{,}
           \dimTy\}\\
 \nonterm{approxMod} ::= & \term{atMost} \; \mid \; \term{atLeast} \\[0.1em]
-\nonterm{region} ::= & \term{forward}, \term{depth=}\mathbb{N}_{>0}, \term{dim=}\dimTy  \\
-\mid \; & \term{backward}, \term{depth=}\mathbb{N}_{>0}, \term{dim=}\dimTy \\
-\mid \; & \term{centered}, \term{depth=}\mathbb{N}_{>0}, \term{dim=}\dimTy \\
+\nonterm{region} ::= & \stenFwd{\mathbb{N}_{>0}}{\dimTy}  \\
+\mid \; & \stenBwd{\mathbb{N}_{>0}}{\dimTy} \\
+\mid \; & \stenCen{\mathbb{N}_{>0}}{\dimTy} \\
 \mid \; & \nonterm{region} \; \term{+} \; \nonterm{region} \\
 \mid \; & \nonterm{region} \; \term{*} \; \nonterm{region} \\
 \mid \; & \nonterm{rvar}  \\[0.5em]
@@ -322,10 +426,135 @@ a \textit{temporal specification}.
 \label{fig:syntax}
 \end{figure}
 
-\paragraph{Spatial specifications}
+\paragraph{Sum and product of regions}
+%%
+Region terms can be combined using the sum operator
+\term{+} or the product operator \term{*}. 
+
+The sum of two regions $r \texttt{+} r'$ specifies that an array is
+read using the neighbourhood indices described by both $r$ and
+$r'$. It can be thought of as a conjunction of speicifcations. For
+example, the following gives the specification for the five-point
+stencil which is the sum of two \texttt{centered} regions in each
+dimension:
+%%
+\begin{ExmVerbatim}
+!= stencil centered(depth=1, dim=1) 
+         + centered(depth=1, dim=2) :: a
+
+b(i,j) = -4*a(i,j) + a(i-1,j) + a(i+1,j) 
+                   + a(i,j-1) + a(i,j+1) 
+\end{ExmVerbatim}
+%%
+The product of two regions $r \texttt{*} r'$ specifies that the array
+is read with neighbourhood indices drawn from the bounding box created
+by the regions two regions $r$ and $r'$. For example, the following
+code (defining a nine-point stencil) has a specification as the
+product of two \texttt{centered} regions in each dimension:
+%%
+\begin{ExmVerbatim}
+!= stencil centered(depth=1, dim=1) 
+         * centered(depth=1, dim=2) :: a
+
+x = a(i, j)   + a(i-1, j)   + a(i+1, j)
+y = a(i, j-1) + a(i-1, j-1) + a(i+1, j-1)
+z = a(i, j+1) + a(i-1, j+1) + a(i+1, j+1)
+b(i, j) = (x + y + z) / 9.0
+\end{ExmVerbatim}
+%%
+Note that there are a number of intermediate assignments over which 
+the whole specification ranges. 
+
+\paragraph{Region declarations and variables}
+
+Region specifications can be assigned to region variables via
+a region declaration, which can be used later to form a spatial
+specification. For example, the speicifcation from the previous
+ example can be restated as:
+%%
+\begin{ExmVerbatim}
+!= region r1 = centered(depth=1, dim=1) 
+!= region r2 = centered(depth=1, dim=2)
+!= stencil r1*r2 :: a
+\end{ExmVerbatim}
+%%
+\paragraph{Spatial modifiers}
+%%
+There are three kinds of modifier that can be given to spatial 
+specifications: \texttt{readOnce}, \texttt{reflexive}, 
+\texttt{irreflexive}. 
+
+The \texttt{readOnce} modifier enforces that no index appears
+more than once. For example, in all of the previous examples the
+\texttt{readOnce} modifier could be added, \eg{}
+%
+\begin{ExmVerbatim}
+!= stencil readOnce, backward(depth=2, dim=1) :: a
+b(i+1) = a(i) + a(i-1) + a(i-2)
+\end{ExmVerbatim}
+%
+However, this would be an invalid specification if any of the 
+array subscripts was reapeated. This modifier provides a way to
+ rule out any accidental repetition of array subscripts. 
+The notion correponds to that of \emph{linearity}, though we
+opt for the more informative and easily understood name
+\texttt{readOnce}. This modifier is optional, so it need not
+be present even if the stencil is linear. 
+
+The \texttt{irreflexive} modifier is parameteresed by a
+comma-separated list of dimensions, indicating that for those
+dimensions there is no neighbour index with $0$ offset, \eg{}, 
+%
+\begin{ExmVerbatim}
+!= region r = centered(depth=1, dim=1)
+!= stencil irreflexive(dim=1), r :: a
+b(i) = a(i+1) + a(i-1)
+\end{ExmVerbatim}
+%
+or with just a \texttt{forward} region an example would be: 
+%
+\begin{ExmVerbatim}
+!= region r = forward(depth=1, dim=1)
+!= stencil irreflexive(dim=1), r :: a
+b(i) = a(i+1)
+\end{ExmVerbatim}
+
+The \term{reflexive} modifier is dual to \term{irreflexive},
+indicating dimensions in which there is a neighbour index with $0$
+offset. The region constants \term{forward}, \term{backward},
+\term{centered} implicitly include the \term{reflexive} modifier,
+but it is useful when there is a dimension in which there is reflexive
+indexing but not a region constant, \eg{},
+%%
+\begin{ExmVerbatim}
+!= region r = centered(depth=1, dim=1)
+!= stencil reflexive(dims=2), r :: a
+b(i,j) = a(i-1,j) + a(i+1,j) + a(i, j) 
+\end{ExmVerbatim}
+%%
+Overlapping \term{irreflexive} and \term{reflexive} modifiers
+cannot occur together-- this is an invalid specification.
+
+\paragraph{Under and over-approximation}
+
+In some cases, it is useful to give a lower and/or upper bound for a
+stencil. This can be done using either the \term{atMost} or
+\term{atLeast} modifiers. This is particularly useful in situations
+where there is a non-contiguous stencil, which does not fit the rest
+of the specification syntax.  For example:
+%%
+\begin{ExmVerbatim}
+!= stencil atMost, forward(depth=2, dim=1) :: a
+b(i) = a(i) + a(i+2) 
+\end{ExmVerbatim}
+%%
 
 
-\paragraph{Temporal specifications}
+
+
+\subsubsection{Temporal specifications}
+
+
 
 
 
@@ -569,39 +798,11 @@ specifications and for synthesising programs from specifications.
 Checking and synthesis use the set-based semantic model of
 Section~\ref{sec:semantics}. 
 
-\renewcommand*{\arraystretch}{0.8}
-\paragraph{Basic syntax definitions} In the following, $v$
-  ranges over variables, $s$ over statements, and $e$ over expressions
-  (which may be impure).  By ``variable'', we mean in the imperative
-  sense (\ie{}, named binders to memory cells) instead of mathematical
-  variables. The function \rhsExp{} maps statements to a set of
-  expressions which occur in right-hand positions (\ie{}, not the
-  target of an assignment). The function \var{} maps expressions to a
-  set of the variables used in right-hand positions. 
-
-\begin{definition}[Standard: base induction variable]
-An integer variable \textit{i} is a \emph{base induction variable} 
-within the scope of a ``for'' loop (or equivalent for the target
-language, \eg{}, \texttt{do} in Fortan for our implementation) if it
-is the control variable of the loop, incremented by $1$ per
-iteration. 
-\end{definition}
-
-\begin{definition}[Standard: array subscript]
-An \emph{array subscript} is an expression index an array, which in
-our abstract we write as $v(\bar{e})$ where $\bar{e}$ is shorthand for
-a syntactic list of indexing expressions. 
-\end{definition}
-
-\begin{definition}[Neighbourhood index]
-An array subscript $e$ is a \emph{neighbourhood index} if,
-for an induction variable $i$, then $e \equiv i + a$ or $e \equiv i - a$
-where $a$ is a constant of integer type. The relation $\equiv$ identifies terms
-up-to commutativity of $+$ and the inverse
-relation of $+$ and $-$ (\eg{}, $(-b) + i \equiv i - b$).
-In the following, we classify neighbourhood indices 
-using the predicate \neigh{}.
-\end{definition}
+\paragraph{Syntax functions}
+The function \rhsExp{} maps statements to a
+set of expressions which occur in right-hand positions (\ie{}, not the
+target of an assignment). The function \var{} maps expressions to a
+set of the variables used in right-hand positions.
 
 \subsection{Inference}
 

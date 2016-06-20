@@ -353,14 +353,18 @@ which we introduces in stages below.  The top-level is given by the
 \nonterm{regionDec} (region declaration) or a \nonterm{specDec}
 (specification declaration). Specification declarations associate a
 specification to one or more program variables $\bar{v}$ (here given
-using the Fortran style syntax of $\ldots \; \texttt{::} \bar{v}$).
-Specification declarations are either \nonterm{spatial} or
-\nonterm{temporal} specifications and describe, for spatial
-specifcations how an array variable $v$ is read, and for temporal
-specifications what variables are used to define the array variable $v$.
+using the Fortran style syntax of $\ldots \; \texttt{::} \bar{v}$),
+describing how the array variables $\bar{v}$ are acessed.
+%Specification declarations are either \nonterm{spatial} or
+%\nonterm{temporal} specifications and describe, for spatial
+%specifcations,
+%Specifications declarations describe 
+%how an array variable $v$ is read
+%, and for temporal
+%specifications what variables are used to define the array variable $v$.
 %%
 
-\subsubsection{Spatial specification syntax}
+%\subsubsection{Spatial specification syntax}
 
 \emph{Regions} are the central building blocks of spatial
 specifications. Regions can either be declared along with a
@@ -421,16 +425,16 @@ b(i) = ( a(i) + a(i-1) + a(i+1) ) / 3.0
                         \texttt{::} \; v
   \\
 \nonterm{regionDec} ::= &  \texttt{region} \; \nonterm{rvar} \; \texttt{=} \;
-                         \nonterm{region}\\
-\nonterm{spec} ::= & \nonterm{spatial} \mid \nonterm{temporal}   \\[1em]
-\nonterm{spatial} ::= & [\nonterm{mod}] \;
+                         \nonterm{region}\\[1em]
+%\nonterm{spec} ::= & \nonterm{spatial} \mid \nonterm{temporal}   \\[1em]
+\nonterm{spec} ::= & [\nonterm{mod}] \;
                        [\nonterm{approxMod},] \; [\nonterm{region}] \\
 \nonterm{mod} ::= & [\nonterm{modR},] \; [\nonterm{modRefl},] \; [\nonterm{modIrefl},] \\
 \nonterm{modR} ::= &
  \term{readOnce} \\
-\nonterm{modRefl} ::= & \term{reflexive}, \; \term{dims=}\dimTy \{\term{,} \; \dimTy\} \\
-\nonterm{modIrrefl} ::= & \term{irreflexive}, \; \term{dims=}\dimTy \{\term{,}
-          \dimTy\}\\
+\nonterm{modRefl} ::= & \term{reflexive} \, (\term{dims=}\dimTy \{\term{,} \; \dimTy\}) \\
+\nonterm{modIrrefl} ::= & \term{irreflexive} \, (\term{dims=}\dimTy \{\term{,}
+          \dimTy\}) \\
 \nonterm{approxMod} ::= & \term{atMost} \; \mid \; \term{atLeast} \\[0.1em]
 \nonterm{region} ::= & \stenFwd{\mathbb{N}_{>0}}{\dimTy}  \\
 \mid \; & \stenBwd{\mathbb{N}_{>0}}{\dimTy} \\
@@ -438,8 +442,8 @@ b(i) = ( a(i) + a(i-1) + a(i+1) ) / 3.0
 \mid \; & \nonterm{region} \; \term{+} \; \nonterm{region} \\
 \mid \; & \nonterm{region} \; \term{*} \; \nonterm{region} \\
 \mid \; & \nonterm{rvar}  \\[0.5em]
-\nonterm{temporal} ::= \; & \term{dependency} \; (v \; \{ , v \}) [, \texttt{mutual}]
-  \\[0.5em]
+%\nonterm{temporal} ::= \; & \term{dependency} \; (v \; \{ , v \}) [, \texttt{mutual}]
+%  \\[0.5em]
 \dimTy ::= \; & \mathbb{N}_{>0} \\
 \nonterm{rvar} ::= \; & [\text{\term{a}-\term{z}$\,$\term{A}-\term{Z}$\,$\term{0}-\term{9}}]+
 \end{array}
@@ -571,7 +575,7 @@ of the specification syntax.  For example:
 b(i) = a(i) + a(i+2) 
 \end{ExmVerbatim}
 %%
-\subsubsection{Temporal specifications}
+%\subsubsection{Temporal specifications}
 
 
 \subsection{Note on the design}
@@ -659,12 +663,13 @@ and checked against the code.
 \framebox{${\textit{specDec} :: \texttt{v}} \equiv 
 {\textit{specDec'} :: \texttt{v}}$} \\[1em]
 \begin{array}{rl}
-(\textsc{mutual}) \; & 
-\texttt{stencil} \; \texttt{dependency} (\texttt{v}), \texttt{mutual}
-  :: \texttt{w} 
-\\
-\equiv \; & \texttt{stencil} \; \texttt{dependency} (\texttt{w}), \texttt{mutual} ::
-  \texttt{v} \\[0.5em]
+% MUTUAL 
+%(\textsc{mutual}) \; & 
+%\texttt{stencil} \; \texttt{dependency} (\texttt{v}), \texttt{mutual}
+%  :: \texttt{w} 
+%\\
+%\equiv \; & \texttt{stencil} \; \texttt{dependency} (\texttt{w}), \texttt{mutual} ::
+%  \texttt{v} \\[0.5em]
 %(\textsc{coalesce}) \; & 
 %\texttt{stencil} \; \texttt{dependency} (\bar{v}) 
 %  :: \texttt{v} \\
@@ -712,19 +717,16 @@ normal form for stencil specifications akin to Disjunctive Normal Form
 ``conjunction''). We revisit this normalisation in Section~\ref{}.
 
 \begin{figure}[t]
-\begin{minipage}{0.88\linewidth}
 \begin{align*}
-\hspace{-0.7em}
 \begin{array}{c}
 \dfrac{}{S <: S}(\textsc{refl}) \qquad \dfrac{R <: S \quad S <: T}{R <:
   T}(\textsc{trans}) \\[1.5em]
-\\[1.5em]
 \dfrac{}{\texttt{read-once} \, S <: S}(\textsc{rep})
 \\[1.5em]
 \setlength{\arraycolsep}{0.1em}
 \dfrac{\hspace{3em} m \leq n \hspace{3em}}
 {\begin{array}{rl}
-\stenFwdS{m}{d} & \stenFwdS{n}{d}
+\stenFwdS{m}{d} & <: \stenFwdS{n}{d}
 %& \;\, ds \subseteq es \wedge n \leq m
 \\
 \wedge \stenBwdS{m}{d} & <: \stenBwdS{n}{d}
@@ -740,7 +742,6 @@ normal form for stencil specifications akin to Disjunctive Normal Form
 %\hspace{-0.1em}
 \end{array}
 \end{align*}
-\end{minipage}
 \caption{Inequations on specifications}
 \label{fig:inequations}
 \end{figure}

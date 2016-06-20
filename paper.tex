@@ -12,6 +12,28 @@
 \usepackage{tikz}
 \usepackage{multirow}
 
+\definecolor{darkblue}{rgb}{0.0,0.0,0.5}
+\definecolor{darkgreen}{rgb}{0.0,0.4,0.0}
+
+\usepackage[]{hyperref}
+\hypersetup{
+    unicode=false,          % non-Latin characters in Acrobat's bookmarks
+    pdftoolbar=true,        % show Acrobat toolbar?
+    pdfmenubar=true,        % show Acrobat menu?
+    pdffitwindow=false,      % page fit to window when opened
+    pdftitle={},    % title
+    pdfauthor={}
+    pdfsubject={},   % subject of the document
+    pdfnewwindow=true,      % links in new window
+    pdfkeywords={keywords}, % list of keywords
+    colorlinks=true,       % false: boxed links; true: colored links
+    linkcolor=darkblue,          % color of internal links
+    citecolor=darkblue,        % color of links to bibliography
+    filecolor=green,      % color of file links
+    urlcolor=blue,          % color of external links
+}
+
+
 \CustomVerbatimEnvironment{SpecVerbatim}{Verbatim}{fontsize=\footnotesize,xleftmargin=0.5cm,
 xrightmargin=0.2cm,commandchars=\\\{\},baselinestretch=0.98,numbersep=0.9em}
 \CustomVerbatimEnvironment{ExmVerbatim}{Verbatim}{fontsize=\footnotesize,xleftmargin=0.5cm,
@@ -104,7 +126,7 @@ xrightmargin=0.2cm,commandchars=\\\{\},baselinestretch=0.98,numbersep=0.9em}
 \begin{abstract}
 \end{abstract}
 
-\bibliographystyle{plain}
+\bibliographystyle{abbrvnat}
 
 \section{Introduction}
 
@@ -544,24 +566,44 @@ where there is a non-contiguous stencil, which does not fit the rest
 of the specification syntax.  For example:
 %%
 \begin{ExmVerbatim}
+!= stencil atLeast, reflexive(dims=1)      :: a
 != stencil atMost, forward(depth=2, dim=1) :: a
 b(i) = a(i) + a(i+2) 
 \end{ExmVerbatim}
 %%
-
-
-
-
 \subsubsection{Temporal specifications}
 
 
+\subsection{Note on the design}
 
-
+The names ``forward'', ``backward'' and ``centered''
+are inspired by standard terminology in numerical analysis
+for the shape of discretisation schemes. For example,
+the standard ``explicit method'' for approximation
+PDEs is the \emph{Forward Time, Centered Space} (FTCS)
+scheme~\cite{dawson1991finite}. For
+the one-dimensional heat equations, an FTCS discretisation 
+provides approximation code with the following stencil~\cite{recktenwald2004finite}:
+%%
+\begin{ExmVerbatim}
+do i=2:n-1
+  u(i) = r*v(i-1) + r2*v(i) + r*v(i+1)
+end do
+\end{ExmVerbatim}
+%%
+where \texttt{r} and \texttt{r2} are some constants. 
+A valid specification for this stencil is then:
+%%
+\begin{ExmVerbatim}
+!= stencil centered(depth=1, dim=1) 
+         + centered(depth=1, dim=2) :: v
+\end{ExmVerbatim}
+%%
+Such a specification can be inferred, or can be inserted by a user
+and checked against the code.
 
 \subsection{Equational theory and approximations}
 \label{sec:eqs}
-
-Figure~\ref{fig:equations}
 
 \begin{figure}
 \begin{align*}
@@ -614,8 +656,8 @@ Figure~\ref{fig:equations}
  \; \texttt{+} \; (S' \; \texttt{*} T')  \\[0.5em] 
 \end{array} \\ \\
 %
-\framebox{$\overline{\textit{specDec} :: \texttt{v}} \equiv 
-\overline{\textit{specDec'} :: \texttt{v}}$} \\[1em]
+\framebox{${\textit{specDec} :: \texttt{v}} \equiv 
+{\textit{specDec'} :: \texttt{v}}$} \\[1em]
 \begin{array}{rl}
 (\textsc{mutual}) \; & 
 \texttt{stencil} \; \texttt{dependency} (\texttt{v}), \texttt{mutual}
@@ -623,14 +665,14 @@ Figure~\ref{fig:equations}
 \\
 \equiv \; & \texttt{stencil} \; \texttt{dependency} (\texttt{w}), \texttt{mutual} ::
   \texttt{v} \\[0.5em]
-(\textsc{coalesce}) \; & 
-\texttt{stencil} \; \texttt{dependency} (\bar{v}) 
-  :: \texttt{v} \\
-& ; \texttt{stencil} \; \texttt{dependency} (\bar{w}) 
-  :: \texttt{v} 
-\\
-\equiv \; & \texttt{stencil} \; \texttt{dependency} (\bar{v}, \bar{w}) ::
-  \texttt{v} \\[0.5em]
+%(\textsc{coalesce}) \; & 
+%\texttt{stencil} \; \texttt{dependency} (\bar{v}) 
+%  :: \texttt{v} \\
+%& ; \texttt{stencil} \; \texttt{dependency} (\bar{w}) 
+%  :: \texttt{v} 
+%\\
+%\equiv \; & \texttt{stencil} \; \texttt{dependency} (\bar{v}, \bar{w}) ::
+%  \texttt{v} \\[0.5em]
 (\textsc{spatial}) \; &
 (\textit{region} \equiv \textit{region'}) \\
 \Rightarrow \; & (\texttt{stencil} \; [\textit{mod}] \; [\textit{approxMod},] \;
@@ -646,49 +688,66 @@ Figure~\ref{fig:equations}
 \end{figure}
 
 
-\subsubsection{Safety and sub-specifications}
+\paragraph{Equations}
+Figure~\ref{fig:equations} lists the equational theory for
+specifications. This is broken down into equations on regions only,
+given by the equivalence relation $\textit{region} \equiv \textit{region}'$ and on
+on specification declarations assigned to variables via the equivalence relation
+$\textit{specDec} :: \texttt{v} \equiv
+\textit{specDec'} :: \texttt{v}$.
 
-Figure~\ref{fig:inequations}
+To save space we use abbreviations 
+\term{fwd}, \term{bwd}, and \term{cen} for \term{forward},
+\term{backward}, and \term{centered} regions respectively.  The
+equations reveal something of their semantics.  The first six
+equations (with labels of the form $\ldots \texttt{+} \ldots$) 
+explain the behaviour of overlapping regions with sum
+\term{+}. The next six equations explain the algebraic behaviour of
+\term{+} and \term{*}.  Together, we see that \term{+} is an
+associative, commutative, idempotent binary operator that distributes
+with \term{*}, which is associative and commutative. This distribution
+of \term{*} over \term{+} is key as it is used internally to give a
+normal form for stencil specifications akin to Disjunctive Normal Form
+(DNF) (where \term{+} is taken as ``disjunction'' and \term{*} as the
+``conjunction''). We revisit this normalisation in Section~\ref{}.
 
 \begin{figure}[t]
-{\framebox{
 \begin{minipage}{0.88\linewidth}
 \begin{align*}
 \hspace{-0.7em}
 \begin{array}{c}
 \dfrac{}{S <: S}(\textsc{refl}) \qquad \dfrac{R <: S \quad S <: T}{R <:
   T}(\textsc{trans}) \\[1.5em]
-\dfrac{}{S <: \; \texttt{unspecified dims=}ds}(\top)
 \\[1.5em]
 \dfrac{}{\texttt{read-once} \, S <: S}(\textsc{rep})
 \\[1.5em]
 \setlength{\arraycolsep}{0.1em}
-\dfrac{\hspace{3em} ds \subseteq es \; \wedge \; n \leq m \hspace{3em}}
+\dfrac{\hspace{3em} m \leq n \hspace{3em}}
 {\begin{array}{rl}
-\texttt{fwd} \; \texttt{depth=}n \; \texttt{dim=}ds & <: \texttt{fwd} \;
-  \texttt{depth=}m \; \texttt{dim=}es
+\stenFwdS{m}{d} & \stenFwdS{n}{d}
 %& \;\, ds \subseteq es \wedge n \leq m
 \\
-\wedge \; \texttt{bwd} \; \texttt{depth=}n \; \texttt{dim=}ds & <: \texttt{bwd} \;
-  \texttt{depth=}m \; \texttt{dim=}es
+\wedge \stenBwdS{m}{d} & <: \stenBwdS{n}{d}
 %& \;\, ds \subseteq es \wedge n \leq m
 \\
-\wedge \; \texttt{fwd} \; \texttt{depth=}n \; \texttt{dim=}ds & <: \texttt{sym} \;
-  \texttt{depth=}m \; \texttt{dim=}es
+\wedge \; \stenCenS{m}{d} & <: \stenCenS{n}{d}
 %& \;\, ds \subseteq es \wedge n \leq m
 \\
-\wedge \; \texttt{bwd} \; \texttt{depth=}n \; \texttt{dim=}ds & <: \texttt{sym} \;
-  \texttt{depth=}m \; \texttt{dim=}es
+\wedge \; \stenBwdS{m}{d} & <: \stenCenS{n}{d} \\
+\wedge \; \stenFwdS{m}{d} & <: \stenCenS{n}{d} \\
 \end{array}}
 %{\footnotesize{(\textsc{cover})}}
 %\hspace{-0.1em}
 \end{array}
 \end{align*}
-\end{minipage}}}
-\caption{Definition of sub-specification relation}
+\end{minipage}
+\caption{Inequations on specifications}
 \label{fig:inequations}
 \end{figure}
 
+\paragraph{Inequations: sub-specifications}
+
+Figure~\ref{fig:inequations} 
 
 \section{Semantics of specifications; a model}
 \label{sec:semantics}
@@ -746,37 +805,6 @@ relative indices not associated to an array avariable.
 \paragraph{Proof} (see Appendix)
 
 
-\section{Examples and common patterns}
-
-% Implicit vs explicit differentiation methods
-% (forward implicit needs 'solver')
-% backward - Euler
-% runge-kutta 2nd-order
-
-\begin{example}[FTCS (Forward time, centered space)]
-
-  Otherwise known as the \emph{explicit method}, is a common
-  pattern since it tends to be more efficient than other approches
-  (see BTCS and CTCS below). However, its disadvantage is that it is
-  unstable if the resolution is not well chosen.
-
-\begin{ExmVerbatim}
-b(x) = a(x) + r*(a(x-1) - 2*a(x) + a(x+1))
-\end{ExmVerbatim}
-%
-For this statement, the inference provides the specification:
-%
-\begin{SpecVerbatim}
-!=  stencil centered, depth=1, dim=0 :: a
-\end{SpecVerbatim}
-
-
-
-\end{example}
-
-\paragraph{BTCS (Backward time, centered space) -- implicit method}
-
-\paragraph{CTCS (Centered time, centered space) - Crank-Nicolson method}
 
 \section{Inference, checking, and synthesis}
 \label{sec:analysis}

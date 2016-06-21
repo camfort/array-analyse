@@ -2,8 +2,43 @@ Corpus that works with 'camfort stencils-infer' (at least partially)
 
   * navier
      - 100%
+     
   * um (UKCA)
      - much of this code seems to work now
+     
+  * computational-physics-2
+    - For this to work I had to implement a more relaxed file reading routine in
+      fortran-src, since camfort will separately read the file it will probably
+      fail with "invalid byte sequence error." I will fix it in camfort once we
+      got to that stage.
+    
+    Statistics
+    --------------------------------------------------------------------------------
+     targets:	16
+      to_run:	0
+     success:	15
+     failure:	1
+     timeout:	0
+     
+  * e3mg-mark = e3mg-ea
+  
+    Statistics
+    --------------------------------------------------------------------------------
+    targets:    139
+     to_run:    0
+    success:    96
+    failure:    28
+    timeout:    15
+    
+  * e3mg-modernise
+  
+    Statistics
+    --------------------------------------------------------------------------------
+    targets:    192
+     to_run:    0
+    success:    142
+    failure:    50
+    timeout:    0
 
 Corpus that doesn't work with 'camfort stencils-infer'
 
@@ -19,25 +54,7 @@ Corpus that doesn't work with 'camfort stencils-infer'
       What in the world is this:   STIME = time(%REF(0))
 	
 Untested
-
-  * computational-physics-2
   * kpp
   * wrf-wps
   * wrf-wrfplus
   * wrf-wrfda
-  * e3mg-mark = e3mg-ea
-    Statistics
-    --------------------------------------------------------------------------------
-    targets:    139
-     to_run:    0
-    success:    96
-    failure:    28
-    timeout:    15
-  * e3mg-modernise
-    Statistics
-    --------------------------------------------------------------------------------
-    targets:    192
-     to_run:    0
-    success:    142
-    failure:    50
-    timeout:    0

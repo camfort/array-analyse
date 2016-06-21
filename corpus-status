@@ -13,6 +13,8 @@ Corpus that works with 'camfort stencils-infer' (at least partially)
     success:	211
     failure:	23
     timeout:	23
+    
+    (10 failing files have preprocessor statements)
      
   * computational-physics-2
     - For this to work I had to implement a more relaxed file reading routine in

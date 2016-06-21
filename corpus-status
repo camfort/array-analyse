@@ -57,8 +57,12 @@ Corpus that works with 'camfort stencils-infer' (at least partially)
     targets:	151
      to_run:	0
     success:	109
-    failure:	42
+    failure:	40
     timeout:	0
+    
+    All but one of the errors in BLAS is use of * as a KIND specifier in
+    non-character setting. I might extend the exnteded parser to deal with
+    that.
 
 Corpus that doesn't work with 'camfort stencils-infer'
 

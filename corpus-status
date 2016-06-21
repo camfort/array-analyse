@@ -46,9 +46,9 @@ Corpus that works with 'camfort stencils-infer' (at least partially)
     --------------------------------------------------------------------------------
     targets:    192
      to_run:    0
-    success:    142
-    failure:    50
-    timeout:    0
+    success:    152
+    failure:    38
+    timeout:    2
 
 Corpus that doesn't work with 'camfort stencils-infer'
 

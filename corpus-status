@@ -25,6 +25,19 @@ Untested
   * wrf-wps
   * wrf-wrfplus
   * wrf-wrfda
-  * e3mg-mark
-  * e3mg-ea
+  * e3mg-mark = e3mg-ea
+    Statistics
+    --------------------------------------------------------------------------------
+    targets:    139
+     to_run:    0
+    success:    96
+    failure:    28
+    timeout:    15
   * e3mg-modernise
+    Statistics
+    --------------------------------------------------------------------------------
+    targets:    192
+     to_run:    0
+    success:    142
+    failure:    50
+    timeout:    0

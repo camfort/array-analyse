@@ -6,15 +6,15 @@ Corpus that works with 'camfort stencils-infer' (at least partially)
   * um (UKCA)
      - much of this code seems to work now
      
-     Statistics
+    Statistics
     --------------------------------------------------------------------------------
     targets:	257
      to_run:	0
-    success:	211
-    failure:	23
-    timeout:	23
+    success:	235
+    failure:	15
+    timeout:	7
     
-    (10 failing files have preprocessor statements)
+    (_10_ failing files have preprocessor statements)
      
   * computational-physics-2
     - For this to work I had to implement a more relaxed file reading routine in

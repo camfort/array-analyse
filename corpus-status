@@ -79,8 +79,14 @@ Corpus that doesn't work with 'camfort stencils-infer'
   * hande
       Has lots of Fortran 95 which prevents many files from being parsed
         (not just 'pure' and 'elemental' but some other weird stuff)
+        
   * geos-chem
-      Pre-processor stuff.
+      196/295 are failing.
+      65 files with preprocessor statements.
+      35+ files terminate with  “USE renaming not supported (yet),” so there
+        might be an easy fix to most files.
+      The rest of the errors seem to be common F90 compliancy issues.
+      
   * computation-physics-1
       Some works, some doesn't.
       What in the world is this:   STIME = time(%REF(0))

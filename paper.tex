@@ -137,17 +137,19 @@ xrightmargin=0.2cm,commandchars=\\\{\},baselinestretch=0.98,numbersep=0.9em}
   systems of specification and verification between lower-level
   aspects (\eg{}, out-of-bounds errors) and full correctness
   with-respect to a numerical model. In this paper, we focus on
-  \emph{stencil computations}-- a common idiom in numerical code.  Our
-  conjecture is that the vast majority of stencil computations have a
-  simple, regular, static shape that can be captured by a simple
-  specification language. We propose a language for this, along with
-  an inference and checking procedure. We test our conjecture against
-  a corpus of numerical code, and show that we can give static
-  specifications to $X\%$ of identifiable stencil computations, with a
-  mean ratio of $Y:Z$ specification-to-program code.  This paper
-  details our stencil specification language, its static semantics,
-  inference, checking, and program synthesis procedures, our
-  implementation, and our evaluation study.
+  \emph{stencil computations}-- a common idiom in numerical code, but
+  one which is prone to error due to fine-grained programming
+  mistakes.  Our conjecture is that the vast majority of stencil
+  computations have a simple, regular, static shape that can be
+  described by a simple specification language. We propose a language
+  for this, along with an inference and checking procedure. We test
+  our conjecture against a corpus of numerical Fortran code, and show
+  that static specifications can be given to $X\%$ of identifiable
+  stencil computations, with a mean ratio of $Y:Z$
+  specification-to-program code. This paper details our stencil
+  specification language, its static semantics, inference, checking,
+  and program synthesis procedures, our implementation, and our
+  evaluation study.
 \end{abstract}
 
 \keywords{program verification, specifications, static analysis,

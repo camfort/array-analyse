@@ -14,6 +14,17 @@ Corpus that works with 'camfort stencils-infer' (at least partially)
     failure:	15
     timeout:	7
     
+    with -S it takes extremely long to finish (as predicted), here are the
+    results:
+    
+    Statistics
+    ----------------------------------------------------------------------------
+    targets:	257
+     to_run:	0
+    success:	199
+    failure:	36
+    timeout:	22
+    
     (_10_ failing files have preprocessor statements)
      
   * computational-physics-2

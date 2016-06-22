@@ -49,7 +49,9 @@ Corpus that works with 'camfort stencils-infer' (at least partially)
     success:    152
     failure:    38
     timeout:    2
-    
+
+Corpus that doesn't work with 'camfort stencils-infer'
+
   * BLAS (with -v77e, that is the extended 77 parser)
   
     Statistics
@@ -64,10 +66,16 @@ Corpus that works with 'camfort stencils-infer' (at least partially)
     non-character setting. I might extend the exnteded parser to deal with
     that.
 
-Corpus that doesn't work with 'camfort stencils-infer'
-
   * hybrid4
       Fortran77 but has INCLUDE
+    Statistics
+    -----------------------------------------------------------------------------
+    targets:	29
+     to_run:	0
+    success:	17
+    failure:	12
+    timeout:	0
+    
   * hande
       Has lots of Fortran 95 which prevents many files from being parsed
         (not just 'pure' and 'elemental' but some other weird stuff)

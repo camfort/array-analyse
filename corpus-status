@@ -1,3 +1,15 @@
+The ones to focus on for the paper:
+
+- navier
+- UKCA
+- computational-physics-2
+- e3mg-ea
+- e3mg-modernize
+- blas
+- hybrid4
+- geos-chem
+- wrf-main
+
 Corpus that works with 'camfort stencils-infer' (at least partially)
 
   * navier

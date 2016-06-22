@@ -56,8 +56,8 @@ Corpus that works with 'camfort stencils-infer' (at least partially)
     --------------------------------------------------------------------------------
     targets:	151
      to_run:	0
-    success:	109
-    failure:	40
+    success:	147
+    failure:	4
     timeout:	0
     
     All but one of the errors in BLAS is use of * as a KIND specifier in

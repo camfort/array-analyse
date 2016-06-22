@@ -173,21 +173,23 @@ do iter = 0, itermax
    do i = 1, (n-1)
       b(i) = a(i-1) - 2*a(i) + a(i+1)
    a = b
+   end do
+end do
 \end{ExmVerbatim}
 %
 Line 3 is the core of the stencil computation, calculating
 the value at \texttt{b(i)} from a neighbourhood of elements about
 \texttt{a(i)}. Line 4 swaps
 \texttt{a} and \texttt{b} between iterations, where \texttt{b} becomes the
-input for the next iteration. (Note, we use the parentheses syntax
-\texttt{( )} for
-array subscripts rather than the bracket syntax \texttt{[ ]}. 
+input for the next iteration. Parentheses 
+\texttt{( )} are used here for 
+array subscripts rather than bracket syntax \texttt{[ ]}. 
 
 %This stencil computation exhibits statically decideable
 %spatial and temporal relationships between $\texttt{a}$ and
 %$\texttt{b}$.
-In this simple example, the dependencies between between \texttt{a}
-and \texttt{b} form a simple spatial relationship which is easily
+In this simple example, the dependency between \texttt{a}
+and \texttt{b} on line 3 forms a simple spatial relationship which is easily
 understood. This spatial relationship determines other aspects of the
 program and its efficient implementation: how much ``boundary'' is
 needed for the array, the most cache-efficient layout in memory,
@@ -203,7 +205,7 @@ accidentally introduce an error via simple textual mistakes, for
 example writing $\texttt{(i-1,j)}$ instead of $\texttt{(i+1,j)}$.
 
 In this work, we introduce a simple specification language for the
-spatial and temporal properties of stencil comptuations. The
+spatial properties of stencil comptuations. The
 specifications abstract over the fine grained detail of stencil access
 patterns.  In practise, most stencil computations have a regular shape
 that can be described simply and abstractly, with a small set of
@@ -211,17 +213,18 @@ coarse-grained descriptions. In the case of our first Laplace example,
 our inference procedure provides the specification:
 %
 \begin{SpecVerbatim}
-!=  stencil centered (depth=1, dim=1) :: a
-!=  stencil dependency a, mutual       :: b
+!=  stencil centered(depth=1, dim=1) :: a
 \end{SpecVerbatim}
 %
-The first line explains that \texttt{a} is read from with a
+This explains that \texttt{a} is read from with a
 symmetrical stencil pattern (``centered'') to a depth of one in each
-direction in its first (and only) dimension.  The second line explains
-the temporal relationship between \texttt{b} and \texttt{a}: that
-previous time step for \texttt{b} is actually provided by \texttt{a},
-and vice versa. This is explained as a mutual dependence between
-\texttt{a} and \texttt{b}. In the case of the Navier-Stokes example of
+direction in its first (and only) dimension.  
+%The second line explains
+%the temporal relationship between \texttt{b} and \texttt{a}: that
+%previous time step for \texttt{b} is actually provided by \texttt{a},
+%and vice versa. This is explained as a mutual dependence between
+%\texttt{a} and \texttt{b}.
+In the case of the Navier-Stokes example of
 Figure~\ref{ref:navier-stokes-fragment}, its inferred specification is shown
 in Figure~\ref{ref:navier-stokes-fragment}(b). The 
 specification explains that, over the whole fragment, \texttt{u} is
@@ -229,26 +232,8 @@ read from with a centered pattern to depth of 1 in both dimensions
 (this is known as the \emph{five point stencil}) and \texttt{v}
 is read from in a neighbourhood bounded by forward to depth of $1$ in
 the first dimension and backward to a depth of $1$ in the second
-dimension. These can drawn pictorially as follows where the horizontal
-dimensions is \text{dim=1} and the vertical is \texttt{dim=2}:
-
-\begin{center}
-\begin{tikzpicture}
-\node at (1.25,1.22) {i, j};
-\draw (1,1) rectangle (1.5,1.5);
-\draw (1.5,1) rectangle (2,1.5);
-\draw (1,0.5) rectangle (1.5,1);
-\draw (0.5,1) rectangle (1,1.5);
-\draw (1,1.5) rectangle (1.5,2);
-%
-\node at (4.25,1.22) {i, j};
-\draw (4,1) rectangle (4.5,1.5);
-\draw (4.5,1) rectangle (5,1.5);
-\draw (4.5,1.5) rectangle (5,2);
-\draw (4,1.5) rectangle (4.5,2);
-\end{tikzpicture}
-\end{center}
-
+dimension. Figure~\ref{ref:navier-stokes-fragment}(c) describes these
+pictorially. 
 
 In this paper, we make the following contributions:
 %
@@ -266,7 +251,7 @@ of this approach.
 \end{itemize}
 %
 
-\begin{figure}
+\begin{figure}[t]
 \begin{ExmVerbatim}[firstnumber=20]
 du2dx = ((u(i,j)+u(i+1,j))*(u(i,j)+u(i+1,j))+
     gamma*abs(u(i,j)+u(i+1,j))*(u(i,j)-u(i+1,j))-
@@ -283,7 +268,7 @@ duvdy = ((v(i,j)+v(i+1,j))*(u(i,j)+u(i,j+1))+
 laplu = (u(i+1,j)-2.0*u(i,j)+u(i-1,j))/delx/delx+
           (u(i,j+1)-2.0*u(i,j)+u(i,j-1))/dely/dely
 \end{ExmVerbatim}
-(a). Excerpt from the Fortran code,
+(a). Excerpt from Fortran code for a Navier-Stoke fluid simulator,
 showing highly-detailed stencil computations. \\
 
 %\begin{SpecVerbatim}[xleftmargin=0.1cm]
@@ -301,6 +286,25 @@ showing highly-detailed stencil computations. \\
            * backward(depth=1, dim=2) :: v
 \end{SpecVerbatim}
 (b). Inferred stencil specification from CamFort
+
+\begin{center}
+\begin{tikzpicture}
+\node at (1.25,1.22) {i, j};
+\draw (1,1) rectangle (1.5,1.5);
+\draw (1.5,1) rectangle (2,1.5);
+\draw (1,0.5) rectangle (1.5,1);
+\draw (0.5,1) rectangle (1,1.5);
+\draw (1,1.5) rectangle (1.5,2);
+%
+\node at (4.25,1.22) {i, j};
+\draw (4,1) rectangle (4.5,1.5);
+\draw (4.5,1) rectangle (5,1.5);
+\draw (4.5,1.5) rectangle (5,2);
+\draw (4,1.5) rectangle (4.5,2);
+\end{tikzpicture}
+\end{center}
+(c). Pictoral representation of the two stencil specifications.
+The horizontal dimensions is \text{dim=1} and the vertical is \texttt{dim=2}:
 \caption{Fragment of Navier-Stokes fluid simulator and its specification}
 \label{ref:navier-stokes-fragment}
 \end{figure}

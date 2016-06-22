@@ -1,30 +1,132 @@
+The ones to focus on for the paper:
+
+- navier
+- UKCA
+- computational-physics-2
+- e3mg-ea
+- e3mg-modernize
+- blas
+- hybrid4
+- geos-chem
+- wrf-main
+
 Corpus that works with 'camfort stencils-infer' (at least partially)
 
   * navier
      - 100%
+     
   * um (UKCA)
      - much of this code seems to work now
+     
+    Statistics
+    --------------------------------------------------------------------------------
+    targets:	257
+     to_run:	0
+    success:	235
+    failure:	15
+    timeout:	7
+    
+    with -S it takes extremely long to finish (as predicted), here are the
+    results:
+    
+    Statistics
+    ----------------------------------------------------------------------------
+    targets:	257
+     to_run:	0
+    success:	199
+    failure:	36
+    timeout:	22
+    
+    (_10_ failing files have preprocessor statements)
+     
+  * computational-physics-2
+    - For this to work I had to implement a more relaxed file reading routine in
+      fortran-src, since camfort will separately read the file it will probably
+      fail with "invalid byte sequence error." I will fix it in camfort once we
+      got to that stage.
+    
+    Statistics
+    --------------------------------------------------------------------------------
+     targets:	16
+      to_run:	0
+     success:	15
+     failure:	1
+     timeout:	0
+     
+  * e3mg-mark = e3mg-ea
+  
+    Statistics
+    --------------------------------------------------------------------------------
+    targets:    139
+     to_run:    0
+    success:    96
+    failure:    28
+    timeout:    15
+    
+  * e3mg-modernise
+  
+    Statistics
+    --------------------------------------------------------------------------------
+    targets:    192
+     to_run:    0
+    success:    152
+    failure:    38
+    timeout:    2
 
 Corpus that doesn't work with 'camfort stencils-infer'
 
+  * BLAS (with -v77e, that is the extended 77 parser)
+  
+    Statistics
+    --------------------------------------------------------------------------------
+    targets:	151
+     to_run:	0
+    success:	147
+    failure:	4
+    timeout:	0
+    
+    All but one of the errors in BLAS is use of * as a KIND specifier in
+    non-character setting. I might extend the exnteded parser to deal with
+    that.
+
   * hybrid4
       Fortran77 but has INCLUDE
+    Statistics
+    -----------------------------------------------------------------------------
+    targets:	29
+     to_run:	0
+    success:	17
+    failure:	12
+    timeout:	0
+    
   * hande
       Has lots of Fortran 95 which prevents many files from being parsed
         (not just 'pure' and 'elemental' but some other weird stuff)
+        
   * geos-chem
-      Pre-processor stuff.
+      196/295 are failing.
+      65 files with preprocessor statements.
+      35+ files terminate with  “USE renaming not supported (yet),” so there
+        might be an easy fix to most files.
+      The rest of the errors seem to be common F90 compliancy issues.
+      
   * computation-physics-1
       Some works, some doesn't.
       What in the world is this:   STIME = time(%REF(0))
+      
+  * wrf-main
+    Statistics
+    ----------------------------------------------------------------------------
+    targets:	60
+     to_run:	0
+    success:	15
+    failure:	45
+    timeout:	0
+    
+    40+ of these 45 failures are due to PREPROCESSOR statements.
 	
 Untested
-
-  * computational-physics-2
   * kpp
   * wrf-wps
   * wrf-wrfplus
   * wrf-wrfda
-  * e3mg-mark
-  * e3mg-ea
-  * e3mg-modernise

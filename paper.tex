@@ -118,13 +118,40 @@ xrightmargin=0.2cm,commandchars=\\\{\},baselinestretch=0.98,numbersep=0.9em}
 
 
 \title{Abstract Spatial Specification of Stencil Computations}
-\authorinfo{}{}
+\authorinfo{Dominic Orchard \and Mistral Contrastin 
+\and Matthew Danish \and Andrew Rice}{University of Cambridge}{}
 
 \begin{document}
 \maketitle
 
 \begin{abstract}
+  Verifying the correctness of numerical computations is hard because
+  potential specifications for their behaviour tend to be highly
+  decouple from the code, defined in terms of the originating
+  mathematical model. For example, a system of PDEs specifies a
+  relationship between variables, but tools for encoding such a
+  specification, and pertinent properties such as convergence and
+  stability, are rare.  Furthermore, checking the correctness of some
+  implementation of a discrete approximation against such
+  specifications is extremely challenging. We seek intermediate
+  systems of specification and verification between lower-level
+  aspects (\eg{}, out-of-bounds errors) and full correctness
+  with-respect to a numerical model. In this paper, we focus on
+  \emph{stencil computations}-- a common idiom in numerical code.  Our
+  conjecture is that the vast majority of stencil computations have a
+  simple, regular, static shape that can be captured by a simple
+  specification language. We propose a language for this, along with
+  an inference and checking procedure. We test our conjecture against
+  a corpus of numerical code, and show that we can give static
+  specifications to $X\%$ of identifiable stencil computations, with a
+  mean ratio of $Y:Z$ specification-to-program code.  This paper
+  details our stencil specification language, its static semantics,
+  inference, checking, and program synthesis procedures, our
+  implementation, and our evaluation study.
 \end{abstract}
+
+\keywords{program verification, specifications, static analysis,
+  stencil computation}
 
 \bibliographystyle{abbrvnat}
 
@@ -721,7 +748,7 @@ normal form for stencil specifications akin to Disjunctive Normal Form
 \begin{array}{c}
 \dfrac{}{S <: S}(\textsc{refl}) \qquad \dfrac{R <: S \quad S <: T}{R <:
   T}(\textsc{trans}) \\[1.5em]
-\dfrac{}{\texttt{read-once} \, S <: S}(\textsc{rep})
+\dfrac{}{\texttt{readOnce} \, S <: S}(\textsc{rep})
 \\[1.5em]
 \setlength{\arraycolsep}{0.1em}
 \dfrac{\hspace{3em} m \leq n \hspace{3em}}
@@ -736,13 +763,18 @@ normal form for stencil specifications akin to Disjunctive Normal Form
 %& \;\, ds \subseteq es \wedge n \leq m
 \\
 \wedge \; \stenBwdS{m}{d} & <: \stenCenS{n}{d} \\
-\wedge \; \stenFwdS{m}{d} & <: \stenCenS{n}{d} \\
-\end{array}}
-%{\footnotesize{(\textsc{cover})}}
-%\hspace{-0.1em}
+\wedge \; \stenFwdS{m}{d} & <: \stenCenS{n}{d} \\[1em]
+\end{array}} \\[2.5em]
+\hspace{-0.5em}
+\dfrac{S_1 <: T_1 \quad S_2 <: T_2} 
+      {S_1 \, \texttt{+} \, S_2 <: T_1 \, \texttt{+} \, T_2}
+(\textsc{cong}\texttt{+}) \;\;\;
+\dfrac{S_1 <: T_1 \quad S_2 <: T_2} 
+      {S_1 \, \texttt{*} \, S_2 <: T_1 \, \texttt{*} \, T_2}
+(\textsc{cong}\texttt{*})
 \end{array}
 \end{align*}
-\caption{Inequations on specifications}
+\caption{Inequations on regions}
 \label{fig:inequations}
 \end{figure}
 

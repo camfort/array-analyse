@@ -90,6 +90,17 @@ Corpus that doesn't work with 'camfort stencils-infer'
   * computation-physics-1
       Some works, some doesn't.
       What in the world is this:   STIME = time(%REF(0))
+      
+  * wrf-main
+    Statistics
+    ----------------------------------------------------------------------------
+    targets:	60
+     to_run:	0
+    success:	15
+    failure:	45
+    timeout:	0
+    
+    40+ of these 45 failures are due to PREPROCESSOR statements.
 	
 Untested
   * kpp

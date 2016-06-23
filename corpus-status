@@ -22,14 +22,28 @@ Corpus that works with 'camfort stencils-infer' (at least partially)
     --------------------------------------------------------------------------------
     targets:	256
      to_run:	0
-    success:	238
+    success:	239
     failure:	17
-    timeout:	1
+    timeout:	0
     
     6 of the 7 actual failures (excluding preprocessor related ones) are due to
     USE statement renaming support. The remaining error is due to standard
     non-compliant use of ELSEWHERE statement with a predicate following it (F90
     does not allow the predicate).
+    
+    Here's a breakdown of stencil situation in the failing files:
+    /Volumes/unified-model/trunk/src/atmosphere/UKCA/photolib/calcjs_mod.F90:
+        Three 1 dimensional reflexive. All in the same loop l.382.
+    /Volumes/unified-model/trunk/src/atmosphere/UKCA/ukca_aero_ctl.F90:
+        Lots of stencils all reflexive with various dimensions..
+    /Volumes/unified-model/trunk/src/atmosphere/UKCA/ukca_fastjx.F90:
+        Reflexive stencils both with ranges and with explicit induction vars.
+    /Volumes/unified-model/trunk/src/atmosphere/UKCA/ukca_mode_ems_um_mod.F90:
+    /Volumes/unified-model/trunk/src/atmosphere/UKCA/ukca_new_emiss_ctl_mod.F90:
+        Reflexive stencils with ranges.
+    /Volumes/unified-model/trunk/src/atmosphere/UKCA/ukca_radaer_read_luts.F90:
+    /Volumes/unified-model/trunk/src/atmosphere/UKCA/ukca_radaer_read_precalc.F90:
+        Nope.
     
     with -S it takes extremely long to finish (as predicted), here are the
     results:

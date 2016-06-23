@@ -111,6 +111,13 @@ Corpus that doesn't work with 'camfort stencils-infer'
     All but one of the errors in BLAS is use of * as a KIND specifier in
     non-character setting. I might extend the exnteded parser to deal with
     that.
+    
+    Stencil situation in failing files:
+    blas/dznrm2.f:
+    blas/xerbla.f:
+    blas/zdotc.f:
+    blas/zdotu.f:
+        No stencils whatsoever.
 
   * hybrid4
       Fortran77 but has INCLUDE

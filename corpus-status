@@ -20,11 +20,16 @@ Corpus that works with 'camfort stencils-infer' (at least partially)
      
     Statistics
     --------------------------------------------------------------------------------
-    targets:	257
+    targets:	256
      to_run:	0
-    success:	235
-    failure:	15
-    timeout:	7
+    success:	238
+    failure:	17
+    timeout:	1
+    
+    6 of the 7 actual failures (excluding preprocessor related ones) are due to
+    USE statement renaming support. The remaining error is due to standard
+    non-compliant use of ELSEWHERE statement with a predicate following it (F90
+    does not allow the predicate).
     
     with -S it takes extremely long to finish (as predicted), here are the
     results:

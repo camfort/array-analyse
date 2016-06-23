@@ -144,7 +144,9 @@ Corpus that doesn't work with 'camfort stencils-infer'
       Some works, some doesn't.
       What in the world is this:   STIME = time(%REF(0))
       
-  * wrf-main
+  * wrf-main: I think we should discard this repo as it doesn't have any
+    scientific code in it.
+  
     Statistics
     ----------------------------------------------------------------------------
     targets:	60
@@ -152,6 +154,8 @@ Corpus that doesn't work with 'camfort stencils-infer'
     success:	15
     failure:	45
     timeout:	0
+    
+    Stencil situation: None of the files contain it.
     
     40+ of these 45 failures are due to PREPROCESSOR statements.
 	

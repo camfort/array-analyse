@@ -72,6 +72,10 @@ Corpus that works with 'camfort stencils-infer' (at least partially)
      failure:	1
      timeout:	0
      
+     Stencil situation in failing file:
+     corpus/computational-physics-2/fortran90/dart2.f90:
+        No stencil computations.
+     
   * e3mg-mark = e3mg-ea
   
     Statistics

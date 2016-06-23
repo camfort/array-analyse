@@ -170,7 +170,11 @@ this array is calculated from a \emph{neighbourhood} of values around $i$ in
 some input array(s), \eg{}, the Game of Life, convolutions in image
 processing, approximations to differential equations. For example, the
 following iteratively computes the one-dimensional discrete Laplace
-transform (an approximation to a derivative): 
+transform (an approximation to a derivative) in Fortran: 
+
+\mnote{Line 4 does not swap  between iterations it does within. Is this 
+correct? I think it needs to be on Line 5? If it is meant to be in Line 4, it is
+wrongly indented.}
 %
 \begin{ExmVerbatim}
 do iter = 0, itermax
@@ -185,9 +189,8 @@ Line 3 is the core of the stencil computation, calculating
 the value at \texttt{b(i)} from a neighbourhood of elements about
 \texttt{a(i)}. Line 4 swaps
 \texttt{a} and \texttt{b} between iterations, where \texttt{b} becomes the
-input for the next iteration. Parentheses 
-\texttt{( )} are used here for 
-array subscripts rather than bracket syntax \texttt{[ ]}. 
+input for the next iteration. In Fortran, parentheses \texttt{( )} are used
+for array subscripts rather than the more familiar bracket syntax \texttt{[ ]}. 
 
 %This stencil computation exhibits statically decideable
 %spatial and temporal relationships between $\texttt{a}$ and

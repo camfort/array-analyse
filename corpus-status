@@ -120,7 +120,6 @@ Corpus that doesn't work with 'camfort stencils-infer'
         No stencils whatsoever.
 
   * hybrid4
-      Fortran77 but has INCLUDE
     Statistics
     -----------------------------------------------------------------------------
     targets:	29

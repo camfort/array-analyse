@@ -433,15 +433,9 @@ is similar but has negative neighbourhood indices, \eg{},
 %
 \begin{ExmVerbatim}
 != stencil backward(depth=2, dim=1) :: a
-b(i+1) = a(i) + a(i-1) + a(i-2)
+b(i) = a(i) + a(i-1) + a(i-2)
 \end{ExmVerbatim}
 %
-Note that the left-hand subscript on \term{b} does not affect
-the stencil specification. The requirement on the left-hand side
-is merely that it is an array subscript with at least one neighbourhood index,
-but this may be on different induction variables to the right-hand
-side, which is the stencil we are concerened with. 
-
 A \texttt{centered} stencil is a combination of \texttt{forward}
 and \texttt{backward} stencils to the same depth, \eg{},
 %%
@@ -868,7 +862,7 @@ selecting from $u$ for $1$ and $v$ for $0$. Thus, we can
 defined the pairwise pemutation matrix as:
 %
 \begin{align*}
-(u \bowtie v)_{i,j} & = b_{i,j} u_i + \neg b_{i,j} v_j
+(u \bowtie v)_{i,j} & = b_{i,j} u_j + \neg b_{i,j} v_j
 \end{align*}
 %
 where $b$ is a logical matrix where $b_{i,j}$ is the $j$-th bit of the integer $i$. 
@@ -1309,35 +1303,6 @@ for the specification language.
 \onecolumn
 \appendix
 
-\section{Correctness}
-
-
-\begin{theorem}[Soundness]
-\[
-\overline{\texttt{v} : S}\equiv \overline{\texttt{u} : T}
-\; \Rightarrow \;
-\interp{\overline{\texttt{v} : S}} = \interp{\overline{\texttt{u} : T}}
-\]
-\end{theorem}
-
-\paragraph{Proof}
-\begin{itemize}
-\item \textsc{coalesceF}
-\begin{align*}
-\llbracket & \texttt{v} : \texttt{fwd} \; \texttt{dims}=ds \; \texttt{depth}=n; \,
-  \texttt{v} :  \texttt{fwd} \; \texttt{dims}=ds \;
-  \texttt{depth}=n+1)\rrbracket \\
-& =  \{ (\texttt{v}, ix)^m \mid \forall \, m, ix : \relix, d : \mathbb{N}
-  \, . \, d \in \textit{ds} \Rightarrow ix \, d \leq (n+1) \} \; \cup \; \{ ix^m \mid \forall \, m, ix : \mathbb{Z}^{\mathbb{N}}, d : \mathbb{N}
-  \, . \, d \in \textit{ds} \Rightarrow ix \, d \leq n \}\\
-& =  \{ (\texttt{v}, ix)^m \mid \forall \, m, ix : \relix, d : \mathbb{N}
-  \, . \, d \in \textit{ds} \Rightarrow ((ix \, d \leq (n+1)) \vee (ix \,
-  d \leq n)) \} \\
-& =  \{ (\texttt{v}, ix)^m \mid \forall \, m, ix : \relix, d : \mathbb{N}
-  \, . \, d \in \textit{ds} \Rightarrow ix \, d \leq (n+1) \} \\
-& = \interp{\texttt{v} : \texttt{fwd} \; \texttt{dim}=ds \;
-  \texttt{depth}=n + 1} \qquad \Box
-\end{align*}
-\end{itemize}
+\input{proof.tex}
 
 \end{document}

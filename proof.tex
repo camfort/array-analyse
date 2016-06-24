@@ -1,0 +1,30 @@
+\section{Correctness}
+
+
+\begin{theorem}[Soundness]
+\[
+\overline{\texttt{v} : S}\equiv \overline{\texttt{u} : T}
+\; \Rightarrow \;
+\interp{\overline{\texttt{v} : S}} = \interp{\overline{\texttt{u} : T}}
+\]
+\end{theorem}
+
+\paragraph{Proof}
+\begin{itemize}
+\item \textsc{coalesceF}
+\begin{align*}
+\llbracket & \texttt{v} : \texttt{fwd} \; \texttt{dims}=ds \; \texttt{depth}=n; \,
+  \texttt{v} :  \texttt{fwd} \; \texttt{dims}=ds \;
+  \texttt{depth}=n+1)\rrbracket \\
+& =  \{ (\texttt{v}, ix)^m \mid \forall \, m, ix : \relix, d : \mathbb{N}
+  \, . \, d \in \textit{ds} \Rightarrow ix \, d \leq (n+1) \} \; \cup \; \{ ix^m \mid \forall \, m, ix : \mathbb{Z}^{\mathbb{N}}, d : \mathbb{N}
+  \, . \, d \in \textit{ds} \Rightarrow ix \, d \leq n \}\\
+& =  \{ (\texttt{v}, ix)^m \mid \forall \, m, ix : \relix, d : \mathbb{N}
+  \, . \, d \in \textit{ds} \Rightarrow ((ix \, d \leq (n+1)) \vee (ix \,
+  d \leq n)) \} \\
+& =  \{ (\texttt{v}, ix)^m \mid \forall \, m, ix : \relix, d : \mathbb{N}
+  \, . \, d \in \textit{ds} \Rightarrow ix \, d \leq (n+1) \} \\
+& = \interp{\texttt{v} : \texttt{fwd} \; \texttt{dim}=ds \;
+  \texttt{depth}=n + 1} \qquad \Box
+\end{align*}
+\end{itemize}

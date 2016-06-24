@@ -1286,9 +1286,71 @@ result, hence we have reached a fixed point.
 \paragraph{Step 4: Convert spans into region AST}
 
 Given the set $\textsf{regions}(M)$ of spans covering the indexing
-space, the next step converts these into abstract syntax tree
+space, the next step converts these into abstract syntax trees 
 for the specification language.
 
+For each span $S = [\vect{l} \; \vect{u}]$, 
+for each dimension, each pair of entries in the lower- and upper-bound 
+vectors is mapped to a concrete \textit{spec}, as defined by the
+$\mathsf{conv}$ function: 
+%%
+\begin{align*}
+& \mathsf{conv}_i\; [\vect{l} \; \vect{u}] = \\
+& \begin{cases}
+%% FWD
+ \stenFwd{\vect{u}_i}{i}  & \vect{l}_i = 0 \; \wedge \; \vect{u}_i > 0 \\[0.7em]
+ \texttt{irreflexive(dims=$i$)}, & \\
+ \qquad \stenFwd{\vect{u}_i}{i}  & \vect{l}_i = 1 \; \wedge \; \vect{u}_i > 0 \\[0.7em]
+%% BWD
+ \stenBwd{|\vect{l}_i|}{i}  & \vect{l}_i < 0 \; \wedge \; \vect{u}_i = 0 \\[0.7em]
+ \texttt{irreflexive(dims=$i$)}, & \\
+ \quad\;\; \stenBwd{|\vect{l}_i|}{i}  & \vect{l}_i < 0 \; \wedge \; \vect{u}_i = -1 \\[0.7em]
+%% CEN
+ \stenCen{\vect{u}_i}{i}  &\vect{l}_i < 0 \; \wedge \; \vect{u}_i > 0
+ \; \\
+ & \qquad\quad \wedge \; |\vect{l}_i| = \vect{u}_i \\[0.7em]
+ \stenBwd{|\vect{l}_i|}{i} & \vect{l}_i < 0 \; \wedge \; \vect{u}_i >
+ 0 \\
+\quad \texttt{+} \; \stenFwd{\vect{u}_i}{i}  & \qquad\quad \wedge \; |\vect{l}_i| \neq \vect{u}_i \\[0.7em]
+% ABSOLUTE REP
+ \texttt{irreflexive(dims=$i$)} & \vect{l}_i = \infty \; \vee \; \vect{u}_i
+ = \infty \\[0.7em]
+% BOUND
+ \texttt{atMost}, \stenFwd{\vect{u}_i}{i} & \vect{l}_i > 1 \\[0.7em]
+ \texttt{atMost}, \stenBwd{|\vect{l}_i|}{i} \quad & \vect{l}_i < (-1) \\[0.7em]
+  \end{cases}
+\end{align*}
+%%
+The first two cases map to \texttt{forward} stencils since the lower
+bound is $0$ or $1$, with the depth determined by the upper bound of
+the span. If the lower bound is $1$, then the 
+$0$-offset point is missing so the specification is given an
+\texttt{irreflexive} modifier. The second two cases are similar for
+\texttt{backward} but now the depth of the region is determined by the
+absolute of the lower bound. In the fifth-case, when the lower bound
+is negative and the upper bound is positive and they have the same
+magnitude, then a \texttt{centered} region is constructed with
+the depth as the common magnitude. If the magnitudes are not the same
+(sixth case) then separated \texttt{forward} and \texttt{backward}
+regions are summed, with their corresponding depths. 
+
+In the case where either bound is $\infty$, representing a non
+neighbourhood index, then a simple \texttt{irreflexive} specification
+is given with no regions, indicating that there is not even reflexive
+0-offset access in this dimension.
+
+Finally in the last two cases, if the lower bound is greater than 1 
+(which implies the upper bound is greater than 1 too) then 
+this represents a region that is not at the origin (or next to) the
+origin and thus not representable in the specificaiton language. 
+Thus, an upper bound is instead returned showing the maximum extent
+of the region. The last case is the dual, when the lower bound is less
+than $-1$, giving an upper bound on a \texttt{backward} specification.
+
+\begin{lemma}
+$\mathsf{conv}_i$ is total given the pre-condition that the lower
+bound of the input span is less than or equal to its upper bound. 
+\end{lemma}
 
 \section{Evaluation}
 \label{sec:evaluation}

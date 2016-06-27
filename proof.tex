@@ -96,15 +96,15 @@ to the model given in Section~\ref{sec:semantics}.
 
     Now let $\neg$ be a unary operator over logical matricies that revert $1$s
     to $0$s and vice versa. Then we can define pairwise permutation as
-    $(t \bowtie s)_i = t \odot b_i + s \odot \neg b_i$. Now since $i$ ranges
+    $(s \bowtie t)_i = s \odot b_i + t \odot \neg b_i$. Now since $i$ ranges
     over all bit strings of length $n$, for all $i$ there is a $j$ such that
     $b_j = \neg b_i$. Hence for all $i$,
 
     \begin{align*}
-      (t \bowtie s)_i &= t \odot b_i + s \odot \neg b_i \\
-                      &= t \odot \neg b_j + s \odot \neg (\neg b_j) \\
-                      &= s \odot \neg b_j + t \odot b_j \\
-                      &= (s \bowtie t)_j
+      (s \bowtie t)_i &= s \odot b_i + t \odot \neg b_i \\
+                      &= s \odot \neg b_j + t \odot \neg (\neg b_j) \\
+                      &= t \odot \neg b_j + s \odot b_j \\
+                      &= (t \bowtie s)_j
     \end{align*}
 
   \item[\textsc{Case *ASSOC}:]

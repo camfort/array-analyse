@@ -107,7 +107,49 @@ to the model given in Section~\ref{sec:semantics}.
                       &= (t \bowtie s)_j
     \end{align*}
 
-  \item[\textsc{Case *ASSOC}:]
+  \item[\textsc{Case *ASSOC}:] We have $\interp{r_1 \; \texttt{$\ast$} \;
+    (r_2 \; \texttt{$\ast$} \; r_3)}_n = \interp{r_1}_n \otimes (\interp{r_2}_n
+    \otimes \interp{r_3}_n)$ by definition. So we need to show $\otimes$ is
+    associative. Now let $\interp{r_1}_n$, $\interp{r_2}_n$, and
+    $\interp{r_2}_n$ be $R$, $S$, and $T$ respectively. From the definition of
+    $\otimes$ we have, $\{ (r \bowtie st)_j \mid j \in \{ 1, \ldots, 2^n\},
+    (r, st) \in R \times (S \otimes T) \}$ and that is the same as
+    $\{ (r \bowtie (s \bowtie t)_i)_j \mid i,j \in \{ 1, \ldots, 2^n \}, (r,s,t)
+    \in R \times S \times T \}$. If $\ast$ is associative, then an equivalent
+    definition is $\{ ((r \bowtie s)_k \bowtie t)_l \mid k,l \in \{ 1, \ldots,
+    2^n \}, (r,s,t) \in R \times S \times T \}$. Now since $b$ contains all
+    bit strings of length $n$, for these two sets to be equivalent, it is
+    enough to show that for any $r$, $s$, and $t$, for all $(i,j)$ pair there is
+    a $(k,l)$ pair. When definition of $\bowtie$ is expanded, we then get the
+    following equality:
+
+    $$r \odot b_j + s \odot b_i \odot \neg b_j + t \odot \neg b_i \odot \neg b_j
+    = r \odot b_k \odot b_l + s \odot \neg b_k \odot b_l + t \odot \neg b_l$$
+
+    Hence, we get the following equations for logical row vectors:
+
+    \begin{align}
+      b_j & = b_k \odot b_l \\
+      b_i \odot \neg b_j & = \neg b_k \odot b_l \\
+      \neg b_i \odot \neg b_j & = \neg b_l
+    \end{align}
+
+    Observe that pairwise product on logical vectors corresponds to logical
+    conjunction operation. In the following derivation $\wedge$ is used in place
+    of $\odot$ for consistency. $\neg$ denotes logical negation of each element
+    of the vector. Vector disjunction can be defined as $a \vee b = a + b - a
+    \odot b$. Standard boolean algebra generalises over vectors.
+
+    To see there is always a solution it is sufficient to show that the system
+    of equations is consistent.
+
+    \begin{align}
+      b_j &= b_k \wedge (b_i \vee b_j) & \mbox{, by combining $(1)$ and $(3)$} \\
+      b_i \wedge \neg b_j &= \neg b_k \wedge (b_i \vee b_j) & \mbox{, by combining $(2)$
+        and $(3)$} \\
+        b_i \vee b_j &= b_i \vee b_j & \mbox{, by combining $(4)$ and $(5)$}
+    \end{align}
+
   \item[\textsc{Case DIST}:]
 \end{description}
 \end{proof}

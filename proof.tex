@@ -151,5 +151,23 @@ to the model given in Section~\ref{sec:semantics}.
     \end{align}
 
   \item[\textsc{Case DIST}:]
+    \begin{align*}
+             & \interp{r_1 \; \ast \; (r_2 \; \texttt{+} \; r_3)}_n \\
+      \equiv & \interp{r_1}_n \otimes \interp{r_2 \; \texttt{+} \; r_3}_n \\
+      \equiv & \interp{r_1}_n \otimes (\interp{r_2}_n \cup \interp{r_3}_n) \\
+      \equiv & \{ (u \bowtie v)_i \mid i \in \{ 1, \ldots, 2^n \}, (u,v) \in
+        \interp{r_1}_n \times (\interp{r_2}_n \cup \interp{r_3}_n) \} \\
+      \equiv & \{ (u \bowtie v)_i \mid i \in \{ 1, \ldots, 2^n \}, (u,v) \in
+        \interp{r_1}_n \times \interp{r_2}_n \vee (u,v) \in \interp{r_1}_n
+        \times \interp{r_3}_n) \} \\
+      \equiv & \{ (u \bowtie v)_i \mid i \in \{ 1, \ldots, 2^n \}, (u,v) \in
+        \interp{r_1}_n \times \interp{r_2}_n \}
+        \cup \{ (u \bowtie v)_i \mid i \in \{ 1, \ldots, 2^n \}, (u,v) \in
+        \interp{r_1}_n \times \interp{r_3}_n) \} \\
+      \equiv & (\interp{r_1}_n \otimes \interp{r_2}_n)
+        \cup (\interp{r_1}_n \otimes \interp{r_3}_n) \\
+      \equiv & (\interp{r_1 \ast r_2}_n) \cup (\interp{r_1 \ast r_3}_n) \\
+      \equiv & \interp{r_1 \ast r_2 + r_1 \ast r_3}_n) \\
+    \end{align*}
 \end{description}
 \end{proof}

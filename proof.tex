@@ -12,7 +12,8 @@ S \equiv T
 \end{theorem}
 
 \begin{proof}
-We will prove different cases given in Figure~\ref{fig:equations}.
+We will prove different cases given in Figure~\ref{fig:equations} with respect
+to the model given in Section~\ref{sec:semantics}.
 
 \begin{description}
   \item[\textsc{Case F \texttt{+} F}:]
@@ -83,9 +84,30 @@ We will prove different cases given in Figure~\ref{fig:equations}.
     \end{align*}
   \item[\textsc{Case +COMM}:] Follows from commutativity of union of sets.
   \item[\textsc{Case +ASSOC}:] Follows from associativity of union of sets.
-  \item[\textsc{Case *COMM}:]
+  \item[\textsc{Case *COMM}:] $\interp{r_1 \; \texttt{$\ast$} \; r_2}_n =
+    \interp{r_1}_n \otimes \interp{r_2}_n$. Hence, $\texttt{$\ast$}$ is
+    commutative iff $\otimes$ is commutative. Now let $\interp{r_1}_n$ and
+    $\interp{r_2}_n$ be $S$ and $T$ respectively. Then from the definition of
+    $\otimes$, we have $S \otimes T = \{ (s \bowtie t)_i \mid i \in
+    \{ 0, \ldots, 2^n-1 \}, (s,t) \in S \times T \}$. Then to show
+    commutativity of $\otimes$, it is enough to show any row vector of $s
+    \bowtie t$ is also a row vector in the matrix $t \bowtie s$ possibly with a
+    different row index.
+
+    Now let $\neg$ be a unary operator over logical matricies that revert $1$s
+    to $0$s and vice versa. Then we can define pairwise permutation as
+    $(t \bowtie s)_i = t \odot b_i + s \odot \neg b_i$. Now since $i$ ranges
+    over all bit strings of length $n$, for all $i$ there is a $j$ such that
+    $b_j = \neg b_i$. Hence for all $i$,
+
+    \begin{align*}
+      (t \bowtie s)_i &= t \odot b_i + s \odot \neg b_i \\
+                      &= t \odot \neg b_j + s \odot \neg (\neg b_j) \\
+                      &= s \odot \neg b_j + t \odot b_j \\
+                      &= (s \bowtie t)_j
+    \end{align*}
+
   \item[\textsc{Case *ASSOC}:]
   \item[\textsc{Case DIST}:]
-  \item[\textsc{Case INTER}:]
 \end{description}
 \end{proof}

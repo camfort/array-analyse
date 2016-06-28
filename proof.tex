@@ -88,40 +88,41 @@ to the model given in Section~\ref{sec:semantics}.
     \interp{r_1}_n \otimes \interp{r_2}_n$. Hence, $\texttt{$\ast$}$ is
     commutative iff $\otimes$ is commutative. Now let $\interp{r_1}_n$ and
     $\interp{r_2}_n$ be $S$ and $T$ respectively. Then from the definition of
-    $\otimes$, we have $S \otimes T = \{ (s \bowtie t)_i \mid i \in
+    $\otimes$, we have $S \otimes T = \{ (s \bowtie t)_i \mid k \in
     \{ 1, \ldots, 2^n \}, (s,t) \in S \times T \}$. Then to show
-    commutativity of $\otimes$, it is enough to show any row vector of $s
-    \bowtie t$ is also a row vector in the matrix $t \bowtie s$ possibly with a
-    different row index.
+    commutativity of $\otimes$, it is enough to show for any vectors $s$ and
+    $t$, any row vector of $s \bowtie t$ is also a row vector in the matrix
+    $t \bowtie s$ possibly with a different row index, since $\otimes$ collects
+    row vectors of pairwise permutations. This in effect means $s \bowtie t$
+    is a permutation of $t \bowtie s$'s rows.
 
     Now let $\neg$ be a unary operator over logical matricies that revert $1$s
     to $0$s and vice versa. Then we can define pairwise permutation as
-    $(s \bowtie t)_i = s \odot b_i + t \odot \neg b_i$. Now since $i$ ranges
-    over all bit strings of length $n$, for all $i$ there is a $j$ such that
-    $b_j = \neg b_i$. Hence for all $i$,
+    $(s \bowtie t)_k = s \odot b_k + t \odot \neg b_k$. Now since $k$ ranges
+    over all bit strings of length $n$, for all $k$ there is a $l$ such that
+    $b_l = \neg b_k$. Hence for all $k$,
 
     \begin{align*}
-      (s \bowtie t)_i &= s \odot b_i + t \odot \neg b_i \\
-                      &= s \odot \neg b_j + t \odot \neg (\neg b_j) \\
-                      &= t \odot \neg b_j + s \odot b_j \\
-                      &= (t \bowtie s)_j
+      (s \bowtie t)_k &= s \odot b_k + t \odot \neg b_k \\
+                      &= s \odot \neg b_l + t \odot \neg (\neg b_l) \\
+                      &= t \odot \neg b_l + s \odot b_l \\
+                      &= (t \bowtie s)_l
     \end{align*}
 
   \item[\textsc{Case *ASSOC}:] We have $\interp{r_1 \; \texttt{$\ast$} \;
     (r_2 \; \texttt{$\ast$} \; r_3)}_n = \interp{r_1}_n \otimes (\interp{r_2}_n
     \otimes \interp{r_3}_n)$ by definition. So we need to show $\otimes$ is
     associative. Now let $\interp{r_1}_n$, $\interp{r_2}_n$, and
-    $\interp{r_2}_n$ be $R$, $S$, and $T$ respectively. From the definition of
+    $\interp{r_3}_n$ be $R$, $S$, and $T$ respectively. From the definition of
     $\otimes$ we have, $\{ (r \bowtie st)_j \mid j \in \{ 1, \ldots, 2^n\},
     (r, st) \in R \times (S \otimes T) \}$ and that is the same as
     $\{ (r \bowtie (s \bowtie t)_i)_j \mid i,j \in \{ 1, \ldots, 2^n \}, (r,s,t)
     \in R \times S \times T \}$. If $\ast$ is associative, then an equivalent
     definition is $\{ ((r \bowtie s)_k \bowtie t)_l \mid k,l \in \{ 1, \ldots,
-    2^n \}, (r,s,t) \in R \times S \times T \}$. Now since $b$ contains all
-    bit strings of length $n$, for these two sets to be equivalent, it is
-    enough to show that for any $r$, $s$, and $t$, for all $(i,j)$ pair there is
-    a $(k,l)$ pair. When definition of $\bowtie$ is expanded, we then get the
-    following equality:
+    2^n \}, (r,s,t) \in R \times S \times T \}$. For these two sets to be
+    equivalent, it is enough to show that for any $r$, $s$, and $t$, for each
+    $(i,j)$ pair there is a $(k,l)$ pair. When definition of $\bowtie$ is
+    expanded, we then get the following equality:
 
     $$r \odot b_j + s \odot b_i \odot \neg b_j + t \odot \neg b_i \odot \neg b_j
     = r \odot b_k \odot b_l + s \odot \neg b_k \odot b_l + t \odot \neg b_l$$
@@ -144,10 +145,12 @@ to the model given in Section~\ref{sec:semantics}.
     of equations is consistent.
 
     \begin{align}
-      b_j &= b_k \wedge (b_i \vee b_j) & \mbox{, by combining $(1)$ and $(3)$} \\
-      b_i \wedge \neg b_j &= \neg b_k \wedge (b_i \vee b_j) & \mbox{, by combining $(2)$
-        and $(3)$} \\
-        b_i \vee b_j &= b_i \vee b_j & \mbox{, by combining $(4)$ and $(5)$}
+      b_l &= b_i \vee b_j & \mbox{, by negating $(3)$ and applying De Morgan's law} \\
+      b_j &= b_k \wedge (b_i \vee b_j) & \mbox{, by substituting $(4)$ into $(1)$} \\
+      b_i \wedge \neg b_j &= \neg b_k \wedge (b_i \vee b_j) & \mbox{, by substituting $(4)$
+        into $(2)$} \\
+      b_j \vee b_i \wedge \neg b_j &= b_k \wedge (b_i \vee b_j) \vee \neg b_k \wedge (b_i \vee b_j) & \mbox{, by disjunction of $(5)$ and $(6)$} \\
+      b_i \vee b_j &= b_i \vee b_j & \mbox{, by algebraic simplification of (7)} \nonumber
     \end{align}
 
   \item[\textsc{Case DIST}:]

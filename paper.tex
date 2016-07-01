@@ -129,31 +129,29 @@ xrightmargin=0.2cm,commandchars=\\\{\},baselinestretch=0.98,numbersep=0.9em}
 \maketitle
 
 \begin{abstract}
-  Verifying the correctness of numerical computations is hard because
-  potential specifications for their behaviour tend to be highly
-  decouple from the code, defined in terms of the originating
-  mathematical model. For example, a system of partial differential equations
-  (PDEs) specifies a relationship between variables, but tools for encoding such
-  a specification, and pertinent properties such as convergence and
-  stability, are rare.  Furthermore, checking the correctness of some
-  implementation of a discrete approximation against such
-  specifications is extremely challenging. We seek intermediate
+Verifying the correctness of numerical computations relies on a specification of their behaviour.
+A natural way to do this would be in terms of the original mathematical model but this approach yields specifications which are highly decoupled from the code.
+Checking the correctness of code which implements a discrete approximation of such specifications is extremely challenging. 
+Instead we have been investigating intermediate
   systems of specification and verification between lower-level
   aspects (\eg{}, out-of-bounds errors) and full correctness
-  with-respect to a numerical model. In this paper, we focus on
-  \emph{stencil computations}-- a common idiom in numerical code, but
-  one which is prone to error due to fine-grained programming
-  mistakes.  Our conjecture is that the vast majority of stencil
-  computations have a simple, regular, static shape that can be
-  described by a simple specification language. We propose a language
-  for this, along with an inference and checking procedure. We test
-  our conjecture against a corpus of numerical Fortran code, and show
-  that static specifications can be given to $X\%$ of identifiable
+  based on a numerical model. In this paper, we focus on
+  \emph{stencil computations}---a common idiom in numerical code, but
+  one which is error-prone due to fine-grained indexing errors.  
+%
+We describe a stencil specification language which can be directly embedded as annotations in source code, along with an inference and checking procedure. 
+%
+We evaluate our language against a corpus of numerical Fortran code, and show
+  that precise specifications can be given to $X\%$ of identifiable
   stencil computations, with a mean ratio of $Y:Z$
-  specification-to-program code. This paper details our stencil
+  specification-to-program code and that the vast majority of stencil computations have a simple, regular, static shape.
+%
+This paper details our stencil
   specification language, its static semantics, inference, checking,
   and program synthesis procedures, our implementation, and our
   evaluation study.
+%
+We provide an implementation of stencil inference and validation in \emph{Camfort}, an open-source program analysis and refactoring tool.
 \end{abstract}
 
 \keywords{program verification, specifications, static analysis,

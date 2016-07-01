@@ -145,12 +145,12 @@ to the model given in Section~\ref{sec:semantics}.
     of equations is consistent.
 
     \begin{align}
-      b_l &= b_i \vee b_j & \mbox{, by negating $(3)$ and applying De Morgan's law} \\
-      b_j &= b_k \wedge (b_i \vee b_j) & \mbox{, by substituting $(4)$ into $(1)$} \\
-      b_i \wedge \neg b_j &= \neg b_k \wedge (b_i \vee b_j) & \mbox{, by substituting $(4)$
+      b_l &= b_i \vee b_j & \mbox{, negating $(3)$ and applying De Morgan's law} \\
+      b_j &= b_k \wedge (b_i \vee b_j) & \mbox{, substituting $(4)$ into $(1)$} \\
+      b_i \wedge \neg b_j &= \neg b_k \wedge (b_i \vee b_j) & \mbox{, substituting $(4)$
         into $(2)$} \\
-      b_j \vee b_i \wedge \neg b_j &= b_k \wedge (b_i \vee b_j) \vee \neg b_k \wedge (b_i \vee b_j) & \mbox{, by disjunction of $(5)$ and $(6)$} \\
-      b_i \vee b_j &= b_i \vee b_j & \mbox{, by algebraic simplification of (7)} \nonumber
+      b_j \vee b_i \wedge \neg b_j &= b_k \wedge (b_i \vee b_j) \vee \neg b_k \wedge (b_i \vee b_j) & \mbox{, disjunction of $(5)$ and $(6)$} \\
+      b_i \vee b_j &= b_i \vee b_j & \mbox{, algebraically simplifying (7)} \nonumber
     \end{align}
 
   \item[\textsc{Case DIST}:]

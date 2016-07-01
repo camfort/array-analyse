@@ -1,0 +1,19 @@
+\begin{equation*}
+  \interp{approx\texttt{,} \; spec}_n =
+    \begin{cases}
+      \textsf{upper}(\interp{spec}_n) &\mbox{if } {approx} = \texttt{atMost} \\
+      \textsf{lower}(\interp{spec}_n) &\mbox{if } {approx} = \texttt{atLeast} \\
+      \textsf{exact}(\interp{spec}_n) &\mbox{if } {approx} = \epsilon \\
+    \end{cases}
+\end{equation*}
+\begin{equation*}
+\begin{split}
+  \interp{modRefl\texttt{,} \; modIrrefl\texttt{,} \; region}_n = \\
+  \interp{region}_n \cup \interp{modRefl}_n \setminus \interp{modIrrefl}_n
+\end{split}
+\end{equation*}
+\begin{align*}
+  \interp{\texttt{reflexive} \, (\texttt{dims=}D)}_n =
+  \interp{\texttt{reflexive} \, (\texttt{dims=}D)}_n =
+    \{\singleEntry{d}{n} \mid d \in D \} \\
+\end{align*}

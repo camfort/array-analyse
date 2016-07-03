@@ -1429,7 +1429,34 @@ Figure \ref{fig:corpus} shows summary statistics of the software packages used i
 % tickAssignSuccess: number of tickAssign's we generated some specification for
 %% tickAssign < tickAssignSuccess 
 
+\subsection{Occurrences of stencils}
 
+We first examined how frequently stencil computations occur in our
+corpus. We define a \emph{potential} statement as one whose left-hand
+side is an array subscript on neighbourhood indices. These statements
+are the inputs to Step 2 of the Inference process described
+Section~\ref{sec:inference}. Each potential statement for which we
+eventually generate some stencil specifications for is also counted as
+an \emph{actual} statement. 
+
+\begin{figure}
+\begin{tabular}{|l|l|l|}
+\hline
+Package       & \% potential & \% actual   \\
+\hline
+UM            & \umtickAssignPercent &  \umtickAssignSuccessPercent   \\
+E3MG          & \ethreemgeatickAssignPercent & \ethreemgeatickAssignSuccessPercent\\
+BLAS          & \blastickAssignPercent & \blastickAssignSuccessPercent \\
+Hybrid4       & \hybridfourtickAssignPercent & \hybridfourtickAssignPercent \\
+GEOS-Chem     & \geoschemtickAssignPercent & \geoschemtickAssignPercent \\
+Navier        & \naviertickAssignPercent & \naviertickAssignPercent \\
+CP            & \computationalphysicstwotickAssignPercent & \computationalphysicstwotickAssignSuccessPercent\\
+\hline
+\textbf{Total}& \overalltickAssignPercent  & \overalltickAssignSuccessPercent    \\
+\hline 
+\end{tabular}
+\caption{Stencil assignment rates\label{fig:tickAssign}}
+\end{figure}
 
 
 \section{Discussion}

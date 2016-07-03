@@ -19,67 +19,89 @@ to the model given in Section~\ref{sec:semantics}.
   \item[\textsc{Case F \texttt{+} F}:]
     \begin{align*}
       & \; \interp{\stenFwdS{a}{d} \; \texttt{+} \; \stenFwdS{b}{d}}_{n} \\
-      \equiv & \; \interp{\stenFwdS{a}{d}}_{n} \; \cup \; \interp{\stenFwdS{b}{d}}_{n} \\
-      \equiv & \; \{i\singleEntry{d}{n} \mid i \in \{0, \ldots, a\} \} \; \cup \;
-                  \{i\singleEntry{d}{n} \mid i \in \{0, \ldots, b\} \} \\
-      \equiv & \; \{i\singleEntry{d}{n} \mid i \in \{0, \ldots, a\}
-                    \vee i \in \{0, \ldots, b\} \} \\
-      \equiv & \; \{i\singleEntry{d}{n} \mid i \in \{0, \ldots, a \max b\} \} \\
+      \equiv & \; \interp{\stenFwdS{a}{d}}_{n} \cup \interp{\stenFwdS{b}{d}}_{n} \\
+      \equiv & \; \{i\singleEntry{d}{n} \mid i \in \{1, \ldots, a\} \} \cup
+                  \{\zeroEntry{d}{n}\} \cup
+                  \{i\singleEntry{d}{n} \mid i \in \{1, \ldots, b\} \} \cup
+                  \{\zeroEntry{d}{n}\} \\
+      \equiv & \; \{i\singleEntry{d}{n} \mid i \in \{1, \ldots, a\} \vee
+                                             i \in \{1, \ldots, b\} \} \cup
+                  \{\zeroEntry{d}{n}\} \\
+      \equiv & \; \{i\singleEntry{d}{n} \mid i \in \{1, \ldots, a \max b\} \} \cup 
+                  \{\zeroEntry{d}{n}\}\\
       \equiv & \; \interp{\stenFwdS{a \, \max \, b}{d}}_n \\
     \end{align*}
   \item[\textsc{Case C \texttt{+} C}:]
     \begin{align*}
       & \; \interp{\stenCenS{a}{d} \; \texttt{+} \; \stenCenS{b}{d}}_{n} \\
-      \equiv & \; \interp{\stenCenS{a}{d}}_{n} \; \cup \; \interp{\stenCenS{b}{d}}_{n} \\
-      \equiv & \; \{i\singleEntry{d}{n} \mid i \in \{-a, \ldots, a\} \} \; \cup \;
-                  \{i\singleEntry{d}{n} \mid i \in \{-b, \ldots, b\} \} \\
-      \equiv & \; \{i\singleEntry{d}{n} \mid i \in \{-a, \ldots, a\}
-                    \vee i \in \{-b, \ldots, b\} \} \\
-      \equiv & \; \{i\singleEntry{d}{n} \mid i \in \{- (a \max b), \ldots, a \max b\} \} \\
+      \equiv & \; \interp{\stenCenS{a}{d}}_{n} \cup \interp{\stenCenS{b}{d}}_{n} \\
+      \equiv & \; \{i\singleEntry{d}{n} \mid i \in \{-a, \ldots, a\} \setminus 0 \} \cup
+                  \{\zeroEntry{d}{n}\} \cup
+                  \{i\singleEntry{d}{n} \mid i \in \{-b, \ldots, b\} \setminus 0 \} \cup
+                  \{\zeroEntry{d}{n}\} \\
+      \equiv & \; \{i\singleEntry{d}{n} \mid i \in \{-a, \ldots, a\} \setminus 0 \vee
+                                             i \in \{-b, \ldots, b\} \setminus 0 \} \cup
+                  \{\zeroEntry{d}{n}\} \\
+      \equiv & \; \{i\singleEntry{d}{n} \mid i \in \{-(a \max b), \ldots, a \max b\} \setminus 0 \} \cup 
+                  \{\zeroEntry{d}{n}\}\\
       \equiv & \; \interp{\stenCenS{a \, \max \, b}{d}}_n \\
     \end{align*}
   \item[\textsc{Case B \texttt{+} B}:]
     \begin{align*}
       & \; \interp{\stenBwdS{a}{d} \; \texttt{+} \; \stenBwdS{b}{d}}_{n} \\
-      \equiv & \; \interp{\stenBwdS{a}{d}}_{n} \; \cup \; \interp{\stenBwdS{b}{d}}_{n} \\
-      \equiv & \; \{i\singleEntry{d}{n} \mid i \in \{-a, \ldots, 0\} \} \; \cup \;
-                  \{i\singleEntry{d}{n} \mid i \in \{-b, \ldots, 0\} \} \\
-      \equiv & \; \{i\singleEntry{d}{n} \mid i \in \{-a, \ldots, 0\}
-                    \vee i \in \{-b, \ldots, 0\} \} \\
-      \equiv & \; \{i\singleEntry{d}{n} \mid i \in \{- (a \max b), \ldots, 0\} \} \\
+      \equiv & \; \interp{\stenBwdS{a}{d}}_{n} \cup \interp{\stenBwdS{b}{d}}_{n} \\
+      \equiv & \; \{i\singleEntry{d}{n} \mid i \in \{-a, \ldots, -1\} \} \cup
+                  \{\zeroEntry{d}{n}\} \cup
+                  \{i\singleEntry{d}{n} \mid i \in \{-b, \ldots, -1\} \} \cup
+                  \{\zeroEntry{d}{n}\} \\
+      \equiv & \; \{i\singleEntry{d}{n} \mid i \in \{-a, \ldots, -1\} \vee
+                                             i \in \{-b, \ldots, -1\} \} \cup
+                  \{\zeroEntry{d}{n}\} \\
+      \equiv & \; \{i\singleEntry{d}{n} \mid i \in \{-(a \max b), \ldots, -1 \} \} \cup 
+                  \{\zeroEntry{d}{n}\}\\
       \equiv & \; \interp{\stenBwdS{a \, \max \, b}{d}}_n \\
     \end{align*}
   \item[\textsc{Case C \texttt{+} F}:]
     \begin{align*}
       & \; \interp{\stenCenS{a}{d} \; \texttt{+} \; \stenFwdS{b}{d}}_{n} \\
-      \equiv & \; \interp{\stenCenS{a}{d}}_{n} \; \cup \; \interp{\stenFwdS{b}{d}}_{n} \\
-      \equiv & \; \{i\singleEntry{d}{n} \mid i \in \{-a, \ldots, a\} \} \; \cup \;
-                  \{i\singleEntry{d}{n} \mid i \in \{0, \ldots, b\} \} \\
-      \equiv & \; \{i\singleEntry{d}{n} \mid i \in \{-a, \ldots, a\}
-                    \vee i \in \{0, \ldots, b\} \} \\
-      \equiv & \; \{i\singleEntry{d}{n} \mid i \in \{-a, \ldots, a\} \} \quad \text{, using }a \geq b \\
+      \equiv & \; \interp{\stenCenS{a}{d}}_{n} \cup \interp{\stenFwdS{b}{d}}_{n} \\
+      \equiv & \; \{i\singleEntry{d}{n} \mid i \in \{-a, \ldots, a\} \setminus 0 \} \cup
+                  \{\zeroEntry{d}{n}\} \cup
+                  \{i\singleEntry{d}{n} \mid i \in \{1, \ldots, b\} \} \cup
+                  \{\zeroEntry{d}{n}\} \\
+      \equiv & \; \{i\singleEntry{d}{n} \mid i \in \{-a, \ldots, a\} \setminus 0
+                    \vee i \in \{1, \ldots, b\} \} \cup
+                  \{\zeroEntry{d}{n}\} \\
+      \equiv & \; \{i\singleEntry{d}{n} \mid i \in \{-a, \ldots, a\} \setminus 0 \} \cup \{\zeroEntry{d}{n}\} \quad \text{, using }a \geq b \\
       \equiv & \; \interp{\stenCenS{a}{d}}_n \\
     \end{align*}
   \item[\textsc{Case C \texttt{+} B}:]
     \begin{align*}
       & \; \interp{\stenCenS{a}{d} \; \texttt{+} \; \stenBwdS{b}{d}}_{n} \\
-      \equiv & \; \interp{\stenCenS{a}{d}}_{n} \; \cup \; \interp{\stenBwdS{b}{d}}_{n} \\
-      \equiv & \; \{i\singleEntry{d}{n} \mid i \in \{-a, \ldots, a\} \} \; \cup \;
-                  \{i\singleEntry{d}{n} \mid i \in \{-b, \ldots, 0\} \} \\
-      \equiv & \; \{i\singleEntry{d}{n} \mid i \in \{-a, \ldots, a\}
-                    \vee i \in \{-b, \ldots, 0\} \} \\
-      \equiv & \; \{i\singleEntry{d}{n} \mid i \in \{-a, \ldots, a\} \} \quad \text{, using }a \geq b \\
+      \equiv & \; \interp{\stenCenS{a}{d}}_{n} \cup \interp{\stenBwdS{b}{d}}_{n} \\
+      \equiv & \; \{i\singleEntry{d}{n} \mid i \in \{-a, \ldots, a\} \setminus 0 \} \cup
+                  \{\zeroEntry{d}{n}\} \cup
+                  \{i\singleEntry{d}{n} \mid i \in \{-b, \ldots, -1\} \} \cup
+                  \{\zeroEntry{d}{n}\} \\
+      \equiv & \; \{i\singleEntry{d}{n} \mid i \in \{-a, \ldots, a\} \setminus 0
+                    \vee i \in \{-b, \ldots, -1\} \} \cup
+                  \{\zeroEntry{d}{n}\} \\
+      \equiv & \; \{i\singleEntry{d}{n} \mid i \in \{-a, \ldots, a\} \setminus 0 \} \cup \{ \zeroEntry{d}{n}\} \quad \text{, using }a \geq b \\
       \equiv & \; \interp{\stenCenS{a}{d}}_n \\
     \end{align*}
   \item[\textsc{Case B \texttt{+} F}:]
     \begin{align*}
       & \; \interp{\stenBwdS{a}{d} \; \texttt{+} \; \stenFwdS{a}{d}}_{n} \\
-      \equiv & \; \interp{\stenBwdS{a}{d}}_{n} \; \cup \; \interp{\stenFwdS{a}{d}}_{n} \\
-      \equiv & \; \{i\singleEntry{d}{n} \mid i \in \{-a, \ldots, 0\} \} \; \cup \;
-                  \{i\singleEntry{d}{n} \mid i \in \{0, \ldots, a\} \} \\
-      \equiv & \; \{i\singleEntry{d}{n} \mid i \in \{-a, \ldots, 0\}
-                    \vee i \in \{0, \ldots, a\} \} \\
-      \equiv & \; \{i\singleEntry{d}{n} \mid i \in \{-a, \ldots, a\} \} \\
+      \equiv & \; \interp{\stenBwdS{a}{d}}_{n} \cup \interp{\stenFwdS{a}{d}}_{n} \\
+      \equiv & \; \{i\singleEntry{d}{n} \mid i \in \{-a, \ldots, -1\} \} \cup
+                  \{\zeroEntry{d}{n}\} \cup
+                  \{i\singleEntry{d}{n} \mid i \in \{1, \ldots, a\} \} \cup
+                  \{\zeroEntry{d}{n}\} \\
+      \equiv & \; \{i\singleEntry{d}{n} \mid i \in \{-a, \ldots, -1\}
+                    \vee i \in \{1, \ldots, a\} \} \cup
+                  \{\zeroEntry{d}{n}\} \\
+      \equiv & \; \{i\singleEntry{d}{n} \mid i \in \{-a, \ldots, a\} \setminus 0 \} \cup 
+                              \{\zeroEntry{d}{n}\} \\
       \equiv & \; \interp{\stenCenS{a}{d}}_n \\
     \end{align*}
   \item[\textsc{Case +COMM}:] Follows from commutativity of union of sets.

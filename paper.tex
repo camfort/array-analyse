@@ -56,6 +56,7 @@ xrightmargin=0.2cm,commandchars=\\\{\},baselinestretch=0.98,numbersep=0.9em}
 
 \newcommand{\dnote}[1]{\textcolor{darkpurple}{Dom: #1}}
 \newcommand{\mnote}[1]{\textcolor{darkgreen}{Mistral: #1}}
+\newcommand{\anote}[1]{\textcolor{red}{Andy: #1}}
 
 \newcounter{block}
 
@@ -1463,23 +1464,38 @@ eventually generate some stencil specifications for is also counted as
 an \emph{actual} statement. 
 
 \begin{figure}
-\begin{tabular}{|l|l|l|}
+\begin{tabular}{|l|l|l|l|l|}
 \hline
-Package       & \% potential & \% actual   \\
+Package       & \% potential & \% actual & Total & Total    \\
+              & stencils     & stencils  & exact  & bounded \\
 \hline
-UM            & \umtickAssignPercent &  \umtickAssignSuccessPercent   \\
-E3MG          & \ethreemgeatickAssignPercent & \ethreemgeatickAssignSuccessPercent\\
-BLAS          & \blastickAssignPercent & \blastickAssignSuccessPercent \\
-Hybrid4       & \hybridfourtickAssignPercent & \hybridfourtickAssignPercent \\
-GEOS-Chem     & \geoschemtickAssignPercent & \geoschemtickAssignPercent \\
-Navier        & \naviertickAssignPercent & \naviertickAssignPercent \\
-CP            & \computationalphysicstwotickAssignPercent & \computationalphysicstwotickAssignSuccessPercent\\
+UM            & \umtickAssignPercent & \umtickAssignSuccessPercent & \umnumStencilLines & \umboundedBoth  \\
+E3MG          & \ethreemgeatickAssignPercent & \ethreemgeatickAssignSuccessPercent & \ethreemgeanumStencilLines & \ethreemgeaboundedBoth \\
+BLAS          & \blastickAssignPercent & \blastickAssignSuccessPercent & \blasnumStencilLines & \blasboundedBoth \\
+Hybrid4       & \hybridfourtickAssignPercent & \hybridfourtickAssignPercent & \hybridfournumStencilLines &  \hybridfourboundedBoth\\
+GEOS-Chem     & \geoschemtickAssignPercent & \geoschemtickAssignPercent & \geoschemnumStencilLines & \geoschemboundedBoth \\
+Navier        & \naviertickAssignPercent & \naviertickAssignPercent & \naviernumStencilLines & \navierboundedBoth \\
+CP            & \computationalphysicstwotickAssignPercent & \computationalphysicstwotickAssignSuccessPercent & \computationalphysicstwonumStencilLines & \computationalphysicstwoboundedBoth \\
 \hline
-\textbf{Total}& \overalltickAssignPercent  & \overalltickAssignSuccessPercent    \\
+\textbf{Total}& \overalltickAssignPercent  & \overalltickAssignSuccessPercent & \overallnumStencilLines & \overallboundedBoth    \\
 \hline 
 \end{tabular}
 \caption{Stencil assignment rates\label{fig:tickAssign}}
 \end{figure}
+
+The first two columns of Figure \ref{fig:tickAssign} shows the percentage of lines which were
+assigned potential and actual stencils.
+\anote{Add explanation about why our results are low. Include an example from BLAS of a tickAssign'd statement that is not a stencil}
+\anote{Add discussion about the rate of stencils in the code. Comparison with rate of assignment statements would be nice}
+
+If the inference process cannot determine an exact stencil for a statement it will instead produce an upper (\term{atMost}) and lower (\term{atLeast}) bound. The numbers of exact and bounded stencils are shown in columns three and four of Figure \ref{fig:tickAssign}. We can see that our stencil language is capable of precisely specifying the overwhelming majority of stencils. Most of the bounded stencils apply to some form of data copying. For example (taken from E3MG):
+\begin{ExmVerbatim}
+!- stencil atLeast, readOnce, irreflexive(dims=2), (reflexive(dim=1)) :: sfda
+!- stencil atMost, readOnce, (forward(depth=8, dim=2))*(reflexive(dim=1)) :: sfdt
+ZZ1(I,J) = SFDT(I,J+8)
+\end{ExmVerbatim}
+
+
 
 
 \section{Discussion}

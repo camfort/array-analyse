@@ -172,7 +172,7 @@ computation computes an array value, where the value at each index $i$ of
 this array is calculated from a \emph{neighbourhood} of values around $i$ in
 some input array(s), \eg{}, the Game of Life, convolutions in image
 processing, approximations to differential equations. For example, the
-following iteratively computes the one-dimensional discrete Laplace
+following iteration computes the one-dimensional discrete Laplace
 transform (an approximation to a derivative) in Fortran:
 %
 \begin{ExmVerbatim}
@@ -211,7 +211,7 @@ accidentally introduce an error via simple textual mistakes, for
 example writing $\texttt{(i-1,j)}$ instead of $\texttt{(i+1,j)}$.
 
 In this work, we introduce a simple specification language for the
-spatial properties of stencil comptuations. The
+spatial properties of stencil computations. The
 specifications abstract over the fine grained detail of stencil access
 patterns.  In practise, most stencil computations have a regular shape
 that can be described simply and abstractly, with a small set of
@@ -309,7 +309,7 @@ showing highly-detailed stencil computations. \\
 \draw (4,1.5) rectangle (4.5,2);
 \end{tikzpicture}
 \end{center}
-(c). Pictoral representation of the two stencil specifications.
+(c). Pictorial representation of the two stencil specifications.
 The horizontal dimensions is \text{dim=1} and the vertical is \texttt{dim=2}:
 \caption{Fragment of Navier-Stokes fluid simulator and its specification}
 \label{ref:navier-stokes-fragment}
@@ -319,7 +319,7 @@ The horizontal dimensions is \text{dim=1} and the vertical is \texttt{dim=2}:
 \label{sec:lang}
 
 Our specification system is based on the observation
-that most forms of array access in numberical code have
+that most forms of array access in numerical code have
 a fixed, statically-determined access pattern. For example, the
 ``\emph{five-point stencil}'' on a two-dimensional array reads from array
 indices $(i, j)$, $(i-1, j)$, $(i+1, j)$, $(i, j-1)$, and $(i, j+1)$
@@ -330,7 +330,7 @@ such regular stencil patterns on a corpus of numerical programs (both
 small and large). We found that indeed \dnote{..}.
 
 We outline the specification language here. Section~\ref{sec:syntax}
-oultines the syntax. Section~\ref{sec:semantics} defines its semantics
+outlines the syntax. Section~\ref{sec:semantics} defines its semantics
 via a simple set interpretation over indices. Section~\ref{sec:eqs} provides an
 equational theory for specifications via relation ($\equiv$) and a
 theory of approximation via relation ($<:$). These equations are then
@@ -351,7 +351,7 @@ used throughout.
   A variable \textit{v} of integer type is a \emph{base induction
     variable} if it is the control variable of a ``for''
   loop\footnote{Or equivalent for the target language, \eg{},
-    \texttt{do} in Fortan for our implementation}, incremented by $1$ per
+    \texttt{do} in Fortran for our implementation}, incremented by $1$ per
 iteration. The variable is marked as a base induction variable
 only within the scope of the loop, and such variables will be ranged
 over by $i$, $j$, $k$. Since we do not use non-base induction
@@ -369,7 +369,7 @@ variables) we often simply say \emph{induction variable}.
 \end{definition}
 
 \begin{definition}[Neighbourhood index and neighbourhood subscripts]
-  For an array subscript $v(\bar{e})$, we say say that $e \in \bar{e}$
+  For an array subscript $v(\bar{e})$, we say that $e \in \bar{e}$
   is a \emph{neighbourhood index} if it is of the form
   $e \equiv i$, $e \equiv i + a$ or $e \equiv i - a$ where $a$ is a
   constant of integer type. That is, a neighbourhood index is a
@@ -393,10 +393,10 @@ which we introduces in stages below.  The top-level is given by the
 (specification declaration). Specification declarations associate a
 specification to one or more program variables $\bar{v}$ (here given
 using the Fortran style syntax of $\ldots \; \texttt{::} \bar{v}$),
-describing how the array variables $\bar{v}$ are acessed.
+describing how the array variables $\bar{v}$ are accessed.
 %Specification declarations are either \nonterm{spatial} or
 %\nonterm{temporal} specifications and describe, for spatial
-%specifcations,
+%specifications,
 %Specifications declarations describe
 %how an array variable $v$ is read
 %, and for temporal
@@ -493,7 +493,7 @@ Region terms can be combined using the sum operator
 
 The sum of two regions $r \texttt{+} r'$ specifies that an array is
 read using the neighbourhood indices described by both $r$ and
-$r'$. It can be thought of as a conjunction of speicifcations. For
+$r'$. It can be thought of as a conjunction of specifications. For
 example, the following gives the specification for the five-point
 stencil which is the sum of two \texttt{centered} regions in each
 dimension:
@@ -529,7 +529,7 @@ the whole specification ranges.
 
 Region specifications can be assigned to region variables via
 a region declaration, which can be used later to form a spatial
-specification. For example, the speicifcation from the previous
+specification. For example, the specification from the previous
  example can be restated as:
 %%
 \begin{ExmVerbatim}
@@ -554,14 +554,14 @@ b(i+1) = a(i) + a(i-1) + a(i-2)
 \end{ExmVerbatim}
 %
 However, this would be an invalid specification if any of the
-array subscripts was reapeated. This modifier provides a way to
+array subscripts was repeated. This modifier provides a way to
  rule out any accidental repetition of array subscripts.
-The notion correponds to that of \emph{linearity}, though we
+The notion corresponds to that of \emph{linearity}, though we
 opt for the more informative and easily understood name
 \texttt{readOnce}. This modifier is optional, so it need not
 be present even if the stencil is linear.
 
-The \texttt{irreflexive} modifier is parameteresed by a
+The \texttt{irreflexive} modifier is parameterised by a
 comma-separated list of dimensions, indicating that for those
 dimensions there is no neighbour index with $0$ offset, \eg{},
 %
@@ -724,7 +724,7 @@ and checked against the code.
 \paragraph{Equations}
 Figure~\ref{fig:equations} lists the equational theory for
 specifications. This is broken down into equations on regions only,
-given by the equivalence relation $\textit{region} \equiv \textit{region}'$ and on
+given by the equivalence relation $\textit{region} \equiv \textit{region}'$ and
 on specification declarations assigned to variables via the equivalence relation
 $\textit{specDec} :: \texttt{v} \equiv
 \textit{specDec'} :: \texttt{v}$.
@@ -850,7 +850,7 @@ product of $M \times N$.
 
 The pairwise permutation $u \bowtie v$ takes two vectors and builds the matrix
 where the rows are all possible $n$-vectors generated by
-non-determinstically picking each $i^{th}$ entry from either the
+non-deterministic picking each $i^{th}$ entry from either the
 $i^{th}$ entry in $u$ or the $i^{th}$ entry in $j$. For example:
 %
 \begin{equation*}
@@ -872,7 +872,7 @@ $i^{th}$ entry in $u$ or the $i^{th}$ entry in $j$. For example:
 The $2^n$ unique choices for $\bowtie$ on $n$-vectors
 corresponds to taking all bit-strings of length $n$ and
 selecting from $u$ for $1$ and $v$ for $0$. Thus, we can
-defined the pairwise pemutation matrix as:
+defined the pairwise permutation matrix as:
 %
 \begin{align*}
 (u \bowtie v)_{i,j} & = b_{i,j} u_j + \neg b_{i,j} v_j
@@ -890,8 +890,8 @@ $i - 1$. Recall that the vectors are defined over the domain $\mathbb{Z} \cup
 %variable-spec pairs $\interp{\overline{v : S}}$,
 %returning multisets of variable-relative-index pairs. This provides
 %the top-level definition of the model, with $\interp{-}$ overloaded
-%on $S$, $\interp{S}$ mqpping to multisets of
-%relative indices not associated to an array avariable.
+%on $S$, $\interp{S}$ mapping to multisets of
+%relative indices not associated to an array variable.
 
 \begin{figure}
 \input{region-model.tex}
@@ -944,7 +944,7 @@ $i - 1$. Recall that the vectors are defined over the domain $\mathbb{Z} \cup
     \item Matrix operator overloading $a + b$, where both are arrays
     \item Scalar operator overloading $a + b$, where a is an array b is a
       scalar. $b$ is added to all.
-    \item Sliding. $a = b$ where the dimensionsare $a(1:10)$, $b(2:11)$,
+    \item Sliding. $a = b$ where the dimensions are $a(1:10)$, $b(2:11)$,
       so the assignment causes shifting.
   \end{itemize}
 }
@@ -961,9 +961,9 @@ set of expressions which occur in right-hand positions (\ie{}, not the
 target of an assignment). The function \var{} maps expressions to a
 set of the variables used in right-hand positions.
 
-\subsection{Inference}
+\subsection{Inference\label{sec:inference}}
 
-We demonstate the main steps of the inference procedure over the
+We demonstrate the main steps of the inference procedure over the
 following example program which computes the mean value
 of a five-point stencil at each index of the input array:
 %%
@@ -977,18 +977,18 @@ do i = 1, (n-1)
 end do
 \end{ExmVerbatim}
 %%
-\paragraph{Step 1: Standard control and dataflow analyses}
+\paragraph{Step 1: Standard control and data-flow analyses}
 The inference relies on some standard program analyses, computed
 before the main inference procedure:
 %
 \begin{enumerate}
 \item basic blocks (CFG);
 \item induction variables per basic block;
-\item (interprocedural) dataflow analysis, providing a \emph{flows to}
+\item (interprocedural) data-flow analysis, providing a \emph{flows to}
   graph (as shorthand, the function
   $\mathsf{flowTo}$ is used, implicitly parameterised by this graph,
   mapping an expression to the set of all expressions
-  with forwards dataflow to this expression, based on the transitive
+  with forwards data-flow to this expression, based on the transitive
   closure of the flows graph);
 \item type information per variable, where we use the predicate
 \arrayTy{} to classify variables of array type.
@@ -1001,7 +1001,7 @@ For each assignment statement whose left-hand side is an array
 subscript on neighbourhood indices, a finite map is computed which
 maps array variables to a set of vectors representing array
 subscripts.  This finite map contains all array subscript expressions
-which flow to this statment. More formally, a function
+which flow to this statement. More formally, a function
 $\textsf{analyse}$ is applied to each statement in a program with the
 following clause:
 %
@@ -1128,16 +1128,16 @@ combined with the region sum \texttt{+}.
 Let $\vect{x}, \vect{y}, \vect{z}$ range over the column vectors of size
 $n$ whose values are drawn from $\mathbb{Z}_\top$.
 We write $\vect{x}_i$ for the $i$-th value of vector $\vect{x}$ (1
-indexed) and $\vect{x}_{i:j}$ for the subvector from entry $i$ to
+indexed) and $\vect{x}_{i:j}$ for the sub-vector from entry $i$ to
 entry $j$ (inclusive).
 
 \begin{definition}[Spans]
-  A \emph{span} represents an $n$-dimensional box (\emph{hyperrectangle}) as
+  A \emph{span} represents an $n$-dimensional box (\emph{hyper-rectangle}) as
   a pair of $n$-dimensional vectors (represented as a $2 \times n$
   matrix) giving the co-ordinates of the lower-bound vertex (first
   column) and the upper-bound vertex (second column). We use the
   notation $[\vect{x}^L \; \vect{x}^U]$ for such a span to mark out
-  the lower and upper bound vecvtors.
+  the lower and upper bound vectors.
 \end{definition}
 
 The algorithm to create contiguous spans, covering the space of
@@ -1160,7 +1160,7 @@ N(\texttt{a}) = \stwo{0}{0}{0}{0} \stwo{1}{0}{1}{0} \stwo{-1}{0}{-1}{0} \stwo{0}
 A fixed point is then compute for the following
 procedure \textsf{regions} which, for per variable
 in the map, coalesces spans into contiguous regions in
-the $n$-dimensional spaace. That is, we compute
+the $n$-dimensional space. That is, we compute
  $(\mu \; \textsf{regions}) N$ where \textsf{regions}
 is defined as follows for each variable in the map:
 %
@@ -1171,7 +1171,7 @@ is defined as follows for each variable in the map:
 for a permutation $\pi$. For each permutation function $\pi^n_i$
 (the $i$-th permutation for vectors of size $n$, we pair the
 permutation function with the set of permuted spans so that
-the spans can be unpermuted later.
+the spans can be un-permuted later.
 %
 \[
 P(v) = \bigcup_{i \in n!} (\pi^n_{i} , \; \{[\pi^n_i
@@ -1227,7 +1227,7 @@ This yields:
 \end{align*}
 %%
 \item Fold each list pairwise by the following partial operation
- $\bullet$ which coalescees contiguous regions:
+ $\bullet$ which coalesces contiguous regions:
 %
 \begin{align*}
 & (\vect{x}^L,\vect{x}^U) \bullet (\vect{y}^L,\vect{y}^U) \\
@@ -1252,7 +1252,7 @@ Q(v) = \{&(\pi^2_1, [
 \stwo{0}{1}{0}{1}])\}
 \end{align*}
 %
-\item Unpermute and union together, \ie{},
+\item Un-permute and union together, \ie{},
 %
 \[
 U(v) = \bigcup \{[\pi \vect{x}^L, \pi \vect{x}^U]
@@ -1350,13 +1350,13 @@ is given with no regions, indicating that there is not even reflexive
 Finally in the last two cases, if the lower bound is greater than 1
 (which implies the upper bound is greater than 1 too) then
 this represents a region that is not at the origin (or next to) the
-origin and thus not representable in the specificaiton language.
+origin and thus cannot be represented in the specification language.
 Thus, an upper bound is instead returned showing the maximum extent
 of the region. The last case is the dual, when the lower bound is less
 than $-1$, giving an upper bound on a \texttt{backward} specification.
 
 \begin{lemma}
-$\mathsf{conv}_i$ is total given the pre-condition that the lower
+$\mathsf{conv}_i$ is total given the precondition that the lower
 bound of the input span is less than or equal to its upper bound.
 \end{lemma}
 
@@ -1368,7 +1368,7 @@ We evaluated our stencil language on a corpus of scientific code. We first give 
 \begin{figure}
 \begin{tabular}{|l|l|l|l|}
 \hline
-Package       & Files & Lines of code & Files analyzed \\
+Package       & Files & Lines of code & Files analysed \\
 \hline
 UM            & \umFiles & \umLoC & \umparseOk  \\
 E3MG          & \ethreemgeaFiles   & \ethreemgeaLoC & \ethreemgeaparseOk  \\
@@ -1384,14 +1384,14 @@ CP            & \computationalphysicstwoFiles    & \computationalphysicstwoLoC &
 \caption{Summary of software packages used for evaluation\label{fig:corpus}}
 \end{figure}
 
-Figure \ref{fig:corpus} shows summary statistics of the software packages used in our evaluation, all of which are written in Fortran 90 or Fortran 77. In total we analysed 1.1 million lines of code from 7 packages. The ``Files analyzed'' column shows the number of files in each corpus that we were able to analyze with Camfort. The most common reasons for Camfort rejecting a file were either use of a C-preprocessor, or illegal use of language features from a more modern Fortran variant.
+Figure \ref{fig:corpus} shows summary statistics of the software packages used in our evaluation, all of which are written in Fortran 90 or Fortran 77. In total we analysed 1.1 million lines of code from 7 packages. The ``Files analysed'' column shows the number of files in each corpus that we were able to analyse with Camfort. The most common reasons for Camfort rejecting a file were either use of a C-preprocessor, or illegal use of language features from a more modern Fortran variant.
 
-\textbf{The Unified Model}\footnote{\url{http://www.metoffice.gov.uk/research/modelling-systems/unified-model}} is a weather forecasting and climate modelling tool developed by the Met Office in the United Kingdom. It is used by research organisations and meterological services around the world. We use the development branch (trunk) of the model. The Met Office runs a comprehensive code quality system incorporating dedicated commiters (we counted 11) for particular parts of the model. We counted 120 additional contributors whose submissions are reviewed and tested before being accepted into the code base.
+\textbf{The Unified Model}\footnote{\url{http://www.metoffice.gov.uk/research/modelling-systems/unified-model}} is a weather forecasting and climate modelling tool developed by the Met Office in the United Kingdom. It is used by research organisations and meteorological services around the world. We use the development branch (trunk) of the model. The Met Office runs a comprehensive code quality system incorporating dedicated committers (we counted 11) for particular parts of the model. We counted 120 additional contributors whose submissions are reviewed and tested before being accepted into the code base.
 
 % e3mg-ea
-\textbf{E3MG} (An Energy-Environment-Economy (E3) Model at the Global Level) is a macroeconomic model used for asssessment of environmental policy~\cite{RePEc:aen:journl:2006se-a12}. This model was developed by Cambridge Econometrics, an independent consultancy company. 
+\textbf{E3MG} (An Energy-Environment-Economy (E3) Model at the Global Level) is a macroeconomic model used for assessment of environmental policy~\cite{RePEc:aen:journl:2006se-a12}. This model was developed by Cambridge Econometrics, an independent consultancy company. 
 
-\textbf{BLAS} (Basic Linear Algebra Subprograms)\footnote{http://www.netlib.org/blas/} provides efficient and portable routines for vector and matrix operations. These routines feature in many other libraries (including LAPACK). We used version 3.6.0.
+\textbf{BLAS} (Basic Linear Algebra Subprograms)\footnote{\url{http://www.netlib.org/blas/}} provides efficient and portable routines for vector and matrix operations. These routines feature in many other libraries (including LAPACK). We used version 3.6.0.
 
 \textbf{Hybrid4} is a vegetation and biomass model for simulating carbon, water and nitrogen flows~\cite{GBC:GBC635}. 
 
@@ -1445,3 +1445,9 @@ Figure \ref{fig:corpus} shows summary statistics of the software packages used i
 \input{proof.tex}
 
 \end{document}
+
+%%  LocalWords:  refactoring affine parameterised irreflexive atMost
+%%  LocalWords:  centered readOnce atLeast discretisation Equational
+%%  LocalWords:  equational disjunction denotational dimensionality
+%%  LocalWords:  interprocedural Fortran Camfort preprocessor
+%%  LocalWords:  committers

@@ -1362,31 +1362,29 @@ bound of the input span is less than or equal to its upper bound.
 
 \section{Evaluation}
 \label{sec:evaluation}
-We now present an evaluation of the stencil language. We first confirm
-that stencils are common in scientific code and further that our
-stencil language can express a great many of these. 
+We evaluated our stencil language on a corpus of scientific code. We first give an overview of the corpus itself before presenting our results.
 
 \subsection{Software Corpus}
 \begin{figure}
-\begin{tabular}{|l|l|l|}
+\begin{tabular}{|l|l|l|l|}
 \hline
-Package       & Files & Lines of code \\
+Package       & Files & Lines of code & Files analyzed \\
 \hline
-UM            & \umFiles  & \umLoC       \\
-E3MG          & \ethreemgeaFiles   & \ethreemgeaLoC        \\
-BLAS          & \blasFiles   & \blasLoC        \\
-Hybrid4       & \hybridfourFiles    & \hybridfourLoC          \\
-GEOS-Chem     & \geoschemFiles   & \geoschemLoC       \\
-Navier        & \navierFiles     & \navierLoC           \\
-CP            & \computationalphysicstwoFiles    & \computationalphysicstwoLoC           \\
+UM            & \umFiles & \umLoC & \umparseOk  \\
+E3MG          & \ethreemgeaFiles   & \ethreemgeaLoC & \ethreemgeaparseOk  \\
+BLAS          & \blasFiles   & \blasLoC & \blasparseOk        \\
+Hybrid4       & \hybridfourFiles    & \hybridfourLoC & \hybridfourparseOk         \\
+GEOS-Chem     & \geoschemFiles   & \geoschemLoC & \geoschemparseOk       \\
+Navier        & \navierFiles     & \navierLoC & \navierparseOk           \\
+CP            & \computationalphysicstwoFiles    & \computationalphysicstwoLoC & \computationalphysicstwoparseOk           \\
 \hline
-\textbf{Total}& \overallFiles  & \overallLoC     \\
+\textbf{Total}& \overallFiles  & \overallLoC   & \overallparseOk  \\
 \hline 
 \end{tabular}
 \caption{Summary of software packages used for evaluation\label{fig:corpus}}
 \end{figure}
 
-Figure \ref{fig:corpus} shows summary statistics of the software packages used in our evaluation. In total we analysed 1.1 million lines of code from 7 packages. 
+Figure \ref{fig:corpus} shows summary statistics of the software packages used in our evaluation, all of which are written in Fortran 90 or Fortran 77. In total we analysed 1.1 million lines of code from 7 packages. The ``Files analyzed'' column shows the number of files in each corpus that we were able to analyze with Camfort. The most common reasons for Camfort rejecting a file were either use of a C-preprocessor, or illegal use of language features from a more modern Fortran variant.
 
 \textbf{The Unified Model}\footnote{\url{http://www.metoffice.gov.uk/research/modelling-systems/unified-model}} is a weather forecasting and climate modelling tool developed by the Met Office in the United Kingdom. It is used by research organisations and meterological services around the world. We use the development branch (trunk) of the model. The Met Office runs a comprehensive code quality system incorporating dedicated commiters (we counted 11) for particular parts of the model. We counted 120 additional contributors whose submissions are reviewed and tested before being accepted into the code base.
 
@@ -1430,6 +1428,8 @@ Figure \ref{fig:corpus} shows summary statistics of the software packages used i
 % tickAssign: number of array subscripts with a LHS which are all neighbour indices or constants
 % tickAssignSuccess: number of tickAssign's we generated some specification for
 %% tickAssign < tickAssignSuccess 
+
+
 
 
 \section{Discussion}

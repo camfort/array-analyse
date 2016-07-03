@@ -1,0 +1,6 @@
+*.aux
+*.log
+*.out
+*~
+paper.pdf
+results.tex

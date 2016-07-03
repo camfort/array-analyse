@@ -14,6 +14,9 @@
 
 \definecolor{darkblue}{rgb}{0.0,0.0,0.5}
 \definecolor{darkgreen}{rgb}{0.0,0.4,0.0}
+\definecolor{darkdarkgreen}{rgb}{0.0,0.35,0.0}
+
+\newcommand{\sten}[1]{\textcolor{darkdarkgreen}{\!#1}}
 
 \usepackage[]{hyperref}
 \hypersetup{
@@ -37,7 +40,7 @@
 \CustomVerbatimEnvironment{SpecVerbatim}{Verbatim}{fontsize=\footnotesize,xleftmargin=0.5cm,
 xrightmargin=0.2cm,commandchars=\\\{\},baselinestretch=0.98,numbersep=0.9em}
 \CustomVerbatimEnvironment{ExmVerbatim}{Verbatim}{fontsize=\footnotesize,xleftmargin=0.5cm,
-xrightmargin=0.2cm,baselinestretch=0.98,numbers=left,numbersep=0.9em}
+xrightmargin=0.2cm,baselinestretch=0.98,numbers=left,numbersep=0.9em,commandchars=\\\{\}}
 \CustomVerbatimEnvironment{IVerbatim}{Verbatim}{fontsize=\relsize{-1},xleftmargin=0.5cm,
 xrightmargin=0.2cm,commandchars=\\\{\},baselinestretch=0.98,numbersep=0.9em}
 
@@ -135,29 +138,29 @@ xrightmargin=0.2cm,commandchars=\\\{\},baselinestretch=0.98,numbersep=0.9em}
 \maketitle
 
 \begin{abstract}
-Verifying the correctness of numerical computations relies on a specification of their behaviour.
-A natural way to do this would be in terms of the original mathematical model but this approach yields specifications which are highly decoupled from the code.
-Checking the correctness of code which implements a discrete approximation of such specifications is extremely challenging.
-Instead we have been investigating intermediate
-  systems of specification and verification between lower-level
-  aspects (\eg{}, out-of-bounds errors) and full correctness
-  based on a numerical model. In this paper, we focus on
-  \emph{stencil computations}---a common idiom in numerical code, but
-  one which is error-prone due to fine-grained indexing errors.
-%
-We describe a stencil specification language which can be directly embedded as annotations in source code, along with an inference and checking procedure.
-%
-We evaluate our language against a corpus of numerical Fortran code, and show
-  that precise specifications can be given to $X\%$ of identifiable
-  stencil computations, with a mean ratio of $Y:Z$
-  specification-to-program code and that the vast majority of stencil computations have a simple, regular, static shape.
-%
-This paper details our stencil
-  specification language, its static semantics, inference, checking,
-  and program synthesis procedures, our implementation, and our
-  evaluation study.
-%
-We provide an implementation of stencil inference and validation in \emph{Camfort}, an open-source program analysis and refactoring tool.
+  Verifying the correctness of numerical computations relies on first
+  giving a specification of their behaviour. In many cases, a
+  numerical computation is derived from an underlying mathematical
+  model, but this is often difficult to use as a specification as it
+  is highly decoupled from the implementation. We have been studying
+  specification techniques in middle ground between low-level and
+  high-level specifications for numerical code. In this paper, we
+  focus on \emph{stencil computations}---a common idiom in numerical code, but
+  one which is error-prone due to fine-grained indexing errors. We
+  hypothesise that in practise, stencil computations tend to have a
+  regular shape which is amenable to static analysis and simple
+  specification. We describe a abstract specification language for
+  stencil computations that can be directly embedded as annotations in
+  source code, along with an inference and checking procedure. We
+  evaluate our language against a corpus of numerical Fortran code,
+  and show that precise specifications can be given to roughly half of
+  the identifiable stencil computations, and that the vast majority of
+  stencil computations indeed have a simple, regular, static
+  shape. This paper details our stencil specification language, its
+  static semantics, inference, checking, and program synthesis
+  procedures, our implementation, and our evaluation study. We provide
+  an implementation of stencil inference and validation in Camfort, an
+  open-source program analysis and refactoring tool.
 \end{abstract}
 
 \keywords{program verification, specifications, static analysis,
@@ -523,8 +526,27 @@ z = a(i, j+1) + a(i-1, j+1) + a(i+1, j+1)
 b(i, j) = (x + y + z) / 9.0
 \end{ExmVerbatim}
 %%
+Such a stencil computation is a common image convolution (for example
+for edge detection). 
 Note that there are a number of intermediate assignments over which
-the whole specification ranges.
+the whole specification ranges. 
+
+As another example, the following code and specification
+implements the \emph{Roberts cross}
+edge-detection convolution~\cite{davis1975survey}:
+%%
+\begin{ExmVerbatim}
+do j=0, jmax-1
+    do i=0, imax-1
+\sten{      != region r1 = forward(depth=1, dim=1)}
+\sten{      != region r2 = forward(depth=1, dim=2)}
+\sten{      != stencil readOnce, r1*r2 :: a}
+      x = a(i,j) - a(i+1,j+1)
+      y = a(i+1,j) - a(i,j+1)
+    b(i,j) = sqrt(x*x+y*y)
+   end do
+end do
+\end{ExmVerbatim}
 
 \paragraph{Region declarations and variables}
 
@@ -1477,6 +1499,68 @@ ZZ1(I,J) = SFDT(I,J+8)
 
 \section{Discussion}
 \label{sec:discussion}
+
+\subsection{Related work}
+
+Various prior approaches to specifying and verifying the behaviour
+of stencils have been based on fine-grained representations of the
+code. These essentially duplicate the indexing scheme of a stencil
+computation in their specifications. 
+ 
+\citet{kamil2016verified} propose a technique they call
+\emph{verified lifting} for mapping low-level, possibly
+greatly optimised, stencil computations into a high-level
+predicate language using inductive program synthesis. 
+The aim is that these high-level abstract specifications can
+then be translated into high-performance DSLs, easing the
+use of high-performance DSLs. Compared to our approach,
+their specification language is more fine grained, capturing
+the exact indexing pattern of a stencil. For example, the following
+is an example post-condition in their language, generated by their
+compiler \textsc{stng} from a Fortran stencil computation~\cite [p.3]{kamil2016verified}:
+%
+\begin{align*}
+& \textit{post}(\texttt{a}, \texttt{b}) \equiv \forall \texttt{imin}+1 
+\leq \texttt{i} \leq \texttt{imax}, \texttt{jmin} \leq \texttt{j} \leq
+\texttt{jmax} \\
+& \qquad \texttt{a}(\texttt{i},\texttt{j}) = 
+\texttt{b}(\texttt{i}-1,\texttt{j}) + \texttt{b}(\texttt{i},\texttt{j})
+\end{align*}
+%
+Noticeable, the bounds of the stencil and the exact indexing pattern
+are captured. Our approach aims to be much more abstract, to
+facilitate human reasoning, and avoid low-level lexical
+errors. However, \textsf{stng} specifications are generated, \ie{}, 
+are never written by a programmer, avoiding this
+problem. Their inductive program synthesis approach allows
+specifications to extracted even from optimised and unrolled code. For
+example, the above post condition is generated from the code~\cite [p.3]{kamil2016verified}:
+%
+\begin{ExmVerbatim}
+do j=jmin, jmax 
+    t = b(imin, j)
+    do i=imin+1,imax
+        q = b(i, j)
+        a(i, j) = q + t
+        t = q
+    end do
+end do
+\end{ExmVerbatim}
+%
+Thus, \textsc{stng} can understand cross-loop data-dependencies
+in order to assign the above post-condition. CamFort is not currently
+able to ascribe a specification in the above case as the use of
+\texttt{t} on line 5 maps only to the definition on line 2, and no on
+line 6. Extending our approach to follow loop-carried dependencies is
+future work. An alternate approach for us would be to build ontop of
+the work of Kamil~\emph{et al.} by inferring our specifications from 
+\textsc{stng} (as an intermediate step). 
+
+In an alternate approach,~\citet{abe2013model} 
+
+There are many DSLs for stencil comptuation aimed at either
+performance or verification, or both. Many elimiante out-of-bounds
+errors, \eg{},~\cite{DBLP:journals/corr/abs-1109-0777}. 
 
 
 \bibliography{references}

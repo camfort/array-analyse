@@ -80,12 +80,14 @@ xrightmargin=0.2cm,commandchars=\\\{\},baselinestretch=0.98,numbersep=0.9em}
 \newcommand{\nonterm}[1]{\textit{#1}}
 \newcommand{\term}[1]{\texttt{#1}}
 
+\newcommand{\stenRefl}[1]{\term{reflexive} \, (\term{dim=}#1)}
 \newcommand{\stenFwd}[2]{\term{forward} \, (\term{depth=}#1,
   \term{dim=}#2)}
 \newcommand{\stenBwd}[2]{\term{backward} \, (\term{depth=}#1,
   \term{dim=}#2)}
 \newcommand{\stenCen}[2]{\term{centered} \, (\term{depth=}#1,
   \term{dim=}#2)}
+\newcommand{\stenReflS}[1]{\term{refl} \, (\term{dim=}#1)}
 \newcommand{\stenFwdS}[2]{\term{fwd} \, (\term{depth=}#1,
   \term{dim=}#2)}
 \newcommand{\stenBwdS}[2]{\term{bwd} \, (\term{depth=}#1,
@@ -116,6 +118,7 @@ xrightmargin=0.2cm,commandchars=\\\{\},baselinestretch=0.98,numbersep=0.9em}
 \left[\begin{array}{rr}$#1$ & $#3$\\$#2$ & $#4$\end{array}\right]}
 
 \newcommand{\singleEntry}[2]{\textbf{J}_{#2}^{#1}}
+\newcommand{\zeroEntry}[2]{\textbf{K}_{#2}^{#1}}
 
 %% OPERATIONS ON SPANS and VECTORS
 \newcommand{\containedin}{\sqsubseteq}
@@ -131,15 +134,15 @@ xrightmargin=0.2cm,commandchars=\\\{\},baselinestretch=0.98,numbersep=0.9em}
 \begin{abstract}
 Verifying the correctness of numerical computations relies on a specification of their behaviour.
 A natural way to do this would be in terms of the original mathematical model but this approach yields specifications which are highly decoupled from the code.
-Checking the correctness of code which implements a discrete approximation of such specifications is extremely challenging. 
+Checking the correctness of code which implements a discrete approximation of such specifications is extremely challenging.
 Instead we have been investigating intermediate
   systems of specification and verification between lower-level
   aspects (\eg{}, out-of-bounds errors) and full correctness
   based on a numerical model. In this paper, we focus on
   \emph{stencil computations}---a common idiom in numerical code, but
-  one which is error-prone due to fine-grained indexing errors.  
+  one which is error-prone due to fine-grained indexing errors.
 %
-We describe a stencil specification language which can be directly embedded as annotations in source code, along with an inference and checking procedure. 
+We describe a stencil specification language which can be directly embedded as annotations in source code, along with an inference and checking procedure.
 %
 We evaluate our language against a corpus of numerical Fortran code, and show
   that precise specifications can be given to $X\%$ of identifiable
@@ -457,16 +460,17 @@ b(i) = ( a(i) + a(i-1) + a(i+1) ) / 3.0
 %\nonterm{spec} ::= & \nonterm{spatial} \mid \nonterm{temporal}
 %\\[1em]
 \nonterm{specTop} ::= & [\nonterm{approxMod},] \; \nonterm{spec} \\
-\nonterm{spec} ::= & [\nonterm{modR}] \; \nonterm{qualifiedRegion} \\
-\nonterm{qualifiedRegion} ::= & [\nonterm{modRefl},] \; [\nonterm{modIrrefl},] \; \nonterm{region}\\
-\nonterm{modR} ::= & \term{readOnce} \\
-\nonterm{modRefl} ::= & \term{reflexive} \, (\term{dims=}\dimTy \{\term{,} \; \dimTy\}) \\
-\nonterm{modIrrefl} ::= & \term{irreflexive} \, (\term{dims=}\dimTy \{\term{,}
+\nonterm{spec} ::= & [\nonterm{modMult},] \; \nonterm{refRegion} \\
+\nonterm{refRegion} ::= & [\nonterm{modRefl},] \; \nonterm{region}\\
+\nonterm{modMult} ::= & \term{readOnce} \\
+\nonterm{modRefl} ::= & \term{irreflexive} \, (\term{dims=}\dimTy \{\term{,}
           \dimTy\}) \\
 \nonterm{approxMod} ::= & \term{atMost} \; \mid \; \term{atLeast} \\[0.1em]
-\nonterm{region} ::= & \stenFwd{\mathbb{N}_{>0}}{\dimTy}  \\
+\nonterm{region} ::=
+        & \stenFwd{\mathbb{N}_{>0}}{\dimTy}  \\
 \mid \; & \stenBwd{\mathbb{N}_{>0}}{\dimTy} \\
 \mid \; & \stenCen{\mathbb{N}_{>0}}{\dimTy} \\
+\mid \; & \stenRefl{\dimTy}  \\
 \mid \; & \nonterm{region} \; \term{+} \; \nonterm{region} \\
 \mid \; & \nonterm{region} \; \term{*} \; \nonterm{region} \\
 \mid \; & \nonterm{rvar}  \\[0.5em]
@@ -724,9 +728,9 @@ $\textit{specDec} :: \texttt{v} \equiv
 \textit{specDec'} :: \texttt{v}$.
 
 To save space we use abbreviations
-\term{fwd}, \term{bwd}, and \term{cen} for \term{forward},
-\term{backward}, and \term{centered} regions respectively.  The
-equations reveal something of their semantics.  The first six
+\term{refl}, \term{fwd}, \term{bwd}, and \term{cen} for \term{reflexive},
+\term{forward}, \term{backward}, and \term{centered} regions respectively.
+The equations reveal something of their semantics.  The first six
 equations (with labels of the form $\ldots \texttt{+} \ldots$)
 explain the behaviour of overlapping regions with sum
 \term{+}. The next six equations explain the algebraic behaviour of
@@ -810,16 +814,32 @@ intermediate notations and definitions:
 
 \begin{definition}A \emph{single-entry vector} of size $n$, denoted
 $\singleEntry{r}{n}$, is a vector
-where the $r^{th}$ entry is $1$ and all others are $0$, \eg{},
-$\singleEntry{1}{2} = \vtwoh{1}{0}$.
+where the $r^{th}$ entry is $1$ and all others are $\infty$, \eg{},
+$\singleEntry{1}{2} = \vtwoh{1}{\infty}$.
+\end{definition}
+
+\begin{definition}A \emph{zero-entry vector} of size $n$, denoted
+$\zeroEntry{r}{n}$, is a vector where the $r^{th}$ entry is $0$ and all others
+are $\infty$, \eg{}, $\zeroEntry{1}{2} = \vtwoh{0}{\infty}$.
 \end{definition}
 
 \begin{definition}The product of two models $\otimes$ is defined:
 %%
-\begin{align*}
-M \otimes N & =
-  \{(u \bowtie v)_i \mid i \in \{1, \ldots, 2^n\}, (u, v) \in M \times N\}
-\end{align*}
+\begin{alignat*}{2}
+& dims(M_m,N_n) =
+  \bigg\{ x \; \bigg| \;
+    \parbox{4.1cm}{
+      $x \in \{1, \ldots, m\} \wedge M_x \neq \infty \; \vee \;$ \\
+      $x \in \{1, \ldots, n\} \wedge N_x \neq \infty$
+                  } \bigg\} \\
+& M_n \otimes N_n =
+  \Bigg\{x \; \Bigg| \;
+    \parbox{4.8cm}{$i \in \{1, \ldots, 2^n\},$
+                   $(u, v) \in M_n \times N_n,$ \\
+                   $x = (u \bowtie v)_i,$ \\
+                   $\forall j \in dims(M_n,N_n) (x_j \neq \infty) $
+                  } \Bigg\}
+\end{alignat*}
 The $\bowtie$ operation, which we call \emph{pairwise permutation}
 (described below), constructs a $2^n \times n$ matrix ($2^n$-vector of
 $n$-vectors). Using this, the $\otimes$ operation constructs the set of every
@@ -857,26 +877,8 @@ defined the pairwise pemutation matrix as:
 \end{align*}
 %
 where $b$ is a logical matrix where $b_{i,j}$ is the $j$-th bit of the integer
-$i - 1$. Recall that the vectors are defined over the domain
-$\mathbb{Z} \cup \{\infty\}$.
-For addition and multiplication, we take
- $\infty$ to be an absorbing element. Thus, if either
-vector in a pairwise permutation contains $\infty$ in
-the $j^{th}$ entry, then $j^{th}$ entry of every pairwise
-permutation is $\infty$, \eg{},
-%%
-\begin{equation*}
-\vtwoh{0}{1} \bowtie \vtwoh{2}{\infty} =
-\setlength{\arraycolsep}{0.5em}
-\left[\begin{array}{cc}
-0 & \infty \\
-0 & \infty \\
-2 & \infty \\
-2 & \infty
-\end{array}
-\right]
-\end{equation*}
-
+$i - 1$. Recall that the vectors are defined over the domain $\mathbb{Z} \cup
+\{\infty\}$. In pairwise permutation $\infty$
 
 %%
 \end{definition}
@@ -900,6 +902,12 @@ permutation is $\infty$, \eg{},
 \begin{figure}
 \input{spatial-model.tex}
 \caption{Model of specifications}
+\label{fig:spatial-model}
+\end{figure}
+
+\begin{figure}
+\input{consistency.tex}
+\caption{Consistency function for a model and a set of indices}
 \label{fig:spatial-model}
 \end{figure}
 
@@ -1283,13 +1291,13 @@ result, hence we have reached a fixed point.
 \paragraph{Step 4: Convert spans into region AST}
 
 Given the set $\textsf{regions}(M)$ of spans covering the indexing
-space, the next step converts these into abstract syntax trees 
+space, the next step converts these into abstract syntax trees
 for the specification language.
 
-For each span $S = [\vect{l} \; \vect{u}]$, 
-for each dimension, each pair of entries in the lower- and upper-bound 
+For each span $S = [\vect{l} \; \vect{u}]$,
+for each dimension, each pair of entries in the lower- and upper-bound
 vectors is mapped to a concrete \textit{spec}, as defined by the
-$\mathsf{conv}$ function: 
+$\mathsf{conv}$ function:
 %%
 \begin{align*}
 & \mathsf{conv}_i\; [\vect{l} \; \vect{u}] = \\
@@ -1320,7 +1328,7 @@ $\mathsf{conv}$ function:
 %%
 The first two cases map to \texttt{forward} stencils since the lower
 bound is $0$ or $1$, with the depth determined by the upper bound of
-the span. If the lower bound is $1$, then the 
+the span. If the lower bound is $1$, then the
 $0$-offset point is missing so the specification is given an
 \texttt{irreflexive} modifier. The second two cases are similar for
 \texttt{backward} but now the depth of the region is determined by the
@@ -1329,24 +1337,24 @@ is negative and the upper bound is positive and they have the same
 magnitude, then a \texttt{centered} region is constructed with
 the depth as the common magnitude. If the magnitudes are not the same
 (sixth case) then separated \texttt{forward} and \texttt{backward}
-regions are summed, with their corresponding depths. 
+regions are summed, with their corresponding depths.
 
 In the case where either bound is $\infty$, representing a non
 neighbourhood index, then a simple \texttt{irreflexive} specification
 is given with no regions, indicating that there is not even reflexive
 0-offset access in this dimension.
 
-Finally in the last two cases, if the lower bound is greater than 1 
-(which implies the upper bound is greater than 1 too) then 
+Finally in the last two cases, if the lower bound is greater than 1
+(which implies the upper bound is greater than 1 too) then
 this represents a region that is not at the origin (or next to) the
-origin and thus not representable in the specificaiton language. 
+origin and thus not representable in the specificaiton language.
 Thus, an upper bound is instead returned showing the maximum extent
 of the region. The last case is the dual, when the lower bound is less
 than $-1$, giving an upper bound on a \texttt{backward} specification.
 
 \begin{lemma}
 $\mathsf{conv}_i$ is total given the pre-condition that the lower
-bound of the input span is less than or equal to its upper bound. 
+bound of the input span is less than or equal to its upper bound.
 \end{lemma}
 
 \section{Evaluation}

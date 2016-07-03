@@ -2,12 +2,14 @@
 %
 % REGION model
 %
-\interp{\stenFwd{k}{d}}_n & =
- \{i\singleEntry{d}{n} \mid i \in \{0, \ldots, k\} \} \\
-\interp{\stenBwd{k}{d}}_n & =
- \{i\singleEntry{d}{n} \mid i \in \{-k, \ldots, 0\} \} \\
-\interp{\stenCen{k}{d}}_n & =
- \{i\singleEntry{d}{n} \mid i \in \{-k, \ldots, k\} \} \\
+\interp{\stenFwdS{k}{d}}_n & =
+  \{i\singleEntry{d}{n} \mid i \in \{0, \ldots, k\} \} \cup \{ \zeroEntry{d}{n} \} \\
+\interp{\stenBwdS{k}{d}}_n & =
+  \{i\singleEntry{d}{n} \mid i \in \{-k, \ldots, 0\} \} \cup \{ \zeroEntry{d}{n} \} \\
+\interp{\stenCenS{k}{d}}_n & =
+  \{i\singleEntry{d}{n} \mid i \in \{-k, \ldots, k\} \setminus 0 \}
+  \cup \{ \zeroEntry{d}{n} \} \\
+\interp{\stenReflS{d}}_n & = \{ \zeroEntry{d}{n} \} \\
 %
 % REGION PROD model
 %

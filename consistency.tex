@@ -1,0 +1,13 @@
+\begin{align*}
+  u \sim v &= \forall i \cdot v_i = \infty \vee u_i = v_i \\
+  cons(\textsf{low}(\textsf{mult}(m)),a) &=
+    \forall u \in analyse(a) \; \exists v \in m \cdot u \sim v \\
+  cons(\textsf{low}(\textsf{once}(m)),a) &=
+    uniqueness \wedge cons(\textsf{low}(\textsf{mult}(m)),a)  \\
+  cons(\textsf{up}(\textsf{mult}(m)),a) &=
+    \forall v \in m \; \exists u \in analyse(a) \cdot u \sim v \\
+  cons(\textsf{up}(\textsf{once}(m)),a) &=
+    uniqueness \wedge cons(\textsf{up}(\textsf{mult}(m)),a) \\
+  cons(\textsf{exact}(m),a) &=
+    cons(\textsf{up}(m),a) \wedge cons(\textsf{low}(m),a)
+\end{align*}

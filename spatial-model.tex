@@ -1,19 +1,16 @@
-\begin{equation*}
-  \interp{approx\texttt{,} \; spec}_n =
-    \begin{cases}
-      \textsf{upper}(\interp{spec}_n) &\mbox{if } {approx} = \texttt{atMost} \\
-      \textsf{lower}(\interp{spec}_n) &\mbox{if } {approx} = \texttt{atLeast} \\
-      \textsf{exact}(\interp{spec}_n) &\mbox{if } {approx} = \epsilon \\
-    \end{cases}
-\end{equation*}
-\begin{equation*}
-\begin{split}
-  \interp{modRefl\texttt{,} \; modIrrefl\texttt{,} \; region}_n = \\
-  \interp{region}_n \cup \interp{modRefl}_n \setminus \interp{modIrrefl}_n
-\end{split}
-\end{equation*}
 \begin{align*}
-  \interp{\texttt{reflexive} \, (\texttt{dims=}D)}_n =
-  \interp{\texttt{reflexive} \, (\texttt{dims=}D)}_n =
-    \{\singleEntry{d}{n} \mid d \in D \} \\
+&\interp{approx\texttt{,} \; spec}_n =
+   \begin{cases}
+     \textsf{up}(\interp{spec}_n) &\mbox{if } approx = \texttt{atMost} \\
+     \textsf{low}(\interp{spec}_n) &\mbox{if } approx = \texttt{atLeast} \\
+     \textsf{exact}(\interp{spec}_n) &\mbox{if } approx = \epsilon \\
+   \end{cases} \\
+&\interp{modMult\texttt{,} \; refRegion}_n = \\
+&\quad\quad
+   \begin{cases}
+     \textsf{once}(\interp{refRegion}_n) &\mbox{if } modMult = \texttt{readOnce} \\
+     \textsf{mult}(\interp{refRegion}_n) &\mbox{if } modMult = \epsilon \\
+   \end{cases} \\
+&\interp{modRefl\texttt{,} \; region}_n = 
+   \interp{region}_n \setminus \interp{modRefl}_n
 \end{align*}

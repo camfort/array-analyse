@@ -697,6 +697,8 @@ and checked against the code.
 \stenCenS{n}{d} \\
 \equiv \; & \stenFwdS{n}{d} \; \texttt{+} \; \stenBwdS{n}{d} \\[1em]
 %
+(\texttt{+}\textsc{idem}) \;\; & S \; \texttt{+} \; S \; \equiv \; S \\[0.5em]
+%
 (\texttt{+}\textsc{comm}) \;\; & S \; \texttt{+} \; T \; \equiv \; T \;
                        \texttt{+} \; S \\[0.5em]
 %
@@ -849,21 +851,20 @@ $\zeroEntry{r}{n}$, is a vector where the $r^{th}$ entry is $0$ and all others
 are $\infty$, \eg{}, $\zeroEntry{1}{2} = \vtwoh{0}{\infty}$.
 \end{definition}
 
-\begin{definition}The product of two models $\otimes$ is defined:
+\begin{definition}The product of two models of dimensionality
+$n$ is given by the tensor $\otimes_n$ defined:
 %%
+\newcommand{\effdims}[2]{\mathit{dims}_{#2}(#1)}
 \begin{alignat*}{2}
-& dims(M_m,N_n) =
-  \bigg\{ x \; \bigg| \;
-    \parbox{4.1cm}{
-      $x \in \{1, \ldots, m\} \wedge M_x \neq \infty \; \vee \;$ \\
-      $x \in \{1, \ldots, n\} \wedge N_x \neq \infty$
-                  } \bigg\} \\
-& M_n \otimes N_n =
+& \effdims{M}{n} = 
+\bigcap_{u \in M} \{x \mid x \in \{1,...,n\}, u_x \neq \infty\} \\
+& M \otimes_n N =
   \Bigg\{x \; \Bigg| \;
-    \parbox{4.8cm}{$i \in \{1, \ldots, 2^n\},$
-                   $(u, v) \in M_n \times N_n,$ \\
+    \parbox{5.6cm}{$i \in \{1, \ldots, 2^n\},$
+                   $(u, v) \in M \times N,$ \\
                    $x = (u \bowtie v)_i,$ \\
-                   $\forall j \in dims(M_n,N_n) (x_j \neq \infty) $
+                   $j \in (\effdims{M}{n} \cap \effdims{N}{n}),$ \\
+                   $x_j \neq \infty$
                   } \Bigg\}
 \end{alignat*}
 The $\bowtie$ operation, which we call \emph{pairwise permutation}

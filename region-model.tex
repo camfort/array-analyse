@@ -1,0 +1,23 @@
+\begin{align*}
+%
+% REGION model
+%
+\interp{\stenFwdS{k}{d}}_n & =
+  \{i\singleEntry{d}{n} \mid i \in \{0, \ldots, k\} \} \cup \{ \zeroEntry{d}{n} \} \\
+\interp{\stenBwdS{k}{d}}_n & =
+  \{i\singleEntry{d}{n} \mid i \in \{-k, \ldots, 0\} \} \cup \{ \zeroEntry{d}{n} \} \\
+\interp{\stenCenS{k}{d}}_n & =
+  \{i\singleEntry{d}{n} \mid i \in \{-k, \ldots, k\} \setminus 0 \}
+  \cup \{ \zeroEntry{d}{n} \} \\
+\interp{\stenReflS{d}}_n & = \{ \zeroEntry{d}{n} \} \\
+%
+% REGION PROD model
+%
+\interp{r_1 \; \texttt{$\ast$} \; r_2}_n &
+= \interp{r_1}_n \otimes \interp{r_2}_n \\
+%
+%  REGION SUM model
+%
+\interp{r_1 \; \texttt{+} \; r_2}_n &
+= \interp{r_1}_n \cup \interp{r_2}_n
+\end{align*}

@@ -83,12 +83,14 @@ xrightmargin=0.2cm,commandchars=\\\{\},baselinestretch=0.98,numbersep=0.9em}
 \newcommand{\nonterm}[1]{\textit{#1}}
 \newcommand{\term}[1]{\texttt{#1}}
 
+\newcommand{\stenRefl}[1]{\term{reflexive} \, (\term{dim=}#1)}
 \newcommand{\stenFwd}[2]{\term{forward} \, (\term{depth=}#1,
   \term{dim=}#2)}
 \newcommand{\stenBwd}[2]{\term{backward} \, (\term{depth=}#1,
   \term{dim=}#2)}
 \newcommand{\stenCen}[2]{\term{centered} \, (\term{depth=}#1,
   \term{dim=}#2)}
+\newcommand{\stenReflS}[1]{\term{refl} \, (\term{dim=}#1)}
 \newcommand{\stenFwdS}[2]{\term{fwd} \, (\term{depth=}#1,
   \term{dim=}#2)}
 \newcommand{\stenBwdS}[2]{\term{bwd} \, (\term{depth=}#1,
@@ -119,12 +121,15 @@ xrightmargin=0.2cm,commandchars=\\\{\},baselinestretch=0.98,numbersep=0.9em}
 \left[\begin{array}{rr}$#1$ & $#3$\\$#2$ & $#4$\end{array}\right]}
 
 \newcommand{\singleEntry}[2]{\textbf{J}_{#2}^{#1}}
+\newcommand{\zeroEntry}[2]{\textbf{K}_{#2}^{#1}}
 
 %% OPERATIONS ON SPANS and VECTORS
 \newcommand{\containedin}{\sqsubseteq}
 
+\include{results}
+\include{corpussize}
 
-\title{Abstract Spatial Specification of Stencil Computations}
+\title{Verification of Stencil Computations through Spatial Specifications}
 \authorinfo{Dominic Orchard \and Mistral Contrastin
 \and Matthew Danish \and Andrew Rice}{University of Cambridge}{}
 
@@ -134,15 +139,15 @@ xrightmargin=0.2cm,commandchars=\\\{\},baselinestretch=0.98,numbersep=0.9em}
 \begin{abstract}
 Verifying the correctness of numerical computations relies on a specification of their behaviour.
 A natural way to do this would be in terms of the original mathematical model but this approach yields specifications which are highly decoupled from the code.
-Checking the correctness of code which implements a discrete approximation of such specifications is extremely challenging. 
+Checking the correctness of code which implements a discrete approximation of such specifications is extremely challenging.
 Instead we have been investigating intermediate
   systems of specification and verification between lower-level
   aspects (\eg{}, out-of-bounds errors) and full correctness
   based on a numerical model. In this paper, we focus on
   \emph{stencil computations}---a common idiom in numerical code, but
-  one which is error-prone due to fine-grained indexing errors.  
+  one which is error-prone due to fine-grained indexing errors.
 %
-We describe a stencil specification language which can be directly embedded as annotations in source code, along with an inference and checking procedure. 
+We describe a stencil specification language which can be directly embedded as annotations in source code, along with an inference and checking procedure.
 %
 We evaluate our language against a corpus of numerical Fortran code, and show
   that precise specifications can be given to $X\%$ of identifiable
@@ -170,7 +175,7 @@ computation computes an array value, where the value at each index $i$ of
 this array is calculated from a \emph{neighbourhood} of values around $i$ in
 some input array(s), \eg{}, the Game of Life, convolutions in image
 processing, approximations to differential equations. For example, the
-following iteratively computes the one-dimensional discrete Laplace
+following iteration computes the one-dimensional discrete Laplace
 transform (an approximation to a derivative) in Fortran:
 %
 \begin{ExmVerbatim}
@@ -209,7 +214,7 @@ accidentally introduce an error via simple textual mistakes, for
 example writing $\texttt{(i-1,j)}$ instead of $\texttt{(i+1,j)}$.
 
 In this work, we introduce a simple specification language for the
-spatial properties of stencil comptuations. The
+spatial properties of stencil computations. The
 specifications abstract over the fine grained detail of stencil access
 patterns.  In practise, most stencil computations have a regular shape
 that can be described simply and abstractly, with a small set of
@@ -307,7 +312,7 @@ showing highly-detailed stencil computations. \\
 \draw (4,1.5) rectangle (4.5,2);
 \end{tikzpicture}
 \end{center}
-(c). Pictoral representation of the two stencil specifications.
+(c). Pictorial representation of the two stencil specifications.
 The horizontal dimensions is \text{dim=1} and the vertical is \texttt{dim=2}:
 \caption{Fragment of Navier-Stokes fluid simulator and its specification}
 \label{ref:navier-stokes-fragment}
@@ -317,7 +322,7 @@ The horizontal dimensions is \text{dim=1} and the vertical is \texttt{dim=2}:
 \label{sec:lang}
 
 Our specification system is based on the observation
-that most forms of array access in numberical code have
+that most forms of array access in numerical code have
 a fixed, statically-determined access pattern. For example, the
 ``\emph{five-point stencil}'' on a two-dimensional array reads from array
 indices $(i, j)$, $(i-1, j)$, $(i+1, j)$, $(i, j-1)$, and $(i, j+1)$
@@ -328,7 +333,7 @@ such regular stencil patterns on a corpus of numerical programs (both
 small and large). We found that indeed \dnote{..}.
 
 We outline the specification language here. Section~\ref{sec:syntax}
-oultines the syntax. Section~\ref{sec:semantics} defines its semantics
+outlines the syntax. Section~\ref{sec:semantics} defines its semantics
 via a simple set interpretation over indices. Section~\ref{sec:eqs} provides an
 equational theory for specifications via relation ($\equiv$) and a
 theory of approximation via relation ($<:$). These equations are then
@@ -349,7 +354,7 @@ used throughout.
   A variable \textit{v} of integer type is a \emph{base induction
     variable} if it is the control variable of a ``for''
   loop\footnote{Or equivalent for the target language, \eg{},
-    \texttt{do} in Fortan for our implementation}, incremented by $1$ per
+    \texttt{do} in Fortran for our implementation}, incremented by $1$ per
 iteration. The variable is marked as a base induction variable
 only within the scope of the loop, and such variables will be ranged
 over by $i$, $j$, $k$. Since we do not use non-base induction
@@ -367,7 +372,7 @@ variables) we often simply say \emph{induction variable}.
 \end{definition}
 
 \begin{definition}[Neighbourhood index and neighbourhood subscripts]
-  For an array subscript $v(\bar{e})$, we say say that $e \in \bar{e}$
+  For an array subscript $v(\bar{e})$, we say that $e \in \bar{e}$
   is a \emph{neighbourhood index} if it is of the form
   $e \equiv i$, $e \equiv i + a$ or $e \equiv i - a$ where $a$ is a
   constant of integer type. That is, a neighbourhood index is a
@@ -391,10 +396,10 @@ which we introduces in stages below.  The top-level is given by the
 (specification declaration). Specification declarations associate a
 specification to one or more program variables $\bar{v}$ (here given
 using the Fortran style syntax of $\ldots \; \texttt{::} \bar{v}$),
-describing how the array variables $\bar{v}$ are acessed.
+describing how the array variables $\bar{v}$ are accessed.
 %Specification declarations are either \nonterm{spatial} or
 %\nonterm{temporal} specifications and describe, for spatial
-%specifcations,
+%specifications,
 %Specifications declarations describe
 %how an array variable $v$ is read
 %, and for temporal
@@ -460,17 +465,17 @@ b(i) = ( a(i) + a(i-1) + a(i+1) ) / 3.0
 %\nonterm{spec} ::= & \nonterm{spatial} \mid \nonterm{temporal}
 %\\[1em]
 \nonterm{specTop} ::= & [\nonterm{approxMod},] \; \nonterm{spec} \\
-\nonterm{spec} ::= & [\nonterm{mod}] \; [\nonterm{region}] \\
-\nonterm{mod} ::= & [\nonterm{modR},] \; [\nonterm{modRefl},] \; [\nonterm{modIrefl},] \\
-\nonterm{modR} ::= &
- \term{readOnce} \\
-\nonterm{modRefl} ::= & \term{reflexive} \, (\term{dims=}\dimTy \{\term{,} \; \dimTy\}) \\
-\nonterm{modIrrefl} ::= & \term{irreflexive} \, (\term{dims=}\dimTy \{\term{,}
+\nonterm{spec} ::= & [\nonterm{modMult},] \; \nonterm{refRegion} \\
+\nonterm{refRegion} ::= & [\nonterm{modRefl},] \; \nonterm{region}\\
+\nonterm{modMult} ::= & \term{readOnce} \\
+\nonterm{modRefl} ::= & \term{irreflexive} \, (\term{dims=}\dimTy \{\term{,}
           \dimTy\}) \\
 \nonterm{approxMod} ::= & \term{atMost} \; \mid \; \term{atLeast} \\[0.1em]
-\nonterm{region} ::= & \stenFwd{\mathbb{N}_{>0}}{\dimTy}  \\
+\nonterm{region} ::=
+        & \stenFwd{\mathbb{N}_{>0}}{\dimTy}  \\
 \mid \; & \stenBwd{\mathbb{N}_{>0}}{\dimTy} \\
 \mid \; & \stenCen{\mathbb{N}_{>0}}{\dimTy} \\
+\mid \; & \stenRefl{\dimTy}  \\
 \mid \; & \nonterm{region} \; \term{+} \; \nonterm{region} \\
 \mid \; & \nonterm{region} \; \term{*} \; \nonterm{region} \\
 \mid \; & \nonterm{rvar}  \\[0.5em]
@@ -491,7 +496,7 @@ Region terms can be combined using the sum operator
 
 The sum of two regions $r \texttt{+} r'$ specifies that an array is
 read using the neighbourhood indices described by both $r$ and
-$r'$. It can be thought of as a conjunction of speicifcations. For
+$r'$. It can be thought of as a conjunction of specifications. For
 example, the following gives the specification for the five-point
 stencil which is the sum of two \texttt{centered} regions in each
 dimension:
@@ -546,7 +551,7 @@ end do
 
 Region specifications can be assigned to region variables via
 a region declaration, which can be used later to form a spatial
-specification. For example, the speicifcation from the previous
+specification. For example, the specification from the previous
  example can be restated as:
 %%
 \begin{ExmVerbatim}
@@ -571,14 +576,14 @@ b(i+1) = a(i) + a(i-1) + a(i-2)
 \end{ExmVerbatim}
 %
 However, this would be an invalid specification if any of the
-array subscripts was reapeated. This modifier provides a way to
+array subscripts was repeated. This modifier provides a way to
  rule out any accidental repetition of array subscripts.
-The notion correponds to that of \emph{linearity}, though we
+The notion corresponds to that of \emph{linearity}, though we
 opt for the more informative and easily understood name
 \texttt{readOnce}. This modifier is optional, so it need not
 be present even if the stencil is linear.
 
-The \texttt{irreflexive} modifier is parameteresed by a
+The \texttt{irreflexive} modifier is parameterised by a
 comma-separated list of dimensions, indicating that for those
 dimensions there is no neighbour index with $0$ offset, \eg{},
 %
@@ -741,15 +746,15 @@ and checked against the code.
 \paragraph{Equations}
 Figure~\ref{fig:equations} lists the equational theory for
 specifications. This is broken down into equations on regions only,
-given by the equivalence relation $\textit{region} \equiv \textit{region}'$ and on
+given by the equivalence relation $\textit{region} \equiv \textit{region}'$ and
 on specification declarations assigned to variables via the equivalence relation
 $\textit{specDec} :: \texttt{v} \equiv
 \textit{specDec'} :: \texttt{v}$.
 
 To save space we use abbreviations
-\term{fwd}, \term{bwd}, and \term{cen} for \term{forward},
-\term{backward}, and \term{centered} regions respectively.  The
-equations reveal something of their semantics.  The first six
+\term{refl}, \term{fwd}, \term{bwd}, and \term{cen} for \term{reflexive},
+\term{forward}, \term{backward}, and \term{centered} regions respectively.
+The equations reveal something of their semantics.  The first six
 equations (with labels of the form $\ldots \texttt{+} \ldots$)
 explain the behaviour of overlapping regions with sum
 \term{+}. The next six equations explain the algebraic behaviour of
@@ -827,22 +832,38 @@ model as sets of vectors, represent array indexing.
   vector $\vtwoh{\infty}{0}$ since $0$ is a non-relative index.
 \end{definition}
 
-Figure~\ref{fig:model} outlines the core rules for regions
+Figure~\ref{fig:region-model} outlines the core rules for regions
 via the interpretation function $\interp{-}$.  We explain the
 intermediate notations and definitions:
 
 \begin{definition}A \emph{single-entry vector} of size $n$, denoted
 $\singleEntry{r}{n}$, is a vector
-where the $r^{th}$ entry is $1$ and all others are $0$, \eg{},
-$\singleEntry{1}{2} = \vtwoh{1}{0}$.
+where the $r^{th}$ entry is $1$ and all others are $\infty$, \eg{},
+$\singleEntry{1}{2} = \vtwoh{1}{\infty}$.
+\end{definition}
+
+\begin{definition}A \emph{zero-entry vector} of size $n$, denoted
+$\zeroEntry{r}{n}$, is a vector where the $r^{th}$ entry is $0$ and all others
+are $\infty$, \eg{}, $\zeroEntry{1}{2} = \vtwoh{0}{\infty}$.
 \end{definition}
 
 \begin{definition}The product of two models $\otimes$ is defined:
 %%
-\begin{align*}
-M \otimes N & =
-  \{(u \bowtie v)_i \mid i \in \{1, \ldots, 2^n\}, (u, v) \in M \times N\}
-\end{align*}
+\begin{alignat*}{2}
+& dims(M_m,N_n) =
+  \bigg\{ x \; \bigg| \;
+    \parbox{4.1cm}{
+      $x \in \{1, \ldots, m\} \wedge M_x \neq \infty \; \vee \;$ \\
+      $x \in \{1, \ldots, n\} \wedge N_x \neq \infty$
+                  } \bigg\} \\
+& M_n \otimes N_n =
+  \Bigg\{x \; \Bigg| \;
+    \parbox{4.8cm}{$i \in \{1, \ldots, 2^n\},$
+                   $(u, v) \in M_n \times N_n,$ \\
+                   $x = (u \bowtie v)_i,$ \\
+                   $\forall j \in dims(M_n,N_n) (x_j \neq \infty) $
+                  } \Bigg\}
+\end{alignat*}
 The $\bowtie$ operation, which we call \emph{pairwise permutation}
 (described below), constructs a $2^n \times n$ matrix ($2^n$-vector of
 $n$-vectors). Using this, the $\otimes$ operation constructs the set of every
@@ -851,7 +872,7 @@ product of $M \times N$.
 
 The pairwise permutation $u \bowtie v$ takes two vectors and builds the matrix
 where the rows are all possible $n$-vectors generated by
-non-determinstically picking each $i^{th}$ entry from either the
+non-deterministic picking each $i^{th}$ entry from either the
 $i^{th}$ entry in $u$ or the $i^{th}$ entry in $j$. For example:
 %
 \begin{equation*}
@@ -873,33 +894,15 @@ $i^{th}$ entry in $u$ or the $i^{th}$ entry in $j$. For example:
 The $2^n$ unique choices for $\bowtie$ on $n$-vectors
 corresponds to taking all bit-strings of length $n$ and
 selecting from $u$ for $1$ and $v$ for $0$. Thus, we can
-defined the pairwise pemutation matrix as:
+defined the pairwise permutation matrix as:
 %
 \begin{align*}
 (u \bowtie v)_{i,j} & = b_{i,j} u_j + \neg b_{i,j} v_j
 \end{align*}
 %
 where $b$ is a logical matrix where $b_{i,j}$ is the $j$-th bit of the integer
-$i - 1$. Recall that the vectors are defined over the domain
-$\mathbb{Z} \cup \{\infty\}$.
-For addition and multiplication, we take
- $\infty$ to be an absorbing element. Thus, if either
-vector in a pairwise permutation contains $\infty$ in
-the $j^{th}$ entry, then $j^{th}$ entry of every pairwise
-permutation is $\infty$, \eg{},
-%%
-\begin{equation*}
-\vtwoh{0}{1} \bowtie \vtwoh{2}{\infty} =
-\setlength{\arraycolsep}{0.5em}
-\left[\begin{array}{cc}
-0 & \infty \\
-0 & \infty \\
-2 & \infty \\
-2 & \infty
-\end{array}
-\right]
-\end{equation*}
-
+$i - 1$. Recall that the vectors are defined over the domain $\mathbb{Z} \cup
+\{\infty\}$. In pairwise permutation $\infty$
 
 %%
 \end{definition}
@@ -909,15 +912,27 @@ permutation is $\infty$, \eg{},
 %variable-spec pairs $\interp{\overline{v : S}}$,
 %returning multisets of variable-relative-index pairs. This provides
 %the top-level definition of the model, with $\interp{-}$ overloaded
-%on $S$, $\interp{S}$ mqpping to multisets of
-%relative indices not associated to an array avariable.
+%on $S$, $\interp{S}$ mapping to multisets of
+%relative indices not associated to an array variable.
 
 \begin{figure}
-\input{model.tex}
+\input{region-model.tex}
 %\textit{$a^m \in A$ means there are $n$ copies of $a$ in
 %  the multi-set $A$}
-\caption{Set model of specifications}
-\label{fig:model}
+\caption{Set model of regions}
+\label{fig:region-model}
+\end{figure}
+
+\begin{figure}
+\input{spatial-model.tex}
+\caption{Model of specifications}
+\label{fig:spatial-model}
+\end{figure}
+
+\begin{figure}
+\input{consistency.tex}
+\caption{Consistency function for a model and a set of indices}
+\label{fig:consistency}
 \end{figure}
 
 \begin{theorem}[Soundness]
@@ -951,7 +966,7 @@ permutation is $\infty$, \eg{},
     \item Matrix operator overloading $a + b$, where both are arrays
     \item Scalar operator overloading $a + b$, where a is an array b is a
       scalar. $b$ is added to all.
-    \item Sliding. $a = b$ where the dimensionsare $a(1:10)$, $b(2:11)$,
+    \item Sliding. $a = b$ where the dimensions are $a(1:10)$, $b(2:11)$,
       so the assignment causes shifting.
   \end{itemize}
 }
@@ -968,9 +983,9 @@ set of expressions which occur in right-hand positions (\ie{}, not the
 target of an assignment). The function \var{} maps expressions to a
 set of the variables used in right-hand positions.
 
-\subsection{Inference}
+\subsection{Inference\label{sec:inference}}
 
-We demonstate the main steps of the inference procedure over the
+We demonstrate the main steps of the inference procedure over the
 following example program which computes the mean value
 of a five-point stencil at each index of the input array:
 %%
@@ -984,18 +999,18 @@ do i = 1, (n-1)
 end do
 \end{ExmVerbatim}
 %%
-\paragraph{Step 1: Standard control and dataflow analyses}
+\paragraph{Step 1: Standard control and data-flow analyses}
 The inference relies on some standard program analyses, computed
 before the main inference procedure:
 %
 \begin{enumerate}
 \item basic blocks (CFG);
 \item induction variables per basic block;
-\item (interprocedural) dataflow analysis, providing a \emph{flows to}
+\item (interprocedural) data-flow analysis, providing a \emph{flows to}
   graph (as shorthand, the function
   $\mathsf{flowTo}$ is used, implicitly parameterised by this graph,
   mapping an expression to the set of all expressions
-  with forwards dataflow to this expression, based on the transitive
+  with forwards data-flow to this expression, based on the transitive
   closure of the flows graph);
 \item type information per variable, where we use the predicate
 \arrayTy{} to classify variables of array type.
@@ -1008,7 +1023,7 @@ For each assignment statement whose left-hand side is an array
 subscript on neighbourhood indices, a finite map is computed which
 maps array variables to a set of vectors representing array
 subscripts.  This finite map contains all array subscript expressions
-which flow to this statment. More formally, a function
+which flow to this statement. More formally, a function
 $\textsf{analyse}$ is applied to each statement in a program with the
 following clause:
 %
@@ -1092,8 +1107,8 @@ $m+1$-dimensions. In this example, the $0$-dimensional spans
 %\draw[step=0.5cm,lightgray,very thin] (0.5,0.5) grid (2,2);
 %\node at (1.25,1.22) {\textnormal{\small{0,0}}};
 \draw[thick] (0.5,1) rectangle (2,1.5);
-\draw[thick] (1,0.5) rectangle (1.5,1);
-\draw[thick] (1,1.5) rectangle (1.5,2);
+\draw[thick] (1,0.40) rectangle (1.5,0.90);
+\draw[thick] (1,1.60) rectangle (1.5,2.10);
 \end{tikzpicture}
 \qquad
 &
@@ -1101,8 +1116,8 @@ $m+1$-dimensions. In this example, the $0$-dimensional spans
 \begin{tikzpicture}
 %\draw[step=0.5cm,lightgray,very thin] (0.5,0.5) grid (2,2);
 %\node at (1.25,1.22) {\textnormal{\small{0,0}}};
-\draw[thick] (1.5,1) rectangle (2,1.5);
-\draw[thick] (0.5,1) rectangle (1,1.5);
+\draw[thick] (1.6,1) rectangle (2.1,1.5);
+\draw[thick] (0.4,1) rectangle (0.9,1.5);
 \draw[thick] (1,0.5) rectangle (1.5,2);
 \end{tikzpicture}
 \\
@@ -1135,16 +1150,16 @@ combined with the region sum \texttt{+}.
 Let $\vect{x}, \vect{y}, \vect{z}$ range over the column vectors of size
 $n$ whose values are drawn from $\mathbb{Z}_\top$.
 We write $\vect{x}_i$ for the $i$-th value of vector $\vect{x}$ (1
-indexed) and $\vect{x}_{i:j}$ for the subvector from entry $i$ to
+indexed) and $\vect{x}_{i:j}$ for the sub-vector from entry $i$ to
 entry $j$ (inclusive).
 
 \begin{definition}[Spans]
-  A \emph{span} represents an $n$-dimensional box (\emph{hyperrectangle}) as
+  A \emph{span} represents an $n$-dimensional box (\emph{hyper-rectangle}) as
   a pair of $n$-dimensional vectors (represented as a $2 \times n$
   matrix) giving the co-ordinates of the lower-bound vertex (first
   column) and the upper-bound vertex (second column). We use the
   notation $[\vect{x}^L \; \vect{x}^U]$ for such a span to mark out
-  the lower and upper bound vecvtors.
+  the lower and upper bound vectors.
 \end{definition}
 
 The algorithm to create contiguous spans, covering the space of
@@ -1167,7 +1182,7 @@ N(\texttt{a}) = \stwo{0}{0}{0}{0} \stwo{1}{0}{1}{0} \stwo{-1}{0}{-1}{0} \stwo{0}
 A fixed point is then compute for the following
 procedure \textsf{regions} which, for per variable
 in the map, coalesces spans into contiguous regions in
-the $n$-dimensional spaace. That is, we compute
+the $n$-dimensional space. That is, we compute
  $(\mu \; \textsf{regions}) N$ where \textsf{regions}
 is defined as follows for each variable in the map:
 %
@@ -1178,10 +1193,10 @@ is defined as follows for each variable in the map:
 for a permutation $\pi$. For each permutation function $\pi^n_i$
 (the $i$-th permutation for vectors of size $n$, we pair the
 permutation function with the set of permuted spans so that
-the spans can be unpermuted later.
+the spans can be un-permuted later.
 %
 \[
-P(v) = \bigcup_{i \in !n} (\pi^n_{i} , \; \{[\pi^n_i
+P(v) = \bigcup_{i \in n!} (\pi^n_{i} , \; \{[\pi^n_i
 \vect{x}^L \; \pi^n_i\vect{x}^U] \, \mid \, [\vect{x}^L \; \vect{x}^U]
 \leftarrow N(v)\}
 \]
@@ -1190,17 +1205,17 @@ For our example, this yields:
 %
 \begin{align*}
 P(\texttt{a}) =
-\{&(\pi^2_1, \{ \stwo{0}{0}{0}{0}
-\stwo{1}{0}{1}{0}
-\stwo{-1}{0}{-1}{0}
-\stwo{0}{1}{0}{1}
+\{&(\pi^2_1, \{ \stwo{0}{0}{0}{0},
+\stwo{1}{0}{1}{0},
+\stwo{-1}{0}{-1}{0},
+\stwo{0}{1}{0}{1},
 \stwo{0}{-1}{0}{-1} \})
 \\
 &(\pi^2_2, \{
- \stwo{0}{0}{0}{0}
- \stwo{0}{1}{0}{1}
- \stwo{0}{-1}{0}{-1}
- \stwo{1}{0}{1}{0}
+ \stwo{0}{0}{0}{0},
+ \stwo{0}{1}{0}{1},
+ \stwo{0}{-1}{0}{-1},
+ \stwo{1}{0}{1}{0},
  \stwo{-1}{0}{-1}{0}\})\}
 \end{align*}
 %
@@ -1209,38 +1224,39 @@ permutation flips the order of the two elements in the column
 vectors.
 
 \item Sort each permutation set into an ordered list, based on the ordering:
-\[
-\vect{x} \leq \vect{y} = \exists i \, . \; \vect{x}_i \leq \vect{y}_i
-\; \wedge \; \vect{x}_{i:n} = \vect{y}_{i:n}
-\]
+\begin{equation*}
+  \vect{x} \leq \vect{y} =
+      \exists i \, . \; \vect{x}_{i,1} \leq \vect{y}_{i,1} \; \wedge \;
+        (i = n \vee \vect{x}_{i+1:n} = \vect{y}_{i+1:n})
+\end{equation*}
 %
 This yields:
 %%
 \begin{align*}
 \{&(\pi^2_1, [
-\stwo{0}{-1}{0}{-1}
-\stwo{-1}{0}{-1}{0}
-\stwo{0}{0}{0}{0}
-\stwo{1}{0}{1}{0}
+\stwo{0}{-1}{0}{-1},
+\stwo{-1}{0}{-1}{0},
+\stwo{0}{0}{0}{0},
+\stwo{1}{0}{1}{0},
 \stwo{0}{1}{0}{1}] )
 \\
 &(\pi^2_2, [
-\stwo{0}{-1}{0}{-1}
-\stwo{-1}{0}{-1}{0}
-\stwo{0}{0}{0}{0}
-\stwo{1}{0}{1}{0}
+\stwo{0}{-1}{0}{-1},
+\stwo{-1}{0}{-1}{0},
+\stwo{0}{0}{0}{0},
+\stwo{1}{0}{1}{0},
 \stwo{0}{1}{0}{1}])\}
 \end{align*}
 %%
 \item Fold each list pairwise by the following partial operation
- $\bullet$ which coalescees contiguous regions:
+ $\bullet$ which coalesces contiguous regions:
 %
 \begin{align*}
 & (\vect{x}^L,\vect{x}^U) \bullet (\vect{y}^L,\vect{y}^U) \\
 = &
 \begin{cases}
 (\vect{x}^L, \vect{y}^U) & \vect{x}^U_1 + 1 = \vect{y}^L_1 \; \wedge \;
-(\vect{x}^L_{1:n}, \vect{x}^U_{1:n}) = (\vect{y}^L_{1:n}, \vect{y}^U_{1:n}) \\
+\vect{x}_{2:n} = \vect{y}_{2:n}) \\
 \bot  & \textit{otherwise}
 \end{cases}
 \end{align*}
@@ -1248,9 +1264,9 @@ For our example, this yields:
 %
 \begin{align*}
 Q(v) = \{&(\pi^2_1, [
-\stwo{0}{-1}{0}{-1}
+\stwo{0}{-1}{0}{-1},
 \stwo{-1}{0}{1}{0},
-\stwo{0}{1}{0}{1},
+\stwo{0}{1}{0}{1}
 ]) \\
 &(\pi^2_2, [
 \stwo{0}{-1}{0}{-1},
@@ -1258,21 +1274,21 @@ Q(v) = \{&(\pi^2_1, [
 \stwo{0}{1}{0}{1}])\}
 \end{align*}
 %
-\item Unpermute and union together, \ie{},
+\item Un-permute and union together, \ie{},
 %
 \[
-U(v) = \bigcup \{[\pi \vect{y}^L, \pi \vect{y}^U]
- \mid [\vect{y}^L, \vect{y}^U] \leftarrow S, (\pi, S) \leftarrow Q(v)\}
+U(v) = \bigcup \{[\pi \vect{x}^L, \pi \vect{x}^U]
+ \mid [\vect{x}^L, \vect{x}^U] \leftarrow S, (\pi, S) \leftarrow Q(v)\}
 \]
 Which yields:
 %
 \begin{align*}
 U(\texttt{a}) =
-\{\stwo{0}{-1}{0}{-1}
-\stwo{-1}{0}{1}{0}
-\stwo{0}{1}{0}{1}
-\stwo{-1}{0}{-1}{0}
-\stwo{0}{-1}{0}{1}
+\{\stwo{0}{-1}{0}{-1},
+\stwo{-1}{0}{1}{0},
+\stwo{0}{1}{0}{1},
+\stwo{-1}{0}{-1}{0},
+\stwo{0}{-1}{0}{1},
 \stwo{1}{0}{1}{0}\}
 \end{align*}
 %
@@ -1283,8 +1299,8 @@ U(\texttt{a}) =
 \begin{align*}
 & (\vect{x}^L, \vect{x}^U) \containedin (\vect{y}^L, \vect{y}^U) = \\
 & \vect{y}^L_1 \leq \vect{x}^L_1 \wedge \vect{x}^U_1 \leq \vect{y}^U_1
-  \wedge (\vect{x}^L_{1:n}, \vect{x}^U_{1:n}) \containedin
-  (\vect{y}^L_{1:n}, \vect{y}^U_{1:n})
+  \wedge (\vect{x}^L_{2:n}, \vect{x}^U_{2:n}) \containedin
+  (\vect{y}^L_{2:n}, \vect{y}^U_{2:n})
 \end{align*}
 For our example this then yields the final result of:
 \begin{align*}
@@ -1300,13 +1316,13 @@ result, hence we have reached a fixed point.
 \paragraph{Step 4: Convert spans into region AST}
 
 Given the set $\textsf{regions}(M)$ of spans covering the indexing
-space, the next step converts these into abstract syntax trees 
+space, the next step converts these into abstract syntax trees
 for the specification language.
 
-For each span $S = [\vect{l} \; \vect{u}]$, 
-for each dimension, each pair of entries in the lower- and upper-bound 
+For each span $S = [\vect{l} \; \vect{u}]$,
+for each dimension, each pair of entries in the lower- and upper-bound
 vectors is mapped to a concrete \textit{spec}, as defined by the
-$\mathsf{conv}$ function: 
+$\mathsf{conv}$ function:
 %%
 \begin{align*}
 & \mathsf{conv}_i\; [\vect{l} \; \vect{u}] = \\
@@ -1337,7 +1353,7 @@ $\mathsf{conv}$ function:
 %%
 The first two cases map to \texttt{forward} stencils since the lower
 bound is $0$ or $1$, with the depth determined by the upper bound of
-the span. If the lower bound is $1$, then the 
+the span. If the lower bound is $1$, then the
 $0$-offset point is missing so the specification is given an
 \texttt{irreflexive} modifier. The second two cases are similar for
 \texttt{backward} but now the depth of the region is determined by the
@@ -1346,28 +1362,124 @@ is negative and the upper bound is positive and they have the same
 magnitude, then a \texttt{centered} region is constructed with
 the depth as the common magnitude. If the magnitudes are not the same
 (sixth case) then separated \texttt{forward} and \texttt{backward}
-regions are summed, with their corresponding depths. 
+regions are summed, with their corresponding depths.
 
 In the case where either bound is $\infty$, representing a non
 neighbourhood index, then a simple \texttt{irreflexive} specification
 is given with no regions, indicating that there is not even reflexive
 0-offset access in this dimension.
 
-Finally in the last two cases, if the lower bound is greater than 1 
-(which implies the upper bound is greater than 1 too) then 
+Finally in the last two cases, if the lower bound is greater than 1
+(which implies the upper bound is greater than 1 too) then
 this represents a region that is not at the origin (or next to) the
-origin and thus not representable in the specificaiton language. 
+origin and thus cannot be represented in the specification language.
 Thus, an upper bound is instead returned showing the maximum extent
 of the region. The last case is the dual, when the lower bound is less
 than $-1$, giving an upper bound on a \texttt{backward} specification.
 
 \begin{lemma}
-$\mathsf{conv}_i$ is total given the pre-condition that the lower
-bound of the input span is less than or equal to its upper bound. 
+$\mathsf{conv}_i$ is total given the precondition that the lower
+bound of the input span is less than or equal to its upper bound.
 \end{lemma}
 
 \section{Evaluation}
 \label{sec:evaluation}
+We evaluated our stencil language on a corpus of scientific code. We first give an overview of the corpus itself before presenting our results.
+
+\subsection{Software Corpus}
+\begin{figure}
+\begin{tabular}{|l|l|l|l|}
+\hline
+Package       & Files & Lines of code & Files analysed \\
+\hline
+UM            & \umFiles & \umLoC & \umparseOk  \\
+E3MG          & \ethreemgeaFiles   & \ethreemgeaLoC & \ethreemgeaparseOk  \\
+BLAS          & \blasFiles   & \blasLoC & \blasparseOk        \\
+Hybrid4       & \hybridfourFiles    & \hybridfourLoC & \hybridfourparseOk         \\
+GEOS-Chem     & \geoschemFiles   & \geoschemLoC & \geoschemparseOk       \\
+Navier        & \navierFiles     & \navierLoC & \navierparseOk           \\
+CP            & \computationalphysicstwoFiles    & \computationalphysicstwoLoC & \computationalphysicstwoparseOk           \\
+\hline
+\textbf{Total}& \overallFiles  & \overallLoC   & \overallparseOk  \\
+\hline 
+\end{tabular}
+\caption{Summary of software packages used for evaluation\label{fig:corpus}}
+\end{figure}
+
+Figure \ref{fig:corpus} shows summary statistics of the software packages used in our evaluation, all of which are written in Fortran 90 or Fortran 77. In total we analysed 1.1 million lines of code from 7 packages. The ``Files analysed'' column shows the number of files in each corpus that we were able to analyse with Camfort. The most common reasons for Camfort rejecting a file were either use of a C-preprocessor, or illegal use of language features from a more modern Fortran variant.
+
+\textbf{The Unified Model}\footnote{\url{http://www.metoffice.gov.uk/research/modelling-systems/unified-model}} is a weather forecasting and climate modelling tool developed by the Met Office in the United Kingdom. It is used by research organisations and meteorological services around the world. We use the development branch (trunk) of the model. The Met Office runs a comprehensive code quality system incorporating dedicated committers (we counted 11) for particular parts of the model. We counted 120 additional contributors whose submissions are reviewed and tested before being accepted into the code base.
+
+% e3mg-ea
+\textbf{E3MG} (An Energy-Environment-Economy (E3) Model at the Global Level) is a macroeconomic model used for assessment of environmental policy~\cite{RePEc:aen:journl:2006se-a12}. This model was developed by Cambridge Econometrics, an independent consultancy company. 
+
+\textbf{BLAS} (Basic Linear Algebra Subprograms)\footnote{\url{http://www.netlib.org/blas/}} provides efficient and portable routines for vector and matrix operations. These routines feature in many other libraries (including LAPACK). We used version 3.6.0.
+
+\textbf{Hybrid4} is a vegetation and biomass model for simulating carbon, water and nitrogen flows~\cite{GBC:GBC635}. 
+
+\textbf{GEOS-Chem}\footnote{\url{http://acmg.seas.harvard.edu/geos/}} is a three-dimensional model of tropospheric chemistry developed at Harvard and used by approximately 70 universities and research institutions world-wide. We examined version 10-01.
+
+\textbf{Navier} is an implementation of a Navier-Stokes fluid dynamics computation~\cite{griebel1997numerical}. 
+
+\textbf{CP} consists of the example code from the book ``Computational Physics''~\cite{nicholas2006computational} introducing numerical techniques and their application to modern physics problems such as fields, waves, statistical mechanics and quantum mechanics. 
+
+
+% atLeast: number of stencils with an atLeast modifier
+% atMost: number of stencils with an atMost modifier
+% boundedBoth: number of stencils with both atLeast and atMost modifier
+%% atLeast == atMost == boundedBoth - whenever we infer one we infer the other but users might write just one
+
+% backward: number of backward stencils
+% forward: number of forward stencils
+% centereed: number of centered stencils
+
+% justReflexive: number of only reflexive stencils
+% irreflexive: number of irreflexive stencils
+% readOnce: number of readOnce stencils
+
+% depthX: number of stencils with depth X
+% dimsX: number of stencils with dimensions=X (check this!)
+
+% lexFailed: number of files we failed to lex
+% parseFailed: number of files we failed to parse
+% lexOrParseFailed: number files we failed to lex and parse
+% parseOk: number of files parsed successfully
+%% lexFailed + parseFailed = lexOrParseFailed
+%% lexOrParseFailed + parseOk = number of files in source repo
+
+% tickAssign: number of array subscripts with a LHS which are all neighbour indices or constants
+% tickAssignSuccess: number of tickAssign's we generated some specification for
+%% tickAssign < tickAssignSuccess 
+
+\subsection{Occurrences of stencils}
+
+We first examined how frequently stencil computations occur in our
+corpus. We define a \emph{potential} statement as one whose left-hand
+side is an array subscript on neighbourhood indices. These statements
+are the inputs to Step 2 of the Inference process described
+Section~\ref{sec:inference}. Each potential statement for which we
+eventually generate some stencil specifications for is also counted as
+an \emph{actual} statement. 
+
+\begin{figure}
+\begin{tabular}{|l|l|l|}
+\hline
+Package       & \% potential & \% actual   \\
+\hline
+UM            & \umtickAssignPercent &  \umtickAssignSuccessPercent   \\
+E3MG          & \ethreemgeatickAssignPercent & \ethreemgeatickAssignSuccessPercent\\
+BLAS          & \blastickAssignPercent & \blastickAssignSuccessPercent \\
+Hybrid4       & \hybridfourtickAssignPercent & \hybridfourtickAssignPercent \\
+GEOS-Chem     & \geoschemtickAssignPercent & \geoschemtickAssignPercent \\
+Navier        & \naviertickAssignPercent & \naviertickAssignPercent \\
+CP            & \computationalphysicstwotickAssignPercent & \computationalphysicstwotickAssignSuccessPercent\\
+\hline
+\textbf{Total}& \overalltickAssignPercent  & \overalltickAssignSuccessPercent    \\
+\hline 
+\end{tabular}
+\caption{Stencil assignment rates\label{fig:tickAssign}}
+\end{figure}
+
 
 \section{Discussion}
 \label{sec:discussion}
@@ -1444,3 +1556,9 @@ errors, \eg{},~\cite{DBLP:journals/corr/abs-1109-0777}.
 \input{proof.tex}
 
 \end{document}
+
+%%  LocalWords:  refactoring affine parameterised irreflexive atMost
+%%  LocalWords:  centered readOnce atLeast discretisation Equational
+%%  LocalWords:  equational disjunction denotational dimensionality
+%%  LocalWords:  interprocedural Fortran Camfort preprocessor
+%%  LocalWords:  committers

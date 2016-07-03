@@ -123,6 +123,8 @@ xrightmargin=0.2cm,commandchars=\\\{\},baselinestretch=0.98,numbersep=0.9em}
 %% OPERATIONS ON SPANS and VECTORS
 \newcommand{\containedin}{\sqsubseteq}
 
+\include{results}
+\include{corpussize}
 
 \title{Verification of Stencil Computations through Spatial Specifications}
 \authorinfo{Dominic Orchard \and Mistral Contrastin
@@ -1359,6 +1361,75 @@ bound of the input span is less than or equal to its upper bound.
 
 \section{Evaluation}
 \label{sec:evaluation}
+We now present an evaluation of the stencil language. We first confirm
+that stencils are common in scientific code and further that our
+stencil language can express a great many of these. 
+
+\subsection{Software Corpus}
+\begin{figure}
+\begin{tabular}{|l|l|l|}
+\hline
+Package       & Files & Lines of code \\
+\hline
+UM            & \umFiles  & \umLoC       \\
+E3MG          & \ethreemgeaFiles   & \ethreemgeaLoC        \\
+BLAS          & \blasFiles   & \blasLoC        \\
+Hybrid4       & \hybridfourFiles    & \hybridfourLoC          \\
+GEOS-Chem     & \geoschemFiles   & \geoschemLoC       \\
+Navier        & \navierFiles     & \navierLoC           \\
+CP            & \computationalphysicstwoFiles    & \computationalphysicstwoLoC           \\
+\hline
+\textbf{Total}& \overallFiles  & \overallLoC     \\
+\hline 
+\end{tabular}
+\caption{Summary of software packages used for evaluation\label{fig:corpus}}
+\end{figure}
+
+Figure \ref{fig:corpus} shows summary statistics of the software packages used in our evaluation. In total we analysed 1.1 million lines of code from 7 packages. 
+
+\textbf{The Unified Model}\footnote{\url{http://www.metoffice.gov.uk/research/modelling-systems/unified-model}} is a weather forecasting and climate modelling tool developed by the Met Office in the United Kingdom. It is used by research organisations and meterological services around the world. We use the development branch (trunk) of the model. The Met Office runs a comprehensive code quality system incorporating dedicated commiters (we counted 11) for particular parts of the model. We counted 120 additional contributors whose submissions are reviewed and tested before being accepted into the code base.
+
+% e3mg-ea
+\textbf{E3MG} (An Energy-Environment-Economy (E3) Model at the Global Level) is a macroeconomic model used for asssessment of environmental policy~\cite{RePEc:aen:journl:2006se-a12}. This model was developed by Cambridge Econometrics, an independent consultancy company. 
+
+\textbf{BLAS} (Basic Linear Algebra Subprograms)\footnote{http://www.netlib.org/blas/} provides efficient and portable routines for vector and matrix operations. These routines feature in many other libraries (including LAPACK). We used version 3.6.0.
+
+\textbf{Hybrid4} is a vegetation and biomass model for simulating carbon, water and nitrogen flows~\cite{GBC:GBC635}. 
+
+\textbf{GEOS-Chem}\footnote{\url{http://acmg.seas.harvard.edu/geos/}} is a three-dimensional model of tropospheric chemistry developed at Harvard and used by approximately 70 universities and research institutions world-wide. We examined version 10-01.
+
+\textbf{Navier} is an implementation of a Navier-Stokes fluid dynamics computation~\cite{griebel1997numerical}. 
+
+\textbf{CP} consists of the example code from the book ``Computational Physics''~\cite{nicholas2006computational} introducing numerical techniques and their application to modern physics problems such as fields, waves, statistical mechanics and quantum mechanics. 
+
+
+% atLeast: number of stencils with an atLeast modifier
+% atMost: number of stencils with an atMost modifier
+% boundedBoth: number of stencils with both atLeast and atMost modifier
+%% atLeast == atMost == boundedBoth - whenever we infer one we infer the other but users might write just one
+
+% backward: number of backward stencils
+% forward: number of forward stencils
+% centereed: number of centered stencils
+
+% justReflexive: number of only reflexive stencils
+% irreflexive: number of irreflexive stencils
+% readOnce: number of readOnce stencils
+
+% depthX: number of stencils with depth X
+% dimsX: number of stencils with dimensions=X (check this!)
+
+% lexFailed: number of files we failed to lex
+% parseFailed: number of files we failed to parse
+% lexOrParseFailed: number files we failed to lex and parse
+% parseOk: number of files parsed successfully
+%% lexFailed + parseFailed = lexOrParseFailed
+%% lexOrParseFailed + parseOk = number of files in source repo
+
+% tickAssign: number of array subscripts with a LHS which are all neighbour indices or constants
+% tickAssignSuccess: number of tickAssign's we generated some specification for
+%% tickAssign < tickAssignSuccess 
+
 
 \section{Discussion}
 \label{sec:discussion}

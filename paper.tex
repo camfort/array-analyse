@@ -217,7 +217,7 @@ example writing $\texttt{(i-1,j)}$ instead of $\texttt{(i+1,j)}$.
 In this work, we introduce a simple specification language for the
 spatial properties of stencil computations. The
 specifications abstract over the fine grained detail of stencil access
-patterns.  In practise, most stencil computations have a regular shape
+patterns. In practice, most stencil computations have a regular shape
 that can be described simply and abstractly, with a small set of
 coarse-grained descriptions. In the case of our first Laplace example,
 our inference procedure provides the specification:
@@ -278,7 +278,7 @@ duvdy = ((v(i,j)+v(i+1,j))*(u(i,j)+u(i,j+1))+
 laplu = (u(i+1,j)-2.0*u(i,j)+u(i-1,j))/delx/delx+
           (u(i,j+1)-2.0*u(i,j)+u(i,j-1))/dely/dely
 \end{ExmVerbatim}
-(a). Excerpt from Fortran code for a Navier-Stoke fluid simulator,
+(a) Excerpt from Fortran code for a Navier-Stoke fluid simulator,
 showing highly-detailed stencil computations. \\
 
 %\begin{SpecVerbatim}[xleftmargin=0.1cm]
@@ -288,14 +288,14 @@ showing highly-detailed stencil computations. \\
 %32-33  u: centered depth=1 dim=1,2
 %\end{SpecVerbatim}
 
-\begin{SpecVerbatim}[xleftmargin=0.3cm]
-!=   stencil centered(depth=1, dim=1)
-           + centered(depth=1, dim=2) :: u
+\begin{SpecVerbatim}[xleftmargin=0cm]
+!= stencil centered(depth=1, dim=1)*reflexive(dim=2)
+         + centered(depth=1, dim=2)*reflexive(dim=1) :: u
 
-!=   stencil forward(depth=1, dim=1)
-           * backward(depth=1, dim=2) :: v
+!= stencil forward(depth=1, dim=1)
+         * backward(depth=1, dim=2) :: v
 \end{SpecVerbatim}
-(b). Inferred stencil specification from CamFort
+(b) Inferred stencil specification from CamFort
 
 \begin{center}
 \begin{tikzpicture}
@@ -313,7 +313,7 @@ showing highly-detailed stencil computations. \\
 \draw (4,1.5) rectangle (4.5,2);
 \end{tikzpicture}
 \end{center}
-(c). Pictorial representation of the two stencil specifications.
+(c) Pictorial representation of the two stencil specifications.
 The horizontal dimensions is \text{dim=1} and the vertical is \texttt{dim=2}:
 \caption{Fragment of Navier-Stokes fluid simulator and its specification}
 \label{ref:navier-stokes-fragment}
@@ -418,13 +418,14 @@ a region variable \nonterm{rvar} or given directly within a
 \paragraph{Region constants}
 
 Regions have as terminals the \emph{region constants}, denoted by
-\term{forward}, \term{backward}, or \term{centered}. Each
-region constant is given a depth parameter $n$ (natural number greater
-than 0) and a dimension identifier $d$ (also a natural number greater than
-0). Region constants specify that an array is read from by a collection
-of indices which in the $d^{th}$ dimension are
-neighbourhood indices ranging from $i + 0$ up to $i + n$ inclusively, \eg{}, the
-following is valid stencil, reading from \term{a} and writing to \term{b}:
+\term{reflexive}, \term{forward}, \term{backward}, or \term{centered}. Each
+region constant except \term{reflexive} is given a depth parameter $n$ (natural
+number greater than 0). They all receive a dimension identifier $d$ (also a
+natural number greater than 0). Region constants specify that an array is read
+from by a collection of indices which in the $d^{th}$ dimension are
+neighbourhood indices ranging from $i + 0$ up to $i \pm n$ inclusively,
+\eg{}, the following is valid stencil, reading from \term{a} and writing to
+\term{b}:
 %%
 \begin{ExmVerbatim}
 != stencil forward(depth=2, dim=1) :: a
@@ -496,15 +497,15 @@ Region terms can be combined using the sum operator
 \term{+} or the product operator \term{*}.
 
 The sum of two regions $r \texttt{+} r'$ specifies that an array is
-read using the neighbourhood indices described by both $r$ and
-$r'$. It can be thought of as a conjunction of specifications. For
+read using the neighbourhood indices described by either $r$ or
+$r'$. It can be thought of as a disjunction of specifications. For
 example, the following gives the specification for the five-point
 stencil which is the sum of two \texttt{centered} regions in each
 dimension:
 %%
 \begin{ExmVerbatim}
-!= stencil centered(depth=1, dim=1)
-         + centered(depth=1, dim=2) :: a
+!= stencil centered(depth=1, dim=1)*reflexive(dim=2)
+         + centered(depth=1, dim=2)*reflexive(dim=1) :: a
 
 b(i,j) = -4*a(i,j) + a(i-1,j) + a(i+1,j)
                    + a(i,j-1) + a(i,j+1)
@@ -1402,7 +1403,7 @@ Navier        & \navierFiles     & \navierLoC & \navierparseOk           \\
 CP            & \computationalphysicstwoFiles    & \computationalphysicstwoLoC & \computationalphysicstwoparseOk           \\
 \hline
 \textbf{Total}& \overallFiles  & \overallLoC   & \overallparseOk  \\
-\hline 
+\hline
 \end{tabular}
 \caption{Summary of software packages used for evaluation\label{fig:corpus}}
 \end{figure}
@@ -1412,17 +1413,17 @@ Figure \ref{fig:corpus} shows summary statistics of the software packages used i
 \textbf{The Unified Model}\footnote{\url{http://www.metoffice.gov.uk/research/modelling-systems/unified-model}} is a weather forecasting and climate modelling tool developed by the Met Office in the United Kingdom. It is used by research organisations and meteorological services around the world. We use the development branch (trunk) of the model. The Met Office runs a comprehensive code quality system incorporating dedicated committers (we counted 11) for particular parts of the model. We counted 120 additional contributors whose submissions are reviewed and tested before being accepted into the code base.
 
 % e3mg-ea
-\textbf{E3MG} (An Energy-Environment-Economy (E3) Model at the Global Level) is a macroeconomic model used for assessment of environmental policy~\cite{RePEc:aen:journl:2006se-a12}. This model was developed by Cambridge Econometrics, an independent consultancy company. 
+\textbf{E3MG} (An Energy-Environment-Economy (E3) Model at the Global Level) is a macroeconomic model used for assessment of environmental policy~\cite{RePEc:aen:journl:2006se-a12}. This model was developed by Cambridge Econometrics, an independent consultancy company.
 
 \textbf{BLAS} (Basic Linear Algebra Subprograms)\footnote{\url{http://www.netlib.org/blas/}} provides efficient and portable routines for vector and matrix operations. These routines feature in many other libraries (including LAPACK). We used version 3.6.0.
 
-\textbf{Hybrid4} is a vegetation and biomass model for simulating carbon, water and nitrogen flows~\cite{GBC:GBC635}. 
+\textbf{Hybrid4} is a vegetation and biomass model for simulating carbon, water and nitrogen flows~\cite{GBC:GBC635}.
 
 \textbf{GEOS-Chem}\footnote{\url{http://acmg.seas.harvard.edu/geos/}} is a three-dimensional model of tropospheric chemistry developed at Harvard and used by approximately 70 universities and research institutions world-wide. We examined version 10-01.
 
-\textbf{Navier} is an implementation of a Navier-Stokes fluid dynamics computation~\cite{griebel1997numerical}. 
+\textbf{Navier} is an implementation of a Navier-Stokes fluid dynamics computation~\cite{griebel1997numerical}.
 
-\textbf{CP} consists of the example code from the book ``Computational Physics''~\cite{nicholas2006computational} introducing numerical techniques and their application to modern physics problems such as fields, waves, statistical mechanics and quantum mechanics. 
+\textbf{CP} consists of the example code from the book ``Computational Physics''~\cite{nicholas2006computational} introducing numerical techniques and their application to modern physics problems such as fields, waves, statistical mechanics and quantum mechanics.
 
 
 % atLeast: number of stencils with an atLeast modifier
@@ -1450,7 +1451,7 @@ Figure \ref{fig:corpus} shows summary statistics of the software packages used i
 
 % tickAssign: number of array subscripts with a LHS which are all neighbour indices or constants
 % tickAssignSuccess: number of tickAssign's we generated some specification for
-%% tickAssign < tickAssignSuccess 
+%% tickAssign < tickAssignSuccess
 
 \subsection{Occurrences of stencils}
 
@@ -1460,7 +1461,7 @@ side is an array subscript on neighbourhood indices. These statements
 are the inputs to Step 2 of the Inference process described
 Section~\ref{sec:inference}. Each potential statement for which we
 eventually generate some stencil specifications for is also counted as
-an \emph{actual} statement. 
+an \emph{actual} statement.
 
 \begin{figure}
 \begin{tabular}{|l|l|l|l|l|}

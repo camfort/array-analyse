@@ -9,10 +9,14 @@ corpussize.tex: countCorpusLines.py
 	python countCorpusLines.py ${FORTRAN_CORPUS} > $@
 
 quick: results.tex corpussize.tex
-	pdflatex paper
+	pdflatex -shell-escape paper
 
 full: results.tex corpussize.tex
-	pdflatex paper
+	pdflatex -shell-escape paper
 	bibtex paper
-	pdflatex paper
-	pdflatex paper
+	pdflatex -shell-escape paper
+	pdflatex -shell-escape paper
+
+.PHONY: setup
+setup:
+	pip install Pygments

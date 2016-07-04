@@ -11,6 +11,15 @@
 \usepackage{amsthm}
 \usepackage{tikz}
 \usepackage{multirow}
+\usepackage{minted}
+
+\fvset{
+  linenos=true,
+  fontsize=\footnotesize,
+  breaklines=true,
+  breakafter=+*,
+  xleftmargin=\parindent
+}
 
 \definecolor{darkblue}{rgb}{0.0,0.0,0.5}
 \definecolor{darkgreen}{rgb}{0.0,0.4,0.0}
@@ -179,14 +188,14 @@ processing, approximations to differential equations. For example, the
 following iteration computes the one-dimensional discrete Laplace
 transform (an approximation to a derivative) in Fortran:
 %
-\begin{ExmVerbatim}
+\begin{minted}{fortran}
 do iter = 0, itermax
    do i = 1, (n-1)
       b(i) = a(i-1) - 2*a(i) + a(i+1)
    end do
    a = b
 end do
-\end{ExmVerbatim}
+\end{minted}
 %
 Line 3 is the core of the stencil computation, calculating
 the value at \texttt{b(i)} from a neighbourhood of elements about
@@ -222,9 +231,9 @@ that can be described simply and abstractly, with a small set of
 coarse-grained descriptions. In the case of our first Laplace example,
 our inference procedure provides the specification:
 %
-\begin{SpecVerbatim}
+\begin{minted}{fortran}
 !=  stencil centered(depth=1, dim=1) :: a
-\end{SpecVerbatim}
+\end{minted}
 %
 This explains that \texttt{a} is read from with a
 symmetrical stencil pattern (``centered'') to a depth of one in each
@@ -262,22 +271,22 @@ of this approach.
 %
 
 \begin{figure}[t]
-\begin{ExmVerbatim}[firstnumber=20]
-du2dx = ((u(i,j)+u(i+1,j))*(u(i,j)+u(i+1,j))+
-    gamma*abs(u(i,j)+u(i+1,j))*(u(i,j)-u(i+1,j))-
-    (u(i-1,j)+u(i,j))*(u(i-1,j)+u(i,j))-
-    gamma*abs(u(i-1,j)+u(i,j))*(u(i-1,j)-u(i,j)))
-    /(4.0*delx)
+  \begin{minted}[firstnumber=20]{fortran}
+du2dx = ((u(i,j)+u(i+1,j))*(u(i,j)+u(i+1,j))+ &
+  gamma*abs(u(i,j)+u(i+1,j))*(u(i,j)-u(i+1,j))- &
+  (u(i-1,j)+u(i,j))*(u(i-1,j)+u(i,j))- &
+  gamma*abs(u(i-1,j)+u(i,j))*(u(i-1,j)-u(i,j))) &
+  /(4.0*delx)
 
-duvdy = ((v(i,j)+v(i+1,j))*(u(i,j)+u(i,j+1))+
-   gamma*abs(v(i,j)+v(i+1,j))*(u(i,j)-u(i,j+1))-
-   (v(i,j-1)+v(i+1,j-1))*(u(i,j-1)+u(i,j))-
-   gamma*abs(v(i,j-1)+v(i+1,j-1))*(u(i,j-1)-u(i,j)))
-   /(4.0*dely)
+duvdy = ((v(i,j)+v(i+1,j))*(u(i,j)+u(i,j+1))+ &
+  gamma*abs(v(i,j)+v(i+1,j))*(u(i,j)-u(i,j+1))- &
+  (v(i,j-1)+v(i+1,j-1))*(u(i,j-1)+u(i,j))- &
+  gamma*abs(v(i,j-1)+v(i+1,j-1))*(u(i,j-1)-u(i,j))) &
+  /(4.0*dely)
 
-laplu = (u(i+1,j)-2.0*u(i,j)+u(i-1,j))/delx/delx+
-          (u(i,j+1)-2.0*u(i,j)+u(i,j-1))/dely/dely
-\end{ExmVerbatim}
+laplu = (u(i+1,j)-2.0*u(i,j)+u(i-1,j))/delx/delx+ &
+  (u(i,j+1)-2.0*u(i,j)+u(i,j-1))/dely/dely
+\end{minted}
 (a) Excerpt from Fortran code for a Navier-Stoke fluid simulator,
 showing highly-detailed stencil computations. \\
 
@@ -288,13 +297,11 @@ showing highly-detailed stencil computations. \\
 %32-33  u: centered depth=1 dim=1,2
 %\end{SpecVerbatim}
 
-\begin{SpecVerbatim}[xleftmargin=0cm]
-!= stencil centered(depth=1, dim=1)*reflexive(dim=2)
-         + centered(depth=1, dim=2)*reflexive(dim=1) :: u
+\begin{minted}{fortran}
+!= stencil centered(depth=1,dim=1)*reflexive(dim=2) + centered(depth=1,dim=2)*reflexive(dim=1) :: u
 
-!= stencil forward(depth=1, dim=1)
-         * backward(depth=1, dim=2) :: v
-\end{SpecVerbatim}
+!= stencil forward(depth=1,dim=1) * backward(depth=1,dim=2) :: v
+\end{minted}
 (b) Inferred stencil specification from CamFort
 
 \begin{center}
@@ -427,10 +434,10 @@ neighbourhood indices ranging from $i + 0$ up to $i \pm n$ inclusively,
 \eg{}, the following is valid stencil, reading from \term{a} and writing to
 \term{b}:
 %%
-\begin{ExmVerbatim}
+\begin{minted}{fortran}
 != stencil forward(depth=2, dim=1) :: a
 b(i, 0) = a(i, 0) + a(i+1, 0) + a(i+2, 0)
-\end{ExmVerbatim}
+\end{minted}
 %%
 were \texttt{i} is an induction variable.  The stencil specification
 is associated to the array variable \texttt{a}. Note that the second
@@ -439,18 +446,18 @@ dimension is fixed at a constant here.
 A \term{backward} stencil
 is similar but has negative neighbourhood indices, \eg{},
 %
-\begin{ExmVerbatim}
+\begin{minted}{fortran}
 != stencil backward(depth=2, dim=1) :: a
 b(i) = a(i) + a(i-1) + a(i-2)
-\end{ExmVerbatim}
+\end{minted}
 %
 A \texttt{centered} stencil is a combination of \texttt{forward}
 and \texttt{backward} stencils to the same depth, \eg{},
 %%
-\begin{ExmVerbatim}
+\begin{minted}{fortran}
 != stencil centered(depth=1, dim=1) :: a
 b(i) = ( a(i) + a(i-1) + a(i+1) ) / 3.0
-\end{ExmVerbatim}
+\end{minted}
 
 \begin{figure}[t]
 \begin{align*}
@@ -500,54 +507,60 @@ The sum of two regions $r \texttt{+} r'$ specifies that an array is
 read using the neighbourhood indices described by either $r$ or
 $r'$. It can be thought of as a disjunction of specifications. For
 example, the following gives the specification for the five-point
-stencil which is the sum of two \texttt{centered} regions in each
-dimension:
+stencil which is the sum of two compound \texttt{reflexive} and
+\texttt{centered} regions in each dimension:
 %%
-\begin{ExmVerbatim}
-!= stencil centered(depth=1, dim=1)*reflexive(dim=2)
-         + centered(depth=1, dim=2)*reflexive(dim=1) :: a
+\begin{minted}{fortran}
+!= stencil centered(depth=1, dim=1)*reflexive(dim=2) + centered(depth=1, dim=2)*reflexive(dim=1) :: a
 
 b(i,j) = -4*a(i,j) + a(i-1,j) + a(i+1,j)
                    + a(i,j-1) + a(i,j+1)
-\end{ExmVerbatim}
+\end{minted}
 %%
+Here the left hand side of \texttt{+} says when the second dimension
+(induction variable $j$) is fixed at the origin, the first dimension
+(induction variable $i$) accesses immediate vicinity of the origin.
+The right hand side of \texttt{+} is similar but the dimensions are reversed.
+This reflects the symmetry under rotation in the fivepoint stencil.
+
 The product of two regions $r \texttt{*} r'$ specifies that the array
 is read with neighbourhood indices drawn from the bounding box created
 by the regions two regions $r$ and $r'$. For example, the following
 code (defining a nine-point stencil) has a specification as the
 product of two \texttt{centered} regions in each dimension:
 %%
-\begin{ExmVerbatim}
-!= stencil centered(depth=1, dim=1)
-         * centered(depth=1, dim=2) :: a
-
+\begin{minted}[breakindent=2.9em]{fortran}
 x = a(i, j)   + a(i-1, j)   + a(i+1, j)
 y = a(i, j-1) + a(i-1, j-1) + a(i+1, j-1)
 z = a(i, j+1) + a(i-1, j+1) + a(i+1, j+1)
+
+!= stencil centered(depth=1, dim=1) * centered(depth=1, dim=2) :: a
 b(i, j) = (x + y + z) / 9.0
-\end{ExmVerbatim}
+\end{minted}
 %%
 Such a stencil computation is a common image convolution (for example
-for edge detection). 
+for edge detection).
 Note that there are a number of intermediate assignments over which
-the whole specification ranges. 
+the whole specification ranges.
+
+The region constructor \texttt{*} can also be interpreted as conjunction of
+two specifications since they need to hold simultaneously for their
+corresponding dimensions.
 
 As another example, the following code and specification
 implements the \emph{Roberts cross}
 edge-detection convolution~\cite{davis1975survey}:
 %%
-\begin{ExmVerbatim}
+\begin{minted}[breakindent=5.5em]{fortran}
 do j=0, jmax-1
     do i=0, imax-1
-\sten{      != region r1 = forward(depth=1, dim=1)}
-\sten{      != region r2 = forward(depth=1, dim=2)}
-\sten{      != stencil readOnce, r1*r2 :: a}
       x = a(i,j) - a(i+1,j+1)
       y = a(i+1,j) - a(i,j+1)
-    b(i,j) = sqrt(x*x+y*y)
+      != stencil forward(depth=1,dim=1) * forward(depth=1,dim=2) :: a
+      b(i,j) = sqrt(x*x+y*y)
    end do
 end do
-\end{ExmVerbatim}
+\end{minted}
 
 \paragraph{Region declarations and variables}
 
@@ -556,68 +569,56 @@ a region declaration, which can be used later to form a spatial
 specification. For example, the specification from the previous
  example can be restated as:
 %%
-\begin{ExmVerbatim}
+\begin{minted}{fortran}
 != region r1 = centered(depth=1, dim=1)
 != region r2 = centered(depth=1, dim=2)
-!= stencil r1*r2 :: a
-\end{ExmVerbatim}
+!= region robertsCross = r1*r2
+!= stencil robertsCross :: a
+\end{minted}
+This is especially useful for common stencils such as Robert's cross
+as the region can be defined once and used by region name many times.
 %%
 \paragraph{Spatial modifiers}
 %%
-There are three kinds of modifier that can be given to spatial
-specifications: \texttt{readOnce}, \texttt{reflexive},
-\texttt{irreflexive}.
+There are two modifiers one used at specification the other at region
+level to provide better descriptions for stencil computations.
 
-The \texttt{readOnce} modifier enforces that no index appears
-more than once. For example, in all of the previous examples the
+At the specification level, the \texttt{readOnce} modifier enforces that no 
+index appears more than once. For example, in all of the previous examples the
 \texttt{readOnce} modifier could be added, \eg{}
 %
-\begin{ExmVerbatim}
+\begin{minted}{fortran}
 != stencil readOnce, backward(depth=2, dim=1) :: a
 b(i+1) = a(i) + a(i-1) + a(i-2)
-\end{ExmVerbatim}
+\end{minted}
 %
 However, this would be an invalid specification if any of the
 array subscripts was repeated. This modifier provides a way to
- rule out any accidental repetition of array subscripts.
-The notion corresponds to that of \emph{linearity}, though we
-opt for the more informative and easily understood name
+rule out any accidental repetition of array subscripts.
+The notion corresponds to that of \emph{linearity} in type systems,
+though we opt for the more informative and easily understood name
 \texttt{readOnce}. This modifier is optional, so it need not
 be present even if the stencil is linear.
 
-The \texttt{irreflexive} modifier is parameterised by a
-comma-separated list of dimensions, indicating that for those
-dimensions there is no neighbour index with $0$ offset, \eg{},
+At the region level, \texttt{irreflexive} modifier qualifies base
+regions of \texttt{forward}, \texttt{backward}, and \texttt{centered}.
+It indicates that in the dimension of the region there is no neighbour index
+with $0$ offset, \eg{},
 %
-\begin{ExmVerbatim}
-!= region r = centered(depth=1, dim=1)
-!= stencil irreflexive(dim=1), r :: a
+\begin{minted}{fortran}
+!= stencil centered(depth=1, dim=1, irreflexive) :: a
 b(i) = a(i+1) + a(i-1)
-\end{ExmVerbatim}
+\end{minted}
 %
 or with just a \texttt{forward} region an example would be:
 %
-\begin{ExmVerbatim}
-!= region r = forward(depth=1, dim=1)
-!= stencil irreflexive(dim=1), r :: a
+\begin{minted}{fortran}
+!= stencil forward(depth=1, dim=1, irreflexive) :: a
 b(i) = a(i+1)
-\end{ExmVerbatim}
+\end{minted}
 
-The \term{reflexive} modifier is dual to \term{irreflexive},
-indicating dimensions in which there is a neighbour index with $0$
-offset. The region constants \term{forward}, \term{backward},
-\term{centered} implicitly include the \term{reflexive} modifier,
-but it is useful when there is a dimension in which there is reflexive
-indexing but not a region constant, \eg{},
-%%
-\begin{ExmVerbatim}
-!= region r = centered(depth=1, dim=1)
-!= stencil reflexive(dims=2), r :: a
-b(i,j) = a(i-1,j) + a(i+1,j) + a(i, j)
-\end{ExmVerbatim}
-%%
-Overlapping \term{irreflexive} and \term{reflexive} modifiers
-cannot occur together-- this is an invalid specification.
+Naturally, \term{irreflexive} qualifier cannot be used on \term{reflexive}
+regions.
 
 \paragraph{Under and over-approximation}
 
@@ -625,13 +626,13 @@ In some cases, it is useful to give a lower and/or upper bound for a
 stencil. This can be done using either the \term{atMost} or
 \term{atLeast} modifiers. This is particularly useful in situations
 where there is a non-contiguous stencil, which does not fit the rest
-of the specification syntax.  For example:
+of the specification syntax. For example:
 %%
-\begin{ExmVerbatim}
-!= stencil atLeast, reflexive(dims=1)      :: a
+\begin{minted}{fortran}
+!= stencil atLeast, reflexive(dim=1)      :: a
 != stencil atMost, forward(depth=2, dim=1) :: a
 b(i) = a(i) + a(i+2)
-\end{ExmVerbatim}
+\end{minted}
 %%
 %\subsubsection{Temporal specifications}
 
@@ -647,19 +648,18 @@ scheme~\cite{dawson1991finite}. For
 the one-dimensional heat equations, an FTCS discretisation
 provides approximation code with the following stencil~\cite{recktenwald2004finite}:
 %%
-\begin{ExmVerbatim}
-do i=2:n-1
+\begin{minted}{fortran}
+do i=2, n-1
   u(i) = r*v(i-1) + r2*v(i) + r*v(i+1)
 end do
-\end{ExmVerbatim}
+\end{minted}
 %%
 where \texttt{r} and \texttt{r2} are some constants.
 A valid specification for this stencil is then:
 %%
-\begin{ExmVerbatim}
-!= stencil centered(depth=1, dim=1)
-         + centered(depth=1, dim=2) :: v
-\end{ExmVerbatim}
+\begin{minted}{fortran}
+!= stencil centered(depth=1, dim=1) :: v
+\end{minted}
 %%
 Such a specification can be inferred, or can be inserted by a user
 and checked against the code.
@@ -856,7 +856,7 @@ $n$ is given by the tensor $\otimes_n$ defined:
 %%
 \newcommand{\effdims}[2]{\mathit{dims}(#1)_{#2}}
 \begin{alignat*}{2}
-& \effdims{M}{n} = 
+& \effdims{M}{n} =
 \bigcup_{u \in M} \{x \mid x \in \{1,...,n\}, u_x \neq \infty\} \\
 & M \otimes_n N =
   \Bigg\{x \; \Bigg| \;
@@ -992,7 +992,7 @@ We demonstrate the main steps of the inference procedure over the
 following example program which computes the mean value
 of a five-point stencil at each index of the input array:
 %%
-\begin{ExmVerbatim}
+\begin{minted}{fortran}
 do i = 1, (n-1)
    do j = 1, (m-1)
       x       = a(i-1, j) + a(i+1, j)
@@ -1000,7 +1000,7 @@ do i = 1, (n-1)
       b(i, j) = (a(i, j) + x + y) / 5.0
    end do
 end do
-\end{ExmVerbatim}
+\end{minted}
 %%
 \paragraph{Step 1: Standard control and data-flow analyses}
 The inference relies on some standard program analyses, computed
@@ -1479,7 +1479,7 @@ Navier        & \naviertickAssignPercent & \naviertickAssignPercent & \naviernum
 CP            & \computationalphysicstwotickAssignPercent & \computationalphysicstwotickAssignSuccessPercent & \computationalphysicstwonumStencilLines & \computationalphysicstwoboundedBoth \\
 \hline
 \textbf{Total}& \overalltickAssignPercent  & \overalltickAssignSuccessPercent & \overallnumStencilLines & \overallboundedBoth    \\
-\hline 
+\hline
 \end{tabular}
 \caption{Stencil assignment rates\label{fig:tickAssign}}
 \end{figure}
@@ -1490,11 +1490,11 @@ assigned potential and actual stencils.
 \anote{Add discussion about the rate of stencils in the code. Comparison with rate of assignment statements would be nice}
 
 If the inference process cannot determine an exact stencil for a statement it will instead produce an upper (\term{atMost}) and lower (\term{atLeast}) bound. The numbers of exact and bounded stencils are shown in columns three and four of Figure \ref{fig:tickAssign}. We can see that our stencil language is capable of precisely specifying the overwhelming majority of stencils. Most of the bounded stencils apply to some form of data copying. For example (taken from E3MG):
-\begin{ExmVerbatim}
+\begin{minted}{fortran}
 !- stencil atLeast, readOnce, irreflexive(dims=2), (reflexive(dim=1)) :: sfda
 !- stencil atMost, readOnce, (forward(depth=8, dim=2))*(reflexive(dim=1)) :: sfdt
 ZZ1(I,J) = SFDT(I,J+8)
-\end{ExmVerbatim}
+\end{minted}
 
 
 
@@ -1507,12 +1507,12 @@ ZZ1(I,J) = SFDT(I,J+8)
 Various prior approaches to specifying and verifying the behaviour
 of stencils have been based on fine-grained representations of the
 code. These essentially duplicate the indexing scheme of a stencil
-computation in their specifications. 
- 
+computation in their specifications.
+
 \citet{kamil2016verified} propose a technique they call
 \emph{verified lifting} for mapping low-level, possibly
 greatly optimised, stencil computations into a high-level
-predicate language using inductive program synthesis. 
+predicate language using inductive program synthesis.
 The aim is that these high-level abstract specifications can
 then be translated into high-performance DSLs, easing the
 use of high-performance DSLs. Compared to our approach,
@@ -1522,24 +1522,24 @@ is an example post-condition in their language, generated by their
 compiler \textsc{stng} from a Fortran stencil computation~\cite [p.3]{kamil2016verified}:
 %
 \begin{align*}
-& \textit{post}(\texttt{a}, \texttt{b}) \equiv \forall \texttt{imin}+1 
+& \textit{post}(\texttt{a}, \texttt{b}) \equiv \forall \texttt{imin}+1
 \leq \texttt{i} \leq \texttt{imax}, \texttt{jmin} \leq \texttt{j} \leq
 \texttt{jmax} \\
-& \qquad \texttt{a}(\texttt{i},\texttt{j}) = 
+& \qquad \texttt{a}(\texttt{i},\texttt{j}) =
 \texttt{b}(\texttt{i}-1,\texttt{j}) + \texttt{b}(\texttt{i},\texttt{j})
 \end{align*}
 %
 Noticeable, the bounds of the stencil and the exact indexing pattern
 are captured. Our approach aims to be much more abstract, to
 facilitate human reasoning, and avoid low-level lexical
-errors. However, \textsf{stng} specifications are generated, \ie{}, 
+errors. However, \textsf{stng} specifications are generated, \ie{},
 are never written by a programmer, avoiding this
 problem. Their inductive program synthesis approach allows
 specifications to extracted even from optimised and unrolled code. For
 example, the above post condition is generated from the code~\cite [p.3]{kamil2016verified}:
 %
-\begin{ExmVerbatim}
-do j=jmin, jmax 
+\begin{minted}{fortran}
+do j=jmin, jmax
     t = b(imin, j)
     do i=imin+1,imax
         q = b(i, j)
@@ -1547,7 +1547,7 @@ do j=jmin, jmax
         t = q
     end do
 end do
-\end{ExmVerbatim}
+\end{minted}
 %
 Thus, \textsc{stng} can understand cross-loop data-dependencies
 in order to assign the above post-condition. CamFort is not currently
@@ -1555,14 +1555,14 @@ able to ascribe a specification in the above case as the use of
 \texttt{t} on line 5 maps only to the definition on line 2, and no on
 line 6. Extending our approach to follow loop-carried dependencies is
 future work. An alternate approach for us would be to build ontop of
-the work of Kamil~\emph{et al.} by inferring our specifications from 
-\textsc{stng} (as an intermediate step). 
+the work of Kamil~\emph{et al.} by inferring our specifications from
+\textsc{stng} (as an intermediate step).
 
-In an alternate approach,~\citet{abe2013model} 
+In an alternate approach,~\citet{abe2013model}
 
 There are many DSLs for stencil comptuation aimed at either
 performance or verification, or both. Many elimiante out-of-bounds
-errors, \eg{},~\cite{DBLP:journals/corr/abs-1109-0777}. 
+errors, \eg{},~\cite{DBLP:journals/corr/abs-1109-0777}.
 
 
 \bibliography{references}

@@ -1560,12 +1560,54 @@ future work. An alternate approach for us would be to build on top of
 the work of Kamil~\emph{et al.} by inferring our specifications from
 \textsc{stng} (as an intermediate step).
 
-In an alternate approach,~\citet{abe2013model}
+% Abe, 2013, Model checking stencil computations
+% -- Unable to obtain copy
+% In an alternate approach,~\citet{Abe:2013:IPDPSW}
 
 There are many DSLs for stencil computation aimed at either
 performance or verification, or both. Many eliminate out-of-bounds
 errors, \eg{},~\citet{DBLP:journals/corr/abs-1109-0777}.
 
+% GPGPU
+This work shares some similarities with efforts to verify kernels
+written for General-Purpose Graphics Processing Unit (GPGPU)
+programming, such as in \citet{Blom:2014:SoCP}. Stencils are a form of
+kernel, and GPGPU programming can be viewed as a massively parallel
+method of transforming a large matrix. However, that work focuses
+mainly on the synchronisation of such kernels, and the avoidance of
+data races, while we are interested in the correctness of stencils
+embedded within a more typical general-purpose programming language.
+
+% Sketching Stencils
+\citet{Solar-Lezama:2007:PLDI} give specifications of stencils using
+unoptimised ``reference'' stencils, coupled with partial
+implementations of stencils, which are then completed by a code
+generation tool. These kinds of specifications are just simple
+implementations, so this tool is useful for hand-written, optimised
+stencils. The primary purpose of this tool is optimisation rather than
+correctness, and the language of specification is much different and
+more elaborate than we envision for our system.
+
+% Pochoir
+\citet{Tang:2011:SPAA} defines a specification language for writing
+stencils embedded in C++ (with Cilk extensions) that are then compiled
+into fast parallel programs based on trapezoidal decompositions with
+hyperspace cuts. The Pochoir specification language is used for
+describing the computing kernel, boundary conditions and shape of the
+stencil. Programs are first compiled in C++ with a template library
+that checks whether the annotations are used correctly, and then a
+Pochoir preprocessor may be applied to generate the high-performance
+parallel version that takes advantage of the Cilk compiler.  Pochoir
+is aimed primarily at assisting programmers who may be reluctant to
+implement the tricky cache-oblivious ``hypertrapezoidal'' algorithms
+that are significantly faster than the typical looping implementations
+of stencil computations.
+
+% 3D stencil codes
+\citet{Zhang:2012:CGO}
+
+% Ypnos
+\citet{Orchard:2010:DAMP}
 
 \bibliography{references}
 

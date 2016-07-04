@@ -111,6 +111,14 @@ xrightmargin=0.2cm,commandchars=\\\{\},baselinestretch=0.98,numbersep=0.9em}
   \term{dim=}#2)}
 \newcommand{\irreflS}{\texttt{irrefl}}
 
+\newcommand{\stenFwdSR}[3]{\term{fwd} (\term{depth=}#1,
+  \term{dim=}#2, #3)}
+\newcommand{\stenBwdSR}[3]{\term{bwd} (\term{depth=}#1,
+  \term{dim=}#2, #3)}
+\newcommand{\stenCenSR}[3]{\term{cen} (\term{depth=}#1,
+  \term{dim=}#2, #3)}
+\newcommand{\stenReflSR}[1]{\term{refl} (\term{dim=}#1)}
+
 % SYNTAX OPERATIONS AND PREDICATES
 \newcommand{\neigh}{\textsf{neigh}}
 \newcommand{\arrayTy}{\textsf{array}}
@@ -672,33 +680,56 @@ and checked against the code.
 \begin{array}{c}
 \framebox{$\textit{region} \equiv \textit{region}'$} \\[1em]
 \begin{array}{rll}
-(\textsc{F\; \texttt{+} \;F}) \;\; &
-\stenFwdS{n \, \textsf{max} \, m}{d} \\
- \equiv \; & \stenFwdS{n}{d} \; \texttt{+} \; \stenFwdS{m}{d} \\[1em]
+(\textsc{F\, \texttt{+} \,F}) \;\; &
+\stenFwdSR{n \, \textsf{max} \, m}{d}{r \vee s} \\
+ \equiv \; & \stenFwdSR{n}{d}{r} \; \texttt{+} \; \stenFwdSR{m}{d}{s} \\[1em]
 %
-(\textsc{B\; \texttt{+} \;B}) \;\; &
-\stenBwdS{n \, \textsf{max} \, m}{d} \\
- \equiv \; & \stenBwdS{n}{d} \; \texttt{+} \; \stenBwdS{m}{d} \\[1em]
 %
-(\textsc{C\; \texttt{+} \;C}) \;\; &
-\stenCenS{n \, \textsf{max} \, m}{d} \\
-\equiv \; & \stenCenS{n}{d} \; \texttt{+} \; \stenCenS{m}{d} \\[1em]
+(\textsc{B\, \texttt{+} \,B}) \;\; &
+\stenBwdSR{n \, \textsf{max} \, m}{d}{r \vee s} \\
+ \equiv \; & \stenBwdS{n}{d}{r} \; \texttt{+} \; \stenBwdSR{m}{d}{s} \\[1em]
 %
-(\textsc{C\; \texttt{+} \;F}) \;\; & \stenCenS{n}{d} \\
-\textit{$m \leq n$} \; \equiv \; & \stenCenS{n}{d} \; \texttt{+} \;
-                      \stenFwdS{m}{d} \\[1em]
 %
-(\textsc{C\; \texttt{+} \;B}) \;\; &
-\stenCenS{n}{d} \\
-\textit{$m \leq n$} \; \equiv \; & \stenCenS{n}{d} \; \texttt{+} \;
-                      \stenBwdS{m}{d} \\[1em]
-(\textsc{B\; \texttt{+} \;F}) \;\; &
-\stenCenS{n}{d} \\
-\equiv \; & \stenFwdS{n}{d} \; \texttt{+} \; \stenBwdS{n}{d} \\[1em]
-(\textsc{R\; \texttt{+} \;F}) \;\; &
+(\textsc{C\, \texttt{+} \,C}) \;\; &
+\stenCenSR{n \, \textsf{max} \, m}{d}{r \vee s} \\
+\equiv \; & \stenCenSR{n}{d}{r} \; \texttt{+} \; \stenCenSR{m}{d}{s} \\[1em]
+%
+%
+(\textsc{C\, \texttt{+} \,F}) \;\; & \stenCenSR{n}{d}{r \vee s} \\
+\textit{$m \leq n$} \; \equiv \; & \stenCenSR{n}{d}{r} \; \texttt{+} \;
+                      \stenFwdSR{m}{d}{s} \\[1em]
+%
+%
+(\textsc{C\, \texttt{+} \,B}) \;\; &
+\stenCenSR{n}{d}{r \vee s} \\
+\textit{$m \leq n$} \; \equiv \; & \stenCenSR{n}{d}{r} \; \texttt{+} \;
+                      \stenBwdSR{m}{d}{s} \\[1em]
+%
+%
+(\textsc{B\, \texttt{+} \,F}) \;\; &
+\stenCenSR{n}{d}{r \vee s} \\
+\equiv \; & \stenFwdSR{n}{d}{r} \; \texttt{+} \; \stenBwdSR{n}{d}{s}
+  \\[1em]
+%
+%
+(\textsc{R\, \texttt{+} \,F}) \;\; &
 \stenFwdS{n}{d} \\
-\equiv \; & \stenReflS{d} \; \texttt{+} \; \stenFwdS{n}{d} \\[1em]
+\equiv \; & \stenReflSR{d} \; \texttt{+} \; \stenFwdSR{n}{d}{r} \\[1em]
 %
+%
+(\textsc{R\, \texttt{+} \,B}) \;\; &
+\stenBwdS{n}{d} \\
+\equiv \; & \stenReflSR{d} \; \texttt{+} \; \stenBwdSR{n}{d}{r} \\[1em]
+%
+%
+(\textsc{R\, \texttt{+} \,C}) \;\; &
+\stenCenS{n}{d} \\
+\equiv \; & \stenReflSR{d} \; \texttt{+} \; \stenCenSR{n}{d}{r} \\[1em]
+%
+%
+(\textsc{irrefl}) \;\; & (R \, \term{*} \, S^\irreflS) \, \term{+} \,
+                         (R^\irreflS \, \term{*} \, S) \; 
+\equiv \; R \, \term{*} \, S \\[0.5em]
 %
 %
 (\texttt{+}\textsc{idem}) \;\; & S \; \texttt{+} \; S \; \equiv \; S \\[0.5em]
@@ -715,12 +746,12 @@ and checked against the code.
                        \texttt{*} \; S) \; \texttt{*} \; T \\[0.5em]
 (\textsc{dist}) \;\; & R \; \texttt{*} \; (S \; \texttt{+} \; T) \; \equiv \; (R \;
                        \texttt{*} \; S) \; \texttt{+} \; (R
-                       \; \texttt{*} \; T) \\[0.5em]
-\end{array} \\ \\
+                       \; \texttt{*} \; T)
+\end{array}
 %
-\framebox{${\textit{specDec} :: \texttt{v}} \equiv
-{\textit{specDec'} :: \texttt{v}}$} \\[1em]
-\begin{array}{rl}
+%\framebox{${\textit{specDec} :: \texttt{v}} \equiv
+%{\textit{specDec'} :: \texttt{v}}$} \\[1em]
+%\begin{array}{rl}
 % MUTUAL
 %(\textsc{mutual}) \; &
 %\texttt{stencil} \; \texttt{dependency} (\texttt{v}), \texttt{mutual}
@@ -736,43 +767,106 @@ and checked against the code.
 %\\
 %\equiv \; & \texttt{stencil} \; \texttt{dependency} (\bar{v}, \bar{w}) ::
 %  \texttt{v} \\[0.5em]
-(\textsc{spatial}) \; &
-(\textit{region} \equiv \textit{region'}) \\
-\Rightarrow \; & (\texttt{stencil} \; [\textit{mod}] \; [\textit{approxMod},] \;
-\textit{region} \\
-& \!\!\equiv \; \texttt{stencil} \; [\textit{mod}] \;
-            [\textit{approxMod},] \;
-\textit{region}') \\
-\end{array}
+%\end{array}
 \end{array}
 \end{align*}
 \caption{Equations on specifications}
 \label{fig:equations}
 \end{figure}
 
-
-\paragraph{Equations}
 Figure~\ref{fig:equations} lists the equational theory for
-specifications. This is broken down into equations on regions only,
-given by the equivalence relation $\textit{region} \equiv \textit{region}'$ and
-on specification declarations assigned to variables via the equivalence relation
-$\textit{specDec} :: \texttt{v} \equiv
-\textit{specDec'} :: \texttt{v}$.
-
-To save space we use abbreviations
+specifications which is defined by the binary relation $\equiv$
+between region terms. Stencil declarations are considered
+equal when they have the same modifiers and $\equiv$ equates
+their regions, \ie{}:
+\begin{align*}
+& \textit{region} \equiv \textit{region'} \\
+& \quad \Rightarrow \;\; \texttt{stencil} \; [\textit{approxMod},] \; [\textit{multMod},] \;
+\textit{region} \\[-0.4em]
+& \quad\quad \;\; \equiv \;\texttt{stencil} \; [\textit{approxMod},] \;
+            [\textit{multMod},] \; \textit{region}'
+\end{align*}
+%
+To save space in the equations of Figure~\ref{fig:equations}, we use abbreviations
 \term{refl}, \term{fwd}, \term{bwd}, and \term{cen} for \term{reflexive},
-\term{forward}, \term{backward}, and \term{centered} regions respectively.
-The equations reveal something of their semantics.  The first six
+\term{forward}, \term{backward}, and \term{centered} regions
+respectively. Futhermore, the abbreviations include syntactic sugar
+for quantifying over the abseence or presence of the \irrefl{}
+attribute on region constants as a boolean. For example, 
+the syntactic sugar in our equations for \term{fwd} is defined:
+%%
+\begin{align*}
+& \stenFwdSR{n}{d}{r} 
+\; := \; \\[-0.4em]
+& \qquad \begin{cases}
+\stenFwd{n}{d}{, \irrefl} & \textit{if} \;\, \neg \, r \\
+\stenFwd{n}{d}{}  & \textit{if} \;\,  r
+\end{cases}
+\end{align*}
+%
+and similarly for \term{bwd} and \term{cen}.
+We also frequently abbreviate \irrefl{} to \irreflS{}.
+
+The equations reveal a partial semantics for stencil
+specifications, which we briefly summarise.
+
+\paragraph{Overlapping regions with +}
+The first nine
 equations (with labels of the form $\ldots \texttt{+} \ldots$)
-explain the behaviour of overlapping regions with sum
-\term{+}. The next six equations explain the algebraic behaviour of
-\term{+} and \term{*}.  Together, we see that \term{+} is an
-associative, commutative, idempotent binary operator that distributes
-with \term{*}, which is associative and commutative. This distribution
-of \term{*} over \term{+} is key as it is used internally to give a
-normal form for stencil specifications akin to Disjunctive Normal Form
-(DNF) (where \term{+} is taken as ``disjunction'' and \term{*} as the
-``conjunction''). We revisit this normalisation in Section~\ref{}.
+explain the notion of \emph{overlapping} regions with sum
+\term{+}. Note that in the first six, $r$ and $s$ range 
+over booleans denoting the absence (true) or presence (false)
+of \irrefl{} which are combined via disjunction. For example,
+the rule $(\textsc{B} \, \term{+} \,
+\textsc{F})$ explains that the addition of \term{backward}
+and \term{forward} regions in the same dimension and the same
+depth is equivalent to a \term{centered} region of that depth.
+If the \term{forward} part is irrefleixve (\ie{}, $r =
+\textit{false}$) but \term{backward} is not (\ie{}, $s =
+\textit{true}$) then their addition is equal to a \term{centered}
+region with no \irrefl{} modifier by the disjunction ($r \vee s =
+\textit{true}$), \ie{}:
+%%
+\begin{align*}
+& \stenCenS{n}{d}  \\[-0.2em]
+\equiv \;\; & \stenFwdSR{n}{d}{\irreflS} \; \texttt{+} \; \stenBwdS{n}{d}
+\end{align*}
+%%
+That is, the \term{fwd} region is irreflexive describing code which is missing
+a zero-offset neighbourhood index (\eg{}, missing $\texttt{a(i)}$), but the addition of
+the \term{bwd} has no irreflexive attribute and thus provides the
+missing zero offset index. 
+
+The equation (\textsc{irrefl}) explains an annihilation of 
+\irrefl{} using a further syntactic sugar.
+We write $R^{\irreflS}$ to denote a region constant with an
+irreflexive attribute, \eg{}, 
+%%
+\begin{align*}
+\stenFwdS{n}{d}^{\irreflS} \, := \,
+\stenFwdSR{n}{d}{\irreflS}
+\end{align*}
+%% 
+Thus, (\textsc{irrefl}) explains the sum of a 
+product of two regions $R$ and $S$ with itself,
+where in each component of the sum one of $R$
+or $S$ has the irreflexive attribute. These cancel to give
+just the specification $R \, \term{*} \, S$. 
+
+
+\paragraph{Interaction between \term{+} and \term{*}}
+
+The last six equations (from (\textsc{\term{+}idem}) inclusive), explain
+the algebraic behaviour of \term{+} and \term{*}.  Together, we see
+that \term{+} is an associative, commutative, idempotent binary
+operator that distributes with \term{*}, which is associative and
+commutative. This distribution of \term{*} over \term{+} is key as it
+is used internally to give a normal form for stencil specifications
+akin to Disjunctive Normal Form (DNF) (where \term{+} is taken as
+``disjunction'' and \term{*} as the ``conjunction''). We revisit this
+normalisation in Section~\ref{}.
+
+
 
 \begin{figure}[t]
 \begin{align*}
@@ -811,14 +905,15 @@ normal form for stencil specifications akin to Disjunctive Normal Form
 
 \paragraph{Inequations: sub-specifications}
 
-Figure~\ref{fig:inequations}
+Figure~\ref{fig:inequations}\dnote{TODO: this might
+need to include notions of consistency}
 
 \section{Semantics of specifications; a model}
 \label{sec:semantics}
 
 \newcommand{\relix}{(\mathbb{Z}_\bot)^\mathbb{D}}
 
-We provide a semantic model of the stencil specification language as
+We define a semantic model of our stencil specification language as
 the basis for building correct implementations, showing the soundness
 of the equational theory and approximations, and as a basis for the
 inference, checking, and program synthesis algorithms.
@@ -827,32 +922,36 @@ model as sets of vectors, represent array indexing.
 
 \begin{definition}
   A specification of maximum dimensionality $n$, is modelled by a
-  set of column vectors of size $n$  ($n$-dimensional vectors /
+  set of vectors of size $n$ ($n$-dimensional vectors or 
   $n$-vectors for short)
   with values drawn from $\mathbb{Z} \cup \{\infty\}$, representing
-  relative indices. The $\infty$ element represents non-relative
-  indices (\eg{}, constants), which are seen as infinite with respect
+  relative indices. The element $\infty$ represents non-relative
+  indices, such as constants, which are seen as infinite with respect
   to the frame of reference of a relative offset from an induction
   variable.
 
-  For example, the array index $(i, j+1)$ corresponds to the vector
-  $\vtwoh{0}{1}$, whereas, the $(0, j)$ corresponds to the
-  vector $\vtwoh{\infty}{0}$ since $0$ is a non-relative index.
+  For example, the array index term $(i, j+1)$ corresponds to the vector
+  $\vtwoh{0}{1}$, whereas, the index term $(3, j)$ corresponds to the
+  vector $\vtwoh{\infty}{0}$ since $3$ is a non-relative index.
 \end{definition}
 
-Figure~\ref{fig:region-model} outlines the core rules for regions
-via the interpretation function $\interp{-}$.  We explain the
-intermediate notations and definitions:
+We define the interpretation function $\inter{-}$ overloaded on regions
+in Figure~\ref{fig:region-model} and on the top-level of 
+a specification \textit{specTop} in
+Figure~\ref{fig:spatial-model}. Some
+intermediate notations and definitions are used.
 
 \begin{definition}A \emph{single-entry vector} of size $n$, denoted
 $\singleEntry{r}{n}$, is a vector
-where the $r^{th}$ entry is $1$ and all others are $\infty$, \eg{},
-$\singleEntry{1}{2} = \vtwoh{1}{\infty}$.
+where the $r^{th}$ entry is $1$ and all others are $\infty$. For
+example, 
+$\singleEntry{1}{2} = \vtwoh{\infty}{1}$ and $\singleEntry{2}{3} = 
+\vthreeh{1}{\infty}{1}$. 
 \end{definition}
 
 \begin{definition}A \emph{zero-entry vector} of size $n$, denoted
 $\zeroEntry{r}{n}$, is a vector where the $r^{th}$ entry is $0$ and all others
-are $\infty$, \eg{}, $\zeroEntry{1}{2} = \vtwoh{0}{\infty}$.
+are $\infty$, \eg{}, $\zeroEntry{1}{2} = \vtwoh{\infty}{0}$.
 \end{definition}
 
 \begin{definition}The product of two models of dimensionality
@@ -926,13 +1025,13 @@ $i - 1$. Recall that the vectors are defined over the domain $\mathbb{Z} \cup
 \input{region-model.tex}
 %\textit{$a^m \in A$ means there are $n$ copies of $a$ in
 %  the multi-set $A$}
-\caption{Set model of regions}
+\caption{Model of regions, $\interp{\textit{region}}$}
 \label{fig:region-model}
 \end{figure}
 
 \begin{figure}
 \input{spatial-model.tex}
-\caption{Model of specifications}
+\caption{Model of specifications, $\interp{\textit{specTop}}$}
 \label{fig:spatial-model}
 \end{figure}
 

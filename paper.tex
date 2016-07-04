@@ -1531,7 +1531,7 @@ compiler \textsc{stng} from a Fortran stencil computation~\cite [p.3]{kamil2016v
 \texttt{b}(\texttt{i}-1,\texttt{j}) + \texttt{b}(\texttt{i},\texttt{j})
 \end{align*}
 %
-Noticeable, the bounds of the stencil and the exact indexing pattern
+Notably, the bounds of the stencil and the exact indexing pattern
 are captured. Our approach aims to be much more abstract, to
 facilitate human reasoning, and avoid low-level lexical
 errors. However, \textsf{stng} specifications are generated, \ie{},
@@ -1556,15 +1556,15 @@ in order to assign the above post-condition. CamFort is not currently
 able to ascribe a specification in the above case as the use of
 \texttt{t} on line 5 maps only to the definition on line 2, and no on
 line 6. Extending our approach to follow loop-carried dependencies is
-future work. An alternate approach for us would be to build ontop of
+future work. An alternate approach for us would be to build on top of
 the work of Kamil~\emph{et al.} by inferring our specifications from
 \textsc{stng} (as an intermediate step).
 
 In an alternate approach,~\citet{abe2013model}
 
-There are many DSLs for stencil comptuation aimed at either
-performance or verification, or both. Many elimiante out-of-bounds
-errors, \eg{},~\cite{DBLP:journals/corr/abs-1109-0777}.
+There are many DSLs for stencil computation aimed at either
+performance or verification, or both. Many eliminate out-of-bounds
+errors, \eg{},~\citet{DBLP:journals/corr/abs-1109-0777}.
 
 
 \bibliography{references}

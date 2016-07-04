@@ -281,7 +281,7 @@ of this approach.
 %
 
 \begin{figure}[t]
-  \begin{minted}[firstnumber=20]{fortran}
+\begin{minted}[firstnumber=20]{fortran}
 du2dx = ((u(i,j)+u(i+1,j))*(u(i,j)+u(i+1,j))+ &
   gamma*abs(u(i,j)+u(i+1,j))*(u(i,j)-u(i+1,j))- &
   (u(i-1,j)+u(i,j))*(u(i-1,j)+u(i,j))- &
@@ -487,14 +487,14 @@ b(i) = ( a(i) + a(i-1) + a(i+1) ) / 3.0
 \nonterm{spec} ::= & [\nonterm{multMod},] \; \nonterm{region} \\
 \nonterm{multMod} ::= & \term{readOnce} \\
 \nonterm{approxMod} ::= & \term{atMost} \; \mid \; \term{atLeast} \\[0.1em]
-\nonterm{region} ::= 
-        & \stenFwd{\mathbb{N}_{>0}}{\dimTy}{\;[, \texttt{irreflexive}]} \\
-\mid \; & \stenBwd{\mathbb{N}_{>0}}{\dimTy}{\;[, \texttt{irreflexive}]} \\
-\mid \; & \stenCen{\mathbb{N}_{>0}}{\dimTy}{\;[, \texttt{irreflexive}]} \\
-\mid \; & \stenRefl{\dimTy}  \\
-\mid \; & \nonterm{region} \; \term{+} \; \nonterm{region} \\
-\mid \; & \nonterm{region} \; \term{*} \; \nonterm{region} \\
-\mid \; & \nonterm{rvar}  \\[0.5em]
+\nonterm{region} ::= & \\
+\multicolumn{2}{l}{\qquad\qquad\;\;\; \stenFwd{\mathbb{N}_{>0}}{\dimTy}{\;[, \texttt{irreflexive}]}} \\
+\multicolumn{2}{l}{\qquad\qquad \mid \; \stenBwd{\mathbb{N}_{>0}}{\dimTy}{\;[, \texttt{irreflexive}]}} \\
+\multicolumn{2}{l}{\qquad\qquad \mid \; \stenCen{\mathbb{N}_{>0}}{\dimTy}{\;[, \texttt{irreflexive}]}} \\
+\multicolumn{2}{l}{\qquad\qquad \mid \; \stenRefl{\dimTy}}  \\
+\multicolumn{2}{l}{\qquad\qquad \mid \; \nonterm{region} \; \term{+} \; \nonterm{region}} \\
+\multicolumn{2}{l}{\qquad\qquad \mid \; \nonterm{region} \; \term{*} \; \nonterm{region}} \\
+\multicolumn{2}{l}{\qquad\qquad \mid \; \nonterm{rvar}}  \\[0.5em]
 %\nonterm{temporal} ::= \; & \term{dependency} \; (v \; \{ , v \}) [, \texttt{mutual}]
 %  \\[0.5em]
 \dimTy ::= \; & \mathbb{N}_{>0} \\
@@ -801,7 +801,9 @@ the syntactic sugar in our equations for \term{fwd} is defined:
 & \qquad \begin{cases}
 \stenFwd{n}{d}{, \irrefl} & \textit{if} \;\, \neg \, r \\
 \stenFwd{n}{d}{}  & \textit{if} \;\,  r
-\end{cases}
+\end{cases} \\
+\textit{or} \;\;
+& \stenFwdS{n}{d} := \stenFwd{n}{d}{}
 \end{align*}
 %
 and similarly for \term{bwd} and \term{cen}.
@@ -935,10 +937,10 @@ model as sets of vectors, represent array indexing.
   vector $\vtwoh{\infty}{0}$ since $3$ is a non-relative index.
 \end{definition}
 
-We define the interpretation function $\inter{-}$ overloaded on regions
-in Figure~\ref{fig:region-model} and on the top-level of 
-a specification \textit{specTop} in
-Figure~\ref{fig:spatial-model}. Some
+We define the interpretation function $\interp{-}_n$ where $n$ is the
+maximum dimensionality of the specification being modelled, overloaded
+on regions in Figure~\ref{fig:region-model} and on the top-level of a
+specification \textit{specTop} in Figure~\ref{fig:spatial-model}. Some
 intermediate notations and definitions are used.
 
 \begin{definition}A \emph{single-entry vector} of size $n$, denoted
@@ -953,6 +955,10 @@ $\singleEntry{1}{2} = \vtwoh{\infty}{1}$ and $\singleEntry{2}{3} =
 $\zeroEntry{r}{n}$, is a vector where the $r^{th}$ entry is $0$ and all others
 are $\infty$, \eg{}, $\zeroEntry{1}{2} = \vtwoh{\infty}{0}$.
 \end{definition}
+
+The first four equations of Figure~\ref{fig:region-model}
+give the meanings of the region constants as sets of indices.
+
 
 \begin{definition}The product of two models of dimensionality
 $n$ is given by the tensor $\otimes_n$ defined:

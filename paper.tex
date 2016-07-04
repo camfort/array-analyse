@@ -1568,34 +1568,70 @@ an \emph{actual} statement.
 \begin{figure}
 \begin{tabular}{|l|l|l|l|l|}
 \hline
-Package       & \% potential & \% actual & Total & Total    \\
-              & stencils     & stencils  & exact  & bounded \\
+Package       & Potential & Actual & Exact & Inexact    \\
 \hline
-UM            & \umtickAssignPercent & \umtickAssignSuccessPercent & \umnumStencilLines & \umboundedBoth  \\
-E3MG          & \ethreemgeatickAssignPercent & \ethreemgeatickAssignSuccessPercent & \ethreemgeanumStencilLines & \ethreemgeaboundedBoth \\
-BLAS          & \blastickAssignPercent & \blastickAssignSuccessPercent & \blasnumStencilLines & \blasboundedBoth \\
-Hybrid4       & \hybridfourtickAssignPercent & \hybridfourtickAssignPercent & \hybridfournumStencilLines &  \hybridfourboundedBoth\\
-GEOS-Chem     & \geoschemtickAssignPercent & \geoschemtickAssignPercent & \geoschemnumStencilLines & \geoschemboundedBoth \\
-Navier        & \naviertickAssignPercent & \naviertickAssignPercent & \naviernumStencilLines & \navierboundedBoth \\
-CP            & \computationalphysicstwotickAssignPercent & \computationalphysicstwotickAssignSuccessPercent & \computationalphysicstwonumStencilLines & \computationalphysicstwoboundedBoth \\
+UM            & \umtickAssign\ (\umtickAssignPercent\%) & 
+                \umtickAssignSuccess\ (\umtickAssignSuccessPercent\%) & 
+                \umnumStencilLines & 
+                \umboundedBoth  \\
+E3MG          & \ethreemgeatickAssign\ (\ethreemgeatickAssignPercent\%) & 
+                \ethreemgeatickAssignSuccess\ (\ethreemgeatickAssignSuccessPercent\%) & 
+                \ethreemgeanumStencilLines & 
+                \ethreemgeaboundedBoth \\
+BLAS          & \blastickAssign\ (\blastickAssignPercent\%) & 
+                \blastickAssignSuccess\ (\blastickAssignSuccessPercent\%) & 
+                \blasnumStencilLines & 
+                \blasboundedBoth \\
+Hybrid4       & \hybridfourtickAssign\ (\hybridfourtickAssignPercent\%) & 
+                \hybridfourtickAssignSuccess\ (\hybridfourtickAssignSuccessPercent\%) & 
+                \hybridfournumStencilLines &  
+                \hybridfourboundedBoth\\
+GEOS-Chem     & \geoschemtickAssign\ (\geoschemtickAssignPercent\%) & 
+                \geoschemtickAssignSuccess\ (\geoschemtickAssignSuccessPercent\%) & 
+                \geoschemnumStencilLines & 
+                \geoschemboundedBoth \\
+Navier        & \naviertickAssign\ (\naviertickAssignPercent\%) & 
+                \naviertickAssignSuccess\ (\naviertickAssignPercent\%) & 
+                \naviernumStencilLines & 
+                \navierboundedBoth \\
+CP            & \computationalphysicstwotickAssign\ (\computationalphysicstwotickAssignPercent\%) & 
+                \computationalphysicstwotickAssignSuccess\ (\computationalphysicstwotickAssignSuccessPercent\%) & 
+                \computationalphysicstwonumStencilLines & 
+                \computationalphysicstwoboundedBoth \\
 \hline
-\textbf{Total}& \overalltickAssignPercent  & \overalltickAssignSuccessPercent & \overallnumStencilLines & \overallboundedBoth    \\
+\textbf{Total}& \overalltickAssign\ (\overalltickAssignPercent\%)  & 
+                \overalltickAssignSuccess\ (\overalltickAssignSuccessPercent\%) & 
+                \overallnumStencilLines & 
+                \overallboundedBoth    \\
 \hline
 \end{tabular}
 \caption{Stencil assignment rates\label{fig:tickAssign}}
 \end{figure}
 
-The first two columns of Figure \ref{fig:tickAssign} shows the percentage of lines which were
-assigned potential and actual stencils.
+The first two columns of Figure \ref{fig:tickAssign} shows the number of potential and actual stencils and their rate as a percentage of the total number of assignment statements in the code.
 \anote{Add explanation about why our results are low. Include an example from BLAS of a tickAssign'd statement that is not a stencil}
 \anote{Add discussion about the rate of stencils in the code. Comparison with rate of assignment statements would be nice}
 
-If the inference process cannot determine an exact stencil for a statement it will instead produce an upper (\term{atMost}) and lower (\term{atLeast}) bound. The numbers of exact and bounded stencils are shown in columns three and four of Figure \ref{fig:tickAssign}. We can see that our stencil language is capable of precisely specifying the overwhelming majority of stencils. Most of the bounded stencils apply to some form of data copying. For example (taken from E3MG):
+If the inference process cannot determine an exact stencil for a statement it will instead produce an upper (\term{atMost}) and lower (\term{atLeast}) bound. The number of exact and inexact stencils are shown in columns three and four of Figure \ref{fig:tickAssign}. We can see that our stencil language is capable of precisely specifying the overwhelming majority of stencils. Most of the inexact stencils apply to some form of data copying. For example (taken from E3MG):
 \begin{minted}{fortran}
 !- stencil atLeast, readOnce, irreflexive(dims=2), (reflexive(dim=1)) :: sfda
 !- stencil atMost, readOnce, (forward(depth=8, dim=2))*(reflexive(dim=1)) :: sfdt
 ZZ1(I,J) = SFDT(I,J+8)
 \end{minted}
+
+\subsection{Stencil categories}
+
+% examine the various types of stencil that we found
+
+
+\subsection{Detecting programming errors}
+
+% != stencil readOnce, (forward(depth=1, dim=3, irreflexive))*(backward(depth=1, dim=1))*(backward(depth=1, dim=2)) + (forward(depth=1, dim=3))*(backward(depth=1, dim=1))*(reflexive(dim=2)) + (forward(depth=1, dim=3))*(backward(depth=1, dim=1, irreflexive))*(backward(depth=1, dim=2, irreflexive)) + (forward(depth=1, dim=3))*(backward(depth=1, dim=2))*(reflexive(dim=1)) + (backward(depth=1, dim=1))*(backward(depth=1, dim=2, irreflexive))*(reflexive(dim=3)) + (backward(depth=1, dim=1, irreflexive))*(backward(depth=1, dim=2))*(reflexive(dim=3)) :: cx_rho_centre
+% /um/trunk/src/atmosphere/diffusion_and_filtering/turb_smagorinsky.F90
+% Tried introducing indexing errors replacing one of the indices of cx_rho_instance with -1,0,+1
+% 42 cases were caught
+% 6 cases were not caught
+
 
 
 

@@ -1732,16 +1732,40 @@ ZZ1(I,J) = SFDT(I,J+8)
 
 \subsection{Stencil categories}
 
-\textbf{All reflexive} The vast majority (X\%) of stencils were reflexive in every dimension of the array. These most often correspond to applying point-wise transformations to data such as scaling e.g. \minted{fortran}{ZZ1(I,K) = .000041868*ZZ1(I,K)}. 
+We grouped stencils together into four classes based on similar levels of complexity. These four classes account for 99.7\% of all the stencils we found in the corpus.
 
+\textbf{All-reflexive} stencils are reflexive in every dimension of the array. These most often correspond to applying point-wise transformations to data such as scaling e.g. \mintinline{fortran}{ZZ1(I,K) = .000041868*ZZ1(I,K)}. Arrays with this class of stencil must be indexed by all the induction variables used in the LHS without any offsets.
 
+\textbf{Some-reflexive} stencils consist of only reflexive terms but leave some dimensions unspecified. Examples in this class include \mintinline{fortran}{leafpools(:,age_class)=leafpool(:,1)} (which contains an implicit loop), and \mintinline{fortran}{RVM(J,I2) = VRFO(ivar,J)} where \mintinline{fortran}{J} is the induction variable. Arrays with this class of stencil can be indexed by a subset of the LHS induction variables but again without any offsets.
 
+\textbf{Single-action} stencils consist of a single \term{backward},\term{forward}, or \term{centered} term and some number of reflexive terms.
+% /home/mrd45/src/corpus/geos-chem/GTMM/CasaRegridModule.F90:645
+\begin{minted}{fortran}
+do j=2,jm-ig
+   do i=1,im
+      != stencil readOnce, (backward(depth=1, dim=2))*(reflexive(dim=1)) :: dm, q
+      al(i,j) = 0.5e+0_fp*(q(i,j-1)+q(i,j)) + r3*(dm(i,j-1) - dm(i,j))
+   enddo
+enddo
+\end{minted}
 
-
-% examine the various types of stencil that we found
+\textbf{Single-action-irreflexive} stencils consist of a single \term{backward},\term{forward}, or \term{centered} irreflexive term and some number of reflexive terms.
+% /home/mrd45/src/corpus/geos-chem/GeosRad/rrtmg_lw_rtrnmc.F90:355
+\begin{minted}{fortran}
+do lev = nlayers, 1, -1
+    ! ...
+    radld = radld - radld * (atrans(lev) + &
+       efclfrac(lev,igc) * (1. - atrans(lev))) + &
+       gassrc + cldfmc(igc,lev) * &
+       (bbdtot * atot(lev) - gassrc)
+    != stencil readOnce, (forward(depth=1, dim=2, irreflexive)) :: cldfmc
+    drad(lev-1) = drad(lev-1) + radld
+\end{minted}
+Notice in this example how the read from \mintinline{fortran}{cldfmc} flows through onto the line with the stencil.
 
 
 \subsection{Detecting programming errors}
+
 
 % != stencil readOnce, (forward(depth=1, dim=3, irreflexive))*(backward(depth=1, dim=1))*(backward(depth=1, dim=2)) + (forward(depth=1, dim=3))*(backward(depth=1, dim=1))*(reflexive(dim=2)) + (forward(depth=1, dim=3))*(backward(depth=1, dim=1, irreflexive))*(backward(depth=1, dim=2, irreflexive)) + (forward(depth=1, dim=3))*(backward(depth=1, dim=2))*(reflexive(dim=1)) + (backward(depth=1, dim=1))*(backward(depth=1, dim=2, irreflexive))*(reflexive(dim=3)) + (backward(depth=1, dim=1, irreflexive))*(backward(depth=1, dim=2))*(reflexive(dim=3)) :: cx_rho_centre
 % /um/trunk/src/atmosphere/diffusion_and_filtering/turb_smagorinsky.F90

@@ -12,98 +12,177 @@ S \equiv T
 \end{theorem}
 
 \begin{proof}
-We will prove different cases given in Figure~\ref{fig:equations} with respect
-to the model given in Section~\ref{sec:semantics}.
+By induction on the equational theory $\equiv$, with respect
+to the model $\interp{-}_n$.
 
 \begin{description}
   \item[\textsc{Case F \texttt{+} F}:]
     \begin{align*}
-      & \; \interp{\stenFwdS{a}{d} \; \texttt{+} \; \stenFwdS{b}{d}}_{n} \\
-      \equiv & \; \interp{\stenFwdS{a}{d}}_{n} \cup \interp{\stenFwdS{b}{d}}_{n} \\
+      & \; \interp{\stenFwdSR{a}{d}{r} \; \texttt{+} \; \stenFwdSR{b}{d}{s}}_{n} \\
+      \equiv & \; \interp{\stenFwdSR{a}{d}{r}}_{n} \cup \interp{\stenFwdSR{b}{d}{s}}_{n} \\
       \equiv & \; \{i\singleEntry{d}{n} \mid i \in \{1, \ldots, a\} \} \cup
-                  \{\zeroEntry{d}{n}\} \cup
+                  \{\zeroEntry{d}{n} \mid r \} \cup
                   \{i\singleEntry{d}{n} \mid i \in \{1, \ldots, b\} \} \cup
-                  \{\zeroEntry{d}{n}\} \\
+                  \{\zeroEntry{d}{n} \mid s \} \\
       \equiv & \; \{i\singleEntry{d}{n} \mid i \in \{1, \ldots, a\} \vee
                                              i \in \{1, \ldots, b\} \} \cup
-                  \{\zeroEntry{d}{n}\} \\
+                 \{\zeroEntry{d}{n} \mid r \} \cup \{\zeroEntry{d}{n} \mid s \} \\
       \equiv & \; \{i\singleEntry{d}{n} \mid i \in \{1, \ldots, a \max b\} \} \cup 
-                  \{\zeroEntry{d}{n}\}\\
-      \equiv & \; \interp{\stenFwdS{a \, \max \, b}{d}}_n \\
+                  \{\zeroEntry{d}{n} \mid r \vee s \}\\
+      \equiv & \; \interp{\stenFwdSR{a \, \max \, b}{d}{r \vee s}}_n \\
     \end{align*}
   \item[\textsc{Case C \texttt{+} C}:]
     \begin{align*}
-      & \; \interp{\stenCenS{a}{d} \; \texttt{+} \; \stenCenS{b}{d}}_{n} \\
-      \equiv & \; \interp{\stenCenS{a}{d}}_{n} \cup \interp{\stenCenS{b}{d}}_{n} \\
+      & \; \interp{\stenCenSR{a}{d}{r} \; \texttt{+} \; \stenCenSR{b}{d}{s}}_{n} \\
+      \equiv & \; \interp{\stenCenSR{a}{d}{r}}_{n} \cup \interp{\stenCenSR{b}{d}{s}}_{n} \\
       \equiv & \; \{i\singleEntry{d}{n} \mid i \in \{-a, \ldots, a\} \setminus 0 \} \cup
-                  \{\zeroEntry{d}{n}\} \cup
+                  \{\zeroEntry{d}{n} \mid r \} \cup
                   \{i\singleEntry{d}{n} \mid i \in \{-b, \ldots, b\} \setminus 0 \} \cup
-                  \{\zeroEntry{d}{n}\} \\
+                 \{\zeroEntry{d}{n} \mid s \} \\
       \equiv & \; \{i\singleEntry{d}{n} \mid i \in \{-a, \ldots, a\} \setminus 0 \vee
                                              i \in \{-b, \ldots, b\} \setminus 0 \} \cup
-                  \{\zeroEntry{d}{n}\} \\
+                 \{\zeroEntry{d}{n} \mid r \} \cup \{\zeroEntry{d}{n} \mid s \} \\
       \equiv & \; \{i\singleEntry{d}{n} \mid i \in \{-(a \max b), \ldots, a \max b\} \setminus 0 \} \cup 
-                  \{\zeroEntry{d}{n}\}\\
-      \equiv & \; \interp{\stenCenS{a \, \max \, b}{d}}_n \\
+                  \{\zeroEntry{d}{n} \mid r \vee s \}\\
+      \equiv & \; \interp{\stenCenSR{a \, \max \, b}{d}{r \vee s}}_n \\
     \end{align*}
   \item[\textsc{Case B \texttt{+} B}:]
     \begin{align*}
-      & \; \interp{\stenBwdS{a}{d} \; \texttt{+} \; \stenBwdS{b}{d}}_{n} \\
-      \equiv & \; \interp{\stenBwdS{a}{d}}_{n} \cup \interp{\stenBwdS{b}{d}}_{n} \\
+      & \; \interp{\stenBwdSR{a}{d}{r} \; \texttt{+} \; \stenBwdSR{b}{d}{s}}_{n} \\
+      \equiv & \; \interp{\stenBwdSR{a}{d}{r}}_{n} \cup \interp{\stenBwdSR{b}{d}{s}}_{n} \\
       \equiv & \; \{i\singleEntry{d}{n} \mid i \in \{-a, \ldots, -1\} \} \cup
-                  \{\zeroEntry{d}{n}\} \cup
+                  \{\zeroEntry{d}{n} \mid r \} \cup
                   \{i\singleEntry{d}{n} \mid i \in \{-b, \ldots, -1\} \} \cup
-                  \{\zeroEntry{d}{n}\} \\
+                  \{\zeroEntry{d}{n} \mid s \} \\
       \equiv & \; \{i\singleEntry{d}{n} \mid i \in \{-a, \ldots, -1\} \vee
                                              i \in \{-b, \ldots, -1\} \} \cup
-                  \{\zeroEntry{d}{n}\} \\
+                  \{\zeroEntry{d}{n} \mid r \} \cup \{\zeroEntry{d}{n} \mid s \} \\
       \equiv & \; \{i\singleEntry{d}{n} \mid i \in \{-(a \max b), \ldots, -1 \} \} \cup 
-                  \{\zeroEntry{d}{n}\}\\
-      \equiv & \; \interp{\stenBwdS{a \, \max \, b}{d}}_n \\
+                  \{\zeroEntry{d}{n} \mid r \vee s \}\\
+      \equiv & \; \interp{\stenBwdSR{a \, \max \, b}{d}{r \vee s}}_n \\
     \end{align*}
-  \item[\textsc{Case C \texttt{+} F}:]
+  \item[\textsc{Case C \texttt{+} F}: with side condition  $\;\;(a \geq b)$]
     \begin{align*}
-      & \; \interp{\stenCenS{a}{d} \; \texttt{+} \; \stenFwdS{b}{d}}_{n} \\
-      \equiv & \; \interp{\stenCenS{a}{d}}_{n} \cup \interp{\stenFwdS{b}{d}}_{n} \\
+      & \; \interp{\stenCenSR{a}{d}{r} \; \texttt{+} \; \stenFwdSR{b}{d}{s}}_{n} \\
+      \equiv & \; \interp{\stenCenSR{a}{d}{r}}_{n} \cup \interp{\stenFwdSR{b}{d}{s}}_{n} \\
       \equiv & \; \{i\singleEntry{d}{n} \mid i \in \{-a, \ldots, a\} \setminus 0 \} \cup
-                  \{\zeroEntry{d}{n}\} \cup
+                  \{\zeroEntry{d}{n} \mid r \} \cup
                   \{i\singleEntry{d}{n} \mid i \in \{1, \ldots, b\} \} \cup
-                  \{\zeroEntry{d}{n}\} \\
+                  \{\zeroEntry{d}{n} \mid s \} \\
       \equiv & \; \{i\singleEntry{d}{n} \mid i \in \{-a, \ldots, a\} \setminus 0
                     \vee i \in \{1, \ldots, b\} \} \cup
-                  \{\zeroEntry{d}{n}\} \\
-      \equiv & \; \{i\singleEntry{d}{n} \mid i \in \{-a, \ldots, a\} \setminus 0 \} \cup \{\zeroEntry{d}{n}\} \quad \text{, using }a \geq b \\
-      \equiv & \; \interp{\stenCenS{a}{d}}_n \\
+                 \{\zeroEntry{d}{n} \mid r \} \cup \{\zeroEntry{d}{n} \mid s \} \\
+      \equiv & \; \{i\singleEntry{d}{n} \mid i \in \{-a, \ldots, a\}
+               \setminus 0 \} \cup \{\zeroEntry{d}{n} \mid r \vee s \} \quad \text{, using }a \geq b \\
+      \equiv & \; \interp{\stenCenSR{a}{d}{r \vee s}}_n \\
     \end{align*}
-  \item[\textsc{Case C \texttt{+} B}:]
+  \item[\textsc{Case C \texttt{+} B}: with side condition  $\;\;(a \geq b)$]
     \begin{align*}
-      & \; \interp{\stenCenS{a}{d} \; \texttt{+} \; \stenBwdS{b}{d}}_{n} \\
-      \equiv & \; \interp{\stenCenS{a}{d}}_{n} \cup \interp{\stenBwdS{b}{d}}_{n} \\
+      & \; \interp{\stenCenSR{a}{d}{r} \; \texttt{+} \; \stenBwdSR{b}{d}{s}}_{n} \\
+      \equiv & \; \interp{\stenCenSR{a}{d}{r}}_{n} \cup \interp{\stenBwdSR{b}{d}{s}}_{n} \\
       \equiv & \; \{i\singleEntry{d}{n} \mid i \in \{-a, \ldots, a\} \setminus 0 \} \cup
-                  \{\zeroEntry{d}{n}\} \cup
+                  \{\zeroEntry{d}{n} \mid r \} \cup
                   \{i\singleEntry{d}{n} \mid i \in \{-b, \ldots, -1\} \} \cup
-                  \{\zeroEntry{d}{n}\} \\
+                  \{\zeroEntry{d}{n} \mid s \} \\
       \equiv & \; \{i\singleEntry{d}{n} \mid i \in \{-a, \ldots, a\} \setminus 0
                     \vee i \in \{-b, \ldots, -1\} \} \cup
-                  \{\zeroEntry{d}{n}\} \\
-      \equiv & \; \{i\singleEntry{d}{n} \mid i \in \{-a, \ldots, a\} \setminus 0 \} \cup \{ \zeroEntry{d}{n}\} \quad \text{, using }a \geq b \\
-      \equiv & \; \interp{\stenCenS{a}{d}}_n \\
+                 \{\zeroEntry{d}{n} \mid r \} \cup \{\zeroEntry{d}{n} \mid s \} \\
+      \equiv & \; \{i\singleEntry{d}{n} \mid i \in \{-a, \ldots, a\}
+               \setminus 0 \} \cup \{ \zeroEntry{d}{n} \mid r \vee s \} \quad \text{, using }a \geq b \\
+      \equiv & \; \interp{\stenCenSR{a}{d}{r \vee s}}_n \\
     \end{align*}
   \item[\textsc{Case B \texttt{+} F}:]
     \begin{align*}
-      & \; \interp{\stenBwdS{a}{d} \; \texttt{+} \; \stenFwdS{a}{d}}_{n} \\
-      \equiv & \; \interp{\stenBwdS{a}{d}}_{n} \cup \interp{\stenFwdS{a}{d}}_{n} \\
+      & \; \interp{\stenBwdSR{a}{d}{r} \; \texttt{+} \; \stenFwdSR{a}{d}{r}}_{n} \\
+      \equiv & \; \interp{\stenBwdSR{a}{d}{r}}_{n} \cup \interp{\stenFwdSR{a}{d}{s}}_{n} \\
       \equiv & \; \{i\singleEntry{d}{n} \mid i \in \{-a, \ldots, -1\} \} \cup
-                  \{\zeroEntry{d}{n}\} \cup
+                  \{\zeroEntry{d}{n} \mid r \} \cup
                   \{i\singleEntry{d}{n} \mid i \in \{1, \ldots, a\} \} \cup
-                  \{\zeroEntry{d}{n}\} \\
+                  \{\zeroEntry{d}{n} \mid s \} \\
       \equiv & \; \{i\singleEntry{d}{n} \mid i \in \{-a, \ldots, -1\}
                     \vee i \in \{1, \ldots, a\} \} \cup
-                  \{\zeroEntry{d}{n}\} \\
+                 \{\zeroEntry{d}{n} \mid r \} \cup \{\zeroEntry{d}{n} \mid s \} \\
       \equiv & \; \{i\singleEntry{d}{n} \mid i \in \{-a, \ldots, a\} \setminus 0 \} \cup 
-                              \{\zeroEntry{d}{n}\} \\
+                              \{\zeroEntry{d}{n} \mid r \vee s \} \\
+      \equiv & \; \interp{\stenCenSR{a}{d}{r \vee s}}_n \\
+    \end{align*}
+%
+%
+  \item[\textsc{Case R \texttt{+} F}:]
+    \begin{align*}
+      & \; \interp{\stenReflS{d} \; \texttt{+} \; \stenFwdSR{a}{d}{r}}_{n} \\
+      \equiv & \; \interp{\stenReflS{d}}_{n} \cup \interp{\stenFwdSR{a}{d}{r}}_{n} \\
+      \equiv & \; \{\zeroEntry{d}{n}\} \cup
+                  \{i\singleEntry{d}{n} \mid i \in \{1, \ldots, a\} \} \cup
+                  \{\zeroEntry{d}{n} \mid r \} \\
+      \equiv & \; \{\zeroEntry{d}{n}\} \cup
+                  \{i\singleEntry{d}{n} \mid i \in \{1, \ldots, a\} \} \\
+      \equiv & \; \interp{\stenFwdS{a}{d}}_n \\
+    \end{align*}
+%
+%
+  \item[\textsc{Case R \texttt{+} B}:]
+    \begin{align*}
+      & \; \interp{\stenReflS{d} \; \texttt{+} \; \stenBwdSR{a}{d}{r}}_{n} \\
+      \equiv & \; \interp{\stenReflS{d}}_{n} \cup \interp{\stenBwdSR{a}{d}{r}}_{n} \\
+      \equiv & \; \{\zeroEntry{d}{n}\} \cup
+                  \{i\singleEntry{d}{n} \mid i \in \{-a, \ldots, -1\} \} \cup
+                  \{\zeroEntry{d}{n} \mid r \} \\
+      \equiv & \; \{\zeroEntry{d}{n}\} \cup
+                  \{i\singleEntry{d}{n} \mid i \in \{-a, \ldots, -1\} \} \\
+      \equiv & \; \interp{\stenBwdS{a}{d}}_n \\
+    \end{align*}
+
+%
+  \item[\textsc{Case R \texttt{+} C}:]
+    \begin{align*}
+      & \; \interp{\stenReflS{d} \; \texttt{+} \; \stenCenSR{a}{d}{r}}_{n} \\
+      \equiv & \; \interp{\stenReflS{d}}_{n} \cup \interp{\stenCenSR{a}{d}{r}}_{n} \\
+      \equiv & \; \{\zeroEntry{d}{n}\} \cup
+                  \{i\singleEntry{d}{n} \mid i \in \{-a, \ldots, a\}
+               \setminus 0 \} \cup
+                  \{\zeroEntry{d}{n} \mid r \} \\
+      \equiv & \; \{\zeroEntry{d}{n}\} \cup
+                  \{i\singleEntry{d}{n} \mid i \in \{-a, \ldots, a\}
+               \setminus 0 \} \\
       \equiv & \; \interp{\stenCenS{a}{d}}_n \\
     \end{align*}
+  \item[\textsc{Case IRREFL}]
+   let $R$ be a region constant of dimension $d$ and $S$ be a region
+   constant of dimension $d'$. \\
+
+   By the definition of $\interp{-}$ and the syntactic sugar,
+    then $\interp{R}^{\irreflS} = \interp{R} \setminus
+   \{\zeroEntry{d}{n}\}$ and similarly $\interp{S}^{\irreflS} =
+   \interp{S} \setminus \{\zeroEntry{d'}{n}\}$
+   \begin{align*}
+    & \; \interp{(R \term{*} S^{\irreflS}) \term{+} (R^{\irreflS}
+      \term{*} S)}_n \\
+ \equiv & \; \interp{(R \term{*} S^{\irreflS})}_n \cup
+          \interp{(R^{\irreflS} \term{*} S)}_n \\
+ \equiv & \; (\interp{R}_n \otimes (\interp{S}_n \setminus
+         \{\zeroEntry{d'}{n}\}))
+   \cup ((\interp{R}_n \setminus \{\zeroEntry{d}{n}\}) \otimes
+          \interp{S}_n) \\
+ \equiv & \; (\{x \mid i \in \{1, \ldots, 2^n\},
+                   (u, v) \in \interp{R}_n \times (\interp{S}_n \setminus
+         \{\zeroEntry{d'}{n}\}),
+                   x = (u \bowtie v)_i,
+                   j \in (\effdims{\interp{R}_n}{n} \cup \effdims{\interp{S}_n \setminus
+         \{\zeroEntry{d'}{n}\}}{n}),
+                   x_j \neq \infty
+                  \})
+           \\
+ \cup & (\{x \mid i \in \{1, \ldots, 2^n\},
+                   (u, v) \in (\interp{R}_n \setminus
+         \{\zeroEntry{d}{n}\}) \times \interp{S}_n),
+                   x = (u \bowtie v)_i,
+                   j \in (\effdims{\interp{R}_n \setminus
+         \{\zeroEntry{d'}{n}\}}{n} \cup \effdims{\interp{S}_n}{n}),
+                   x_j \neq \infty
+                  \})
+   \end{align*}
+
   \item[\textsc{Case +IDEM, +COMM, +ASSOC}:]
     Follows from respective properties of union of sets.
   \item[\textsc{Case *COMM}:] $\interp{r_1 \; \texttt{$\ast$} \; r_2}_n =

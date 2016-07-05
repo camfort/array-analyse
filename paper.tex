@@ -1618,11 +1618,83 @@ CP            & \computationalphysicstwotickAssign\ (\computationalphysicstwotic
 \caption{Stencil assignment rates\label{fig:tickAssign}}
 \end{figure}
 
-The first two columns of Figure \ref{fig:tickAssign} shows the number of potential and actual stencils and their rate as a percentage of the total number of assignment statements in the code.
-\anote{Add explanation about why our results are low. Include an example from BLAS of a tickAssign'd statement that is not a stencil}
-\anote{Add discussion about the rate of stencils in the code. Comparison with rate of assignment statements would be nice}
+The first two columns of Figure \ref{fig:tickAssign} shows the number of potential and actual stencils and their rate as a percentage of the total number of assignment statements in the code. There are a variety of reasons why we might not infer an actual stencil from a potential one: 1) \textbf{Non-subset induction variables} occurs when the induction variables on the RHS are not a subset of the LHS. These cases are not stencils by our definition. The degenereate case of this is to have only constant indices on the LHS. We see lots of examples of this in loops as accumulators e.g. computing the sum over some other array; 2) \textbf{Derived induction variables} where the indexing variable (\mintinline{fortran}{x}) is derived from an induction variable \mintinline{fortran}{i} e.g. \mintinline{fortran}{x = len - i}; 3) \textbf{Inconsistent induction dimensions} occur when an induction variable is used to specify more than one array dimension on the RHS. These are common in matrix operations such as LU-decomposition which contains assignments such as \mintinline{fortran}{a(l) = a(l) - a(m) * b(l, m)}.
 
-If the inference process cannot determine an exact stencil for a statement it will instead produce an upper (\term{atMost}) and lower (\term{atLeast}) bound. The number of exact and inexact stencils are shown in columns three and four of Figure \ref{fig:tickAssign}. We can see that our stencil language is capable of precisely specifying the overwhelming majority of stencils. Most of the inexact stencils apply to some form of data copying. For example (taken from E3MG):
+ %% This example is from geos-chem/GeosRad/rrtmg_sw_spcvmc.F90:609
+ %%                      pnifddir(ikl) = pnifddir(ikl) + zincflx(iw)*ztdbt(jk)
+ %% ikl is a derived induction variable (ikl = rows - jk) - we can't deal with that at the moment
+
+  %% This example is from geos-chem/GTMM/sort_pick_veg.F90
+  %% DO k=1,n_veg
+  %%    DO j=2,n/n_veg
+  %%       a=arr(k,j)
+  %%       b=ind(k,j)
+  %%       DO i=j-1, 1, -1
+  %%          IF (arr(k,i) >=a) exit
+  %%          arr(k,i+1)=arr(k,i)
+  %%          ind(k,i+1)=ind(k,i)
+  %%       END DO
+  %%       ! NO STENCIL - inconsistentIV
+  %%       ind(k,i+1)=b
+  %%       arr(k,i+1)=a
+  %%    END DO
+  %% END DO
+  %% ind(k,j) flows into b but the LHS doesn't use j. This is a valid 'access' stencil but not a valid comonad stencil
+
+%% From geos-chem/GTMM/loadCASAinput.F90:241
+%%          ppt_mo(1,i)=sum(ppt(:,:,i))
+%% If you expand the loop for the sum
+%% do x=1,lenDim1
+%%  do y=1,lenDim2
+%%   acc += ppt(x,y,i)  ! can't be a stencil but could be an access pattern
+%%  enddo
+%% enddo
+%% ppt_mo(1,i) = acc  ! should be reflexive(dim=3) :: ppt
+%% This should be fixable before the paper deadline
+
+  %% From blas/ssyrk.f:337
+  %%            DO 210 J = 1,N
+  %%                 DO 200 I = 1,J
+  %%                     TEMP = ZERO
+  %%                     DO 190 L = 1,K
+  %%                         TEMP = TEMP + A(L,I)*A(L,J)
+  %% 190                 CONTINUE
+  %%                     IF (BETA.EQ.ZERO) THEN
+  %%                         C(I,J) = ALPHA*TEMP  ! No stencil
+  %%                     ELSE
+  %%                         C(I,J) = ALPHA*TEMP + BETA*C(I,J)
+  %%                     END IF
+  %% 200             CONTINUE
+  %% 210         CONTINUE
+  %% In this case A does flow into TEMP and thus into C but its a reduction. There's an 'access' stencil above TEMP but that's all
+
+
+   %% From blas/sspr2.f:231
+   %%                    DO 10 I = 1,J
+   %%                        AP(K) = AP(K) + X(I)*TEMP1 + Y(I)*TEMP2
+   %%                        K = K + 1
+   %% 10                 CONTINUE
+   %% I don't think we notice that K is an induction variable in these cases
+
+  %% From computational-physics-2/fortran90/millikan.f90:73
+  %% DO I = 1, N+1
+  %%   STMP = U(1,I)*U(1,I)    ! access, not a stencil
+  %%   S(1) = S(1) + STMP      ! access, not a stencil
+  %%   G(1) = G(1) + K(I)*STMP ! access, not a stencil
+  %%   U(1,N+2) = U(1,N+2) + U(1,I)*F(I)  ! access, not a stencil
+  %% END DO
+
+
+%% From UM: mym_solve_simeq_lud.F90:148
+%% DO m = 1, n - 1
+%%   DO l = m + 1, n
+%%     bvec(l) = bvec(l) - bvec(m) * amat(l, m)
+%%   END DO
+%% END DO
+%% We just don't deal with this - Lower upper decomposition solver
+
+
+If the statement meets the stencil critera but the inference process cannot determine an exact stencil for a statement it will instead produce an upper (\term{atMost}) and lower (\term{atLeast}) bound. The number of exact and inexact stencils are shown in columns three and four of Figure \ref{fig:tickAssign}. We can see that our stencil language is capable of precisely specifying the overwhelming majority of stencils. Most of the inexact stencils apply to some form of data copying. For example (taken from E3MG):
 \begin{minted}{fortran}
 !- stencil atLeast, readOnce, irreflexive(dims=2), (reflexive(dim=1)) :: sfda
 !- stencil atMost, readOnce, (forward(depth=8, dim=2))*(reflexive(dim=1)) :: sfdt
@@ -1630,6 +1702,12 @@ ZZ1(I,J) = SFDT(I,J+8)
 \end{minted}
 
 \subsection{Stencil categories}
+
+\textbf{All reflexive} The vast majority (X\%) of stencils were reflexive in every dimension of the array. These most often correspond to applying point-wise transformations to data such as scaling e.g. \minted{fortran}{ZZ1(I,K) = .000041868*ZZ1(I,K)}. 
+
+
+
+
 
 % examine the various types of stencil that we found
 

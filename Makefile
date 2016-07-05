@@ -9,7 +9,7 @@ corpussize.tex: countCorpusLines.py
 	python countCorpusLines.py ${FORTRAN_CORPUS} > $@
 
 quick: results.tex corpussize.tex
-	pdflatex -shell-escape paper
+	pdflatex -shell-escape -interaction=nonstopmode paper
 
 full: results.tex corpussize.tex
 	pdflatex -shell-escape -interaction=nonstopmode paper

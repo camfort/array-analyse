@@ -12,8 +12,8 @@ S \equiv T
 \end{theorem}
 
 \begin{proof}
-By induction on the equations given in Figure~\ref{fig:equations}, with respect
-to the model given in Section~\ref{sec:semantics}.
+By induction on the equational theory $\equiv$, with respect
+to the model $\interp{-}_n$.
 
 \begin{description}
   \item[\textsc{Case F \texttt{+} F}:]
@@ -147,6 +147,42 @@ to the model given in Section~\ref{sec:semantics}.
                \setminus 0 \} \\
       \equiv & \; \interp{\stenCenS{a}{d}}_n \\
     \end{align*}
+  \item[\textsc{Case IRREFL}]
+   let $R$ be a region constant of dimension $d$ and $S$ be a region
+   constant of dimension $d'$. \\
+
+   By the definition of $\interp{-}$ and the syntactic sugar,
+    then $\interp{R}^{\irreflS} = \interp{R} \setminus
+   \{\zeroEntry{d}{n}\}$ and similarly $\interp{S}^{\irreflS} =
+   \interp{S} \setminus \{\zeroEntry{d'}{n}\}$
+   \begin{align*}
+    & \; \interp{(R \term{*} S^{\irreflS}) \term{+} (R^{\irreflS}
+      \term{*} S)}_n \\
+ \equiv & \; \interp{(R \term{*} S^{\irreflS})}_n \cup
+          \interp{(R^{\irreflS} \term{*} S)}_n \\
+ \equiv & \; (\interp{R}_n \otimes (\interp{S}_n \setminus
+         \{\zeroEntry{d'}{n}\}))
+   \cup ((\interp{R}_n \setminus \{\zeroEntry{d}{n}\}) \otimes
+          \interp{S}_n) \\
+ \equiv & \; (\{x \mid i \in \{1, \ldots, 2^n\},
+                   (u, v) \in \interp{R}_n \times (\interp{S}_n \setminus
+         \{\zeroEntry{d'}{n}\}),
+                   x = (u \bowtie v)_i,
+                   j \in (\effdims{\interp{R}_n}{n} \cup \effdims{\interp{S}_n \setminus
+         \{\zeroEntry{d'}{n}\}}{n}),
+                   x_j \neq \infty
+                  \})
+           \\
+ \cup & (\{x \mid i \in \{1, \ldots, 2^n\},
+                   (u, v) \in (\interp{R}_n \setminus
+         \{\zeroEntry{d}{n}\}) \times \interp{S}_n),
+                   x = (u \bowtie v)_i,
+                   j \in (\effdims{\interp{R}_n \setminus
+         \{\zeroEntry{d'}{n}\}}{n} \cup \effdims{\interp{S}_n}{n}),
+                   x_j \neq \infty
+                  \})
+   \end{align*}
+
   \item[\textsc{Case +IDEM, +COMM, +ASSOC}:]
     Follows from respective properties of union of sets.
   \item[\textsc{Case *COMM}:] $\interp{r_1 \; \texttt{$\ast$} \; r_2}_n =

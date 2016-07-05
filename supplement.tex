@@ -1,0 +1,151 @@
+\documentclass[9pt]{sigplanconf}
+
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{stmaryrd}
+\usepackage{color}
+\usepackage{graphics}
+\usepackage{fancyvrb}
+\usepackage{subfigure}
+\usepackage{amsthm}
+\usepackage{tikz}
+\usepackage{multirow}
+
+\definecolor{darkblue}{rgb}{0.0,0.0,0.5}
+\definecolor{darkgreen}{rgb}{0.0,0.4,0.0}
+\definecolor{darkdarkgreen}{rgb}{0.0,0.35,0.0}
+
+\usepackage[]{hyperref}
+\hypersetup{
+    unicode=false,          % non-Latin characters in Acrobat's bookmarks
+    pdftoolbar=true,        % show Acrobat toolbar?
+    pdfmenubar=true,        % show Acrobat menu?
+    pdffitwindow=false,      % page fit to window when opened
+    pdftitle={},    % title
+    pdfauthor={}
+    pdfsubject={},   % subject of the document
+    pdfnewwindow=true,      % links in new window
+    pdfkeywords={keywords}, % list of keywords
+    colorlinks=true,       % false: boxed links; true: colored links
+    linkcolor=darkblue,          % color of internal links
+    citecolor=darkblue,        % color of links to bibliography
+    filecolor=green,      % color of file links
+    urlcolor=blue,          % color of external links
+}
+
+
+\CustomVerbatimEnvironment{SpecVerbatim}{Verbatim}{fontsize=\footnotesize,xleftmargin=0.5cm,
+xrightmargin=0.2cm,commandchars=\\\{\},baselinestretch=0.98,numbersep=0.9em}
+\CustomVerbatimEnvironment{ExmVerbatim}{Verbatim}{fontsize=\footnotesize,xleftmargin=0.5cm,
+xrightmargin=0.2cm,baselinestretch=0.98,numbers=left,numbersep=0.9em,commandchars=\\\{\}}
+\CustomVerbatimEnvironment{IVerbatim}{Verbatim}{fontsize=\relsize{-1},xleftmargin=0.5cm,
+xrightmargin=0.2cm,commandchars=\\\{\},baselinestretch=0.98,numbersep=0.9em}
+
+
+\definecolor{darkgreen}{rgb}{0.0,0.5,0.0}
+\definecolor{darkpurple}{rgb}{0.6,0.0,0.6}
+\definecolor{orange}{rgb}{0.8,0.4,0.0}
+\definecolor{darkorange}{rgb}{0.5,0.2,0.0}
+\definecolor{marco}{rgb}{0.0,0.3,0.5}
+\definecolor{gray}{rgb}{0.2,0.2,0.2}
+
+\newcommand{\bn}{\mathbb{N}}
+
+\newcommand{\dnote}[1]{\textcolor{darkpurple}{Dom: #1}}
+\newcommand{\mnote}[1]{\textcolor{darkgreen}{Mistral: #1}}
+\newcommand{\anote}[1]{\textcolor{red}{Andy: #1}}
+
+\newcounter{block}
+
+\newtheorem{lemma}[block]{Lemma}
+\newtheorem{proposition}[block]{Proposition}
+%\newtheorem{definition}[block]{Definisssstion}
+
+\theoremstyle{definition}
+
+\newtheorem{theorem}[block]{Theorem}
+\newtheorem{remark}[block]{Remark}
+\newtheorem{example}[block]{Example}
+\newtheorem{definition}[block]{Definition}
+
+% Writing macros
+\newcommand{\ie}{\emph{i.e.}}
+\newcommand{\eg}{\emph{e.g.}}
+
+\newcommand{\dimId}{\texttt{dim}}
+
+% Semantics related
+\newcommand{\interp}[1]{\llbracket{#1}\rrbracket}
+
+% Syntax macros
+\newcommand{\nonterm}[1]{\textit{#1}}
+\newcommand{\term}[1]{\texttt{#1}}
+
+\newcommand{\stenRefl}[1]{\term{reflexive} \, (\term{dim=}#1)}
+\newcommand{\stenFwd}[3]{\term{forward} \, (\term{depth=}#1,
+  \term{dim=}#2{#3})}
+\newcommand{\stenBwd}[3]{\term{backward} \, (\term{depth=}#1,
+  \term{dim=}#2{#3})}
+\newcommand{\stenCen}[3]{\term{centered} \, (\term{depth=}#1,
+  \term{dim=}#2{#3})}
+\newcommand{\irrefl}{\texttt{irreflexive}}
+
+\newcommand{\stenReflS}[1]{\term{refl} \, (\term{dim=}#1)}
+\newcommand{\stenFwdS}[2]{\term{fwd} \, (\term{depth=}#1,
+  \term{dim=}#2)}
+\newcommand{\stenBwdS}[2]{\term{bwd} \, (\term{depth=}#1,
+  \term{dim=}#2)}
+\newcommand{\stenCenS}[2]{\term{cen} \, (\term{depth=}#1,
+  \term{dim=}#2)}
+\newcommand{\irreflS}{\texttt{irrefl}}
+
+\newcommand{\stenFwdSR}[3]{\term{fwd} (\term{depth=}#1,
+  \term{dim=}#2, #3)}
+\newcommand{\stenBwdSR}[3]{\term{bwd} (\term{depth=}#1,
+  \term{dim=}#2, #3)}
+\newcommand{\stenCenSR}[3]{\term{cen} (\term{depth=}#1,
+  \term{dim=}#2, #3)}
+\newcommand{\stenReflSR}[1]{\term{refl} (\term{dim=}#1)}
+
+% SYNTAX OPERATIONS AND PREDICATES
+\newcommand{\neigh}{\textsf{neigh}}
+\newcommand{\arrayTy}{\textsf{array}}
+\newcommand{\rhsExp}{\textsf{rhsExp}}
+\newcommand{\var}{\textsf{var}}
+
+%% VECTOR NOTATIONS
+\newcommand{\vect}[1]{\textbf{#1}}
+\newcommand{\vtwoh}[2]{\setlength{\arraycolsep}{0em}
+\left[\begin{array}{cc}#1 \; & \; #2\end{array}\right]}
+\newcommand{\vthreeh}[3]{\setlength{\arraycolsep}{0em}
+\left[\begin{array}{ccc}#1 \; & \; #2 \; & \; #3\end{array}\right]}
+\newcommand{\vtwo}[2]{\setlength{\arraycolsep}{0em}
+\left[\begin{array}{l}$#1$\\$#2$\end{array}\right]}
+\newcommand{\vthree}[3]{\setlength{\arraycolsep}{0em}
+\left[\begin{array}{l}$#1$\\$#2$\\$#3$\end{array}\right]}
+\newcommand{\stwo}[4]
+%{\vtwo{#1}{#2}\!\vtwo{#3}{#4}}
+{\setlength{\arraycolsep}{0.1em}
+\left[\begin{array}{rr}$#1$ & $#3$\\$#2$ & $#4$\end{array}\right]}
+
+\newcommand{\singleEntry}[2]{\textbf{J}_{#2}^{#1}}
+\newcommand{\zeroEntry}[2]{\textbf{K}_{#2}^{#1}}
+
+%% OPERATIONS ON SPANS and VECTORS
+\newcommand{\containedin}{\sqsubseteq}
+
+%% MODEL
+\newcommand{\effdims}[2]{\mathit{dims}(#1)_{#2}}
+
+\begin{document}
+\onecolumn
+\begin{center}
+{\LARGE{{Supplementary material for 
+\textbf{ Verification of Stencil Computations through Spatial Specifications}}}}
+\end{center}
+
+\input{proof.tex}
+
+\end{document}
+

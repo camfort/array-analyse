@@ -146,12 +146,17 @@ xrightmargin=0.2cm,commandchars=\\\{\},baselinestretch=0.98,numbersep=0.9em}
 %% OPERATIONS ON SPANS and VECTORS
 \newcommand{\containedin}{\sqsubseteq}
 
+%% MODEL
+\newcommand{\effdims}[2]{\mathit{dims}(#1)_{#2}}
+
 \include{results}
 \include{corpussize}
 
-\title{Verification of Stencil Computations through Spatial Specifications}
-\authorinfo{Dominic Orchard \and Mistral Contrastin
-\and Matthew Danish \and Andrew Rice}{University of Cambridge}{}
+\title{Verification of Stencil Computations through Spatial
+  Specifications}
+\authorinfo{Blind}{}{}
+%\authorinfo{Dominic Orchard \and Mistral Contrastin
+%\and Matthew Danish \and Andrew Rice}{University of Cambridge}{}
 
 \begin{document}
 \maketitle
@@ -178,8 +183,8 @@ xrightmargin=0.2cm,commandchars=\\\{\},baselinestretch=0.98,numbersep=0.9em}
   shape. This paper details our stencil specification language, its
   static semantics, inference, checking, and program synthesis
   procedures, our implementation, and our evaluation study. We provide
-  an implementation of stencil inference and validation in Camfort, an
-  open-source program analysis and refactoring tool.
+  an implementation of ontop of CamFort, an
+  open-source program analysis and refactoring tool for Fortran corpus.
 \end{abstract}
 
 \keywords{program verification, specifications, static analysis,
@@ -963,7 +968,6 @@ give the meanings of the region constants as sets of indices.
 \begin{definition}The product of two models of dimensionality
 $n$ is given by the tensor $\otimes_n$ defined:
 %%
-\newcommand{\effdims}[2]{\mathit{dims}(#1)_{#2}}
 \begin{alignat*}{2}
 & \effdims{M}{n} =
 \bigcup_{u \in M} \{x \mid x \in \{1,...,n\}, u_x \neq \infty\} \\
@@ -1751,12 +1755,6 @@ of stencil computations.
 \citet{Orchard:2010:DAMP}
 
 \bibliography{references}
-
-
-\onecolumn
-\appendix
-
-\input{proof.tex}
 
 \end{document}
 

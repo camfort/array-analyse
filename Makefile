@@ -23,6 +23,9 @@ bib:
 	pdflatex -shell-escape -interaction=nonstopmode paper
 	pdflatex -shell-escape -interaction=nonstopmode paper
 
+supplement:
+	pdflatex supplement
+
 .PHONY: setup
 setup:
 	pip install Pygments

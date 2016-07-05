@@ -1,6 +1,6 @@
 FORTRAN_CORPUS=../../fortran-corpus
 
-default: quick
+default: supplement
 
 results.tex: infer-output-*.txt corpussize.tex resultsToTex.py
 	python resultsToTex.py $< corpussize.tex > $@

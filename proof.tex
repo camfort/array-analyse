@@ -29,7 +29,7 @@ to the model $\interp{-}_n$.
                  \{\zeroEntry{d}{n} \mid r \} \cup \{\zeroEntry{d}{n} \mid s \} \\
       \equiv & \; \{i\singleEntry{d}{n} \mid i \in \{1, \ldots, a \max b\} \} \cup 
                   \{\zeroEntry{d}{n} \mid r \vee s \}\\
-      \equiv & \; \interp{\stenFwdSR{a \, \max \, b}{d}{r \vee s}}_n \\
+      \equiv & \; \interp{\stenFwdSR{a \, \max \, b}{d}{r \vee s}}_n \qed
     \end{align*}
   \item[\textsc{Case C \texttt{+} C}:]
     \begin{align*}
@@ -44,7 +44,7 @@ to the model $\interp{-}_n$.
                  \{\zeroEntry{d}{n} \mid r \} \cup \{\zeroEntry{d}{n} \mid s \} \\
       \equiv & \; \{i\singleEntry{d}{n} \mid i \in \{-(a \max b), \ldots, a \max b\} \setminus 0 \} \cup 
                   \{\zeroEntry{d}{n} \mid r \vee s \}\\
-      \equiv & \; \interp{\stenCenSR{a \, \max \, b}{d}{r \vee s}}_n \\
+      \equiv & \; \interp{\stenCenSR{a \, \max \, b}{d}{r \vee s}}_n \qed
     \end{align*}
   \item[\textsc{Case B \texttt{+} B}:]
     \begin{align*}
@@ -59,7 +59,7 @@ to the model $\interp{-}_n$.
                   \{\zeroEntry{d}{n} \mid r \} \cup \{\zeroEntry{d}{n} \mid s \} \\
       \equiv & \; \{i\singleEntry{d}{n} \mid i \in \{-(a \max b), \ldots, -1 \} \} \cup 
                   \{\zeroEntry{d}{n} \mid r \vee s \}\\
-      \equiv & \; \interp{\stenBwdSR{a \, \max \, b}{d}{r \vee s}}_n \\
+      \equiv & \; \interp{\stenBwdSR{a \, \max \, b}{d}{r \vee s}}_n \qed
     \end{align*}
   \item[\textsc{Case C \texttt{+} F}: with side condition  $\;\;(a \geq b)$]
     \begin{align*}
@@ -74,7 +74,7 @@ to the model $\interp{-}_n$.
                  \{\zeroEntry{d}{n} \mid r \} \cup \{\zeroEntry{d}{n} \mid s \} \\
       \equiv & \; \{i\singleEntry{d}{n} \mid i \in \{-a, \ldots, a\}
                \setminus 0 \} \cup \{\zeroEntry{d}{n} \mid r \vee s \} \quad \text{, using }a \geq b \\
-      \equiv & \; \interp{\stenCenSR{a}{d}{r \vee s}}_n \\
+      \equiv & \; \interp{\stenCenSR{a}{d}{r \vee s}}_n \qed
     \end{align*}
   \item[\textsc{Case C \texttt{+} B}: with side condition  $\;\;(a \geq b)$]
     \begin{align*}
@@ -89,7 +89,7 @@ to the model $\interp{-}_n$.
                  \{\zeroEntry{d}{n} \mid r \} \cup \{\zeroEntry{d}{n} \mid s \} \\
       \equiv & \; \{i\singleEntry{d}{n} \mid i \in \{-a, \ldots, a\}
                \setminus 0 \} \cup \{ \zeroEntry{d}{n} \mid r \vee s \} \quad \text{, using }a \geq b \\
-      \equiv & \; \interp{\stenCenSR{a}{d}{r \vee s}}_n \\
+      \equiv & \; \interp{\stenCenSR{a}{d}{r \vee s}}_n \qed
     \end{align*}
   \item[\textsc{Case B \texttt{+} F}:]
     \begin{align*}
@@ -104,7 +104,7 @@ to the model $\interp{-}_n$.
                  \{\zeroEntry{d}{n} \mid r \} \cup \{\zeroEntry{d}{n} \mid s \} \\
       \equiv & \; \{i\singleEntry{d}{n} \mid i \in \{-a, \ldots, a\} \setminus 0 \} \cup 
                               \{\zeroEntry{d}{n} \mid r \vee s \} \\
-      \equiv & \; \interp{\stenCenSR{a}{d}{r \vee s}}_n \\
+      \equiv & \; \interp{\stenCenSR{a}{d}{r \vee s}}_n \qed
     \end{align*}
 %
 %
@@ -117,7 +117,7 @@ to the model $\interp{-}_n$.
                   \{\zeroEntry{d}{n} \mid r \} \\
       \equiv & \; \{\zeroEntry{d}{n}\} \cup
                   \{i\singleEntry{d}{n} \mid i \in \{1, \ldots, a\} \} \\
-      \equiv & \; \interp{\stenFwdS{a}{d}}_n \\
+      \equiv & \; \interp{\stenFwdS{a}{d}}_n \qed
     \end{align*}
 %
 %
@@ -130,7 +130,7 @@ to the model $\interp{-}_n$.
                   \{\zeroEntry{d}{n} \mid r \} \\
       \equiv & \; \{\zeroEntry{d}{n}\} \cup
                   \{i\singleEntry{d}{n} \mid i \in \{-a, \ldots, -1\} \} \\
-      \equiv & \; \interp{\stenBwdS{a}{d}}_n \\
+      \equiv & \; \interp{\stenBwdS{a}{d}}_n \qed
     \end{align*}
 
 %
@@ -145,14 +145,14 @@ to the model $\interp{-}_n$.
       \equiv & \; \{\zeroEntry{d}{n}\} \cup
                   \{i\singleEntry{d}{n} \mid i \in \{-a, \ldots, a\}
                \setminus 0 \} \\
-      \equiv & \; \interp{\stenCenS{a}{d}}_n \\
+      \equiv & \; \interp{\stenCenS{a}{d}}_n \qed
     \end{align*}
   \item[\textsc{Case IRREFL}]
    let $R$ be a region constant of dimension $d$ and $S$ be a region
    constant of dimension $d'$. \\
 
    By the definition of $\interp{-}$ and the syntactic sugar,
-    then $\interp{R}^{\irreflS} = \interp{R} \setminus
+    then (*) $\interp{R}^{\irreflS} = \interp{R} \setminus
    \{\zeroEntry{d}{n}\}$ and similarly $\interp{S}^{\irreflS} =
    \interp{S} \setminus \{\zeroEntry{d'}{n}\}$
    \begin{align*}
@@ -164,7 +164,7 @@ to the model $\interp{-}_n$.
          \{\zeroEntry{d'}{n}\}))
    \cup ((\interp{R}_n \setminus \{\zeroEntry{d}{n}\}) \otimes
           \interp{S}_n) \\
- \equiv & \; (\{x \mid i \in \{1, \ldots, 2^n\},
+(**) \equiv & \; (\{x \mid i \in \{1, \ldots, 2^n\},
                    (u, v) \in \interp{R}_n \times (\interp{S}_n \setminus
          \{\zeroEntry{d'}{n}\}),
                    x = (u \bowtie v)_i,
@@ -173,7 +173,7 @@ to the model $\interp{-}_n$.
                    x_j \neq \infty
                   \})
            \\
- \cup & (\{x \mid i \in \{1, \ldots, 2^n\},
+ \cup \; & (\{x \mid i \in \{1, \ldots, 2^n\},
                    (u, v) \in (\interp{R}_n \setminus
          \{\zeroEntry{d}{n}\}) \times \interp{S}_n),
                    x = (u \bowtie v)_i,
@@ -182,6 +182,56 @@ to the model $\interp{-}_n$.
                    x_j \neq \infty
                   \})
    \end{align*}
+   By the meaning of $^{\irreflS}$ and (*) we then have that:
+   \begin{align*}
+    \effdims{\interp{R^\irreflS}}{n} = & \bigcup_{\interp{R} \setminus
+   \{\zeroEntry{d}{n}\}}
+    \{x \mid x \in \{1, \ldots, n\}, u_x \neq \infty\} \\
+     = & \bigcup_{\interp{R}}  \{x \mid x \in \{1, \ldots, n\}, u_x \neq
+       \infty\}  \setminus \{x \mid x \in \{1, \ldots, n\},
+       (\zeroEntry{d}{n})_x \neq \infty\} \\
+     = & \bigcup_{\interp{R}}  \{x \mid x \in \{1, \ldots, n\}, u_x \neq
+       \infty\}  \setminus \{d\} \\
+     = & \effdims{\interp{R}}{n} \setminus \{d\}
+   \end{align*}
+   similarly $\effdims{\interp{S^\irreflS}}{n} = \effdims{\interp{S}}{n}
+   \setminus \{d'\}$.
+   Continuing from (**), fold the two set-builders together:
+  %
+\begin{align*}
+\equiv & \; (\{x \mid i \in \{1, \ldots, 2^n\},
+                   (u, v) \in ((\interp{R}_n \times (\interp{S}_n \setminus
+         \{\zeroEntry{d'}{n}\})) \cup (\interp{R}_n \setminus
+         \{\zeroEntry{d}{n}\}) \times \interp{S}_n),
+                   x = (u \bowtie v)_i, \\
+ & \qquad         j \in (\effdims{\interp{R}}{n} \cup
+         (\effdims{\interp{S}}{n} \setminus \{d'\}) \cup (\effdims{\interp{R}}{n} \setminus
+         \{d'\}) \cup \effdims{\interp{S}}{n}),
+                   x_j \neq \infty
+                  \}
+\end{align*}
+%
+Since $X \cup (X \setminus Y) = X$ for all sets, which also lifts to
+Cartesian product, \ie{}, $(A \times (B \setminus C)) \cup ((A \setminus
+D) \times B) = A \times B$ then:
+%
+\begin{align*}
+\equiv \; & \; (\{x \mid i \in \{1, \ldots, 2^n\},
+                   (u, v) \in ((\interp{R}_n \times (\interp{S}_n \setminus
+         \{\zeroEntry{d'}{n}\})) \cup (\interp{R}_n \setminus
+         \{\zeroEntry{d}{n}\}) \times \interp{S}_n),
+                   x = (u \bowtie v)_i, \\
+ & \qquad         j \in (\effdims{\interp{R}}{n} \cup \effdims{\interp{S}}{n}),
+                   x_j \neq \infty
+                  \} \\
+\equiv \; & \; (\{x \mid i \in \{1, \ldots, 2^n\},
+                   (u, v) \in (\interp{R}_n \times \interp{S}_n),
+                   x = (u \bowtie v)_i, j \in (\effdims{\interp{R}}{n} \cup \effdims{\interp{S}}{n}),
+                   x_j \neq \infty
+                  \} \\
+\equiv \; & \interp{R}_n \otimes \interp{S}_n \\
+\equiv \; & \interp{R \term{*} S} \qed 
+\end{align*}
 
   \item[\textsc{Case +IDEM, +COMM, +ASSOC}:]
     Follows from respective properties of union of sets.

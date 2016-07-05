@@ -1,13 +1,24 @@
-\begin{align*}
-  u \sim v &= \forall i \cdot v_i = \infty \vee u_i = v_i \\
-  cons(\textsf{low}(\textsf{mult}(m)),a) &=
-    \forall u \in analyse(a) \; \exists v \in m \cdot u \sim v \\
-  cons(\textsf{low}(\textsf{once}(m)),a) &=
-    uniqueness \wedge cons(\textsf{low}(\textsf{mult}(m)),a)  \\
-  cons(\textsf{up}(\textsf{mult}(m)),a) &=
-    \forall v \in m \; \exists u \in analyse(a) \cdot u \sim v \\
-  cons(\textsf{up}(\textsf{once}(m)),a) &=
-    uniqueness \wedge cons(\textsf{up}(\textsf{mult}(m)),a) \\
-  cons(\textsf{exact}(m),a) &=
-    cons(\textsf{up}(m),a) \wedge cons(\textsf{low}(m),a)
-\end{align*}
+\begin{definition}
+$unique(a,v)$ is the predicate indicating wheter indices vector of
+array $v$ in assignment $a$ contain each element only once.
+\end{definition}
+%
+\begin{dgroup*}
+\begin{dmath*}
+  cons(\textsf{once}(m),a,v) =
+    {unique(a,v) \wedge cons(\textsf{mult}(m),a,v) }
+\end{dmath*}
+\begin{dmath*}
+  cons(\textsf{mult}(\textsf{low}(m)),a,v) =
+    {\forall u \in \textsf{analyse}(a)(v) \; \exists v \in m \cdot u \sim v }
+\end{dmath*}
+\begin{dmath*}
+  cons(\textsf{mult}(\textsf{up}(m)),a,v) \quad =
+    {\forall v \in m \; \exists u \in \textsf{analyse}(a)(v) \cdot u \sim v }
+\end{dmath*}
+\begin{dmath*}
+  cons(\textsf{mult}(\textsf{exact}(m)),a,v) =
+    {cons(\textsf{mult}(\textsf{up}(m)),a,v) \wedge
+      cons(\textsf{mult}(\textsf{low}(m)),a,v) }
+\end{dmath*}
+\end{dgroup*}

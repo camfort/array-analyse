@@ -970,7 +970,7 @@ $n$ is given by the tensor $\otimes_n$ defined:
 %%
 \begin{alignat*}{2}
 & \effdims{M}{n} =
-\bigcup_{u \in M} \{x \mid x \in \{1,...,n\}, u_x \neq \infty\} \\
+\bigcup_{u \in M} \{x \mid x \in \{1,\ldots,n\}, u_x \neq \infty\} \\
 & M \otimes_n N =
   \Bigg\{x \; \Bigg| \;
     \parbox{5.6cm}{$i \in \{1, \ldots, 2^n\},$
@@ -1433,45 +1433,74 @@ result, hence we have reached a fixed point.
 
 Given the set $\textsf{regions}(M)$ of spans covering the indexing
 space, the next step converts these into abstract syntax trees
-for the specification language.
-
-For each span $S = [\vect{l} \; \vect{u}]$,
-for each dimension, each pair of entries in the lower- and upper-bound
-vectors is mapped to a concrete \textit{spec}, as defined by the
-$\mathsf{conv}$ function:
+for the specification language. This conversion is defined in terms
+of an algebra on \textit{specTop} syntax which mirrors the shape
+of the syntax with additive and multiplicative binary operators
+$\oplus$ and $\odot$ and a constructor for \textit{specTop}:
 %%
 \begin{align*}
-& \mathsf{conv}_i\; [\vect{l} \; \vect{u}] = \\
-& \begin{cases}
+\oplus & : \textit{specTop} \rightarrow \textit{specTop} \rightarrow
+  \textit{specTop} \\
+\odot & : \textit{specTop} \rightarrow \textit{specTop} \rightarrow
+        \textit{specTop} \\
+\mathsf{toSpec} & : (\mathbb{Z} \cup \{\infty\}) \rightarrow (\mathbb{Z} \cup
+  \{\infty\})  \rightarrow \textit{specTop}
+\end{align*}
+%%
+The operation $\mathsf{toSpec}$ takes a pair of lower and upper bounds
+values and constructs a specification which contains a one-dimensional
+region. This step of the inference then proceeds by converting each
+span into a $n$-dimensional specification by converting each
+pair of bounds in a span and multiplying by $\otimes$
+then summing the specifications resulting specification by $\oplus$.
+That is: 
+\begin{equation*}
+\textit{spec}(M) = 
+\sum\limits_{\vect{x} \in \textsf{regions}(M)}
+\prod\limits_{i \in \{1, \ldots, n\}} \, \mathsf{toSpec}(\vect{x}^L_i, \vect{x}^U_i)
+\end{equation*}
+
+For each span, and each dimension within it, each pair of lower and
+upper bounds is mapped into a specification. That is,
+for all $\vect{x}$ of size $n$, and for all $i \in \{1,\ldots,n\}$
+then $\mathsf{toSpec} (\vect{x}^L_i, \vect{x}^U_i)$ maps each
+pair of lower and upper bounds in each dimension to a piece of syntax 
+of \textit{specTop} syntax, defined:
+%%
+%\newcommand{\llower}{\vect{x}^L_i}
+%\newcommand{\lupper}{\vect{x}^U_i}
+\newcommand{\llower}{l}
+\newcommand{\lupper}{u}
+\begin{align*}
+&\mathsf{toSpec} \; (\llower, \lupper) = \\
+&\begin{cases}
 %% FWD
- \stenFwd{\vect{u}_i}{i}{}  & \vect{l}_i = 0 \; \wedge \; \vect{u}_i > 0 \\[0.7em]
- \stenFwd{\vect{u}_i}{i}{, \irreflS}  & \vect{l}_i = 1 \; \wedge \; \vect{u}_i > 0 \\[0.7em]
+ \stenFwdS{\lupper}{i}  & \llower = 0 \, \wedge \, \lupper > 0 \\[0.3em]
+ \stenFwdSR{\lupper}{i}{\irreflS}  & \llower = 1 \, \wedge \, \lupper > 0 \\[0.3em]
 %% BWD
- \stenBwd{|\vect{l}_i|}{i}{}  & \vect{l}_i < 0 \; \wedge \; \vect{u}_i = 0 \\[0.7em]
-\stenBwd{|\vect{l}_i|}{i}{, \irreflS} & \vect{l}_i < 0 \; \wedge \; \vect{u}_i = -1 \\[0.7em]
+ \stenBwdS{|\llower|}{i}  & \llower < 0 \, \wedge \, \lupper = 0 \\[0.3em]
+\stenBwdSR{|\llower|}{i}{\irreflS} & \llower < 0 \, \wedge \, \lupper = -1 \\[0.3em]
 %% CEN
- \stenCen{\vect{u}_i}{i}{}  &\vect{l}_i < 0 \; \wedge \; \vect{u}_i > 0
- \; \\
- & \qquad\quad \wedge \; |\vect{l}_i| = \vect{u}_i \\[0.7em]
- \stenBwd{|\vect{l}_i|}{i}{} & \vect{l}_i < 0 \; \wedge \; \vect{u}_i >
- 0 \\
-\quad \texttt{+} \; \stenFwd{\vect{u}_i}{i}{}  & \qquad\quad \wedge \; |\vect{l}_i| \neq \vect{u}_i \\[0.7em]
+ \stenCenS{\lupper}{i}  & \llower < 0 \, \wedge \, \lupper > 0
+ \, \wedge \, |\llower| = \lupper \\[0.3em]
+ \stenBwdS{|\llower|}{i} & \llower < 0 \, \wedge \, \lupper > 0  \, \wedge \, |\llower| \neq \lupper \\
+\quad \texttt{+} \, \stenFwdS{\lupper}{i}  & \qquad\quad \\[0.3em]
 % ABSOLUTE REP
- \epsilon & \vect{l}_i = \infty \; \vee \; \vect{u}_i
- = \infty \\[0.7em]
+ \epsilon & \llower = \infty \, \vee \, \lupper
+ = \infty \\[0.3em]
 % BOUND
- \texttt{atMost}, \stenFwd{\vect{u}_i}{i}{} & \vect{l}_i > 1 \\[0.7em]
- \texttt{atMost}, \stenBwd{|\vect{l}_i|}{i}{} \quad & \vect{l}_i < (-1) \\[0.7em]
+ \texttt{atMost}, \stenFwdS{\lupper}{i} & \llower > 1 \\[0.3em]
+ \texttt{atMost}, \stenBwdS{|\llower|}{i} \quad & \llower < (-1) \\[0.3em]
   \end{cases}
 \end{align*}
 %%
 The first two cases map to \texttt{forward} stencils since the lower
 bound is $0$ or $1$, with the depth determined by the upper bound of
 the span. If the lower bound is $1$, then the
-$0$-offset point is missing so the specification is given an
-\texttt{irreflexive} modifier. The second two cases are similar for
+$0$-offset point is missing so the region is given an
+\texttt{irreflexive} attribute. The second two cases are similar for
 \texttt{backward} but now the depth of the region is determined by the
-absolute of the lower bound. In the fifth-case, when the lower bound
+absolute of the lower bound. In the fifth-case, where the lower bound
 is negative and the upper bound is positive and they have the same
 magnitude, then a \texttt{centered} region is constructed with
 the depth as the common magnitude. If the magnitudes are not the same
@@ -1479,8 +1508,8 @@ the depth as the common magnitude. If the magnitudes are not the same
 regions are summed, with their corresponding depths.
 
 In the case where either bound is $\infty$, representing a non
-neighbourhood index, then a simple \texttt{irreflexive} specification
-is given with no regions, indicating that there is not even reflexive
+neighbourhood index, then an empty specification is given
+ with no regions, indicating that there is not even reflexive
 0-offset access in this dimension.
 
 Finally in the last two cases, if the lower bound is greater than 1
@@ -1492,7 +1521,7 @@ of the region. The last case is the dual, when the lower bound is less
 than $-1$, giving an upper bound on a \texttt{backward} specification.
 
 \begin{lemma}
-$\mathsf{conv}_i$ is total given the precondition that the lower
+$\mathsf{toSpec}_i$ is total (\ie{}, defined for all spans) given the precondition that the lower
 bound of the input span is less than or equal to its upper bound.
 \end{lemma}
 

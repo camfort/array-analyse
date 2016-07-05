@@ -27,6 +27,8 @@ with open(sys.argv[1]) as f:
                 corpus = "overall"
             elif l[0:6] == "corpus":
                 corpus = sanitize(l.split(":")[1])
+            elif l.strip().startswith("numStencilSpecs"):
+                pass
             else:
                 (key,value) = map(lambda x:x.strip(),l.split(":"))
                 key = sanitize(key);

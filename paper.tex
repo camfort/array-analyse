@@ -1436,7 +1436,7 @@ space, the next step converts these into abstract syntax trees
 for the specification language. This conversion is defined in terms
 of an algebra on \textit{specTop} syntax which mirrors the shape
 of the syntax with additive and multiplicative binary operators
-$\oplus$ and $\odot$: 
+$\oplus$ and $\odot$ and a constructor for \textit{specTop}:
 %%
 \begin{align*}
 \oplus & : \textit{specTop} \rightarrow \textit{specTop} \rightarrow
@@ -1448,21 +1448,14 @@ $\oplus$ and $\odot$:
 \end{align*}
 %%
 The operation $\mathsf{toSpec}$ takes a pair of lower and upper bounds
-values and produces a specification which contains a one-dimensional
-region. The 
-
-
-$\oplus$ and $\odot$ respectively (defined in Definition~\ref{}
-and Definition~\ref{} below).
-
-The proceeds by converting each span
-into a specification by converting ea
- is mapped to a specification,
-and then summing specifications. This relies on product and sum
-operations lifted to specification syntax (which is more than just
-building regions out of \term{*} and \term{+}). 
-
+values and constructs a specification which contains a one-dimensional
+region. This step of the inference then proceeds by converting each
+span into a $n$-dimensional specification by converting each
+pair of bounds in a span and multiplying by $\otimes$
+then summing the specifications resulting specification by $\oplus$.
+That is: 
 \begin{equation*}
+\textit{spec}(M) = 
 \sum\limits_{\vect{x} \in \textsf{regions}(M)}
 \prod\limits_{i \in \{1, \ldots, n\}} \, \mathsf{toSpec}(\vect{x}^L_i, \vect{x}^U_i)
 \end{equation*}
@@ -1531,11 +1524,6 @@ than $-1$, giving an upper bound on a \texttt{backward} specification.
 $\mathsf{toSpec}_i$ is total (\ie{}, defined for all spans) given the precondition that the lower
 bound of the input span is less than or equal to its upper bound.
 \end{lemma}
-
-\begin{equation*}
-{\Large{\bullet}}_{i \in \{1, \ldots, n\}} \, \mathsf{toSpec}(\vect{x}^L_i, \vect{x}^U_i)
-\end{equation*}
-
 
 \section{Evaluation}
 \label{sec:evaluation}

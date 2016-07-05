@@ -183,78 +183,78 @@ corpus module: um
     LHSnotHandled: 3567
     atLeast: 55
     atMost: 55
-    backward: 1873
+    backward: 1900
     boundedBoth: 55
     centered: 132
-    depth1: 3267
+    depth1: 3319
     depth10: 8
     depth2: 34
     depth3: 4
     depth4: 18
     depth45: 4
     depth6: 8
-    dimDist1: 19993
-    dimDist2: 11791
-    dimDist3: 7709
-    dimDist4: 134
-    dimTag1: 21470
-    dimTag2: 13226
-    dimTag3: 12785
-    dimTag4: 1007
+    dimDist1: 20061
+    dimDist2: 11870
+    dimDist3: 7960
+    dimDist4: 152
+    dimTag1: 21525
+    dimTag2: 13287
+    dimTag3: 13057
+    dimTag4: 1063
     dimTag5: 6
     dimTag6: 6
     dimTag7: 9
     dimTag8: 16
-    emptySpec: 16307
-    forward: 1428
-    inconsistentIV: 7435
-    irreflexive: 1127
-    justReflexive: 3969
+    emptySpec: 16413
+    forward: 1453
+    inconsistentIV: 7472
+    irreflexive: 1143
+    justReflexive: 3976
     lexFailed: 187
     lexOrParseFailed: 284
-    mulOps0: 68546
-    mulOps1: 11781
+    mulOps0: 69058
+    mulOps1: 11860
     mulOps10: 5
     mulOps12: 2
     mulOps16: 2
-    mulOps2: 7701
-    mulOps3: 135
+    mulOps2: 7952
+    mulOps3: 153
     mulOps4: 6
     mulOps6: 2
-    nonNeighbour: 5802
-    numStencilLines: 26941
-    numStencilSpecs: 39655
+    nonNeighbour: 5837
+    numStencilLines: 27258
+    numStencilSpecs: 40071
     parseFailed: 97
-    parseOk: 2239
-    plusOps0: 88147
+    parseOk: 2249
+    plusOps0: 89007
     plusOps1: 22
     plusOps2: 2
     plusOps4: 5
     plusOps5: 2
     plusOps7: 2
-    readOnce: 35284
-    reflexive: 38667
-    regionOps0: 68541
-    regionOps1: 11786
+    readOnce: 35691
+    reflexive: 39083
+    regionOps0: 69053
+    regionOps1: 11865
     regionOps14: 5
     regionOps17: 2
-    regionOps2: 7691
+    regionOps2: 7942
     regionOps23: 2
-    regionOps3: 144
+    regionOps3: 162
     regionOps4: 1
     regionOps5: 6
     regionOps8: 2
-    relativized: 338
-    tickAssign: 36160
-    tickAssignSuccess: 19853
+    relativized: 355
+    tickAssign: 36534
+    tickAssignSuccess: 20121
 overall
     LHSnotHandled: 3998
     atLeast: 63
     atMost: 63
-    backward: 1948
+    backward: 1975
     boundedBoth: 63
     centered: 140
-    depth1: 3428
+    depth1: 3480
     depth10: 8
     depth13: 2
     depth2: 35
@@ -263,59 +263,59 @@ overall
     depth45: 4
     depth6: 8
     depth8: 5
-    dimDist1: 24053
-    dimDist2: 13231
-    dimDist3: 7729
-    dimDist4: 134
-    dimTag1: 64576
-    dimTag2: 17922
-    dimTag3: 12979
-    dimTag4: 1007
+    dimDist1: 24121
+    dimDist2: 13310
+    dimDist3: 7980
+    dimDist4: 152
+    dimTag1: 64631
+    dimTag2: 17983
+    dimTag3: 13251
+    dimTag4: 1063
     dimTag5: 6
     dimTag6: 6
     dimTag7: 9
     dimTag8: 16
-    emptySpec: 52833
-    forward: 1517
-    inconsistentIV: 9757
-    irreflexive: 1250
-    justReflexive: 4258
+    emptySpec: 52939
+    forward: 1542
+    inconsistentIV: 9794
+    irreflexive: 1266
+    justReflexive: 4265
     lexFailed: 522
     lexOrParseFailed: 731
-    mulOps0: 120604
-    mulOps1: 13216
+    mulOps0: 121116
+    mulOps1: 13295
     mulOps10: 5
     mulOps12: 2
     mulOps16: 2
-    mulOps2: 7726
-    mulOps3: 135
+    mulOps2: 7977
+    mulOps3: 153
     mulOps4: 6
     mulOps6: 2
-    nonNeighbour: 6504
-    numStencilLines: 30669
-    numStencilSpecs: 45177
+    nonNeighbour: 6539
+    numStencilLines: 30986
+    numStencilSpecs: 45593
     parseFailed: 209
-    parseOk: 2730
-    plusOps0: 141660
+    parseOk: 2740
+    plusOps0: 142520
     plusOps1: 27
     plusOps2: 2
     plusOps4: 5
     plusOps5: 2
     plusOps7: 2
-    readOnce: 40489
-    reflexive: 44067
-    regionOps0: 120599
-    regionOps1: 13221
+    readOnce: 40896
+    reflexive: 44483
+    regionOps0: 121111
+    regionOps1: 13300
     regionOps14: 5
     regionOps17: 2
-    regionOps2: 7711
+    regionOps2: 7962
     regionOps23: 2
-    regionOps3: 149
+    regionOps3: 167
     regionOps4: 1
     regionOps5: 6
     regionOps8: 2
-    relativized: 471
-    tickAssign: 75948
-    tickAssignSuccess: 23115
-    numStencilSpecs (45177) <= forward (1517) + backward (1948) + centered (140) + reflexive (44067) = 47672
+    relativized: 488
+    tickAssign: 76322
+    tickAssignSuccess: 23383
+    numStencilSpecs (45593) <= forward (1542) + backward (1975) + centered (140) + reflexive (44483) = 48140
 

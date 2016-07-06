@@ -15,7 +15,13 @@
 \usepackage{siunitx} % For pretty-printing numeric values and SI units
                      % of measure. e.g., the tabular column type S is
                      % used to print nice-looking tables of numbers.
-\sisetup{group-separator={,},group-minimum-digits={3},output-decimal-marker={.}}
+\sisetup{ % defaults
+  group-separator={,},
+  group-minimum-digits={3},
+  output-decimal-marker={.},
+  table-format = 6
+}
+
 \usepackage{tikz}
 \usepackage{xypic}
 
@@ -2047,23 +2053,22 @@ We evaluated our stencil language on a corpus of scientific code. We first give 
 \subsection{Software Corpus}
 \begin{table}
 \centering
-\sisetup{
-  table-format = 7,
-  table-number-alignment = right
-}
-\begin{tabular}{|l|S|S|S|}
+\footnotesize
+\begin{tabular}{lSSSS}
 \hline
-Package   & {Files} & {Files analysed} & {Lines of code}  \\ % braces prevent headers from being formatted as numbers
+& \multicolumn{2}{c}{Number of files} & \multicolumn{2}{c}{Lines of code} \\
+
+Package   & {Total} & {Parsed} & {Total} & {Parsed}  \\ % braces prevent headers from being formatted as numbers
 \hline
-UM        & \umFiles                       & \umparseOk                      & \umLoC                     \\
-E3MG      & \ethreemgeaFiles               & \ethreemgeaparseOk              & \ethreemgeaLoC             \\
-BLAS      & \blasFiles                     & \blasparseOk                    & \blasLoC                   \\
-Hybrid4   & \hybridfourFiles               & \hybridfourparseOk              & \hybridfourLoC             \\
-GEOS-Chem & \geoschemFiles                 & \geoschemparseOk                & \geoschemLoC               \\
-Navier    & \navierFiles                   & \navierparseOk                  & \navierLoC                 \\
-CP        & \computationalphysicstwoFiles  & \computationalphysicstwoparseOk & \computationalphysicstwoLoC\\
+UM        & \umFiles                       & \umparseOk                      & \umLoC                      & \umlinesParsed \\
+E3MG      & \ethreemgeaFiles               & \ethreemgeaparseOk              & \ethreemgeaLoC              & \ethreemgealinesParsed \\
+BLAS      & \blasFiles                     & \blasparseOk                    & \blasLoC                    & \blaslinesParsed \\
+Hybrid4   & \hybridfourFiles               & \hybridfourparseOk              & \hybridfourLoC              & \hybridfourlinesParsed \\
+GEOS-Chem & \geoschemFiles                 & \geoschemparseOk                & \geoschemLoC                & \geoschemlinesParsed \\
+Navier    & \navierFiles                   & \navierparseOk                  & \navierLoC                  & \navierlinesParsed \\
+CP        & \computationalphysicstwoFiles  & \computationalphysicstwoparseOk & \computationalphysicstwoLoC & \computationalphysicstwolinesParsed \\
 \hline
-\textbf{Total} & \overallFiles  & \overallparseOk & \overallLoC  \\
+\textbf{Total} & \overallFiles  & \overallparseOk & \overallLoC & \overalllinesParsed \\
 \hline
 \end{tabular}
 \caption{Summary of software packages used for evaluation\label{tab:corpus}}
@@ -2071,12 +2076,13 @@ CP        & \computationalphysicstwoFiles  & \computationalphysicstwoparseOk & \
 
 Table~\ref{tab:corpus} shows summary statistics of the software
 packages used in our evaluation, all of which are written in Fortran
-90 or Fortran 77. In total we analysed 1.1 million lines of code from
-7 packages. The ``Files analysed'' column shows the number of files in
-each corpus that we were able to analyse with Camfort. The most common
-reasons for Camfort rejecting a file were either use of a
-C-preprocessor, or illegal use of language features from a more modern
-Fortran variant.
+90 or Fortran 77. In total we analysed \SI{\overallLoC} lines of code
+from 7 packages, of which we successfully parsed
+\SI{\overalllinesParsed} lines. The ``Number of files'' column shows
+how many files in each corpus that we were able to analyse with
+Camfort. The most common reasons for Camfort rejecting a file were
+either use of a C-preprocessor, or illegal use of language features
+from a more modern Fortran variant.
 
 \textbf{The Unified
   Model}\footnote{\url{http://www.metoffice.gov.uk/research/modelling-systems/unified-model}}
@@ -2140,41 +2146,45 @@ eventually generate some stencil specifications for is also counted as
 an \emph{actual} statement.
 
 \begin{table}
-\begin{tabular}{|l|l|l|l|l|}
+\sisetup{table-format=4,table-text-alignment=right}
+\footnotesize
+\centering
+\begin{tabular}{lS@{~~~}rS@{~~~}rSS[table-format=1]}
 \hline
-{Package}     & {Potential} & {Actual} & {Exact} & {Inexact}    \\
+  & \multicolumn{2}{c}{Potential} & \multicolumn{2}{c}{Actual} & {Exact} & {Inexact}    \\
+{Package}     & {\#} & \si{\percent} & {\#} & \si{\percent} \\
 \hline
-UM            & \umtickAssign\ (\umtickAssignPercent\%) &
-                \umtickAssignSuccess\ (\umtickAssignSuccessPercent\%) &
+UM            & \umtickAssign & \SI{\umtickAssignPercent}{\percent} &
+                \umtickAssignSuccess & \SI{\umtickAssignSuccessPercent}{\percent} &
                 \umnumStencilLines &
                 \umboundedBoth  \\
-E3MG          & \ethreemgeatickAssign\ (\ethreemgeatickAssignPercent\%) &
-                \ethreemgeatickAssignSuccess\ (\ethreemgeatickAssignSuccessPercent\%) &
+E3MG          & \ethreemgeatickAssign & \SI{\ethreemgeatickAssignPercent}{\percent} &
+                \ethreemgeatickAssignSuccess & \SI{\ethreemgeatickAssignSuccessPercent}{\percent} &
                 \ethreemgeanumStencilLines &
                 \ethreemgeaboundedBoth \\
-BLAS          & \blastickAssign\ (\blastickAssignPercent\%) &
-                \blastickAssignSuccess\ (\blastickAssignSuccessPercent\%) &
+BLAS          & \blastickAssign & \SI{\blastickAssignPercent}{\percent} &
+                \blastickAssignSuccess & \SI{\blastickAssignSuccessPercent}{\percent} &
                 \blasnumStencilLines &
                 \blasboundedBoth \\
-Hybrid4       & \hybridfourtickAssign\ (\hybridfourtickAssignPercent\%) &
-                \hybridfourtickAssignSuccess\ (\hybridfourtickAssignSuccessPercent\%) &
+Hybrid4       & \hybridfourtickAssign & \SI{\hybridfourtickAssignPercent}{\percent} &
+                \hybridfourtickAssignSuccess & \SI{\hybridfourtickAssignSuccessPercent}{\percent} &
                 \hybridfournumStencilLines &
                 \hybridfourboundedBoth\\
-GEOS-Chem     & \geoschemtickAssign\ (\geoschemtickAssignPercent\%) &
-                \geoschemtickAssignSuccess\ (\geoschemtickAssignSuccessPercent\%) &
+GEOS-Chem     & \geoschemtickAssign & \SI{\geoschemtickAssignPercent}{\percent} &
+                \geoschemtickAssignSuccess & \SI{\geoschemtickAssignSuccessPercent}{\percent} &
                 \geoschemnumStencilLines &
                 \geoschemboundedBoth \\
-Navier        & \naviertickAssign\ (\naviertickAssignPercent\%) &
-                \naviertickAssignSuccess\ (\naviertickAssignPercent\%) &
+Navier        & \naviertickAssign & \SI{\naviertickAssignPercent}{\percent} &
+                \naviertickAssignSuccess & \SI{\naviertickAssignPercent}{\percent} &
                 \naviernumStencilLines &
                 \navierboundedBoth \\
-CP            & \computationalphysicstwotickAssign\ (\computationalphysicstwotickAssignPercent\%) &
-                \computationalphysicstwotickAssignSuccess\ (\computationalphysicstwotickAssignSuccessPercent\%) &
+CP            & \computationalphysicstwotickAssign & \SI{\computationalphysicstwotickAssignPercent}{\percent} &
+                \computationalphysicstwotickAssignSuccess & \SI{\computationalphysicstwotickAssignSuccessPercent}{\percent} &
                 \computationalphysicstwonumStencilLines &
                 \computationalphysicstwoboundedBoth \\
 \hline
-\textbf{Total}& \overalltickAssign\ (\overalltickAssignPercent\%)  &
-                \overalltickAssignSuccess\ (\overalltickAssignSuccessPercent\%) &
+\textbf{Total}& \overalltickAssign & \SI{\overalltickAssignPercent}{\percent}  &
+                \overalltickAssignSuccess & \SI{\overalltickAssignSuccessPercent}{\percent} &
                 \overallnumStencilLines &
                 \overallboundedBoth    \\
 \hline
@@ -2182,7 +2192,23 @@ CP            & \computationalphysicstwotickAssign\ (\computationalphysicstwotic
 \caption{Stencil assignment rates\label{tab:tickAssign}}
 \end{table}
 
-The first two columns of Table~\ref{tab:tickAssign} shows the number of potential and actual stencils and their rate as a percentage of the total number of assignment statements in the code. There are a variety of reasons why we might not infer an actual stencil from a potential one: 1) \textbf{Non-subset induction variables} occurs when the induction variables on the RHS are not a subset of the LHS. These cases are not stencils by our definition. The degenereate case of this is to have only constant indices on the LHS. We see lots of examples of this in loops as accumulators e.g. computing the sum over some other array; 2) \textbf{Derived induction variables} where the indexing variable (\mintinline{fortran}{x}) is derived from an induction variable \mintinline{fortran}{i} e.g. \mintinline{fortran}{x = len - i}; 3) \textbf{Inconsistent induction dimensions} occur when an induction variable is used to specify more than one array dimension on the RHS. These are common in matrix operations such as LU-decomposition which contains assignments such as \mintinline{fortran}{a(l) = a(l) - a(m) * b(l, m)}.
+The first two columns of Table~\ref{tab:tickAssign} shows the number
+of potential and actual stencils and their rate as a percentage of the
+total number of successfully parsed lines of code. There are a variety
+of reasons why we might not infer an actual stencil from a potential
+one: 1) \textbf{Non-subset induction variables} occurs when the
+induction variables on the RHS are not a subset of the LHS. These
+cases are not stencils by our definition. The degenereate case of this
+is to have only constant indices on the LHS. We see lots of examples
+of this in loops as accumulators e.g. computing the sum over some
+other array; 2) \textbf{Derived induction variables} where the
+indexing variable (\mintinline{fortran}{x}) is derived from an
+induction variable \mintinline{fortran}{i} e.g. \mintinline{fortran}{x
+  = len - i}; 3) \textbf{Inconsistent induction dimensions} occur when
+an induction variable is used to specify more than one array dimension
+on the RHS. These are common in matrix operations such as
+LU-decomposition which contains assignments such as
+\mintinline{fortran}{a(l) = a(l) - a(m) * b(l, m)}.
 
  %% This example is from geos-chem/GeosRad/rrtmg_sw_spcvmc.F90:609
  %%                      pnifddir(ikl) = pnifddir(ikl) + zincflx(iw)*ztdbt(jk)

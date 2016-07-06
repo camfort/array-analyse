@@ -2167,7 +2167,7 @@ The first two columns of Table~\ref{tab:tickAssign} shows the number of potentia
 %% We just don't deal with this - Lower upper decomposition solver
 
 
-If the statement meets the stencil critera but the inference process cannot determine an exact stencil for a statement it will instead produce an upper (\term{atMost}) and lower (\term{atLeast}) bound. The number of exact and inexact stencils are shown in columns three and four of Figure \ref{fig:tickAssign}. We can see that our stencil language is capable of precisely specifying the overwhelming majority of stencils. Most of the inexact stencils apply to some form of data copying. For example (taken from E3MG):
+If the statement meets the stencil critera but the inference process cannot determine an exact stencil for a statement it will instead produce an upper (\term{atMost}) and lower (\term{atLeast}) bound. The number of exact and inexact stencils are shown in columns three and four of Figure \ref{tab:tickAssign}. We can see that our stencil language is capable of precisely specifying the overwhelming majority of stencils. Most of the inexact stencils apply to some form of data copying. For example (taken from E3MG):
 \begin{minted}{fortran}
 !- stencil atLeast, readOnce, irreflexive(dims=2), (reflexive(dim=1)) :: sfda
 !- stencil atMost, readOnce, (forward(depth=8, dim=2))*(reflexive(dim=1)) :: sfdt

@@ -45,7 +45,7 @@ for corpus in corpora.keys():
         for key in keys.keys():
             if not corpora[corpus].has_key(key):
                 print "\\newcommand{\\%s}{0}" % (corpus+key)
-        loc = files[corpus+"linesTotal"]
+        loc = files[corpus+"linesParsed"]
         tickAssign = files[corpus+"tickAssign"]
         tickAssignSuccess = files[corpus+"tickAssignSuccess"]
         totalTickAssign += int(tickAssign)

@@ -2540,7 +2540,15 @@ the results of the Camfort test.
   \label{fig:jacobi}
 \end{figure}
 
-% != stencil readOnce, (forward(depth=1, dim=3, irreflexive))*(backward(depth=1, dim=1))*(backward(depth=1, dim=2)) + (forward(depth=1, dim=3))*(backward(depth=1, dim=1))*(reflexive(dim=2)) + (forward(depth=1, dim=3))*(backward(depth=1, dim=1, irreflexive))*(backward(depth=1, dim=2, irreflexive)) + (forward(depth=1, dim=3))*(backward(depth=1, dim=2))*(reflexive(dim=1)) + (backward(depth=1, dim=1))*(backward(depth=1, dim=2, irreflexive))*(reflexive(dim=3)) + (backward(depth=1, dim=1, irreflexive))*(backward(depth=1, dim=2))*(reflexive(dim=3)) :: cx_rho_centre
+\subsubsection{Turbulence calculation}
+
+The Unified Model contains an implementation of the Smagorinsky subgrid-scale model for calculating turbulence. The source file in question yields 38 stencils from 340 lines of code. We selected one as an example:
+
+\begin{minted}[breakindent=8.1em]{fortran}
+ != stencil readOnce, (forward(depth=1, dim=3, irreflexive))*(backward(depth=1, dim=1))*(backward(depth=1, dim=2)) + (forward(depth=1, dim=3))*(backward(depth=1, dim=1))*(reflexive(dim=2)) + (forward(depth=1, dim=3))*(backward(depth=1, dim=1, irreflexive))*(backward(depth=1, dim=2, irreflexive)) + (forward(depth=1, dim=3))*(backward(depth=1, dim=2))*(reflexive(dim=1)) + (backward(depth=1, dim=1))*(backward(depth=1, dim=2, irreflexive))*(reflexive(dim=3)) + (backward(depth=1, dim=1, irreflexive))*(backward(depth=1, dim=2))*(reflexive(dim=3)) :: x
+\end{minted}
+
+This stencil specifies the access pattern to a 3-dimensional array (which we have renamed to be called \texttt{x}). The array is accessed 8 times in the computation. We tried introducing indexing errors by changing the offset in one dimension of one of the references to \texttt{x}. For example changing \mintinline{fortran}{x(i+1,j,k)} to \mintinline{fortran}{x(i,j,k)} or \mintinline{fortran}{x(i-1,j,k)}. There are 48 possible errors of this type of which we found only 6 were not detected by the stencil check.
 % /um/trunk/src/atmosphere/diffusion_and_filtering/turb_smagorinsky.F90
 % Tried introducing indexing errors replacing one of the indices of cx_rho_instance with -1,0,+1
 % 42 cases were caught
@@ -2655,6 +2663,10 @@ of stencil computations.
 
 % Ypnos
 \citet{Orchard:2010:DAMP}
+
+\section{Conclusion}
+
+\anote{We need a conclusion!}
 
 \bibliography{references}
 

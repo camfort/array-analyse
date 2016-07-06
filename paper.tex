@@ -12,6 +12,7 @@
 \usepackage{minted}
 \usepackage{breqn}
 \usepackage{subcaption}
+%\usepackage{subfigure}
 \usepackage{siunitx} % For pretty-printing numeric values and SI units
                      % of measure. e.g., the tabular column type S is
                      % used to print nice-looking tables of numbers.
@@ -203,20 +204,21 @@ xrightmargin=0.2cm,commandchars=\\\{\},baselinestretch=0.98,numbersep=0.9em}
   is highly decoupled from the implementation. We have been studying
   specification techniques in the middle ground between low-level and
   high-level specifications for numerical code. In this paper, we
-  focus on \emph{stencil computations}---a common idiom in numerical code, but
-  one which is error-prone due to fine-grained indexing errors. We
-  hypothesise that in practise, stencil computations tend to have a
-  regular shape which is amenable to static analysis and simple
-  specification. We describe a abstract spatial specification language for
-  stencil computations that can be embedded as annotations in
-  source code, along with an inference and checking procedure. We
-  evaluate our language against a corpus of numerical Fortran code,
-  and show that precise specifications can be given to roughly half of
-  the identifiable stencil computations, and that the vast majority of
+  focus on \emph{stencil computations}---a common idiom in numerical
+  code, but one which is error-prone due to fine-grained indexing
+  errors. We hypothesise that in practise, stencil computations tend
+  to have a regular shape which is amenable to static analysis and
+  simple specification. We describe a abstract spatial specification
+  language for stencil computations that can be embedded as
+  annotations in source code, along with inference, checking, and
+  specification and program synthesis procedures. We evaluate our
+  language against a corpus of numerical Fortran code, and show that
+  precise specifications can be given to roughly half of the
+  identifiable stencil computations, and that the vast majority of
   stencil computations indeed have a simple, regular, static
   shape. This paper details our stencil specification language, its
   static semantics, inference, checking, and program synthesis
-  procedures, our implementation, and our evaluation study. 
+  procedures, our implementation, and our evaluation study.
 \end{abstract}
 
 
@@ -270,20 +272,19 @@ is much harder to understand, with the potential for the developer to
 accidentally introduce an error via simple textual mistakes, for
 example writing $\texttt{(i-1,j)}$ instead of $\texttt{(i+1,j)}$.
 
-In this work, we introduce a simple specification language for the
-spatial properties of stencil computations. The
-specifications abstract over the fine grained detail of stencil access
-patterns. In practice, most stencil computations have a regular shape
-that can be described simply and abstractly, with a small set of
-coarse-grained descriptions. In the case of our first Laplace example,
-our inference procedure provides the specification:
+In practice, most stencil computations have a regular shape that can
+be described simply and abstractly with a small set of coarse-grained
+spatial descriptions. We introduce a simple specification language of
+such descriptions, abstracting over the fine-grained detail of stencil
+access patterns. For our first Laplace example, our
+inference procedure provides the following specification to line 3:
 %
-\begin{minted}{fortran}
+\begin{minted}[linenos=false]{fortran}
 !=  stencil centered(depth=1, dim=1) :: a
 \end{minted}
 %
 This explains that \texttt{a} is read from with a
-symmetrical stencil pattern (``centered'') to a depth of one in each
+symmetrical access pattern (``centered'') to a depth of one in each
 direction in its first (and only) dimension.
 %The second line explains
 %the temporal relationship between \texttt{b} and \texttt{a}: that
@@ -298,17 +299,21 @@ read from with a centered pattern to depth of 1 in both dimensions
 (this is known as the \emph{five point stencil}) and \texttt{v}
 is read from in a neighbourhood bounded by forward to depth of $1$ in
 the first dimension and backward to a depth of $1$ in the second
-dimension. Figure~\ref{ref:navier-stokes-fragment}(c) describes these
-pictorially.
+dimension. Figure~\ref{ref:navier-stokes-fragment}(c) illustrates
+the specifications pictorially.
 
 In this paper, we make the following contributions:
 %
 \begin{itemize}
-\item we introduce a specification language for
+\item we introduce our specification language for
 stencil computations that captures many common forms
-of data access pattern, both spatial and temporal (Section~\ref{sec:lang});
-\item we detail inference and checking
-algorithms for stencil specifications (Section~\ref{sec:analysis});
+of data access pattern (Section~\ref{sec:lang})
+along with a denotational model (Section~\ref{sec:semantics});
+
+\item we detail inference, checking, specification synthesis, 
+and program synthesis algorithms for our language
+(Section~\ref{sec:analysis}), which relies on the semantic model;
+
 \item we evaluate our approach, providing an 
 implementation as an extension of CamFort,
 an open-source program analysis and refactoring tool for Fortran
@@ -320,7 +325,7 @@ lines of code, and we study some verification case studies.
 %
 
 \begin{figure}[t]
-\begin{minted}[firstnumber=20]{fortran}
+\begin{minted}[firstnumber=20,xleftmargin=2em]{fortran}
 du2dx = ((u(i,j)+u(i+1,j))*(u(i,j)+u(i+1,j))+ &
   gamma*abs(u(i,j)+u(i+1,j))*(u(i,j)-u(i+1,j))- &
   (u(i-1,j)+u(i,j))*(u(i-1,j)+u(i,j))- &
@@ -330,8 +335,7 @@ du2dx = ((u(i,j)+u(i+1,j))*(u(i,j)+u(i+1,j))+ &
 duvdy = ((v(i,j)+v(i+1,j))*(u(i,j)+u(i,j+1))+ &
   gamma*abs(v(i,j)+v(i+1,j))*(u(i,j)-u(i,j+1))- &
   (v(i,j-1)+v(i+1,j-1))*(u(i,j-1)+u(i,j))- &
-  gamma*abs(v(i,j-1)+v(i+1,j-1))*(u(i,j-1)-u(i,j))) &
-  /(4.0*dely)
+  gamma*abs(v(i,j-1)+v(i+1,j-1))*(u(i,j-1)-u(i,j))) & /(4.0*dely)
 
 laplu = (u(i+1,j)-2.0*u(i,j)+u(i-1,j))/delx/delx+ &
   (u(i,j+1)-2.0*u(i,j)+u(i,j-1))/dely/dely
@@ -341,7 +345,7 @@ showing highly-detailed stencil computations.
 \vspace{0.5em}
 \hrule
 %
-\begin{minted}{fortran}
+\begin{minted}[linenos=false,xleftmargin=1em]{fortran}
 != stencil centered(depth=1,dim=1)*reflexive(dim=2) + centered(depth=1,dim=2)*reflexive(dim=1) :: u
 
 != stencil forward(depth=1,dim=1) * backward(depth=1,dim=2) :: v
@@ -351,7 +355,7 @@ showing highly-detailed stencil computations.
 \hrule
 %
 \begin{center}
-\begin{tikzpicture}
+\begin{tikzpicture}[scale=0.85]
 \node at (1.25,1.22) {i, j};
 \draw (1,1) rectangle (1.5,1.5);
 \draw (1.5,1) rectangle (2,1.5);
@@ -374,10 +378,29 @@ The horizontal dimension is \texttt{dim=1} and the vertical is \texttt{dim=2}.
 \label{ref:navier-stokes-fragment}
 \end{figure}
 
+\paragraph{Context}
+
+In recent years, there has been an increased awareness 
+of the need for formal verification techniques in 
+science~\cite{post2005computational,oberkampf2010verification,orchard2014computational}. 
+Our specification language is an approach in this direction, proving 
+a system of lighweight specification for numerical code.
+The aim is to not only provide a way of exposing errors, but also
+for specifying program behaviour to future-proof the code and ease
+its maintenance. In order to increase the likelihood of impact, we aim
+to integrate with existing practises smoothly, hence our
+specifications are integrated as comments and our tool can synthesis
+specifications for the user.
+
+Much of this paper concerns the technical aspects of the language,
+its semantics, its inference, checking, and synthesis procedures.
+The evaluation focuses on its application to real scientific code base
+used actively in research.
+
 \section{Stencil specification language}
 \label{sec:lang}
 
-Our specification system is based on the observation
+Our specification language is based on the observation
 that most forms of array access in numerical code have
 a fixed, statically-determined access pattern. For example, the
 ``\emph{five-point stencil}'' on a two-dimensional array reads from array
@@ -388,12 +411,12 @@ in Section~\ref{sec:evaluation} where the inference of
 such regular stencil patterns on a corpus of numerical programs (both
 small and large). We found that indeed \dnote{..}.
 
-We outline the specification language here. Section~\ref{sec:syntax}
-outlines the syntax. Section~\ref{sec:semantics} defines its semantics
-via a simple set interpretation over indices. Section~\ref{sec:eqs} provides an
-equational theory for specifications via relation ($\equiv$) and a
-theory of approximation via relation ($<:$). These equations are then
-proven sound with respect to the set semantics of Section~\ref{sec:semantics}.
+Section~\ref{sec:syntax} outlines the syntax of specifications. 
+ Section~\ref{sec:eqs} provides an equational
+theory for specifications via relation ($\equiv$) and a notion of
+sub-specification via relation ($<:$).  Section~\ref{sec:semantics}
+gives a semantic model via a set-based interpretation, for which the
+equality and sub-specification relation are proven sound.
 
 \subsection{Notation and convention}
 \label{sec:notation}
@@ -403,35 +426,33 @@ proven sound with respect to the set semantics of Section~\ref{sec:semantics}.
 syntax, $v$ ranges over program variables, $s$ over statements, and
 $e$ over expressions (which may be impure).  By ``variable'', we mean
 in the imperative sense (\ie{}, named binders to memory cells) instead
-of mathematical variables. We make clear a number of standard notions
-used throughout.
+of mathematical variables. 
 
 \begin{definition}[Base induction variable]
   A variable \textit{v} of integer type is a \emph{base induction
     variable} if it is the control variable of a ``for''
-  loop\footnote{Or equivalent for the target language, \eg{},
-    \texttt{do} in Fortran for our implementation}, incremented by $1$ per
+  loop,\footnote{Or equivalent for the target language, \eg{},
+    \texttt{do} in Fortran for our implementation} incremented by $1$ per
 iteration. The variable is marked as a base induction variable
-only within the scope of the loop, and such variables will be ranged
-over by $i$, $j$, $k$. Since we do not use non-base induction
-variables (which are traditionally affine transformations of induction
-variables) we often simply say \emph{induction variable}.
+only within the scope of the loop. Induction variables are ranged
+over by $i$, $j$, $k$ throughout. Since we do not use non-base
+(derived) induction variables we often simply say \emph{induction variable}.
 \end{definition}
 
-\begin{definition}[Array subscript]
+\begin{definition}[Array subscript and index]
   An \emph{array subscript} is an expression that indexes an array
-  (for the purpose or reading or writing an element), which we denote
+  (for the purpose of reading or writing an element), which we denote
   by $v(\bar{e})$ for the source language where $\bar{e}$ is shorthand
   for a syntactic list of indexing expressions. A \emph{relative
     index} is a list $\bar{e}$ where each $e \in \bar{e}$ is defined
-  in terms of some base induction variable.
+  in terms of base induction variables.
 \end{definition}
 
-\begin{definition}[Neighbourhood index and neighbourhood subscripts]
+\begin{definition}[Neighbourhood index and subscript]
   For an array subscript $v(\bar{e})$, we say that $e \in \bar{e}$
   is a \emph{neighbourhood index} if it is of the form
-  $e \equiv i$, $e \equiv i + a$ or $e \equiv i - a$ where $a$ is a
-  constant of integer type. That is, a neighbourhood index is a
+  $e \equiv i$, $e \equiv i + a$ or $e \equiv i - a$ where $a$ is an
+  integer constant. That is, a neighbourhood index is a
   relative index defined as a constant translation of a base induction
   variable. The relation $\equiv$ identifies terms up-to commutativity
   of $+$ and the inverse relation of $+$ and $-$ (\eg{},

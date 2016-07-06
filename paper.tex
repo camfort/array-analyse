@@ -2164,7 +2164,7 @@ $\texttt{fivepoint}$ is indeed contained in the regions touched by $b$.
 
 \section{Evaluation}
 \label{sec:evaluation}
-We evaluated our stencil language on a corpus of scientific code. We first give an overview of the corpus itself before presenting our results.
+We evaluated the stencil language on a corpus of scientific code. We first give an overview of the corpus itself before presenting our results.
 
 \subsection{Software Corpus}
 \begin{table}
@@ -2217,11 +2217,11 @@ institutional licenses are available for research purposes. The Met Office runs 
 
 \textbf{GEOS-Chem}\footnote{\url{http://acmg.seas.harvard.edu/geos/}} is a three-dimensional model of tropospheric chemistry developed at Harvard and used by approximately 70 universities and research institutions world-wide. We examined version 10-01.
 
-\textbf{Navier} is a smaller projecter, giving a discrete
+\textbf{Navier} is a small project, giving a discrete
 approximation to the two-dimensional Navier-Stokes fluid equations,
 based on the book of~\citet{griebel1997numerical}.
 
-\textbf{CP} consists of the example code from the book ``Computational Physics''~\cite{nicholas2006computational} introducing numerical techniques and their application to modern physics problems such as fields, waves, statistical mechanics and quantum mechanics.
+\textbf{CP} consists of the example code from the second edition of the book ``Computational Physics''~\cite{nicholas2006computational} introducing numerical techniques and their application to modern physics problems such as fields, waves, statistical mechanics and quantum mechanics.
 
 
 % atLeast: number of stencils with an atLeast modifier
@@ -2258,7 +2258,7 @@ corpus. We define a \emph{potential} statement as one whose left-hand
 side is an array subscript on neighbourhood indices. These statements
 are the inputs to Step 2 of the Inference process described
 Section~\ref{subsec:inference}. Each potential statement for which we
-eventually generate some stencil specifications for is also counted as
+eventually generate some stencil specifications is also counted as
 an \emph{actual} statement.
 
 \begin{table}
@@ -2319,7 +2319,7 @@ is to have only constant indices on the LHS. We see lots of examples
 of this in loops as accumulators e.g. computing the sum over some
 other array; 2) \textbf{Derived induction variables} where the
 indexing variable (\mintinline{fortran}{x}) is derived from an
-induction variable \mintinline{fortran}{i} e.g. \mintinline{fortran}{x
+induction variable (\mintinline{fortran}{i}) as in \mintinline{fortran}{x
   = len - i}; 3) \textbf{Inconsistent induction dimensions} occur when
 an induction variable is used to specify more than one array dimension
 on the RHS. These are common in matrix operations such as
@@ -2410,9 +2410,9 @@ ZZ1(I,J) = SFDT(I,J+8)
 \subsection{Stencil categories}
 
 
-We grouped stencils together into four classes based on similar levels of complexity. These four classes account for 99.7\% of all the stencils we found in the corpus.
+We grouped stencils together into four classes based on similar levels of complexity. These four classes account for 99.4\% of all the stencils we found in the corpus.
 
-\textbf{All-reflexive} The vast majority (X\%) of stencils were
+\textbf{All-reflexive} The vast majority (66\%) of stencils were
 reflexive in every dimension of the array. These most often correspond
 to applying point-wise transformations to data such as scaling
 e.g. \begin{minted}{fortran}
@@ -2421,21 +2421,20 @@ ZZ1(I,K) = .000041868*ZZ1(I,K)
 Arrays with this class of stencil must be indexed by all the induction
 variables used in the LHS without any offsets.
 
-\textbf{Some-reflexive} stencils consist of only reflexive terms but
-leave some dimensions unspecified. Two examples in this class are listed:
+\textbf{Some-reflexive} stencils (24\%) consist of only reflexive terms but
+leave some dimensions unspecified. Here are two examples:
 \begin{minted}{fortran}
 leafpools(:,age_class)=leafpool(:,1)
 RVM(J,I2) = VRFO(ivar,J)
 \end{minted}
 where for the first example \mintinline{fortran}{leafpools} contains an
 implicit loop, and for the second example \mintinline{fortran}{J} is
-the induction variable. Arrays with this class of stencil can be
-indexed by a subset of the LHS induction variables but again without
+the induction variable. This stencil permits array indexing by a subset of the LHS induction variables but again without
 any offsets.
 
-\textbf{Single-action} stencils consist of a single \term{backward},
-\term{forward}, or \term{centered} term and some number of reflexive
-terms.
+\textbf{Single-action} stencils (6\%) consist of a single \term{backward},
+\term{forward}, or \term{centered} region constant and some number of \term{reflexive}
+region constants.
 % /home/mrd45/src/corpus/geos-chem/GTMM/CasaRegridModule.F90:645
 \begin{minted}{fortran}
 do j=2,jm-ig
@@ -2445,8 +2444,9 @@ do j=2,jm-ig
    enddo
 enddo
 \end{minted}
+This stencil requires a neighbourhood index including zero-offset in one dimension only. The remaining dimensions must either have no offset or not pertain to an induction variable.
 
-\textbf{Single-action-irreflexive} stencils consist of a single
+\textbf{Single-action-irreflexive} stencils (3\%) ) consist of a single
 \term{backward}, \term{forward}, or \term{centered} irreflexive term
 and some number of reflexive terms.
 % /home/mrd45/src/corpus/geos-chem/GeosRad/rrtmg_lw_rtrnmc.F90:355
@@ -2462,8 +2462,9 @@ do lev = nlayers, 1, -1
 \end{minted}
 Notice that, in this last example, the read from
 \mintinline{fortran}{cldfmc} flows through onto the line with the
-stencil.
+stencil. Stencils of this type required a neightbourhood index without a zero-offset in one dimension only. The remaining dimensions must either have no offset or not pertain to an induction variable.
 
+The remaining stencil shapes (less than 1\%) consisted primarily of multiple \term{forward}, \term{backward}, or \term{centered} dimensions. We note that only 0.2\% of stencils found required use of the union (\term{+}) operator. Despite this low frequency these stencils are arguably the most important since they represent more complicated code and thus greater potential for programming errors.
 
 \subsection{Detecting programming errors}
 
@@ -2526,12 +2527,10 @@ the results of the Camfort test.
 % 42 cases were caught
 % 6 cases were not caught
 
-
-
-
-
 \section{Discussion}
 \label{sec:discussion}
+
+\anote{Any discussion left to do? - something on checking perhaps? access stencils?}
 
 \subsection{Related work}
 

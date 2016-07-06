@@ -1234,18 +1234,27 @@ $i^{th}$ entry in $u$ or the $i^{th}$ entry in $j$. For example:
 %
 \begin{equation*}
 \vthreeh{0}{1}{2} \bowtie \vthreeh{3}{4}{5} =
-\setlength{\arraycolsep}{0.5em}
-\left[\begin{array}{ccc}
-0 & 1 & 2 \\
-0 & 1 & 5 \\
-0 & 4 & 2 \\
-0 & 4 & 5 \\
-3 & 1 & 2 \\
-3 & 1 & 5 \\
-3 & 4 & 2 \\
-3 & 4 & 5
+\left[
+\setlength{\arraycolsep}{0.42em}
+\begin{array}{cccccccc}
+0 & 0 & 0 & 0 & 3 & 3 & 3 & 3 \\ 
+1 & 1 & 4 & 4 & 1 & 1 & 4 & 4 \\
+2 & 5 & 2 & 5 & 2 & 5 & 2 & 5
 \end{array}
 \right]
+% \\
+%\setlength{\arraycolsep}{0.5em}
+%\left[\begin{array}{ccc}
+%0 & 1 & 2 \\
+%0 & 1 & 5 \\
+%0 & 4 & 2 \\
+%0 & 4 & 5 \\
+%3 & 1 & 2 \\
+%3 & 1 & 5 \\
+%3 & 4 & 2 \\
+%3 & 4 & 5
+%\end{array}
+%\right]
 \end{equation*}
 %
 The $2^n$ unique choices for $\bowtie$ on $n$-vectors
@@ -1260,6 +1269,9 @@ defined the pairwise permutation matrix as:
 where $b$ is a logical matrix where $b_{i,j}$ is the $j$-th bit of the integer
 $i - 1$.
 %%
+\dnote{I didn't understand mistral's description of unification
+wrt to $\tensor$. I can't work it out either! Mistral have another
+go given my above explanation}
 \end{definition}
 
 

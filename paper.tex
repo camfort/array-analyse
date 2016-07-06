@@ -2146,41 +2146,45 @@ eventually generate some stencil specifications for is also counted as
 an \emph{actual} statement.
 
 \begin{table}
-\begin{tabular}{|l|l|l|l|l|}
+\sisetup{table-format=4,table-text-alignment=right}
+\footnotesize
+\centering
+\begin{tabular}{lS@{~~~}rS@{~~~}rSS[table-format=1]}
 \hline
-{Package}     & {Potential} & {Actual} & {Exact} & {Inexact}    \\
+  & \multicolumn{2}{c}{Potential} & \multicolumn{2}{c}{Actual} & {Exact} & {Inexact}    \\
+{Package}     & {\#} & \si{\percent} & {\#} & \si{\percent} \\
 \hline
-UM            & \umtickAssign\ (\umtickAssignPercent\%) &
-                \umtickAssignSuccess\ (\umtickAssignSuccessPercent\%) &
+UM            & \umtickAssign & \SI{\umtickAssignPercent}{\percent} &
+                \umtickAssignSuccess & \SI{\umtickAssignSuccessPercent}{\percent} &
                 \umnumStencilLines &
                 \umboundedBoth  \\
-E3MG          & \ethreemgeatickAssign\ (\ethreemgeatickAssignPercent\%) &
-                \ethreemgeatickAssignSuccess\ (\ethreemgeatickAssignSuccessPercent\%) &
+E3MG          & \ethreemgeatickAssign & \SI{\ethreemgeatickAssignPercent}{\percent} &
+                \ethreemgeatickAssignSuccess & \SI{\ethreemgeatickAssignSuccessPercent}{\percent} &
                 \ethreemgeanumStencilLines &
                 \ethreemgeaboundedBoth \\
-BLAS          & \blastickAssign\ (\blastickAssignPercent\%) &
-                \blastickAssignSuccess\ (\blastickAssignSuccessPercent\%) &
+BLAS          & \blastickAssign & \SI{\blastickAssignPercent}{\percent} &
+                \blastickAssignSuccess & \SI{\blastickAssignSuccessPercent}{\percent} &
                 \blasnumStencilLines &
                 \blasboundedBoth \\
-Hybrid4       & \hybridfourtickAssign\ (\hybridfourtickAssignPercent\%) &
-                \hybridfourtickAssignSuccess\ (\hybridfourtickAssignSuccessPercent\%) &
+Hybrid4       & \hybridfourtickAssign & \SI{\hybridfourtickAssignPercent}{\percent} &
+                \hybridfourtickAssignSuccess & \SI{\hybridfourtickAssignSuccessPercent}{\percent} &
                 \hybridfournumStencilLines &
                 \hybridfourboundedBoth\\
-GEOS-Chem     & \geoschemtickAssign\ (\geoschemtickAssignPercent\%) &
-                \geoschemtickAssignSuccess\ (\geoschemtickAssignSuccessPercent\%) &
+GEOS-Chem     & \geoschemtickAssign & \SI{\geoschemtickAssignPercent}{\percent} &
+                \geoschemtickAssignSuccess & \SI{\geoschemtickAssignSuccessPercent}{\percent} &
                 \geoschemnumStencilLines &
                 \geoschemboundedBoth \\
-Navier        & \naviertickAssign\ (\naviertickAssignPercent\%) &
-                \naviertickAssignSuccess\ (\naviertickAssignPercent\%) &
+Navier        & \naviertickAssign & \SI{\naviertickAssignPercent}{\percent} &
+                \naviertickAssignSuccess & \SI{\naviertickAssignPercent}{\percent} &
                 \naviernumStencilLines &
                 \navierboundedBoth \\
-CP            & \computationalphysicstwotickAssign\ (\computationalphysicstwotickAssignPercent\%) &
-                \computationalphysicstwotickAssignSuccess\ (\computationalphysicstwotickAssignSuccessPercent\%) &
+CP            & \computationalphysicstwotickAssign & \SI{\computationalphysicstwotickAssignPercent}{\percent} &
+                \computationalphysicstwotickAssignSuccess & \SI{\computationalphysicstwotickAssignSuccessPercent}{\percent} &
                 \computationalphysicstwonumStencilLines &
                 \computationalphysicstwoboundedBoth \\
 \hline
-\textbf{Total}& \overalltickAssign\ (\overalltickAssignPercent\%)  &
-                \overalltickAssignSuccess\ (\overalltickAssignSuccessPercent\%) &
+\textbf{Total}& \overalltickAssign & \SI{\overalltickAssignPercent}{\percent}  &
+                \overalltickAssignSuccess & \SI{\overalltickAssignSuccessPercent}{\percent} &
                 \overallnumStencilLines &
                 \overallboundedBoth    \\
 \hline
@@ -2188,7 +2192,23 @@ CP            & \computationalphysicstwotickAssign\ (\computationalphysicstwotic
 \caption{Stencil assignment rates\label{tab:tickAssign}}
 \end{table}
 
-The first two columns of Table~\ref{tab:tickAssign} shows the number of potential and actual stencils and their rate as a percentage of the total number of assignment statements in the code. There are a variety of reasons why we might not infer an actual stencil from a potential one: 1) \textbf{Non-subset induction variables} occurs when the induction variables on the RHS are not a subset of the LHS. These cases are not stencils by our definition. The degenereate case of this is to have only constant indices on the LHS. We see lots of examples of this in loops as accumulators e.g. computing the sum over some other array; 2) \textbf{Derived induction variables} where the indexing variable (\mintinline{fortran}{x}) is derived from an induction variable \mintinline{fortran}{i} e.g. \mintinline{fortran}{x = len - i}; 3) \textbf{Inconsistent induction dimensions} occur when an induction variable is used to specify more than one array dimension on the RHS. These are common in matrix operations such as LU-decomposition which contains assignments such as \mintinline{fortran}{a(l) = a(l) - a(m) * b(l, m)}.
+The first two columns of Table~\ref{tab:tickAssign} shows the number
+of potential and actual stencils and their rate as a percentage of the
+total number of successfully parsed lines of code. There are a variety
+of reasons why we might not infer an actual stencil from a potential
+one: 1) \textbf{Non-subset induction variables} occurs when the
+induction variables on the RHS are not a subset of the LHS. These
+cases are not stencils by our definition. The degenereate case of this
+is to have only constant indices on the LHS. We see lots of examples
+of this in loops as accumulators e.g. computing the sum over some
+other array; 2) \textbf{Derived induction variables} where the
+indexing variable (\mintinline{fortran}{x}) is derived from an
+induction variable \mintinline{fortran}{i} e.g. \mintinline{fortran}{x
+  = len - i}; 3) \textbf{Inconsistent induction dimensions} occur when
+an induction variable is used to specify more than one array dimension
+on the RHS. These are common in matrix operations such as
+LU-decomposition which contains assignments such as
+\mintinline{fortran}{a(l) = a(l) - a(m) * b(l, m)}.
 
  %% This example is from geos-chem/GeosRad/rrtmg_sw_spcvmc.F90:609
  %%                      pnifddir(ikl) = pnifddir(ikl) + zincflx(iw)*ztdbt(jk)

@@ -11,8 +11,8 @@
 \usepackage{multirow}
 \usepackage{minted}
 \usepackage{breqn}
-\usepackage{subcaption}
-%\usepackage{subfigure}
+%\usepackage{subcaption}
+\usepackage{subfigure}
 \usepackage{siunitx} % For pretty-printing numeric values and SI units
                      % of measure. e.g., the tabular column type S is
                      % used to print nice-looking tables of numbers.
@@ -439,8 +439,8 @@ of mathematical variables.
 \begin{definition}[Base induction variable]
   A variable \textit{v} of integer type is a \emph{base induction
     variable} if it is the control variable of a ``for''
-  loop,\footnote{Or equivalent in the source language, \eg{},
-    \texttt{do} in Fortran for our implementation} incremented by $1$ per
+  loop,\footnote{Or equivalent in the source language \eg{} 
+    \texttt{do} in Fortran for our implementation.} incremented by $1$ per
 iteration. The variable is marked as a base induction variable
 only within the scope of the loop. Induction variables are ranged
 over by $i$, $j$, $k$ throughout. Since we do not use non-base
@@ -504,7 +504,7 @@ a region variable \nonterm{rvar} or given directly within a
 Regions have as terminals the \emph{region constants}, denoted by
 \term{reflexive}, \term{forward}, \term{backward}, or \term{centered}. Each
 region constant except \term{reflexive} is given a depth parameter $n$ (natural
-number greater than 0). Each receives a dimension identifier $d$ (also a
+number greater than 0). Every region constant receives a dimension identifier $d$ (also a
 natural number greater than 0). Region constants specify that an array is read
 from by a collection of indices which in the $d^{th}$ dimension are
 neighbourhood indices ranging from $i + 0$ up to $i \pm n$ inclusively,
@@ -516,15 +516,21 @@ neighbourhood indices ranging from $i + 0$ up to $i \pm n$ inclusively,
 b(i, 0) = a(i, 0) + a(i+1, 0) + a(i+2, 0)
 \end{minted}
 %%
-were \texttt{i} is an induction variable.  The stencil specification
+were \texttt{i} is an induction variable.  The specification
 is associated to the array variable \texttt{a}. Note that the second
-dimension is fixed at a constant here.
-A \term{backward} stencil
-is similar but has negative neighbourhood indices, \eg{},
+dimension is constant.
+
+The \term{forward},
+\term{backward}, and \term{centered} regions can all receive an
+additional optional attribute \term{irreflexive} which marks
+that the region does not include the origin (offset 0).
+For example, the following is a \term{backward} stencil, which is similar
+to \term{forward} but has negative neighbourhood indices, and which
+is irreflexive:
 %
 \begin{minted}{fortran}
-!= stencil backward(depth=2, dim=1) :: a
-b(i) = a(i) + a(i-1) + a(i-2)
+!= stencil backward(depth=2, dim=1, irreflexive) :: a
+b(i) = a(i-1) + a(i-2)
 \end{minted}
 %
 A \texttt{centered} stencil is a combination of \texttt{forward}
@@ -543,10 +549,9 @@ b(i) = ( a(i) + a(i-1) + a(i+1) ) / 3.0
 \begin{array}{rl}
 \nonterm{specification} ::= & \nonterm{regionDec} \mid \nonterm{specDec} \\
 \nonterm{specDec} ::= & \term{stencil} \; \nonterm{spec} \;
-                        \texttt{::} \; v
-  \\
+                        \texttt{::} \; v \\
 \nonterm{regionDec} ::= &  \texttt{region} \; \nonterm{rvar} \; \texttt{=} \;
-                         \nonterm{region}\\[1em]
+                         \nonterm{region}\\[0.4em]
 %\nonterm{spec} ::= & \nonterm{spatial} \mid \nonterm{temporal}
 %\\[1em]
 \nonterm{spec} ::= & [\nonterm{approx},] \; [\nonterm{mult},] \; \nonterm{region} \\
@@ -563,7 +568,7 @@ b(i) = ( a(i) + a(i-1) + a(i+1) ) / 3.0
 %\nonterm{temporal} ::= \; & \term{dependency} \; (v \; \{ , v \}) [, \texttt{mutual}]
 %  \\[0.5em]
 \dimTy ::= \; & \mathbb{N}_{>0} \\
-\nonterm{rvar} ::= \; & [\text{\term{a}-\term{z}$\,$\term{A}-\term{Z}$\,$\term{0}-\term{9}}]+
+\nonterm{rvar} ::= \; & [\text{\term{a}-\term{z}$\,$\term{A}-\term{Z}$\,$\term{0}-\term{9}}]+\\[-1em]
 \end{array}
 \end{align*}
 \caption{Specification syntax (EBNF grammar)}
@@ -575,30 +580,10 @@ b(i) = ( a(i) + a(i-1) + a(i+1) ) / 3.0
 Region terms can be combined using the sum operator
 \term{+} or the product operator \term{*}.
 
-The sum of two regions $r \texttt{+} r'$ specifies that an array is
-read using the neighbourhood indices described by either $r$ or
-$r'$. It can be thought of as a disjunction of specifications. For
-example, the following gives the specification for the five-point
-stencil which is the sum of two compound \texttt{reflexive} and
-\texttt{centered} regions in each dimension:
-%%
-\begin{minted}{fortran}
-!= stencil centered(depth=1, dim=1)*reflexive(dim=2) + centered(depth=1, dim=2)*reflexive(dim=1) :: a
-
-b(i,j) = -4*a(i,j) + a(i-1,j) + a(i+1,j)
-                   + a(i,j-1) + a(i,j+1)
-\end{minted}
-%%
-Here the left hand side of \texttt{+} says when the second dimension
-(induction variable $j$) is fixed at the origin, the first dimension
-(induction variable $i$) accesses immediate vicinity of the origin.
-The right hand side of \texttt{+} is similar but the dimensions are reversed.
-This reflects the symmetry under rotation in the fivepoint stencil.
-
-The product of two regions $r \texttt{*} r'$ specifies that the array
+The product of two regions $r \texttt{*} r'$ specifies that an array
 is read with neighbourhood indices drawn from the bounding box created
 by the regions two regions $r$ and $r'$. For example, the following
-code (defining a nine-point stencil) has a specification as the
+code (defining a \emph{nine-point stencil}) has a specification given by the
 product of two \texttt{centered} regions in each dimension:
 %%
 \begin{minted}[breakindent=2.9em]{fortran}
@@ -610,17 +595,37 @@ z = a(i, j+1) + a(i-1, j+1) + a(i+1, j+1)
 b(i, j) = (x + y + z) / 9.0
 \end{minted}
 %%
-Such a stencil computation is a common image convolution (for example
-for edge detection).
-Note that there are a number of intermediate assignments over which
-the whole specification ranges.
+This pattern is a common image convolution (for example
+for edge detection). The specification ranges over the
+values that flow the array subscript on the left-hand side,
+and so ranges over the intermediate assignments to \term{x},
+\term{y}, and \term{z}.
 
-The region constructor \texttt{*} can also be interpreted as conjunction of
-two specifications since they need to hold simultaneously for their
-corresponding dimensions.
+The region constructor \texttt{*} can also be interpreted as a
+kind of conjunction on specifications since they constraint
+indices to be within both regions simultaneously.
 
-As another example, the following code and specification
-implements the \emph{Roberts cross}
+The sum of two regions $r \texttt{+} r'$ specifies that an array is
+read using the neighbourhood indices described by either $r$ or
+$r'$; it acts as a disjunction on specifications. For
+example, the following gives the specification of a five-point
+stencil which is the sum of two compound \texttt{reflexive} and
+\texttt{centered} regions in each dimension:
+%%
+\begin{minted}{fortran}
+!= stencil centered(depth=1, dim=1)*reflexive(dim=2) + centered(depth=1, dim=2)*reflexive(dim=1) :: a
+b(i,j) = -4*a(i,j) + a(i-1,j) + a(i+1,j)
+                   + a(i,j-1) + a(i,j+1)
+\end{minted}
+%%
+Here the left hand side of \texttt{+} says that when the second dimension
+(induction variable $j$) is fixed at the origin, the first dimension
+(induction variable $i$) accesses the immediate vicinity of the origin
+(to depth of one). The right hand side of \texttt{+} is similar but the dimensions are reversed.
+This reflects the symmetry under rotation of the five-point stencil.
+
+As another example, the following 
+implements and specifies the \emph{Roberts cross}
 edge-detection convolution~\cite{davis1975survey}:
 %%
 \begin{minted}[breakindent=5.5em]{fortran}
@@ -642,13 +647,13 @@ specification. For example, the specification from the previous
  example can be restated as:
 %%
 \begin{minted}{fortran}
-!= region r1 = centered(depth=1, dim=1)
-!= region r2 = centered(depth=1, dim=2)
+!= region r1 = forward(depth=1, dim=1)
+!= region r2 = forward(depth=1, dim=2)
 != region robertsCross = r1*r2
 != stencil robertsCross :: a
 \end{minted}
-This is especially useful for common stencils such as Robert's cross
-as the region can be defined once and used by region name many times.
+This is especially useful for common stencil patterns, such as Roberts cross,
+as the region can be defined once and reused.
 %%
 \paragraph{Spatial modifiers}
 %%
@@ -753,7 +758,7 @@ and checked against the code.
 %
 (\textsc{B\, \texttt{+} \,B}) \;\; &
 \stenBwdSR{n \, \textsf{max} \, m}{d}{r \vee s} \\
- \equiv \; & \stenBwdS{n}{d}{r} \; \texttt{+} \; \stenBwdSR{m}{d}{s} \\[0.7em]
+ \equiv \; & \stenBwdSR{n}{d}{r} \; \texttt{+} \; \stenBwdSR{m}{d}{s} \\[0.7em]
 %
 %
 (\textsc{C\, \texttt{+} \,C}) \;\; &
@@ -2538,10 +2543,14 @@ the results of the Camfort test.
 
 \begin{figure}[t]
   \centering
-  \subcaptionbox{\label{fig:jacobicorrect}}{\includegraphics[width=0.1\textwidth]{jacobi-correct.png}}
-  \subcaptionbox{}{\includegraphics[width=0.1\textwidth]{jacobi-incorrect1.png}}
-  \subcaptionbox{}{\includegraphics[width=0.1\textwidth]{jacobi-incorrect2.png}}
-  \subcaptionbox{}{\includegraphics[width=0.1\textwidth]{jacobi-incorrect3.png}}
+  %\subcaptionbox{\label{fig:jacobicorrect}}{\includegraphics[width=0.1\textwidth]{jacobi-correct.png}}
+  %\subcaptionbox{}{\includegraphics[width=0.1\textwidth]{jacobi-incorrect1.png}}
+  %\subcaptionbox{}{\includegraphics[width=0.1\textwidth]{jacobi-incorrect2.png}}
+  %\subcaptionbox{}{\includegraphics[width=0.1\textwidth]{jacobi-incorrect3.png}}
+  \subfigure[]{\label{fig:jacobicorrect}\includegraphics[width=0.1\textwidth]{jacobi-correct.png}}
+  \subfigure[]{\includegraphics[width=0.1\textwidth]{jacobi-incorrect1.png}}
+  \subfigure[]{\includegraphics[width=0.1\textwidth]{jacobi-incorrect2.png}}
+  \subfigure[]{\includegraphics[width=0.1\textwidth]{jacobi-incorrect3.png}}
   \caption{Greyscale output of several perturbations of a Jacobi
     iteration program. The correct output is shown in
     (\subref{fig:jacobicorrect}).}

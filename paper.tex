@@ -19,6 +19,7 @@
 \sisetup{group-separator={,},group-minimum-digits={3},output-decimal-marker={.}}
 =======
 \usepackage{tikz}
+\usepackage{xypic}
 
 
 \tikzset{round left paren/.style={ncbar=0.4cm,out=110,in=-110}}
@@ -941,12 +942,9 @@ Section~\ref{sec:analysis}); (2) gives a basis for the equational
 theory and approximations of the previous section; and (3) can be used
 to guide correct implementations. The model is a denotational
 semantics, in terms of sets of vectors which we call \emph{index
-  schemes}. We introduce first the notion of indexing schemes
-and \emph{unification} which gives the domain of our model
-and forms the basis of the rest of the algorithsm for our
-specificaiton. We then define the denotational model.
+  schemes}. We introduces these first then define the denotational semantics.
 
-\subsection{Indexing schemes and unification}
+\subsection{Indexing schemes and generalisation}
 
 \begin{definition}[Index scheme]
 An \emph{index scheme} is a vector of size $n$ (an $n$-vector)
@@ -1020,24 +1018,25 @@ $i$ and $j$ are induction variables and $\textsf{schematic}(i-1, 2, j)
  is outside the scope of our specification language.
 \end{definition}
 
-\begin{definition}[Unification]
-Two schemes $u, v$ of dimensionality $n$
-are said to be \emph{unifiable}, written
-$u \sim_n v$, iff the following holds:
+\begin{definition}[Generalisation]
+Given two schemes $v, w$ of dimensionality $n$,
+the $w$ is said to \emph{generalise} $v$ 
+(or conversely $v$ \emph{specialises} $w$),
+written $v \preceq_n w$, iff the following holds:
 %%
 \[
-u \sim_n v \; \Leftrightarrow  \;
-  \forall i\!\in\!\{ 1,.., n \} . \, (u_i = \infty
-\, \vee \, v_i = \infty \, \vee \, u_i = v_i)
+v \preceq_n w \;\; \Leftrightarrow  \;\;
+  \forall i\!\in\!\{ 1, \ldots, n \} . \, (w_i = \infty \, \vee \, v_i = w_i)
 \]
 %%
-That is, two schemes are related by the binary relation
-$\sim_n$ over $(\mathbb{Z}_{\infty})^n$ if in each dimension
-either is $\infty$ or they are equal. 
-Thus, the element $\infty$ represents the ``general acceptor''
- meaning it unifies with any index in the same dimension. 
+That is, two schemes are related by the (reflexive and transitive) binary relation
+$\preceq_n$ over $(\mathbb{Z}_{\infty})^n$ if in each dimension
+the two schemes are equal or $w_i = \infty$ 
+in place of some $\mathbb{Z}$ in $v_i$ for $v \preceq_n w$. 
+Thus, the element $\infty$ 
+generalising any index in the same dimension. 
 
-The subscript on $\sim_n$ is sometimes dropped when the
+The subscript on $\preceq_n$ is sometimes dropped when the
 intended dimensionality is clear or inconsequential.
 \end{definition}
  
@@ -1053,17 +1052,21 @@ $(i, j+1)$, $(1, j+1)$ and $(3, j)$.
 As given by \textsf{schematic}, these have the 
 corresponding schemes: $\vtwoh{0}{1}$, $\vtwoh{\infty}{1}$
 and $\vtwoh{\infty}{0}$ respectively. The following
-relationship of unification (or lack of) then holds between
-them:
+relationship of generalises then holds:
+%\[
+%\xymatrix@R=0.2em@C=2em{
+%[\infty \;\; 0] \ar@{-}[dr]^{\preceq_n} &  \\
+%& [0 \;\; 1]  \\
+%[\infty \;\; 1]  \ar@{-}[ur]_{\preceq_n} & 
+%}
+%\]
 %%
 \begin{equation*}
-\vtwoh{\infty}{0} \; \not\sim_2 \; \vtwoh{0}{1} \; \sim_2 \;
-\vtwoh{\infty}{1} \; \not\sim_2 \; \vtwoh{\infty}{0}
+\vtwoh{\infty}{0} \; \not\preceq_2 \; \vtwoh{0}{1} 
+\qquad
+\vtwoh{\infty}{1} \; \preceq_2 \; \vtwoh{0}{1} 
 \end{equation*}
 %%
-The middle pair unifies as $0$ and $\infty$ unify, 
-whereas the left and right pairs do not unify as
-$0 \not\sim_1 1$. 
 \end{example}
 
 Our terminology of \emph{indexing schemes} and

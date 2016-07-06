@@ -1325,16 +1325,17 @@ where $\textsf{Mult}$ and $\textsf{Approx}$ are labelled variants
 labelling our set-basd model with additional information.
 
 \begin{definition} The \textsf{Mult}
-and \textsf{Approx} are parametric labelled variant types 
+and \textsf{Approx} are parametric labelled variant (sum) types 
 with injection function given by their definition:
 %
 \begin{align*}
-\textsf{Mult} \, a & = \textsf{mult} \, a \mid \textsf{only} \, a \\
-\textsf{Approx} \, a & = \textsf{exact} \, a \mid \textsf{lower} \, a \mid
-\textsf{upper} \, a \mid \textsf{both} \, a \, a
+\textsf{Mult} \, a & = \textsf{mult} \, a \,\mid\, \textsf{only} \, a \\
+\textsf{Approx} \, a & = \textsf{exact} \, a \,\mid\, \textsf{lower} \, a \,\mid\,
+\textsf{upper} \, a \,\mid\, \textsf{both} \, a \, a
 \end{align*}
 \ie{}, $\mathsf{lower}$ is an injection $\mathsf{lower} : a \rightarrow \mathsf{Approx} \, a$, and so
-on. 
+on. These are used for labelled models, and other components later in
+Section~\ref{sec:analysis} with additional information.
 \label{def:mult-and-approx}
 \end{definition}
 %

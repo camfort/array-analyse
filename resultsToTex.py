@@ -13,11 +13,6 @@ def sanitize(s):
 
 files = {}
 
-with open(sys.argv[2]) as f:
-    for l in f:
-        (k,v) = re.match("\\\\newcommand{\\\\(.*)}{(.*)}",l.strip()).groups()
-        files[k] = v
-
 corpora = defaultdict(lambda:{})
 keys = {}
 with open(sys.argv[1]) as f:
@@ -37,13 +32,20 @@ with open(sys.argv[1]) as f:
                 print "\\newcommand{\\%s}{%s}" % (corpus+key,value)
                 files[sanitize(corpus+key)] = value
 
+for corpus in corpora.keys():
+    numFiles = int(files.get(corpus+"parseOk", 0)) + int(files.get(corpus+"lexOrParseFailed", 0))
+    print "\\newcommand{\\%s}{%s}" % (corpus+"Files",numFiles)
+    numLoC = files[corpus+"linesTotal"]
+    print "\\newcommand{\\%s}{%s}" % (corpus+"LoC",numLoC)
+
+
 (totalTickAssign, totalTickAssignSuccess, totalLoC) = (0,0,0)
 for corpus in corpora.keys():
     if corpus != "overall" and corpus != "ethreemgmodernise":
         for key in keys.keys():
             if not corpora[corpus].has_key(key):
                 print "\\newcommand{\\%s}{0}" % (corpus+key)
-        loc = files[corpus+"LoC"]
+        loc = files[corpus+"linesTotal"]
         tickAssign = files[corpus+"tickAssign"]
         tickAssignSuccess = files[corpus+"tickAssignSuccess"]
         totalTickAssign += int(tickAssign)
@@ -54,4 +56,3 @@ for corpus in corpora.keys():
 
 print "\\newcommand{\\%s}{%.2g}" % ("overalltickAssignPercent", float(totalTickAssign) / float(totalLoC) * 100)
 print "\\newcommand{\\%s}{%.2g}" % ("overalltickAssignSuccessPercent", float(totalTickAssignSuccess) / float(totalLoC) * 100)
-

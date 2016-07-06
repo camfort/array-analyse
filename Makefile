@@ -2,16 +2,13 @@ FORTRAN_CORPUS=../../fortran-corpus
 
 default: quick
 
-results.tex: infer-output-*.txt corpussize.tex resultsToTex.py
-	python resultsToTex.py $< corpussize.tex > $@
+results.tex: infer-output-*.txt resultsToTex.py
+	python resultsToTex.py $< > $@
 
-corpussize.tex: countCorpusLines.py
-	python countCorpusLines.py ${FORTRAN_CORPUS} > $@
-
-quick: results.tex corpussize.tex
+quick: results.tex
 	pdflatex -shell-escape -interaction=nonstopmode paper
 
-full: results.tex corpussize.tex
+full: results.tex
 	pdflatex -shell-escape -interaction=nonstopmode paper
 	bibtex paper
 	pdflatex -shell-escape -interaction=nonstopmode paper

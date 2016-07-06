@@ -2468,8 +2468,8 @@ enddo
 This stencil requires a neighbourhood index including zero-offset in one dimension only. The remaining dimensions must either have no offset or not pertain to an induction variable.
 
 \textbf{Single-action-irreflexive} stencils (3\%) ) consist of a single
-\term{backward}, \term{forward}, or \term{centered} irreflexive term
-and some number of reflexive terms.
+\term{backward}, \term{forward}, or \term{centered} irreflexive region constant
+and some number of reflexive region constants.
 % /home/mrd45/src/corpus/geos-chem/GeosRad/rrtmg_lw_rtrnmc.F90:355
 \begin{minted}{fortran}
 do lev = nlayers, 1, -1
@@ -2666,9 +2666,32 @@ of stencil computations.
 % Ypnos
 \citet{Orchard:2010:DAMP}
 
-\section{Conclusion}
+\section{Conclusion and future work}
 
-\anote{We need a conclusion!}
+In this paper we have described an annotation language which can be
+used to specify the access pattern of a stencil computation. We
+defined a denotational semantic model for our language and proved its
+soundness. This gave a basis for an equational theory of
+specifications and also justifies our inference and checking
+procedure. We evaluated our approach by implementing the stencil inference and
+checking procedure in Camfort, an open-source analysis tool\footnote{\url{https://github.com/camfort/camfort}} for
+Fortran programs and running the inference process over a corpus of
+1.1 million lines of Fortran code.
+
+Our motivation for this work was to provide an intermediate
+specification language to allow scientists to verify numerical
+computations. The most common types of stencils we found consisted only of
+reflexive region constants which are unlikely to give rise to
+programming errors. However, around 10\% of stencils covered more
+complicated program structures for which indexing errors are much more
+plausible. We showed two examples of more complicated stencils for
+which CamFort was able to detect a significant majority of possible
+indexing errors.
+
+Our definition of a stencil computation meant that we generated no
+specification for a large number of iterated array accesses in the corpus. For
+future work we will be looking at expanding the definition to allow us
+to capture more of these examples.
 
 \bibliography{references}
 

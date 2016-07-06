@@ -1376,7 +1376,7 @@ on specifications. The proofs are given in our supplement.
 \]
 \end{theorem}
 
-\section{Inference and checking}
+\section{Inference, checking, and synthesis}
 \label{sec:analysis}
 
 \noindent
@@ -1905,25 +1905,29 @@ s \tySum{\odot} t & =
 
 \subsection{Checking\label{subsec:checking}}
 
-Verification occurs when a user supplied specification is compared to the
-actual access pattern. The mathematical model developed in
-Section~\ref{sec:semantics} is used this comparison.
+In checking mode, the specification is verified with respect to the indexing
+scheme of the actual access pattern. The mathematical model of the specification
+developed in Section~\ref{sec:semantics} is used this process.
 
-A specification is first synthesised into its model. Then access patterns
-are checked against the model for consistency as defined in
-Figure~\ref{fig:consistency}. The consistency predicate is defined recursively.
-It first checks multiplicity if $\textsf{once}$ is at the top level, \ie{}
-specification in question involves \texttt{readOnce} modifier, then array
-accesses are checked for uniqueness using $unique$ predicate and the problem
-is reduced to $\textsf{mult}$, which does not impose any extra constraints.
+A specification is first synthesised into its model. Then occurrences of an
+array in an assignment are checked against the model for consistency as defined
+in Figure~\ref{fig:consistency}. The consistency predicate is defined
+recursively.
+
+It first checks multiplicity if $\textsf{once}$ is at the top
+level, \ie{} specification in question involves \texttt{readOnce} modifier, then
+the array accesses are checked for uniqueness using $unique$ predicate and the
+problem is reduced to $\textsf{mult}$, which does not impose any extra
+constraints.
+
 Next, consistency predicate considers whether the stencil is an approximation.
-Semantically, a lower bound is achieved if every unifier in the model
-correspond to some relativised vector of indices as that means all cells
+Semantically, a lower bound is achieved if every indexing scheme in the
+model generalises some relativised access pattern that means all cells
 described in the specification are part of the access pattern. Conversely,
-an upper bound means all observed access patterns have a unifier. Hence,
-the actual cells are a subset of the specified ones. In combination an
-exact specification, \ie{} one without any approximation modifiers, is
-one that is both a lower and an upper bound.
+an upper bound means all observed access patterns can be generalised with
+the indexing schemes of the model. Hence, the actual cells are a subset of the
+specified ones. In combination an exact specification, \ie{} one without any
+approximation modifiers, is one that is both a lower and an upper bound.
 
 \begin{figure}
 \input{consistency.tex}
@@ -1979,11 +1983,11 @@ a(i,j) = b(i, j-1) + b(i,j) + b(i,j+1) + b(i-1,j) + b(i+1,j)
     cons(\textsf{mult}(\textsf{low}(m),L3,b).
   \end{equation*}
 %
-\item To evaluate the two predicates above, we need relativised indices for the
+\item To evaluate the two predicates above, we need indexing schemes for the
   array in question. This is obtained by $analyse$ function from
   Subsection~\ref{subsec:inference}.
 
-  For the example above the relativised indices are as follows:
+  For the example above the indexing schemes are as follows:
 %
 \begin{dmath*}
 analyse(L3,b) =
@@ -1995,10 +1999,10 @@ analyse(L3,b) =
   \}
 \end{dmath*}
 %
-\item Below we present two match ups of relativised access patterns and unifiers
-  to show both the lower and the upper bound holds.
+\item Below we present two sets of generalisations to show both the lower and
+  the upper bound holds.
 
-  The unifications for the upper bound:
+  The generalisations for the upper bound:
   \begin{align*}
      \vtwoh{0}{-1} & \sim_2 \vtwoh{0}{\infty} \\
      \vtwoh{0}{0} & \sim_2 \vtwoh{0}{\infty} \\
@@ -2007,7 +2011,7 @@ analyse(L3,b) =
      \vtwoh{1}{0} & \sim_2 \vtwoh{\infty}{0}
   \end{align*}
 
-  The unifications for the lower bound:
+  The generalisations for the lower bound:
   \begin{align*}
      \vtwoh{-1}{0} & \sim_2 \vtwoh{-1}{\infty} \\
      \vtwoh{0}{0} & \sim_2 \vtwoh{0}{\infty} \\
@@ -2017,35 +2021,37 @@ analyse(L3,b) =
      \vtwoh{0}{1} & \sim_2 \vtwoh{\infty}{1}
   \end{align*}
 
-  Since both predicates are satisfied the array accesses specified on line three
-  are consistent with the \texttt{fivepoint} specification.
+  Since both predicates are satisfied the array accesses specified on line
+  three, the stencil comutation is consistent with the \texttt{fivepoint}
+  specification.
 \end{enumerate}
 
-Now when $L3$ is slightly changed with an additional term \texttt{b(i+2,j)}, the
-new assignment $L3'$ becomes:
+Now when $L3$ is slightly changed with an additional term \texttt{b(i+2,j+2)},
+the new assignment $L3'$ becomes:
 %
 \begin{minted}[firstnumber=3]{fortran}
 a(i,j) = b(i, j-1) + b(i,j) + b(i,j+1) + b(i-1,j) + b(i+1,j) + b(i+2,j+2)
 \end{minted}
 %
-The first four steps will proceed the same way and in the fifth step result
-of $\mathit{analyse}(L3',b)$ will have the extra term $\vtwoh{2}{2}$. In sixth
-step, since the model has not changed and the relativised indices are only
-augmented with a new element, the unification for lower bound still hold.
-However, there are not elements in the model, $m$, that can unify with
+The first four steps will proceed the same way. In the fifth step, result
+of $\mathit{analyse}(L3',b)$ will have the extra term $\vtwoh{2}{2}$. In the
+sixth step, since the model has not changed and the indexing schemes are only
+augmented with a new element, the generalisations for lower bound still hold.
+However, there are no elements in the model, $m$, that can generalise
 $\vtwoh{2}{2}$, hence the model fails to hold as an upper bound.
 
 Note that if the specification was as follows:
 %
 \begin{minted}{fortran}
-!= stencil atLeast, readOnce, fivepoint :: b}
+!= stencil atLeast, readOnce, fivepoint :: b
 \end{minted}
 %
-The consistency function would have held because for the upper bound
-$\mathit{cons}(\textsf{mult}(\textsf{up}(m)),L3',b)$ would never have
+The consistency predicate would have held because for the upper bound
+$\mathit{cons}(\textsf{mult}(\textsf{up}(m)),L3',b)$ would not have
 been needed. This semantically makes sense since the region
-$\texttt{fivepoint}$ is indeed a lower bound for the access pattern of
-$b$.
+$\texttt{fivepoint}$ is indeed contained in the regions touched by $b$.
+
+\subsection{Synthesis\label{subsec:synthesis}}
 
 \section{Evaluation}
 \label{sec:evaluation}

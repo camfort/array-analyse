@@ -692,6 +692,7 @@ and checked against the code.
 \label{sec:eqs}
 
 \begin{figure}
+\vspace{-0.2em}
 \begin{align*}
 \setlength{\arraycolsep}{0.05em}
 \begin{array}{c}
@@ -1065,13 +1066,14 @@ relationship of generalises then holds:
 \end{equation*}
 %%
 \end{example}
-
+\noindent
 Our terminology of \emph{indexing schemes} and
-\emph{unification} are by analogy
-with the \emph{type schemes} and \emph{type unification} of
+\emph{generalisation} are by analogy
+with the \emph{type schemes} and \emph{type generalisation} of
 polymorphic types in ML~\cite{milner1978theory}. Our notion is
-much more rigid however, there is only one way to unify two
-index schemes in our model.
+much more rigid however, as our schemes do not bind names
+and thus generalisation of does not require substitution; $\infty$ acts
+as a positional placeholder.
 
 
 \subsection{Denotational model}
@@ -1093,8 +1095,8 @@ We first define some intermediate notations and definitions.
 $\singleEntry{r}{n}$, is a vector where the $r^{th}$ entry is $1$
 and all others are $\infty$, \eg{}, $\singleEntry{1}{2} =
 \vtwoh{1}{\infty}$ and $\singleEntry{2}{3} = \vthreeh{\infty}{1}{\infty}$.
-Thus, a single-entry vector is an indexing scheme which unifies with
-all other schemes which have $1$ as their $r^{th}$ entry,
+Thus, a single-entry vector is an indexing scheme which generalises 
+all other schemes which at least have $1$ as their $r^{th}$ entry,
 describing a neighbour offset of $1$. 
 %DAO don't understand this sentence:
 %In particular the constrained
@@ -1106,8 +1108,8 @@ $\zeroEntry{r}{n}$, is a vector where the $r^{th}$ entry is $0$ and all others
 are $\infty$, \eg{}, $\zeroEntry{1}{2} = \vtwoh{0}{\infty}$.
 
 Similarly to the single-entry vector, zero-entry vectors 
-are also indexing schemes which unify with all other schemes
-as long as the $r^{th}$ entry is $0$, representing indices at
+are also indexing schemes which generalising all other schemes
+which at least have the $r^{th}$ entry is $0$, representing indices at
 the ``origin'' in dimension $r$. 
 \end{definition}
 
@@ -1179,17 +1181,21 @@ in the model where $u_i \neq \infty$}, \eg{}:
 \end{align*}
 % 
 where $\vtwoh{1}{\infty}$ and $\vtwoh{3}{\infty}$ have been filtered.
-With respect to the notion of unification, the 
+%With respect to the notion of unification, the 
 %
 %
 % combines non-$\infty$ constraints
 %of the unifiers in different dimensions into less accepting unifiers.
-%This means an access pattern unifying with this unifier would require
+%This means an access pattern generalises with this scheme would require
 %both models to be satisfied. Use of $dims$ gives the dimensions that
 %constitutent models talk about and is used in the product to eliminate
 %general unifier appearing in these dimensions. Allowing general unifier
 %in these dimensions would prevent both models to be satisfied
 %simultaneously.
+%  u in M * N   u < w
+% mplies that 
+%  u_1 in M  u1 < w
+%  u_2 in M  u2 < w
 %
 The notion of which dimensioons $i$ have that \emph{any scheme in the model
 has $u_i \neq \infty$} is represented by the \emph{constrained
@@ -1283,9 +1289,6 @@ defined the pairwise permutation matrix as:
 where $b$ is a logical matrix where $b_{i,j}$ is the $j$-th bit of the integer
 $i - 1$.
 %%
-\dnote{I didn't understand mistral's description of unification
-wrt to tensor. I can't work it out either! Mistral have another
-go given my above explanation}
 \end{definition}
 
 

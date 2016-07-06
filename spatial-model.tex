@@ -1,11 +1,17 @@
 \begin{dmath*}
 \interp{approx\texttt{,} \; mult\texttt{,} \; region}_n = \\
    \begin{cases}
-     \textsf{once}(\textsf{up}(\interp{region}_n)) &approx = \texttt{atMost} \wedge mult = \texttt{readOnce}\\
-     \textsf{mult}(\textsf{up}(\interp{region}_n)) &approx = \texttt{atMost} \wedge mult = \epsilon\\
-     \textsf{once}(\textsf{low}(\interp{region}_n)) &approx = \texttt{atLeast} \wedge mult = \texttt{readOnce}\\
-     \textsf{mult}(\textsf{low}(\interp{region}_n)) &approx = \texttt{atLeast} \wedge mult = \epsilon \\
-     \textsf{once}(\textsf{exact}(\interp{region}_n)) &approx = \epsilon \wedge mult = \texttt{readOnce}\\
-     \textsf{mult}(\textsf{exact}(\interp{region}_n)) &approx = \epsilon \wedge mult = \epsilon
+     \textsf{once}(\textsf{up}(\interp{\mathit{region}}_n)) &
+       \mathit{approx} = \texttt{atMost} \wedge \mathit{mult} = \texttt{readOnce} \\
+     \textsf{mult}(\textsf{up}(\interp{\mathit{region}}_n)) &
+       \mathit{approx} = \texttt{atMost} \wedge \mathit{mult} = \epsilon\\
+     \textsf{once}(\textsf{low}(\interp{\mathit{region}}_n)) &
+       \mathit{approx} = \texttt{atLeast} \wedge \mathit{mult} = \texttt{readOnce}\\
+     \textsf{mult}(\textsf{low}(\interp{\mathit{region}}_n)) &
+       \mathit{approx} = \texttt{atLeast} \wedge \mathit{mult} = \epsilon \\
+     \textsf{once}(\textsf{exact}(\interp{\mathit{region}}_n)) &
+       \mathit{approx} = \epsilon \wedge \mathit{mult} = \texttt{readOnce}\\
+     \textsf{mult}(\textsf{exact}(\interp{\mathit{region}}_n)) &
+       \mathit{approx} = \epsilon \wedge \mathit{mult} = \epsilon
    \end{cases}
 \end{dmath*}

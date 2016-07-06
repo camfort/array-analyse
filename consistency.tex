@@ -5,20 +5,20 @@ array $v$ in assignment $a$ contain each element only once.
 %
 \begin{dgroup*}
 \begin{dmath*}
-  cons(\textsf{once}(m),a,v) =
-    {unique(a,v) \wedge cons(\textsf{mult}(m),a,v) }
+  \mathit{cons}(\textsf{once}(m),a,v) =
+    {\mathit{unique}(a,v) \wedge \mathit{cons}(\textsf{mult}(m),a,v) }
 \end{dmath*}
 \begin{dmath*}
-  cons(\textsf{mult}(\textsf{low}(m)),a,v) =
+  \mathit{cons}(\textsf{mult}(\textsf{low}(m)),a,v) =
     {\forall u \in \textsf{analyse}(a)(v) \; \exists v \in m \cdot u \sim v }
 \end{dmath*}
 \begin{dmath*}
-  cons(\textsf{mult}(\textsf{up}(m)),a,v) \quad =
+  \mathit{cons}(\textsf{mult}(\textsf{up}(m)),a,v) \quad =
     {\forall v \in m \; \exists u \in \textsf{analyse}(a)(v) \cdot u \sim v }
 \end{dmath*}
 \begin{dmath*}
-  cons(\textsf{mult}(\textsf{exact}(m)),a,v) =
-    {cons(\textsf{mult}(\textsf{up}(m)),a,v) \wedge
-      cons(\textsf{mult}(\textsf{low}(m)),a,v) }
+  \mathit{cons}(\textsf{mult}(\textsf{exact}(m)),a,v) =
+    {\mathit{cons}(\textsf{mult}(\textsf{up}(m)),a,v) \wedge
+     \mathit{cons}(\textsf{mult}(\textsf{low}(m)),a,v) }
 \end{dmath*}
 \end{dgroup*}

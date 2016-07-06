@@ -1056,8 +1056,8 @@ a & e \equiv i + a \; \wedge \; \mathsf{neigh}(i + a) \\
 \end{align*}
 %%
 where $\mathsf{IV}(e)$ is the set of free induction variables
-appearing in an expression, and $\neigh{}$ classifies expressions which 
-are constant offsets from an induction variable
+ in an expression and $\neigh{}$ classifies expressions which 
+are constant offsets on an induction variable
 (Defn.~\ref{def:neighbour}). In the third case, 
 if the expression is not a neighbourhood index but is not
 a relative index either (\ie{} is not defined in terms
@@ -1066,7 +1066,7 @@ $\downarrow\!e$ is undefined. The $\mathsf{schematic}$ function
 is undefined if $\downarrow$ of any of its components $e_i$ is
 undefined. 
 
-For example $\textsf{schematic}(i, j+1) = \vtwoh{0}{1}$ assuming
+For example, assuming
 $i$ and $j$ are induction variables and $\textsf{schematic}(i-1, 2, j)
  = \vthreeh{-1}{\infty}{0}$. However, $\textsf{schematic}(i*2, j)$, for
  example, is
@@ -1103,10 +1103,10 @@ intended dimensionality is clear or inconsequential.
 %the stencil computation.
 
 \begin{example}
-Take three array indexing terms
-$(i, j+1)$, $(1, j+1)$ and $(3, j)$.
-As given by \textsf{schematic}, these have the 
-corresponding schemes: $\vtwoh{0}{1}$, $\vtwoh{\infty}{1}$
+Three array indexing terms
+$(i, j+1)$, $(1, j+1)$ and $(3, j)$
+are mapped by \textsf{schematic} to the 
+index schemes: $\vtwoh{0}{1}$, $\vtwoh{\infty}{1}$
 and $\vtwoh{\infty}{0}$ respectively. The following
 relationship of generalises then holds:
 %\[
@@ -1190,8 +1190,7 @@ by $\term{+}$ and $\term{*}$.
 \begin{example}
 For a $2$-dimensional situation, 
 \begin{align*}
-& \interp{\stenCenS{2}{1}}_2 \\
-= \; & \{i\singleEntry{1}{2} \,|\, i \in \{\text{-}2,..., 2\}\!\setminus\!0 \}
+\interp{\stenCenS{2}{1}}_2 = \; & \{i\singleEntry{1}{2} \,|\, i \in \{\text{-}2,..., 2\}\!\setminus\!0 \}
   \cup  \{ \zeroEntry{1}{2} \,|\, \textit{true} \} \\
 = \; & \{-2\singleEntry{1}{2}, \, -\singleEntry{1}{2}, \,
   \singleEntry{1}{2}, \, 2\singleEntry{1}{2}\} \cup
@@ -1415,11 +1414,33 @@ S \equiv T \; \Rightarrow \;
 \]
 \end{theorem}
 
-\begin{theorem}[Soundness of approximations]
+\begin{theorem}[Soundness of inequations
+  (Figure~\ref{fig:inequations})] 
+
+Let $\leq$ be an ordering on
+$\textsf{Mult}(\textsf{Approx}(\mathcal{P}(\domainVal{}^n)))$
+and $\leq'$ be an ordering on
+$\textsf{Approx}(\mathcal{P}(\domainVal{}^n))$ defined by the
+following caluses
+\begin{align*}
+(M \leq' N \Rightarrow \textit{inj} \, M \leq \textit{inj} \, N) &
+\qquad 
+(\textsf{once} \, M \leq' \textsf{mult} \, M) \\
+%%
+%%
+(M \subseteq N \Rightarrow \textit{inj}' M \leq' \textit{inj}' N)
+& \;\;\; (\textsf{exact} M \leq  \textsf{lower} M)
+\;\;\; (\textsf{lower} M \leq  \textsf{upper} M)
+\end{align*}
+%%
+where $\textit{inj}$ ranges over the unary injections
+of $\textsf{Approx}$ and $\textit{inj}'$ ranges over the injections of
+$\textsf{Mult}$. Then, soundness of $<:$ is that:
+%%
 \[
-\overline{\texttt{v} : S} <: \overline{\texttt{u} : T}
+S <: T
 \; \Rightarrow \;
-\interp{\overline{\texttt{v} : S}} \subseteq \interp{\overline{\texttt{u} : T}}
+\interp{S}_n \leq \interp{T}_n
 \]
 \end{theorem}
 

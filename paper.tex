@@ -13,6 +13,10 @@
 \usepackage{multirow}
 \usepackage{minted}
 \usepackage{breqn}
+\usepackage{siunitx} % For pretty-printing numeric values and SI units
+                     % of measure. e.g., the tabular column type S is
+                     % used to print nice-looking tables of numbers.
+\sisetup{group-separator={,},group-minimum-digits={3},output-decimal-marker={.}}
 
 \fvset{
   linenos=true,
@@ -1949,10 +1953,15 @@ analyse(L3,b) =
 We evaluated our stencil language on a corpus of scientific code. We first give an overview of the corpus itself before presenting our results.
 
 \subsection{Software Corpus}
-\begin{figure}
-\begin{tabular}{|l|l|l|l|}
+\begin{table}
+\centering
+\sisetup{
+  table-format = 7,
+  table-number-alignment = right
+}
+\begin{tabular}{|l|S|S|S|}
 \hline
-Package       & Files & Lines of code & Files analysed \\
+Package       & {Files} & {Lines of code} & {Files analysed} \\ % braces prevent headers from being formatted as numbers
 \hline
 UM            & \umFiles & \umLoC & \umparseOk  \\
 E3MG          & \ethreemgeaFiles   & \ethreemgeaLoC & \ethreemgeaparseOk  \\
@@ -1965,10 +1974,17 @@ CP            & \computationalphysicstwoFiles    & \computationalphysicstwoLoC &
 \textbf{Total}& \overallFiles  & \overallLoC   & \overallparseOk  \\
 \hline
 \end{tabular}
-\caption{Summary of software packages used for evaluation\label{fig:corpus}}
-\end{figure}
+\caption{Summary of software packages used for evaluation\label{tab:corpus}}
+\end{table}
 
-Figure \ref{fig:corpus} shows summary statistics of the software packages used in our evaluation, all of which are written in Fortran 90 or Fortran 77. In total we analysed 1.1 million lines of code from 7 packages. The ``Files analysed'' column shows the number of files in each corpus that we were able to analyse with Camfort. The most common reasons for Camfort rejecting a file were either use of a C-preprocessor, or illegal use of language features from a more modern Fortran variant.
+Table~\ref{tab:corpus} shows summary statistics of the software
+packages used in our evaluation, all of which are written in Fortran
+90 or Fortran 77. In total we analysed 1.1 million lines of code from
+7 packages. The ``Files analysed'' column shows the number of files in
+each corpus that we were able to analyse with Camfort. The most common
+reasons for Camfort rejecting a file were either use of a
+C-preprocessor, or illegal use of language features from a more modern
+Fortran variant.
 
 \textbf{The Unified
   Model}\footnote{\url{http://www.metoffice.gov.uk/research/modelling-systems/unified-model}}

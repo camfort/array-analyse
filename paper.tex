@@ -2444,6 +2444,58 @@ stencil.
 
 \subsection{Detecting programming errors}
 
+\subsubsection{Example: 2-D Jacobi iteration}
+
+One relatively basic example of a stencil program is two dimensional
+Jacobi iteration that repeatedly goes through each cell in a matrix
+and computes the average value of the four adjacent cells. The kernel
+can be expressed in a line of Fortran code,
+\begin{minted}{fortran}
+  a(i,j) = (a(i-1,j)+a(i+1,j)+a(i,j+1)+a(i,j-1))/4
+\end{minted}
+and Camfort is able to infer a precise stencil specification for this
+line,
+\begin{minted}{fortran}
+  != stencil reflexive(dim=1)*centered(depth=1, dim=2, irreflexive) + reflexive(dim=2)*centered(depth=1, dim=1, irreflexive) :: a
+\end{minted}
+which when inserted back into the program can be checked by Camfort as
+well. We then tested the error-detecting ability of Camfort by
+generating a family of 6,561 Jacobi iteration programs by perturbing
+the indices used in the following manner: each access of the array was
+templated as \mintinline{fortran}{a(i+ki,j+kj)} and then all possible
+combinations of \mintinline{fortran}{ki} and \mintinline{fortran}{kj}
+were drawn from the set $\{-1,0,1\}$. There are four uses of
+\mintinline{fortran}{ki} and four of \mintinline{fortran}{kj}, hence
+$3^8=6561$ possible perturbations of this kind. This particular setup
+tests the class of errors in which the programmer typed an incorrect
+number but at least got the ordering of the indices correct, although
+Camfort would also detect a mixup of variables in this case as well.
+
+Camfort checked all 6,561 programs and found that only 24 of them were
+valid implementations of the stencil specification. This was the
+expected result because there are $4!$ possible correct permutations
+of the four terms in the kernel. All of the other programs were found
+to violate the specification in some way. Another way to test the
+programs is through visual examination of their output in graphical
+format. Figure~\ref{fig:jacobi} shows some of the results of running
+the Jacobi iteration programs, rendered into image files. All of the
+correct variants emitted images indistinguishable from
+Figure~\ref{fig:jacobicorrect}, while all of the incorrect variants
+had wildly different image outputs. Both the ``visual test'' and a
+byte-by-byte comparison showed results that completely concurred with
+the results of the Camfort test.
+
+\begin{figure}[t]
+  \centering
+  \subcaptionbox{\label{fig:jacobicorrect}}{\includegraphics[width=0.1\textwidth]{jacobi-correct.png}}
+  \subcaptionbox{}{\includegraphics[width=0.1\textwidth]{jacobi-incorrect1.png}}
+  \subcaptionbox{}{\includegraphics[width=0.1\textwidth]{jacobi-incorrect2.png}}
+  \subcaptionbox{}{\includegraphics[width=0.1\textwidth]{jacobi-incorrect3.png}}
+  \caption{Greyscale output of several perturbations of a Jacobi
+    iteration program. The correct output is shown in
+    (\subref{fig:jacobicorrect}).}
+  \label{fig:jacobi}
+\end{figure}
 
 % != stencil readOnce, (forward(depth=1, dim=3, irreflexive))*(backward(depth=1, dim=1))*(backward(depth=1, dim=2)) + (forward(depth=1, dim=3))*(backward(depth=1, dim=1))*(reflexive(dim=2)) + (forward(depth=1, dim=3))*(backward(depth=1, dim=1, irreflexive))*(backward(depth=1, dim=2, irreflexive)) + (forward(depth=1, dim=3))*(backward(depth=1, dim=2))*(reflexive(dim=1)) + (backward(depth=1, dim=1))*(backward(depth=1, dim=2, irreflexive))*(reflexive(dim=3)) + (backward(depth=1, dim=1, irreflexive))*(backward(depth=1, dim=2))*(reflexive(dim=3)) :: cx_rho_centre
 % /um/trunk/src/atmosphere/diffusion_and_filtering/turb_smagorinsky.F90

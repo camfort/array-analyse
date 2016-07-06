@@ -182,6 +182,8 @@ xrightmargin=0.2cm,commandchars=\\\{\},baselinestretch=0.98,numbersep=0.9em}
 %% MODEL
 \newcommand{\effdims}[2]{\mathit{constr}(#1)_{#2}}
 
+\newcommand{\trule}[1]{\footnotesize{#1}}
+
 \include{results}
 
 \title{Verification of Stencil Computations through Spatial
@@ -715,7 +717,7 @@ and checked against the code.
 \begin{align*}
 \setlength{\arraycolsep}{0.05em}
 \begin{array}{c}
-\framebox{$\textit{region} \equiv \textit{region}'$} \\[0.7em]
+%\framebox{$\textit{region} \equiv \textit{region}'$} \\[0.7em]
 \begin{array}{rll}
 (\textsc{F\, \texttt{+} \,F}) \;\; &
 \stenFwdSR{n \, \textsf{max} \, m}{d}{r \vee s} \\
@@ -807,7 +809,7 @@ and checked against the code.
 %\end{array}
 \end{array}
 \end{align*}
-\caption{Equations on specifications}
+\caption{Equations on regions, $\textit{region} \equiv \textit{region}'$}
 \label{fig:equations}
 \end{figure}
 
@@ -910,42 +912,79 @@ normalisation in Section~\ref{sec:inf-step4}.
 \begin{figure}[t]
 \begin{align*}
 \begin{array}{c}
-\dfrac{}{S <: S}(\textsc{refl}) \qquad \dfrac{R <: S \quad S <: T}{R <:
-  T}(\textsc{trans}) \\[1.5em]
-\dfrac{}{\texttt{readOnce} \, S <: S}(\textsc{rep})
+%%
+%% INEQUATIONS ON REGION
+%% 
+%\framebox{$\textit{region} <: \textit{region}'$} \\[0.85em]
+%
+\dfrac{}{R <:^r R}\trule{\textsc{refl}} \qquad \dfrac{P <:^r R \quad R <:^r Q}{P <:^r
+  Q}\trule{\textsc{trans}} 
+\qquad
+\dfrac{R \equiv S}{R <:^r S}\trule{\textsc{eq}} 
 \\[1.5em]
 \setlength{\arraycolsep}{0.1em}
-\dfrac{\hspace{3em} m \leq n \hspace{3em}}
+\dfrac{\hspace{3em} m \leq n \qquad r \Rightarrow s \hspace{3em}}
 {\begin{array}{rl}
-\stenFwdS{m}{d} & <: \stenFwdS{n}{d}
+\stenFwdSR{m}{d}{r} & <:^r \stenFwdSR{n}{d}{s}
 %& \;\, ds \subseteq es \wedge n \leq m
 \\
-\wedge \stenBwdS{m}{d} & <: \stenBwdS{n}{d}
+\wedge \; \stenBwdSR{m}{d}{r} & <:^r \stenBwdSR{n}{d}{s}
 %& \;\, ds \subseteq es \wedge n \leq m
 \\
-\wedge \; \stenCenS{m}{d} & <: \stenCenS{n}{d}
+\wedge \; \stenCenSR{m}{d}{r} & <:^r \stenCenSR{n}{d}{s}
 %& \;\, ds \subseteq es \wedge n \leq m
 \\
-\wedge \; \stenBwdS{m}{d} & <: \stenCenS{n}{d} \\
-\wedge \; \stenFwdS{m}{d} & <: \stenCenS{n}{d} \\[1em]
-\end{array}} \\[2.5em]
+\wedge \; \stenBwdSR{m}{d}{r} & <:^r \stenCenSR{n}{d}{s} \\
+\wedge \; \stenFwdSR{m}{d}{r} & <:^r \stenCenSR{n}{d}{s} \\[1em]
+\end{array}}\trule{\textsc{over}} \\
 \hspace{-0.5em}
-\dfrac{S_1 <: T_1 \quad S_2 <: T_2}
-      {S_1 \, \texttt{+} \, S_2 <: T_1 \, \texttt{+} \, T_2}
-(\textsc{cong}\texttt{+}) \;\;\;
-\dfrac{S_1 <: T_1 \quad S_2 <: T_2}
-      {S_1 \, \texttt{*} \, S_2 <: T_1 \, \texttt{*} \, T_2}
-(\textsc{cong}\texttt{*})
+\dfrac{P_1 <:^r R_1 \quad P_2 <:^r R_2}
+      {P_1 \, \texttt{+} \, P_2 <:^r R_1 \, \texttt{+} \, R_2}
+\trule{\textsc{cong}\texttt{+}} \;\;\;
+\dfrac{P_1 <:^r R_1 \quad P_2 <:^r R_2}
+      {P_1 \, \texttt{*} \, P_2 <:^r R_1 \, \texttt{*} \, R_2}
+\trule{\textsc{cong}\texttt{*}} \\[1.5em]
+%%
+%% INEQUATIONS ON SPEC
+%%
+%\framebox{$\textit{spec} <: \textit{spec}'$} \\[0.8em]
+%
+\dfrac{}{\term{readOnce} \, R <: R}\trule{\textsc{rep}}
+\quad
+\dfrac{}{\term{atLeast} \, R <: \term{atMost} \,
+  R}\trule{\textsc{bound}} \\[1.5em]
+%%
+\dfrac{P <:^r R}{\term{atLeast} \, P <: \term{atLeast} \,
+  R}\trule{\textsc{cong}\texttt{L}}
+\ 
+\dfrac{P <:^r R}{\term{atMost} \, P <: \term{atMost} \,
+  R}\trule{\textsc{cong}\texttt{M}} \\[1.5em]
+\dfrac{P <:^r R}{\term{readOnce} \, P <: \term{readOnce} \,
+  R}\trule{\textsc{cong}\texttt{R}} 
+%%
 \end{array}
 \end{align*}
-\caption{Inequations on regions}
+\caption{Inequations $<:^r$ on \textit{regions} and
+$<:$ on \textit{specs}.}
 \label{fig:inequations}
 \end{figure}
 
 \paragraph{Inequations: sub-specifications}
 
-Figure~\ref{fig:inequations}\dnote{TODO: this might
-need to include notions of consistency}
+Figure~\ref{fig:inequations} defines a notion of sub-specification
+via the relation $<:^r$ on \textit{region} 
+syntax and then $<:$ on \textit{spec} syntax inductively. 
+Both relations are reflexive and transitive (we omit 
+these equations for $<:$ on \textit{spec}), and congruent
+with respect to \term{+}, \term{*}, \term{atLeast}, \term{atMost},
+and \term{readOnce}. The (\trule{\textsc{eq}}) axiom connects
+equations with inequations. The (\trule{\textsc{over}}) explains
+the notion of spatial over approximation via overlapping regions.
+The (\trule{\textsc{rule}}) allows the modifier that
+enforces that every index is read only once to be dropped
+as an approxiamtion. The (\trule{\textsc{bound}}) gives
+a connection between the \term{atLeast} and \term{atMost}
+approximation modifiers. 
 
 \section{Semantics of specifications; a model}
 \label{sec:semantics}
@@ -1390,13 +1429,12 @@ S \equiv T \; \Rightarrow \;
 \noindent
 We briefly sketch the algorithms for inferring and checking
 specifications and for synthesising programs from specifications.
-Checking and synthesis use the set-based semantic model of
-Section~\ref{sec:semantics}.
+These build on the model of Section~\ref{sec:semantics}.
 
-\paragraph{Syntax functions}
-The function \rhsExp{} maps statements to a
+\paragraph{Syntax helper functions}
+Let \rhsExp{} map source language statements to a
 set of expressions which occur in right-hand positions (\ie{}, not the
-target of an assignment). The function \var{} maps expressions to a
+target of an assignment). Let \var{} map expressions to a
 set of the variables used in right-hand positions.
 
 \subsection{Inference\label{subsec:inference}}

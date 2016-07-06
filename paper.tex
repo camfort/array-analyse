@@ -747,7 +747,7 @@ A valid specification for this is:
 Such a specification can be inferred, or can be inserted by a user
 and checked against the code.
 
-\subsection{Equational theory and approximations}
+\subsection{Equational theory and sub-specifications}
 \label{sec:eqs}
 
 \begin{figure}
@@ -946,6 +946,10 @@ akin to Disjunctive Normal Form (DNF) (where \term{+} is taken as
 ``disjunction'' and \term{*} as the ``conjunction''). We revisit this
 normalisation in Section~\ref{sec:inf-step4}.
 
+The equational theory provides not only an axiomatic semantics
+for the language, which the user can use to rewrite their
+specification, but it is also used extensively in the inference
+procedure (Section~\ref{subsec:inference}) to simplify specifications.
 
 \begin{figure}[t]
 \begin{align*}
@@ -1009,7 +1013,7 @@ normalisation in Section~\ref{sec:inf-step4}.
 $<:$ on \textit{specs} (omitting reflexivity
 and transitivity). }
 \label{fig:inequations}
-\label{-0.5em}
+\vspace{-0.8em}
 \end{figure}
 
 \paragraph{Inequations: sub-specifications}
@@ -1018,47 +1022,45 @@ Figure~\ref{fig:inequations} defines a notion of sub-specifications
 via the relation $<:^r$ on \textit{region}
 syntax and then $<:$ on \textit{spec} syntax inductively.
 Both relations are reflexive and transitive (we omit
-these equations for $<:$ on \textit{spec}), and congruent
+these equations) and congruent
 with respect to \term{+}, \term{*}, \term{atLeast}, \term{atMost},
-and \term{readOnce}. The (\trule{\textsc{eq}}) axiom connects
-equations with inequations. The (\trule{\textsc{over}}) explains
-the notion of spatial over approximation via overlapping regions.
-The (\trule{\textsc{rule}}) allows the modifier that
-enforces that every index is read only once to be dropped
-as an approxiamtion. The (\trule{\textsc{bound}}) gives
+and \term{readOnce}. The (\trule{\textsc{eq}}) rule connects region
+equations with inequations. The (\trule{\textsc{over}}) rule explains
+the notion of spatial over-approximation via overlapping regions.
+The (\trule{\textsc{rep}}) allows the modifier that
+enforces that every index is read just once to be dropped
+as an approxiamtion; (\trule{\textsc{bound}}) gives
 a connection between the \term{atLeast} and \term{atMost}
 approximation modifiers.
-
-\anote{Can we say something here about why these equations are useful i.e. we use them to do simplification of stencils?}
 
 \section{Semantics of specifications; a model}
 \label{sec:semantics}
 
 \newcommand{\domainVal}{\mathbb{Z}_\infty}
 
-We define a semantic model for our stencil specification language.
-This model has a number of purposes: (1) it is used in the inference,
-checking, and program synthesis algorithms (introduced in
-Section~\ref{sec:analysis}); (2) gives a basis for the equational
+We define a denotational model of the semantics of our 
+stencil specification language. This model has a number of purposes: (1) it is used in the inference,
+checking, and synthesis algorithms (Section~\ref{sec:analysis}); (2)
+justifies the equational
 theory and approximations of the previous section; and (3) can be used
-to guide correct implementations. The model is a denotational
-semantics, in terms of sets of vectors which we call \emph{index
-  schemes}. We introduce these first and then define the denotational semantics.
+to guide correct implementations. The model domain is over sets of vectors which we call \emph{index
+  schemes}, which we introduce first before the model in Section~\ref{subsec:model}.
 
 \subsection{Indexing schemes and generalisation}
 
-\begin{definition}[Index scheme]
+\begin{definition}
 An \emph{index scheme} is a vector of size $n$ (an $n$-vector)
 with values drawn from $\domainVal = \mathbb{Z} \cup \{\infty\}$.
 Values in $\mathbb{Z}$ represent offsets
 of a neighbourhood index (indexing
 expressions of the form $i + a$ where $i$ is an induction variable
-and $a$ is a constant offset, Definition~\ref{def:neighbour},
-p.~\pageref{def:neighbour}). The additional value
+and $a$ is a constant offset, Def.\ref{def:neighbour},
+p.\pageref{def:neighbour}). The additional value
 $\infty$ represents any indexing behaviour--- it is a
 wildcard.
-Throughout $u, v, w$ range over index schemes, and $u_i$ denotes
-the $i^{th}$ element of $u$.
+Throughout $u, v, w$ range over index schemes and $u_i$ denotes
+the $i^{th}$ element of $u$. We write $(\domainVal)^n$ for
+the set of $n$-dimensional schemes.
 \end{definition}
 
 Indexing schemes give an abstract
@@ -1069,26 +1071,26 @@ indexing behaviours allowed under the specification.
 The relationship between indexing schemes and source language
 terms is given precisely by the partial function, \textsf{schematic}, which
 maps syntactic array-index terms to indexing schemes. This
-operation forms the basis of the analysis required for the inference
-and the checking procedures in Section~\ref{sec:analysis}.
+operation is used by the inference
+and the checking procedures.
 
-\begin{definition}[Schematic]
+\begin{definition}%[Schematic]
 The partial function $\textsf{schematic}$ maps
-source-language indexing terms $(e_1, \ldots, e_n)$
-into $n$-dimensional index schemes
-$\in (\domainVal)^n$, defined:
+source indexing terms $(e_1, .., e_n)$
+to $n$-dimensional index schemes, defined:
 %
 \begin{align*}
 \mathsf{schematic}(e_1, \ldots, e_n) & =
 [\downarrow\!e_1 \ldots \downarrow\!e_n ]
-\quad \textit{iff} \; \forall i . \downarrow\!e_i \neq \bot
+\quad \textit{iff} \;\; \forall i . \downarrow\!e_i \neq \bot
 \end{align*}
 %
 The $\downarrow$ operator is a partial\footnote{We represent
-  partiality explicitly in our types with the set $A + \bot$.} function
+  partiality in our signatures with the set $A + \bot$.} 
+function
  $\downarrow : \textit{expr} \rightarrow (\domainVal + \bot)$
-which maps each individal indexing expression to a component of
-the indexing scheme, defined:
+mapping individal indexing expressions to 
+an indexing scheme component, defined:
 %%
 \begin{align*}
 \downarrow\!e
@@ -1105,14 +1107,13 @@ appearing in an expression, and $\neigh{}$ classifies expressions which
 are constant offsets from an induction variable
 (Defn.~\ref{def:neighbour}). In the third case,
 if the expression is not a neighbourhood index but is not
-a relative index either (\ie{} is not defined in terms
+a relative index either (\ie{}, not defined in terms
 of an induction variable) then it is mapped to $\infty$, otherwise
 $\downarrow\!e$ is undefined. The $\mathsf{schematic}$ function
 is undefined if $\downarrow$ of any of its components $e_i$ is
 undefined.
 
-For example $\textsf{schematic}(i, j+1) = \vtwoh{0}{1}$ assuming
-$i$ and $j$ are induction variables and $\textsf{schematic}(i-1, 2, j)
+For example, assuming $i$ and $j$ are induction variables and $\textsf{schematic}(i-1, 2, j)
  = \vthreeh{-1}{\infty}{0}$. However, $\textsf{schematic}(i*2, j)$, for
  example, is
  undefined as its first index is a non-neighbour relative index, which
@@ -1178,8 +1179,8 @@ much more rigid however, as our schemes do not bind names
 and thus generalisation does not require substitution; $\infty$ acts
 as a positional placeholder.
 
-
 \subsection{Denotational model}
+\label{subsec:model}
 
 The model is given by the interpretation function $\interp{-}_n$
 (where $n$ is the maximum dimensionality of the specification being
@@ -1988,7 +1989,9 @@ S \,\hat{\odot}\, T = \bplus_{(\tyProd{s}, \tyProd{t}) \in (S \times
 That is, the $\hat{\odot}$ product of two specifications $S$ and $T$ in DNF form 
 is the $\term{+}$ sum of all pairwise $\term{*}$ products for every
 pair of $\tyProd{spec}$ drawn from $S$ and $T$. The result
-is indeed in DNF-form. The operation is
+is indeed in DNF-form, where $\odot$ is essentially applying
+ the \trule{\textsc{dist}} rule of our equational theory
+ (Figure~\ref{fig:equations}). The operation is
 commutative and associative, and sound with respect to our
 model (see Lemma~\ref{lem:alg-soundness} below).
 The $\hat{\odot}$ operation is then lifted to all combinations of

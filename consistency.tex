@@ -18,7 +18,12 @@ array $v$ in assignment $a$ contain each element only once.
 \end{dmath*}
 \begin{dmath*}
   \mathit{cons}(\textsf{mult}(\textsf{exact}(m)),a,v) =
-    {\mathit{cons}(\textsf{mult}(\textsf{up}(m)),a,v) \wedge
-     \mathit{cons}(\textsf{mult}(\textsf{low}(m)),a,v) }
+    {\mathit{cons}(\textsf{mult}(\textsf{low}(m)),a,v) \wedge
+     \mathit{cons}(\textsf{mult}(\textsf{up}(m)),a,v) }
+\end{dmath*}
+\begin{dmath*}
+  \mathit{cons}(\textsf{mult}(\textsf{both}(m_1,m_2)),a,v) =
+    {\mathit{cons}(\textsf{mult}(\textsf{low}(m_1)),a,v) \wedge
+     \mathit{cons}(\textsf{mult}(\textsf{up}(m_2)),a,v) }
 \end{dmath*}
 \end{dgroup*}

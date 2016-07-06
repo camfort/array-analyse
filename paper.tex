@@ -1331,8 +1331,8 @@ where $\textsf{Mult}$ and $\textsf{Approx}$ are labelled variants
 labelling our set-basd model with additional information.
 
 \begin{definition} The \textsf{Mult}
-and \textsf{Approx} are parametric labelled variant (sum) types 
-with injection function given by their definition:
+and \textsf{Approx} are parametric labelled variant types 
+with injection functions given by their definition:
 %
 \begin{align*}
 \textsf{Mult} \, a & = \textsf{mult} \, a \,\mid\, \textsf{only} \, a \\
@@ -1340,31 +1340,39 @@ with injection function given by their definition:
 \textsf{upper} \, a \,\mid\, \textsf{both} \, a \, a
 \end{align*}
 \ie{}, $\mathsf{lower}$ is an injection $\mathsf{lower} : a \rightarrow \mathsf{Approx} \, a$, and so
-on. These are used for labelled models, and other components later in
+on. The $\textsf{Mult}$ type corresponds to the presence or absence of the
+\term{readOnce} modifier as shown in Figure~\ref{fig:spatial-model}. 
+The $\textsf{Approx}$ type corresponds to the presence or absence of
+the spatial approximation modifier, with \textsf{exact} when there is
+no such modifier and \textsf{lower} and \textsf{upper} for
+\term{atLeast} and \term{atMost}. Later, it will be useful to model
+pairs of lower and upper bounds which is provided by \textsf{both} 
+(but which isn't used here). 
+
+These are used for labelled models, and other components later in
 Section~\ref{sec:analysis} with additional information.
 \label{def:mult-and-approx}
 \end{definition}
 %
 
-\begin{figure}
+\begin{figure}[t]
 \input{spatial-model.tex}
 \caption{\textit{spec} model, 
 $\interp{-}_n : \textit{spec} \rightarrow \textsf{Mult}(\textsf{Approx}(\mathcal{P}(\domainVal{}^n)))$}
 \label{fig:spatial-model}
+\vspace{-1em}
 \end{figure}
 
 \subsection{Soundness}
 
 Given the model defined in this section we can
 consider soundness for the equational theory of
-specifications and the notion of spatial approximation
-on specifications. The proofs are given in our supplement.
+specifications and the notion of spatial approximation. The proofs are given in our supplement.
 
-\begin{theorem}[Soundness of equational theory]
+\begin{theorem}[Soundness of equational theory (Figure~\ref{fig:equations})]
 \[
-\overline{\texttt{v} : S}\equiv \overline{\texttt{u} : T}
-\; \Rightarrow \;
-\interp{\overline{\texttt{v} : S}} = \interp{\overline{\texttt{u} : T}}
+S \equiv T \; \Rightarrow \;
+\interp{S}_n = \interp{T}_n
 \]
 \end{theorem}
 
@@ -1665,7 +1673,7 @@ This yields:
  $\bullet$ which coalesces contiguous regions:
 %
 \begin{align*}
-& (\vect{x}^L,\vect{x}^U) \bullet (\vect{y}^L,\vect{y}^U) \\
+\vect{x} \bullet \vect{y}
 = &
 \begin{cases}
 (\vect{x}^L, \vect{y}^U) & \vect{x}^U_1 + 1 = \vect{y}^L_1 \; \wedge \;
@@ -1729,41 +1737,30 @@ result, hence we have reached a fixed point.
 \subsubsection{Step 4: Convert spans into specifications}
 \label{sec:inf-step4}
 
-\newcommand{\bplus}{\operatornamewithlimits{\term{+}}}
+\newcommand{\bplus}{\operatornamewithlimits{\term{\huge{+}}}}
 \newcommand{\tySum}[1]{#1^{\term{+}}}
 \newcommand{\tyProd}[1]{#1^{\term{*}}}
 \newcommand{\specDNF}{\textbf{spec}}
-\newcommand{\result}[1]{\lfloor{#1}\rceil}
 
 Next, the set of spans $\spanOp(M)$ covering the indexing
 space is converted into abstract syntax trees 
-for the specification language. This conversion is defined in terms
+of the specification language. This conversion is defined in terms
 of an algebra on \textit{spec} syntax in disjunctive-normal form
-(which we denote \specDNF{}). 
-
-\begin{align*}
-\result{\specDNF{}} = \specDNF + ((\specDNF{} + 1) \times
-  (\specDNF{} + 1))
-\end{align*}
-
-
-
-\begin{align*}
-\result{\specDNF{}} & ::= \textsf{exact} \, \specDNF{}
-\mid \textsf{bounds} ([\specDNF{}], [\specDNF{}]) \\
-\end{align*}
-
-The algebra mirrors the shape
+(which we denote \specDNF{}), and which is wrapped
+with the $\textsf{Approx}$ type (see
+Definition~\ref{def:mult-and-approx},
+p.~\pageref{def:mult-and-approx}), which we write as $\mathsf{A}$
+for brevity.  The algebra mirrors the shape
 of the region combinators for addition and multiplication, 
 with operators $\oplus$ and $\odot$ and a constructor for \specDNF{}:
 %%
 \begin{align*}
-\oplus & : \specDNF \rightarrow \specDNF \rightarrow
-  \specDNF \\
-\odot & : \specDNF \rightarrow \specDNF \rightarrow
-        \specDNF \\
+\oplus & : \mathsf{A}(\specDNF) \rightarrow \mathsf{A}(\specDNF) \rightarrow
+  \mathsf{A}(\specDNF) \\
+\odot & : \mathsf{A}(\specDNF) \rightarrow \mathsf{A}(\specDNF) \rightarrow
+        \mathsf{A}(\specDNF) \\
 \mathsf{toSpec} & : (\mathbb{Z} \cup \{\infty\}) \rightarrow (\mathbb{Z} \cup
-  \{\infty\})  \rightarrow \specDNF
+  \{\infty\})  \rightarrow \mathsf{A}(\specDNF)
 \end{align*}
 %%
 The $\mathsf{toSpec}$ operation takes a pair of lower and upper bounds
@@ -1797,23 +1794,28 @@ That is elements of \specDNF{} are of the form:
 \term{+} \; (r^m_1 \, \term{*} \; \ldots \term{*} \; r^m_p)
 \]
 %%
-More formally, $\specDNF \subseteq \textit{spec}$, defined:
+More formally, $\specDNF \subseteq (\textit{spec} \cup \{\epsilon\})$, defined:
 %%
 \begin{align*}
-\specDNF{} & ::= [\textit{mult},] \;
-\tySum{\specDNF} \\
+\specDNF{} & ::= \tySum{\specDNF} \mid \epsilon \\
 \tySum{\specDNF} & ::= \tyProd{\specDNF} \; \term{+} \; \tySum{\specDNF} \mid
   \tyProd{\specDNF} \\
 \tyProd{\specDNF} & ::= \textit{region} \; \term{*} \; \tyProd{\specDNF} \mid
    \textit{region}
 \end{align*}
 %%
+We incldue the empty element $\epsilon$ which is not present in the
+syntax. 
 In the following, $s, t$ range over elements of
 \specDNF{}, $\tySum{s}, \tySum{t}$ range over elements of 
 $\tySum{\specDNF}$ and $\tyProd{s}, \tyProd{t}$ range over elements
 of $\tyProd{\specDNF}$ (for example, $\tyProd{s} = r^1_{1} \; \term{*}
 \ldots \term{*} \; r^1_n$).
 \end{definition}
+
+\newcommand{\exactR}{\mathsf{exact}\;}
+\newcommand{\exact}[1]{\exactR(#1)}
+\newcommand{\upperB}[1]{\mathsf{upper}\;(#1)}
 
 \begin{definition} The $\mathsf{toSpec}$ constructor is defined:
 %%
@@ -1823,24 +1825,23 @@ of $\tyProd{\specDNF}$ (for example, $\tyProd{s} = r^1_{1} \; \term{*}
 \newcommand{\lupper}{u}
 \begin{align*}
 &\mathsf{toSpec} \; \llower \; \lupper = \\
-&\begin{cases}
+&\hspace{-0.4em}\begin{cases}
 %% FWD
- \stenFwdS{\lupper}{i}  & \llower = 0 \, \wedge \, \lupper > 0 \\[0.2em]
- \stenFwdSR{\lupper}{i}{\irreflS}  & \llower = 1 \, \wedge \, \lupper > 0 \\[0.2em]
+\exact{\stenFwdS{\lupper}{i}}  & \llower = 0 \, \wedge \, \lupper > 0 \\[0.2em]
+\exact{\stenFwdSR{\lupper}{i}{\irreflS}}\!\!\!\! & \llower = 1 \, \wedge \, \lupper > 0 \\[0.2em]
 %% BWD
- \stenBwdS{|\llower|}{i}  & \llower < 0 \, \wedge \, \lupper = 0 \\[0.2em]
-\stenBwdSR{|\llower|}{i}{\irreflS} & \llower < 0 \, \wedge \, \lupper = -1 \\[0.2em]
+\exact{\stenBwdS{|\llower|}{i}}  & \llower < 0 \, \wedge \, \lupper = 0 \\[0.2em]
+\exact{\stenBwdSR{|\llower|}{i}{\irreflS}}\!\!\!\! & \llower < 0 \, \wedge \, \lupper = -1 \\[0.2em]
 %% CEN
- \stenCenS{\lupper}{i}  & \llower < 0 \, \wedge \, \lupper > 0
- \, \wedge \, |\llower| = \lupper \\[0.2em]
- \stenBwdS{|\llower|}{i} & \llower < 0 \, \wedge \, \lupper > 0  \, \wedge \, |\llower| \neq \lupper \\
-\quad \texttt{+} \, \stenFwdS{\lupper}{i}  & \qquad\quad \\[0.2em]
+\exact{\stenCenS{\lupper}{i}}& \llower < 0 \wedge \lupper > 0 \wedge |\llower| = \lupper \\[0.2em]
+\exactR(\stenBwdS{|\llower|}{i} & \llower < 0 \wedge \lupper > 0  \wedge |\llower| \neq \lupper \\
+\qquad\qquad \texttt{+} \, \stenFwdS{\lupper}{i}) & \\[0.2em]
 % BOUND
- \texttt{atMost}, \stenFwdS{\lupper}{i} & \llower > 1 \\[0.2em]
- \texttt{atMost}, \stenBwdS{|\llower|}{i} \quad & \llower < (-1)
+\upperB{\stenFwdS{\lupper}{i}} & \llower > 1 \\[0.2em]
+\upperB{\stenBwdS{|\llower|}{i}} \quad & \llower < (-1)
  \\[0.2em]
 % ABSOLUTE REP
- \epsilon & \llower = \infty \, \vee \, \lupper = \infty
+\exact{\epsilon} & \llower = \infty \, \vee \, \lupper = \infty
   \end{cases}
 \end{align*}
 %%
@@ -1865,43 +1866,90 @@ Thus, an upper bound is instead returned showing the maximum extent
 of the region. The penultimate case is the dual, when the lower bound is less
 than $-1$, giving an upper bound on a \texttt{backward} specification.
 
-Finally, in the case where either bound is $\infty$, representing a non
+Finally, if either bound is $\infty$, representing a non
 neighbourhood index, then an empty specification is given
  with no regions, indicating that there is not even reflexive
 0-offset access in this dimension.
 \end{definition}
 
 \begin{lemma}
-$\mathsf{toSpec}$ is total (\ie{}, defined for all inputs)
+$\mathsf{toSpec}$ is total 
  given the precondition that the lower
 bound of the input span is less than or equal to its upper bound.
 \end{lemma}
 
 %\newcommand{\mkBig}[2]{\overset{\LARGE{\term{#1}}}{#2}}
-\begin{definition} The $\odot$ operation on \specDNF{} is defined
+\begin{definition} The $\odot$ operation on $\textsf{A}(\specDNF{})$
+  is defined in terms of the intermediate $\hat{\odot}$ on \specDNF{}:
+%%
 \begin{align*}
-& ([\textit{approx}_1] \; [\textit{mult}_1] \; 
-\tySum{s})
-\odot
-([\textit{approx}_2] \; [\textit{mult}_2] \;
-\tySum{t}) = \\
-& \begin{cases}
-\tySum{s} \tySum{\odot} \tySum{t} & \textit{approx}_1 =
-\textit{approx_2} = \varepsilon
-\\
-\
-& \textit{approx}_1 = \texttt{atLeast}, \textit{approx}_2 = \varepsilon
-\end{cases}
-\\
+S \,\hat{\odot}\, \epsilon = S \quad
+\epsilon \,\hat{\odot}\, S = S \qquad
+S \,\hat{\odot}\, T = \bplus_{(\tyProd{s}, \tyProd{t}) \in (S \times
+   T)} (\tyProd{s} \; \term{*} \; \tyProd{t})
 \end{align*}
+%%
+That is, the $\hat{\odot}$ product of two specifications $S$ and $T$ in DNF form 
+is the $\term{+}$ sum of all pairwise $\term{*}$ products for every
+pair of $\tyProd{spec}$ drawn from $S$ and $T$. The result
+is indeed in DNF-form. The operation is
+commutative and associative, and sound with respect to our
+model (see Lemma~\ref{lem:alg-soundness} below).
+The $\hat{\odot}$ operation is then lifted to all combinations of
+\textsf{Approx} for $\odot$:
 \begin{align*}
-s \tySum{\odot} t & =
- \bplus_{(\tyProd{s_1}, \tyProd{s_2}) \in (s \times
-   t)} (\tyProd{s_1} \; \term{*} \; \tyProd{s_2})
-%\begin{cases}%
-%\end{cases}
+\textsf{exact}(S) \odot \textsf{exact}(T) = \; & \textsf{exact}(S
+                                              \hat{\odot} T) \\
+\textsf{lower}(S) \odot \textsf{lower}(T) = \; & 
+      \textsf{lower} \, (S \hat{\odot} T) \\
+\textsf{upper}(S) \odot \textsf{upper}(T) = \; &
+      \textsf{upper} \, (S \hat{\odot} T) \\
+\textsf{lower}(S) \odot \textsf{exact}(T) = \; &
+       %\textsf{exact}(T) \odot \textsf{lower}(S) = \;
+       \textsf{both} \, (S \hat{\odot} T, \; T) \\
+\textsf{upper}(S) \odot \textsf{exact}(T) = \; & 
+       %\textsf{exact}(T) \odot \textsf{upper}(S) =
+      \; \textsf{both} \, (T, \; S \hat{\odot} T) \\
+\textsf{lower}(S) \odot \textsf{both}(T_l,T_u) = \; &
+        %\textsf{both}(T_l,T_u) \odot \textsf{lower}(S) = \;
+        \textsf{both} \, (S \hat{\odot} T_l, \; T_u) \\
+\textsf{upper}(S) \odot \textsf{both}(T_l,T_u) = \; & \textsf{both} \,
+                                                      (T_l, \; S \hat{\odot} T_u) \\
+\textsf{both}(S_l,S_u) \odot
+\textsf{both}(T_l,T_u) & = \textsf{both} (S_l \hat{\odot} T_l, \; S_u
+                         \hat{\odot} T_u)
 \end{align*}
+For brevity we omit the cases where the parameters above are flipped
+as $\odot$ is commutative.
 \end{definition}
+
+\begin{definition}The $\oplus$ operation on $\textsf{A}(\specDNF)$ 
+is defined in a similar way to $\odot$, with $\hat{\oplus}$ on
+$\specDNF$ given by:
+%%
+\begin{equation*}
+S \,\hat{\oplus}\, \epsilon = S \quad
+\epsilon \,\hat{\oplus}\, S = S \quad
+S \, \hat{\oplus} \, T = S \, \term{+} \, T
+\end{equation*}
+%%
+Thus, if neither specification is empty, their $\oplus$ is just
+the syntatic sum $\term{+}$. Then $\oplus$ is the lifting of
+$\hat{\oplus}$ to boudns with the shape as $\odot$ in the previous
+definition.
+\end{definition}
+
+\begin{lemma}[$\hat{\odot}$, $\hat{\oplus}$ soundness] $\forall S,
+  T \in \specDNF$ where $S \neq \epsilon \wedge T \neq \epsilon$:
+\begin{align*}
+\interp{S \; \hat{\odot} \; T}_n & = \interp{S}_n \otimes \interp{T}_n
+  \\
+\interp{S \; \hat{\oplus} \; T}_n & = \interp{S}_n \cup \interp{T}_n
+\end{align*}
+\label{lem:alg-soundness}
+\end{lemma}
+%
+
 
 \subsection{Checking\label{subsec:checking}}
 

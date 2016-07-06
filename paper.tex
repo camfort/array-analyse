@@ -931,7 +931,7 @@ semantics, in terms of sets of vectors which we call \emph{index
   schemes}. We introduce first the notion of indexing schemes
 and \emph{unification} which gives the domain of our model
 and forms the basis of the rest of the algorithsm for our
-specificaiton. We then define the denotational model
+specificaiton. We then define the denotational model.
 
 \subsection{Indexing schemes and unification}
 
@@ -963,8 +963,8 @@ and the checking procedures in Section~\ref{sec:analysis}.
 \begin{definition}[Schematic]
 The partial function $\textsf{schematic}$ maps 
 source-language indexing terms $(e_1, \ldots, e_n)$
-into $n$-dimensional indexing schemes 
-($\in \domainVal^n$), defined:
+into $n$-dimensional index schemes 
+$\in (\domainVal)^n$, defined:
 %
 \begin{align*}
 \mathsf{schematic}(e_1, \ldots, e_n) & = 
@@ -1056,7 +1056,9 @@ $0 \not\sim_1 1$.
 Our terminology of \emph{indexing schemes} and
 \emph{unification} are by analogy
 with the \emph{type schemes} and \emph{type unification} of
-ML~\cite{milner1978theory}, though our notion is much more rigid.
+polymorphic types in ML~\cite{milner1978theory}. Our notion is
+much more rigid however, there is only one way to unify two
+index schemes in our model.
 
 
 \subsection{Denotational model}

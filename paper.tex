@@ -1895,10 +1895,11 @@ one that is both a lower and an upper bound.
 \label{fig:consistency}
 \end{figure}
 
-We will consider both a consistent and an inconsistent example to show how
-checking works. The following is an example with a looser but still consistent
-version of the \textit{fivepoint} stencil specification inferred previously in
-the Subsection~\ref{subsec:inference}:
+We will consider an extended example of a stencil computation that is
+consistent with its annotation to show how checking works. The following is an
+example with a looser but still consistent version of the \textit{fivepoint}
+stencil specification inferred previously in the
+Subsection~\ref{subsec:inference}:
 %
 \begin{minted}[breakindent=8.1em]{fortran}
 != region fivepoint = centered(depth=1,dim=1) + centered(depth=1,dim=2)
@@ -1961,7 +1962,7 @@ analyse(L3,b) =
 \item Below we present two match ups of relativised access patterns and unifiers
   to show both the lower and the upper bound holds.
 
-  The unifications for the lower bound:
+  The unifications for the upper bound:
   \begin{align*}
      \vtwoh{0}{-1} & \sim_2 \vtwoh{0}{\infty} \\
      \vtwoh{0}{0} & \sim_2 \vtwoh{0}{\infty} \\
@@ -1970,7 +1971,7 @@ analyse(L3,b) =
      \vtwoh{1}{0} & \sim_2 \vtwoh{\infty}{0}
   \end{align*}
 
-  The unifications for the upper bound:
+  The unifications for the lower bound:
   \begin{align*}
      \vtwoh{-1}{0} & \sim_2 \vtwoh{-1}{\infty} \\
      \vtwoh{0}{0} & \sim_2 \vtwoh{0}{\infty} \\
@@ -1984,8 +1985,30 @@ analyse(L3,b) =
   are consistent with the \texttt{fivepoint} specification.
 \end{enumerate}
 
+Now when $L3$ is slightly changed with an additional term \texttt{b(i+2,j)}, the
+new assignment $L3'$ becomes:
+%
+\begin{minted}[firstnumber=3]{fortran}
+a(i,j) = b(i, j-1) + b(i,j) + b(i,j+1) + b(i-1,j) + b(i+1,j) + b(i+2,j+2)
+\end{minted}
+%
+The first four steps will proceed the same way and in the fifth step result
+of $\mathit{analyse}(L3',b)$ will have the extra term $\vtwoh{2}{2}$. In sixth
+step, since the model has not changed and the relativised indices are only
+augmented with a new element, the unification for lower bound still hold.
+However, there are not elements in the model, $m$, that can unify with
+$\vtwoh{2}{2}$, hence the model fails to hold as an upper bound.
 
-
+Note that if the specification was as follows:
+%
+\begin{minted}{fortran}
+!= stencil atLeast, readOnce, fivepoint :: b}
+\end{minted}
+%
+The consistency function would have held as
+$\mathit{cons}(\textsf{mult}(\textsf{up}(m)),L3',b)$ for the upper bound would
+have never been needed. This semantically makes sense since the region
+$\texttt{fivepoint}$ is indeed a lower bound for the access pattern of $b$.
 
 \section{Evaluation}
 \label{sec:evaluation}

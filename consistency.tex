@@ -9,11 +9,11 @@ array $v$ in assignment $a$ contain each element only once.
     {\mathit{unique}(a,v) \wedge \mathit{cons}(\textsf{mult}(m),a,v) }
 \end{dmath*}
 \begin{dmath*}
-  \mathit{cons}(\textsf{mult}(\textsf{low}(m)),a,v) =
+  \mathit{cons}(\textsf{mult}(\textsf{up}(m)),a,v) \quad =
     {\forall u \in \textsf{analyse}(a)(v) \; \exists v \in m \cdot u \sim v }
 \end{dmath*}
 \begin{dmath*}
-  \mathit{cons}(\textsf{mult}(\textsf{up}(m)),a,v) \quad =
+  \mathit{cons}(\textsf{mult}(\textsf{low}(m)),a,v) =
     {\forall v \in m \; \exists u \in \textsf{analyse}(a)(v) \cdot u \sim v }
 \end{dmath*}
 \begin{dmath*}

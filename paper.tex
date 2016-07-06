@@ -1961,17 +1961,17 @@ We evaluated our stencil language on a corpus of scientific code. We first give 
 }
 \begin{tabular}{|l|S|S|S|}
 \hline
-Package       & {Files} & {Lines of code} & {Files analysed} \\ % braces prevent headers from being formatted as numbers
+Package   & {Files} & {Files analysed} & {Lines of code}  \\ % braces prevent headers from being formatted as numbers
 \hline
-UM            & \umFiles & \umLoC & \umparseOk  \\
-E3MG          & \ethreemgeaFiles   & \ethreemgeaLoC & \ethreemgeaparseOk  \\
-BLAS          & \blasFiles   & \blasLoC & \blasparseOk        \\
-Hybrid4       & \hybridfourFiles    & \hybridfourLoC & \hybridfourparseOk         \\
-GEOS-Chem     & \geoschemFiles   & \geoschemLoC & \geoschemparseOk       \\
-Navier        & \navierFiles     & \navierLoC & \navierparseOk           \\
-CP            & \computationalphysicstwoFiles    & \computationalphysicstwoLoC & \computationalphysicstwoparseOk           \\
+UM        & \umFiles                       & \umparseOk                      & \umLoC                     \\
+E3MG      & \ethreemgeaFiles               & \ethreemgeaparseOk              & \ethreemgeaLoC             \\
+BLAS      & \blasFiles                     & \blasparseOk                    & \blasLoC                   \\
+Hybrid4   & \hybridfourFiles               & \hybridfourparseOk              & \hybridfourLoC             \\
+GEOS-Chem & \geoschemFiles                 & \geoschemparseOk                & \geoschemLoC               \\
+Navier    & \navierFiles                   & \navierparseOk                  & \navierLoC                 \\
+CP        & \computationalphysicstwoFiles  & \computationalphysicstwoparseOk & \computationalphysicstwoLoC\\
 \hline
-\textbf{Total}& \overallFiles  & \overallLoC   & \overallparseOk  \\
+\textbf{Total} & \overallFiles  & \overallparseOk & \overallLoC  \\
 \hline
 \end{tabular}
 \caption{Summary of software packages used for evaluation\label{tab:corpus}}
@@ -2047,10 +2047,10 @@ Section~\ref{subsec:inference}. Each potential statement for which we
 eventually generate some stencil specifications for is also counted as
 an \emph{actual} statement.
 
-\begin{figure}
+\begin{table}
 \begin{tabular}{|l|l|l|l|l|}
 \hline
-Package       & Potential & Actual & Exact & Inexact    \\
+{Package}     & {Potential} & {Actual} & {Exact} & {Inexact}    \\
 \hline
 UM            & \umtickAssign\ (\umtickAssignPercent\%) &
                 \umtickAssignSuccess\ (\umtickAssignSuccessPercent\%) &
@@ -2087,10 +2087,10 @@ CP            & \computationalphysicstwotickAssign\ (\computationalphysicstwotic
                 \overallboundedBoth    \\
 \hline
 \end{tabular}
-\caption{Stencil assignment rates\label{fig:tickAssign}}
-\end{figure}
+\caption{Stencil assignment rates\label{tab:tickAssign}}
+\end{table}
 
-The first two columns of Figure \ref{fig:tickAssign} shows the number of potential and actual stencils and their rate as a percentage of the total number of assignment statements in the code. There are a variety of reasons why we might not infer an actual stencil from a potential one: 1) \textbf{Non-subset induction variables} occurs when the induction variables on the RHS are not a subset of the LHS. These cases are not stencils by our definition. The degenereate case of this is to have only constant indices on the LHS. We see lots of examples of this in loops as accumulators e.g. computing the sum over some other array; 2) \textbf{Derived induction variables} where the indexing variable (\mintinline{fortran}{x}) is derived from an induction variable \mintinline{fortran}{i} e.g. \mintinline{fortran}{x = len - i}; 3) \textbf{Inconsistent induction dimensions} occur when an induction variable is used to specify more than one array dimension on the RHS. These are common in matrix operations such as LU-decomposition which contains assignments such as \mintinline{fortran}{a(l) = a(l) - a(m) * b(l, m)}.
+The first two columns of Table~\ref{tab:tickAssign} shows the number of potential and actual stencils and their rate as a percentage of the total number of assignment statements in the code. There are a variety of reasons why we might not infer an actual stencil from a potential one: 1) \textbf{Non-subset induction variables} occurs when the induction variables on the RHS are not a subset of the LHS. These cases are not stencils by our definition. The degenereate case of this is to have only constant indices on the LHS. We see lots of examples of this in loops as accumulators e.g. computing the sum over some other array; 2) \textbf{Derived induction variables} where the indexing variable (\mintinline{fortran}{x}) is derived from an induction variable \mintinline{fortran}{i} e.g. \mintinline{fortran}{x = len - i}; 3) \textbf{Inconsistent induction dimensions} occur when an induction variable is used to specify more than one array dimension on the RHS. These are common in matrix operations such as LU-decomposition which contains assignments such as \mintinline{fortran}{a(l) = a(l) - a(m) * b(l, m)}.
 
  %% This example is from geos-chem/GeosRad/rrtmg_sw_spcvmc.F90:609
  %%                      pnifddir(ikl) = pnifddir(ikl) + zincflx(iw)*ztdbt(jk)

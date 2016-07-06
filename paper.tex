@@ -431,7 +431,7 @@ of mathematical variables.
 \begin{definition}[Base induction variable]
   A variable \textit{v} of integer type is a \emph{base induction
     variable} if it is the control variable of a ``for''
-  loop,\footnote{Or equivalent for the target language, \eg{},
+  loop,\footnote{Or equivalent in the source language, \eg{},
     \texttt{do} in Fortran for our implementation} incremented by $1$ per
 iteration. The variable is marked as a base induction variable
 only within the scope of the loop. Induction variables are ranged
@@ -448,18 +448,18 @@ over by $i$, $j$, $k$ throughout. Since we do not use non-base
   in terms of base induction variables.
 \end{definition}
 
-\begin{definition}[Neighbourhood index and subscript]
+\begin{definition}[Neighbourhood index]
   For an array subscript $v(\bar{e})$, we say that $e \in \bar{e}$
   is a \emph{neighbourhood index} if it is of the form
   $e \equiv i$, $e \equiv i + a$ or $e \equiv i - a$ where $a$ is an
   integer constant. That is, a neighbourhood index is a
-  relative index defined as a constant translation of a base induction
-  variable. The relation $\equiv$ identifies terms up-to commutativity
-  of $+$ and the inverse relation of $+$ and $-$ (\eg{},
+  relative index defined as constant translations of base induction
+  variables. (The relation $\equiv$ hre identifies terms up-to commutativity
+  of $+$ and the inverse relation of $+$ and $-$ \eg{},
   $(-b) + i \equiv i - b$).  We classify neighbourhood indices using
-  the predicate \neigh{}. An array subscript $v(\bar{e})$ where every
- $e \in \bar{e}$ is a neighbourhood index is called a
- \emph{neighbourhood subscript}.
+  the predicate \neigh{}. %An array subscript $v(\bar{e})$ where every
+% $e \in \bar{e}$ is a neighbourhood index is called a
+% \emph{neighbourhood subscript}.
 \label{def:neighbour}
 \end{definition}
 
@@ -468,13 +468,12 @@ over by $i$, $j$, $k$ throughout. Since we do not use non-base
 \label{sec:syntax}
 
 Figure~\ref{fig:syntax} gives the syntax of stencil specifications,
-which we introduces in stages below.  The top-level is given by the
+which we introduce in stages below.  The top-level is given by the
 \nonterm{specification} production which splits into either a
 \nonterm{regionDec} (region declaration) or a \nonterm{specDec}
-(specification declaration). Specification declarations associate a
-specification to one or more program variables $\bar{v}$ (here given
-using the Fortran style syntax of $\ldots \; \texttt{::} \bar{v}$),
-describing how the array variables $\bar{v}$ are accessed.
+(specification declaration). Specification declarations associate
+(via the operator $\texttt{::}$) a specification to one or more program variables
+$\bar{v}$, describing how the array variables $\bar{v}$ are accessed.
 %Specification declarations are either \nonterm{spatial} or
 %\nonterm{temporal} specifications and describe, for spatial
 %specifications,
@@ -497,11 +496,11 @@ a region variable \nonterm{rvar} or given directly within a
 Regions have as terminals the \emph{region constants}, denoted by
 \term{reflexive}, \term{forward}, \term{backward}, or \term{centered}. Each
 region constant except \term{reflexive} is given a depth parameter $n$ (natural
-number greater than 0). They all receive a dimension identifier $d$ (also a
+number greater than 0). Each receives a dimension identifier $d$ (also a
 natural number greater than 0). Region constants specify that an array is read
 from by a collection of indices which in the $d^{th}$ dimension are
 neighbourhood indices ranging from $i + 0$ up to $i \pm n$ inclusively,
-\eg{}, the following is valid stencil, reading from \term{a} and writing to
+\eg{}, the following is a valid stencil, reading from \term{a} and writing to
 \term{b}:
 %%
 \begin{minted}{fortran}
@@ -512,7 +511,6 @@ b(i, 0) = a(i, 0) + a(i+1, 0) + a(i+2, 0)
 were \texttt{i} is an induction variable.  The stencil specification
 is associated to the array variable \texttt{a}. Note that the second
 dimension is fixed at a constant here.
-
 A \term{backward} stencil
 is similar but has negative neighbourhood indices, \eg{},
 %

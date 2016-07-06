@@ -948,40 +948,65 @@ akin to Disjunctive Normal Form (DNF) (where \term{+} is taken as
 normalisation in Section~\ref{sec:inf-step4}.
 
 
-
 \begin{figure}[t]
 \begin{align*}
 \begin{array}{c}
-\dfrac{}{S <: S}(\textsc{refl}) \qquad \dfrac{R <: S \quad S <: T}{R <:
-  T}(\textsc{trans}) \\[1.5em]
-\dfrac{}{\texttt{readOnce} \, S <: S}(\textsc{rep})
+%%
+%% INEQUATIONS ON REGION
+%% 
+%\framebox{$\textit{region} <: \textit{region}'$} \\[0.85em]
+%
+\dfrac{}{R <:^r R}\trule{\textsc{refl}} \qquad \dfrac{P <:^r R \quad R <:^r Q}{P <:^r
+  Q}\trule{\textsc{trans}} 
+\qquad
+\dfrac{R \equiv S}{R <:^r S}\trule{\textsc{eq}} 
 \\[1.5em]
 \setlength{\arraycolsep}{0.1em}
-\dfrac{\hspace{3em} m \leq n \hspace{3em}}
+\dfrac{\hspace{3em} m \leq n \qquad r \Rightarrow s \hspace{3em}}
 {\begin{array}{rl}
-\stenFwdS{m}{d} & <: \stenFwdS{n}{d}
+\stenFwdSR{m}{d}{r} & <:^r \stenFwdSR{n}{d}{s}
 %& \;\, ds \subseteq es \wedge n \leq m
 \\
-\wedge \stenBwdS{m}{d} & <: \stenBwdS{n}{d}
+\wedge \; \stenBwdSR{m}{d}{r} & <:^r \stenBwdSR{n}{d}{s}
 %& \;\, ds \subseteq es \wedge n \leq m
 \\
-\wedge \; \stenCenS{m}{d} & <: \stenCenS{n}{d}
+\wedge \; \stenCenSR{m}{d}{r} & <:^r \stenCenSR{n}{d}{s}
 %& \;\, ds \subseteq es \wedge n \leq m
 \\
-\wedge \; \stenBwdS{m}{d} & <: \stenCenS{n}{d} \\
-\wedge \; \stenFwdS{m}{d} & <: \stenCenS{n}{d} \\[1em]
-\end{array}} \\[2.5em]
+\wedge \; \stenBwdSR{m}{d}{r} & <:^r \stenCenSR{n}{d}{s} \\
+\wedge \; \stenFwdSR{m}{d}{r} & <:^r \stenCenSR{n}{d}{s} \\[1em]
+\end{array}}\trule{\textsc{over}} \\
 \hspace{-0.5em}
-\dfrac{S_1 <: T_1 \quad S_2 <: T_2}
-      {S_1 \, \texttt{+} \, S_2 <: T_1 \, \texttt{+} \, T_2}
-(\textsc{cong}\texttt{+}) \;\;\;
-\dfrac{S_1 <: T_1 \quad S_2 <: T_2}
-      {S_1 \, \texttt{*} \, S_2 <: T_1 \, \texttt{*} \, T_2}
-(\textsc{cong}\texttt{*})
+\dfrac{P_1 <:^r R_1 \quad P_2 <:^r R_2}
+      {P_1 \, \texttt{+} \, P_2 <:^r R_1 \, \texttt{+} \, R_2}
+\trule{\textsc{cong}\texttt{+}} \;\;\;
+\dfrac{P_1 <:^r R_1 \quad P_2 <:^r R_2}
+      {P_1 \, \texttt{*} \, P_2 <:^r R_1 \, \texttt{*} \, R_2}
+\trule{\textsc{cong}\texttt{*}} \\[1.5em]
+%%
+%% INEQUATIONS ON SPEC
+%%
+%\framebox{$\textit{spec} <: \textit{spec}'$} \\[0.8em]
+%
+\dfrac{}{\term{readOnce} \, R <: R}\trule{\textsc{rep}}
+\quad
+\dfrac{}{\term{atLeast} \, R <: \term{atMost} \,
+  R}\trule{\textsc{bound}} \\[1.5em]
+%%
+\dfrac{P <:^r R}{\term{atLeast} \, P <: \term{atLeast} \,
+  R}\trule{\textsc{cong}\texttt{L}}
+\ 
+\dfrac{P <:^r R}{\term{atMost} \, P <: \term{atMost} \,
+  R}\trule{\textsc{cong}\texttt{M}} \\[1.5em]
+\dfrac{P <:^r R}{\term{readOnce} \, P <: \term{readOnce} \,
+  R}\trule{\textsc{cong}\texttt{R}} 
+%%
 \end{array}
 \end{align*}
-\caption{Inequations on regions}
+\caption{Inequations $<:^r$ on \textit{regions} and
+$<:$ on \textit{specs}.}
 \label{fig:inequations}
+\label{-0.5em}
 \end{figure}
 
 \paragraph{Inequations: sub-specifications}

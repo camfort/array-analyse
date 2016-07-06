@@ -213,12 +213,14 @@ xrightmargin=0.2cm,commandchars=\\\{\},baselinestretch=0.98,numbersep=0.9em}
   annotations in source code, along with inference, checking, and
   specification and program synthesis procedures. We evaluate our
   language against a corpus of numerical Fortran code, and show that
-  precise specifications can be given to roughly half of the
-  identifiable stencil computations, and that the vast majority of
-  stencil computations indeed have a simple, regular, static
-  shape. This paper details our stencil specification language, its
-  static semantics, inference, checking, and program synthesis
-  procedures, our implementation, and our evaluation study.
+  the vast majority of stencil computations indeed have a simple,
+  regular, static shape. Around 10\% of the stencils found evoke a
+  programming pattern for which indexing errors are plausible. We
+  investigate two stencils in detail and find that we are able to
+  detect the vast majority of potential errors. This paper details our
+  stencil specification language, its static semantics, inference,
+  checking, and program synthesis procedures, our implementation, and
+  our evaluation study.
 \end{abstract}
 
 
@@ -308,7 +310,7 @@ In this paper, we make the following contributions:
 \item we introduce our specification language for
 stencil computations that captures many common forms
 of data access pattern (Section~\ref{sec:lang})
-along with a denotational model (Section~\ref{sec:semantics});
+along with a sound denotational model (Section~\ref{sec:semantics});
 
 \item we detail inference, checking, specification synthesis, 
 and program synthesis algorithms for our language
@@ -319,8 +321,14 @@ implementation as an extension of CamFort,
 an open-source program analysis and refactoring tool for Fortran
 corpus. We use this implementation to evaluate our approach against
 a corpus of scientific applications, totalling roughly one million
-lines of code, and we study some verification case studies.
-\dnote{insert results here}
+lines of code, and we study some verification case studies;
+
+\item we show that around 10\% of stencils are in a class that
+  represent a plausible scenario for a programming error;
+
+\item we consider two particular stencils in detail and show that we
+  are able to detect the vast majority of (synthesised) possible
+  indexing errors.
 \end{itemize}
 %
 
@@ -409,7 +417,7 @@ for all $i, j$ within the inner boundary of the array (to avoid
 out-of-bounds access at the edges). We revisit this hypothesis
 in Section~\ref{sec:evaluation} where the inference of
 such regular stencil patterns on a corpus of numerical programs (both
-small and large). We found that indeed \dnote{..}.
+small and large). 
 
 Section~\ref{sec:syntax} outlines the syntax of specifications. 
  Section~\ref{sec:eqs} provides an equational

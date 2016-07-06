@@ -49,7 +49,7 @@
   linenos=true,
   fontsize=\footnotesize,
   breaklines=true,
-  breakafter=+*,
+  breakafter=),
   xleftmargin=\parindent
 }
 
@@ -379,7 +379,7 @@ showing highly-detailed stencil computations.
 \draw (4,1.5) rectangle (4.5,2);
 \end{tikzpicture}
 \end{center}
-\vspace{-0.3em}
+\vspace{-0.5em}
 (c) Pictorial representation of the two stencil specifications.
 The horizontal dimension is \texttt{dim=1} and the vertical is \texttt{dim=2}.
 \caption{Fragment of a Navier-Stokes fluid simulator and its
@@ -546,10 +546,11 @@ b(i) = ( a(i) + a(i-1) + a(i+1) ) / 3.0
 \end{minted}
 
 \begin{figure}[t]
+\vspace{-0.1em}
 \begin{align*}
 \def\arraystretch{1.2}
 \setlength{\arraycolsep}{0.2em}
-\newcommand{\dimTy}{\mathbb{D}}
+\newcommand{\dimTy}{\mathbb{N}_{>0}}
 \begin{array}{rl}
 \nonterm{specification} ::= & \nonterm{regionDec} \mid \nonterm{specDec} \\
 \nonterm{specDec} ::= & \term{stencil} \; \nonterm{spec} \;
@@ -561,17 +562,17 @@ b(i) = ( a(i) + a(i-1) + a(i+1) ) / 3.0
 \nonterm{spec} ::= & [\nonterm{approx},] \; [\nonterm{mult},] \; \nonterm{region} \\
 \nonterm{mult} ::= & \term{readOnce} \\
 \nonterm{approx} ::= & \term{atMost} \; \mid \; \term{atLeast} \\[0.1em]
-\nonterm{region} ::= & \\
-\multicolumn{2}{l}{\qquad\qquad\;\;\; \stenFwd{\mathbb{N}_{>0}}{\dimTy}{\;[, \texttt{irreflexive}]}} \\
+\nonterm{region} ::= & \nonterm{rvar} \; \\
+\multicolumn{2}{l}{\qquad\qquad \mid \; \stenRefl{\dimTy}} \\
+\multicolumn{2}{l}{\qquad\qquad \mid \;\stenFwd{\mathbb{N}_{>0}}{\dimTy}{\;[, \texttt{irreflexive}]}} \\
 \multicolumn{2}{l}{\qquad\qquad \mid \; \stenBwd{\mathbb{N}_{>0}}{\dimTy}{\;[, \texttt{irreflexive}]}} \\
 \multicolumn{2}{l}{\qquad\qquad \mid \; \stenCen{\mathbb{N}_{>0}}{\dimTy}{\;[, \texttt{irreflexive}]}} \\
-\multicolumn{2}{l}{\qquad\qquad \mid \; \stenRefl{\dimTy}}  \\
 \multicolumn{2}{l}{\qquad\qquad \mid \; \nonterm{region} \; \term{+} \; \nonterm{region}} \\
-\multicolumn{2}{l}{\qquad\qquad \mid \; \nonterm{region} \; \term{*} \; \nonterm{region}} \\
-\multicolumn{2}{l}{\qquad\qquad \mid \; \nonterm{rvar}}  \\[0.5em]
+\multicolumn{2}{l}{\qquad\qquad \mid \; \nonterm{region} \; \term{*} \; \nonterm{region}} \\[0.5em]
+%\multicolumn{2}{l}{\qquad\qquad \mid \; \nonterm{rvar}}  
+%\\[0.5em]
 %\nonterm{temporal} ::= \; & \term{dependency} \; (v \; \{ , v \}) [, \texttt{mutual}]
 %  \\[0.5em]
-\dimTy ::= \; & \mathbb{N}_{>0} \\
 \nonterm{rvar} ::= \; & [\text{\term{a}-\term{z}$\,$\term{A}-\term{Z}$\,$\term{0}-\term{9}}]+\\[-1em]
 \end{array}
 \end{align*}
@@ -805,21 +806,21 @@ and checked against the code.
 %
 (\textsc{irrefl}) \;\; & (R \, \term{*} \, S^\irreflS) \, \term{+} \,
                          (R^\irreflS \, \term{*} \, S) \;
-\equiv \; R \, \term{*} \, S \\[0.5em]
+\equiv \; R \, \term{*} \, S \\[0.4em]
 %
 %
-(\texttt{+}\textsc{idem}) \;\; & S \; \texttt{+} \; S \; \equiv \; S \\[0.5em]
+(\texttt{+}\textsc{idem}) \;\; & S \; \texttt{+} \; S \; \equiv \; S \\[0.4em]
 %
 (\texttt{+}\textsc{comm}) \;\; & S \; \texttt{+} \; T \; \equiv \; T \;
-                       \texttt{+} \; S \\[0.5em]
+                       \texttt{+} \; S \\[0.4em]
 %
 (\texttt{+}\textsc{assoc}) \;\; & R \; \texttt{+} \; (S \; \texttt{+} \; T) \; \equiv \; (R \;
-                       \texttt{+} \; S) \; \texttt{+} \; T \\[0.5em]
+                       \texttt{+} \; S) \; \texttt{+} \; T \\[0.4em]
 (\texttt{*}\textsc{comm}) \;\; & S \; \texttt{*} \; T \; \equiv \; T \;
-                       \texttt{*} \; S \\[0.5em]
+                       \texttt{*} \; S \\[0.4em]
 %
 (\texttt{*}\textsc{assoc}) \;\; & R \; \texttt{*} \; (S \; \texttt{*} \; T) \; \equiv \; (R \;
-                       \texttt{*} \; S) \; \texttt{*} \; T \\[0.5em]
+                       \texttt{*} \; S) \; \texttt{*} \; T \\[0.4em]
 (\textsc{dist}) \;\; & R \; \texttt{*} \; (S \; \texttt{+} \; T) \; \equiv \; (R \;
                        \texttt{*} \; S) \; \texttt{+} \; (R
                        \; \texttt{*} \; T)
@@ -846,7 +847,8 @@ and checked against the code.
 %\end{array}
 \end{array}
 \end{align*}
-\caption{Equations on specifications}
+\caption{Equations on specifications (regions)}
+\vspace{-1em}
 \label{fig:equations}
 \end{figure}
 
@@ -856,10 +858,10 @@ between region terms. Stencil declarations are considered
 equal when they have the same modifiers and $\equiv$ equates
 their regions, \ie{}:
 \begin{align*}
-& \textit{region} \equiv \textit{region'} \\
-& \quad \Rightarrow \;\; \texttt{stencil} \; [\textit{approx},] \; [\textit{mult},] \;
+(\textit{region} \equiv \textit{region'}) 
+ \Rightarrow \quad\;\; & \texttt{stencil} \; [\textit{approx},] \; [\textit{mult},] \;
 \textit{region} \\[-0.4em]
-& \quad\quad \;\; \equiv \;\texttt{stencil} \; [\textit{approx},] \;
+\quad \equiv \; & \texttt{stencil} \; [\textit{approx},] \;
             [\textit{mult},] \; \textit{region}'
 \end{align*}
 %
@@ -869,14 +871,15 @@ To save space in the equations of Figure~\ref{fig:equations}, we use abbreviatio
 respectively. Futhermore, the abbreviations include syntactic sugar
 for quantifying over the abseence or presence of the \irrefl{}
 attribute on region constants as a boolean. For example,
-the syntactic sugar in our equations for \term{fwd} is defined:
+the syntactic sugar for \term{fwd} is defined:
 %%
 \begin{align*}
+\hspace{-0.25em}
 & \stenFwdSR{n}{d}{r}
 \; := \; \\[-0.4em]
 & \qquad \begin{cases}
-\stenFwd{n}{d}{, \irrefl} & \textit{if} \;\, \neg \, r \\
-\stenFwd{n}{d}{}  & \textit{if} \;\,  r
+\stenFwd{n}{d}{, \irrefl} & \;\;\textit{if} \;\, \neg \, r \\
+\stenFwd{n}{d}{}  & \;\;\textit{if} \;\,  r
 \end{cases} \\
 \textit{or} \;\;
 & \stenFwdS{n}{d} := \stenFwd{n}{d}{}
@@ -2476,8 +2479,8 @@ the results of the Camfort test.
 
 The Unified Model contains an implementation of the Smagorinsky subgrid-scale model for calculating turbulence. The source file in question yields 39 stencils from 340 lines of code. We selected one as an example:
 
-\begin{minted}[breakindent=8.1em]{fortran}
- != stencil readOnce, (forward(depth=1, dim=3, irreflexive))*(backward(depth=1, dim=1))*(backward(depth=1, dim=2)) + (forward(depth=1, dim=3))*(backward(depth=1, dim=1))*(reflexive(dim=2)) + (forward(depth=1, dim=3))*(backward(depth=1, dim=1, irreflexive))*(backward(depth=1, dim=2, irreflexive)) + (forward(depth=1, dim=3))*(backward(depth=1, dim=2))*(reflexive(dim=1)) + (backward(depth=1, dim=1))*(backward(depth=1, dim=2, irreflexive))*(reflexive(dim=3)) + (backward(depth=1, dim=1, irreflexive))*(backward(depth=1, dim=2))*(reflexive(dim=3)) :: x
+\begin{minted}[breakindent=0em,linenos=false,xleftmargin=0em]{fortran}
+!=stencil readOnce,(forward(depth=1,dim=3,irreflexive))*(backward(depth=1,dim=1))*(backward(depth=1,dim=2))+(forward(depth=1,dim=3))*(backward(depth=1,dim=1))*(reflexive(dim=2))+(forward(depth=1,dim=3))*(backward(depth=1,dim=1,irreflexive))*(backward(depth=1,dim=2,irreflexive))+(forward(depth=1,dim=3))*(backward(depth=1,dim=2))*(reflexive(dim=1))+(backward(depth=1,dim=1))*(backward(depth=1,dim=2,irreflexive))*(reflexive(dim=3))+(backward(depth=1,dim=1,irreflexive))*(backward(depth=1,dim=2))*(reflexive(dim=3))::x
 \end{minted}
 
 This stencil specifies the access pattern to a 3-dimensional array (which we have renamed to be called \texttt{x}). The array is accessed 8 times in the computation. We tried introducing indexing errors by changing the offset in one dimension of one of the references to \texttt{x}. For example changing \mintinline{fortran}{x(i+1,j,k)} to \mintinline{fortran}{x(i,j,k)} or \mintinline{fortran}{x(i-1,j,k)}. There are 48 possible errors of this type of which we found only 6 were not detected by the stencil check.
@@ -2591,10 +2594,8 @@ that are significantly faster than the typical looping implementations
 of stencil computations.
 
 % 3D stencil codes
-\citet{Zhang:2012:CGO}
+%\citet{Zhang:2012:CGO}
 
-% Ypnos
-\citet{Orchard:2010:DAMP}
 
 \section{Conclusion and future work}
 

@@ -2179,18 +2179,30 @@ ZZ1(I,J) = SFDT(I,J+8)
 
 We grouped stencils together into four classes based on similar levels of complexity. These four classes account for 99.7\% of all the stencils we found in the corpus.
 
-\textbf{All reflexive} The vast majority (X\%) of stencils were
+\textbf{All-reflexive} The vast majority (X\%) of stencils were
 reflexive in every dimension of the array. These most often correspond
 to applying point-wise transformations to data such as scaling
 e.g. \begin{minted}{fortran}
 ZZ1(I,K) = .000041868*ZZ1(I,K)
 \end{minted}
+Arrays with this class of stencil must be indexed by all the induction
+variables used in the LHS without any offsets.
 
-\textbf{All-reflexive} stencils are reflexive in every dimension of the array. These most often correspond to applying point-wise transformations to data such as scaling e.g. \mintinline{fortran}{ZZ1(I,K) = .000041868*ZZ1(I,K)}. Arrays with this class of stencil must be indexed by all the induction variables used in the LHS without any offsets.
+\textbf{Some-reflexive} stencils consist of only reflexive terms but
+leave some dimensions unspecified. Two examples in this class are listed:
+\begin{minted}{fortran}
+leafpools(:,age_class)=leafpool(:,1)
+RVM(J,I2) = VRFO(ivar,J)
+\end{minted}
+where for the first example \mintinline{fortran}{leafpools} contains an
+implicit loop, and for the second example \mintinline{fortran}{J} is
+the induction variable. Arrays with this class of stencil can be
+indexed by a subset of the LHS induction variables but again without
+any offsets.
 
-\textbf{Some-reflexive} stencils consist of only reflexive terms but leave some dimensions unspecified. Examples in this class include \mintinline{fortran}{leafpools(:,age_class)=leafpool(:,1)} (which contains an implicit loop), and \mintinline{fortran}{RVM(J,I2) = VRFO(ivar,J)} where \mintinline{fortran}{J} is the induction variable. Arrays with this class of stencil can be indexed by a subset of the LHS induction variables but again without any offsets.
-
-\textbf{Single-action} stencils consist of a single \term{backward},\term{forward}, or \term{centered} term and some number of reflexive terms.
+\textbf{Single-action} stencils consist of a single \term{backward},
+\term{forward}, or \term{centered} term and some number of reflexive
+terms.
 % /home/mrd45/src/corpus/geos-chem/GTMM/CasaRegridModule.F90:645
 \begin{minted}{fortran}
 do j=2,jm-ig
@@ -2201,7 +2213,9 @@ do j=2,jm-ig
 enddo
 \end{minted}
 
-\textbf{Single-action-irreflexive} stencils consist of a single \term{backward},\term{forward}, or \term{centered} irreflexive term and some number of reflexive terms.
+\textbf{Single-action-irreflexive} stencils consist of a single
+\term{backward}, \term{forward}, or \term{centered} irreflexive term
+and some number of reflexive terms.
 % /home/mrd45/src/corpus/geos-chem/GeosRad/rrtmg_lw_rtrnmc.F90:355
 \begin{minted}{fortran}
 do lev = nlayers, 1, -1
@@ -2213,7 +2227,9 @@ do lev = nlayers, 1, -1
     != stencil readOnce, (forward(depth=1, dim=2, irreflexive)) :: cldfmc
     drad(lev-1) = drad(lev-1) + radld
 \end{minted}
-Notice in this example how the read from \mintinline{fortran}{cldfmc} flows through onto the line with the stencil.
+Notice that, in this last example, the read from
+\mintinline{fortran}{cldfmc} flows through onto the line with the
+stencil.
 
 
 \subsection{Detecting programming errors}

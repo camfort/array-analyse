@@ -27,7 +27,7 @@ to the model $\interp{-}_n$.
       \equiv & \; \{i\singleEntry{d}{n} \mid i \in \{1, \ldots, a\} \vee
                                              i \in \{1, \ldots, b\} \} \cup
                  \{\zeroEntry{d}{n} \mid r \} \cup \{\zeroEntry{d}{n} \mid s \} \\
-      \equiv & \; \{i\singleEntry{d}{n} \mid i \in \{1, \ldots, a \max b\} \} \cup 
+      \equiv & \; \{i\singleEntry{d}{n} \mid i \in \{1, \ldots, a \max b\} \} \cup
                   \{\zeroEntry{d}{n} \mid r \vee s \}\\
       \equiv & \; \interp{\stenFwdSR{a \, \max \, b}{d}{r \vee s}}_n \qed
     \end{align*}
@@ -42,7 +42,7 @@ to the model $\interp{-}_n$.
       \equiv & \; \{i\singleEntry{d}{n} \mid i \in \{-a, \ldots, a\} \setminus 0 \vee
                                              i \in \{-b, \ldots, b\} \setminus 0 \} \cup
                  \{\zeroEntry{d}{n} \mid r \} \cup \{\zeroEntry{d}{n} \mid s \} \\
-      \equiv & \; \{i\singleEntry{d}{n} \mid i \in \{-(a \max b), \ldots, a \max b\} \setminus 0 \} \cup 
+      \equiv & \; \{i\singleEntry{d}{n} \mid i \in \{-(a \max b), \ldots, a \max b\} \setminus 0 \} \cup
                   \{\zeroEntry{d}{n} \mid r \vee s \}\\
       \equiv & \; \interp{\stenCenSR{a \, \max \, b}{d}{r \vee s}}_n \qed
     \end{align*}
@@ -57,7 +57,7 @@ to the model $\interp{-}_n$.
       \equiv & \; \{i\singleEntry{d}{n} \mid i \in \{-a, \ldots, -1\} \vee
                                              i \in \{-b, \ldots, -1\} \} \cup
                   \{\zeroEntry{d}{n} \mid r \} \cup \{\zeroEntry{d}{n} \mid s \} \\
-      \equiv & \; \{i\singleEntry{d}{n} \mid i \in \{-(a \max b), \ldots, -1 \} \} \cup 
+      \equiv & \; \{i\singleEntry{d}{n} \mid i \in \{-(a \max b), \ldots, -1 \} \} \cup
                   \{\zeroEntry{d}{n} \mid r \vee s \}\\
       \equiv & \; \interp{\stenBwdSR{a \, \max \, b}{d}{r \vee s}}_n \qed
     \end{align*}
@@ -102,7 +102,7 @@ to the model $\interp{-}_n$.
       \equiv & \; \{i\singleEntry{d}{n} \mid i \in \{-a, \ldots, -1\}
                     \vee i \in \{1, \ldots, a\} \} \cup
                  \{\zeroEntry{d}{n} \mid r \} \cup \{\zeroEntry{d}{n} \mid s \} \\
-      \equiv & \; \{i\singleEntry{d}{n} \mid i \in \{-a, \ldots, a\} \setminus 0 \} \cup 
+      \equiv & \; \{i\singleEntry{d}{n} \mid i \in \{-a, \ldots, a\} \setminus 0 \} \cup
                               \{\zeroEntry{d}{n} \mid r \vee s \} \\
       \equiv & \; \interp{\stenCenSR{a}{d}{r \vee s}}_n \qed
     \end{align*}
@@ -230,7 +230,7 @@ D) \times B) = A \times B$ then:
                    x_j \neq \infty
                   \} \\
 \equiv \; & \interp{R}_n \otimes \interp{S}_n \\
-\equiv \; & \interp{R \term{*} S} \qed 
+\equiv \; & \interp{R \term{*} S} \qed
 \end{align*}
 
   \item[\textsc{Case +IDEM, +COMM, +ASSOC}:]
@@ -304,20 +304,57 @@ D) \times B) = A \times B$ then:
       b_i \vee b_j &= b_i \vee b_j & \mbox{, algebraically simplifying (7)} \nonumber
     \end{align}
 
+
+
   \item[\textsc{Case DIST}:]
+    \begin{lemma}\label{lem:effdims}
+      Constrainted dimensions distribute over set union.
+      $$\effdims{U \cup V}{n} = \effdims{U}{n} \cup \effdims{V}{n}$$
+    \end{lemma}
+
+    \begin{proof}
+      \begin{align*}
+        \effdims{U \cup V}{n} &= \bigcup_{x \in U \cup V} \{ i \; | \; i \in \{1, \ldots, n\} \wedge x_i \neq \infty \} \\
+        &= \bigcup_{x \in U} \{ i \; | \; i \in \{1, \ldots, n\} \wedge x_i \neq \infty \} \cup
+           \bigcup_{x \in V} \{ i \; | \; i \in \{1, \ldots, n\} \wedge x_i \neq \infty \} \\
+        &= \effdims{U}{n} \cup \effdims{V}{n} \\
+      \end{align*}
+    \end{proof}
+
     \begin{align*}
              & \interp{r_1 \; \ast \; (r_2 \; \texttt{+} \; r_3)}_n \\
       \equiv & \interp{r_1}_n \otimes \interp{r_2 \; \texttt{+} \; r_3}_n \\
       \equiv & \interp{r_1}_n \otimes (\interp{r_2}_n \cup \interp{r_3}_n) \\
-      \equiv & \{ (u \bowtie v)_i \mid i \in \{ 1, \ldots, 2^n \}, (u,v) \in
-        \interp{r_1}_n \times (\interp{r_2}_n \cup \interp{r_3}_n) \} \\
-      \equiv & \{ (u \bowtie v)_i \mid i \in \{ 1, \ldots, 2^n \}, (u,v) \in
-        \interp{r_1}_n \times \interp{r_2}_n \vee (u,v) \in \interp{r_1}_n
-        \times \interp{r_3}_n \} \\
-      \equiv & \{ (u \bowtie v)_i \mid i \in \{ 1, \ldots, 2^n \}, (u,v) \in
-        \interp{r_1}_n \times \interp{r_2}_n \}
-        \cup \{ (u \bowtie v)_i \mid i \in \{ 1, \ldots, 2^n \}, (u,v) \in
-        \interp{r_1}_n \times \interp{r_3}_n \} \\
+      \equiv &
+  \bigg\{x \; \bigg| \;
+    \parbox{11cm}{$(u, v) \in \interp{r_1}_n \times (\interp{r_2}_n \cup \interp{r_3}_n)
+                  \; \wedge \; j \in (\effdims{\interp{r_1}_n}{n} \cup
+                   \effdims{\interp{r_2}_n \cup \interp{r_3}_n}{n})$\\[0.1em]
+                  $\;\; \wedge \;\; i \in \{1, \ldots, 2^n\} \; \wedge
+                  \; x = (u \bowtie v)_i \; \wedge \; x_j \neq \infty$
+                  } \bigg\} \\
+      \equiv & 
+  \Bigg\{x \; \Bigg| \;
+    \parbox{11cm}{$((u, v) \in \interp{r_1}_n \times \interp{r_2}_n \vee (u, v) \in \interp{r_1}_n \times \interp{r_3}_n)) \\
+                  \; \wedge \; (j \in (\effdims{\interp{r_1}_n}{n} \cup
+                  \effdims{\interp{r_2}_n}{n} \vee j \in \effdims{\interp{r_1}_n}{n} \cup \effdims{\interp{r_3}_n}{n}))$\\[0.1em]
+                  $\; \wedge \; i \in \{1, \ldots, 2^n\} \; \wedge
+                  \; x = (u \bowtie v)_i \; \wedge \; x_j \neq \infty$
+                  } \Bigg\} \\
+             & \mbox{using Lemma~\ref{lem:effdims} and distributivity of cartesian product over union.} \\
+      \equiv &
+  \bigg\{x \; \bigg| \;
+    \parbox{8cm}{$(u, v) \in \interp{r_1}_n \times \interp{r_2}_n
+                  \; \wedge \; j \in \effdims{\interp{r_1}_n}{n} \cup \effdims{\interp{r_2}_n}{n}$ \\
+                  $\; \wedge \; i \in \{1, \ldots, 2^n\} \; \wedge
+                  \; x = (u \bowtie v)_i \; \wedge \; x_j \neq \infty$
+                  } \bigg\} \cup \\
+  & \bigg\{x \; \bigg| \;
+    \parbox{8cm}{$(u, v) \in \interp{r_1}_n \times \interp{r_3}_n
+                  \; \wedge \; j \in \effdims{\interp{r_1}_n}{n} \cup \effdims{\interp{r_3}_n}{n}$ \\
+                  $\; \wedge \; i \in \{1, \ldots, 2^n\} \; \wedge
+                  \; x = (u \bowtie v)_i \; \wedge \; x_j \neq \infty$
+                  } \bigg\} \\
       \equiv & (\interp{r_1}_n \otimes \interp{r_2}_n)
         \cup (\interp{r_1}_n \otimes \interp{r_3}_n) \\
       \equiv & (\interp{r_1 \ast r_2}_n) \cup (\interp{r_1 \ast r_3}_n) \\

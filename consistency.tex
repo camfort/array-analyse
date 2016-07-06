@@ -2,28 +2,40 @@
 $unique(a,v)$ is the predicate indicating wheter indices vector of
 array $v$ in assignment $a$ contain each element only once.
 \end{definition}
+\begin{dgroup*}
+\begin{dmath*}
+  \mathit{modelise}(a,v) =
+  \begin{cases}
+    \textsf{once}(\mathit{analyse}(a,v)) & unique(a,v) \\
+    \textsf{mult}(\mathit{analyse}(a,v)) & otherwise
+  \end{cases}
+\end{dmath*}
+\begin{dmath*}
+  \mathit{check_n}(s,a,v) = \mathit{cons_n}(\interp{s}_n,\textsf{modelise}(a,v))
+\end{dmath*}
+\end{dgroup*}
 %
 \begin{dgroup*}
 \begin{dmath*}
-  \mathit{cons}(\textsf{once}(m),a,v) =
-    {\mathit{unique}(a,v) \wedge \mathit{cons}(\textsf{mult}(m),a,v) }
+  \mathit{cons_n}(\textsf{once}(a),\textsf{once}(m)) =
+    {\mathit{cons_n}(\textsf{mult}(a),\textsf{mult}(m)) }
 \end{dmath*}
 \begin{dmath*}
-  \mathit{cons}(\textsf{mult}(\textsf{up}(m)),a,v) \quad =
-    {\forall u \in \textsf{analyse}(a)(v) \; \exists v \in m \cdot u \sim v }
+  \mathit{cons_n}(\textsf{mult}(\textsf{up}(m)),\textsf{mult}(m')) =
+    {\forall u \in m' \; \exists v \in m \cdot u \preceq_n v }
 \end{dmath*}
 \begin{dmath*}
-  \mathit{cons}(\textsf{mult}(\textsf{low}(m)),a,v) =
-    {\forall v \in m \; \exists u \in \textsf{analyse}(a)(v) \cdot u \sim v }
+  \mathit{cons_}(\textsf{mult}(\textsf{low}(m)),\textsf{mult}(m')) =
+    {\forall v \in m \; \exists u \in m' \cdot u \preceq_n v }
 \end{dmath*}
 \begin{dmath*}
-  \mathit{cons}(\textsf{mult}(\textsf{exact}(m)),a,v) =
-    {\mathit{cons}(\textsf{mult}(\textsf{low}(m)),a,v) \wedge
-     \mathit{cons}(\textsf{mult}(\textsf{up}(m)),a,v) }
+  \mathit{cons_n}(\textsf{mult}(\textsf{exact}(m)),a) =
+    {\mathit{cons_n}(\textsf{mult}(\textsf{low}(m)),a) \wedge
+     \mathit{cons_n}(\textsf{mult}(\textsf{up}(m)),a) }
 \end{dmath*}
 \begin{dmath*}
-  \mathit{cons}(\textsf{mult}(\textsf{both}(m_1,m_2)),a,v) =
-    {\mathit{cons}(\textsf{mult}(\textsf{low}(m_1)),a,v) \wedge
-     \mathit{cons}(\textsf{mult}(\textsf{up}(m_2)),a,v) }
+  \mathit{cons_n}(\textsf{mult}(\textsf{both}(m_1,m_2)),a) =
+    {\mathit{cons_n}(\textsf{mult}(\textsf{low}(m_1)),a) \wedge
+     \mathit{cons_n}(\textsf{mult}(\textsf{up}(m_2)),a) }
 \end{dmath*}
 \end{dgroup*}

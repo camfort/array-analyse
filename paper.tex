@@ -7,6 +7,7 @@
 \usepackage{color}
 \usepackage{graphics}
 \usepackage{fancyvrb}
+\usepackage{subfigure}
 \usepackage{amsthm}
 \usepackage{multirow}
 \usepackage{minted}
@@ -264,7 +265,7 @@ program and its efficient implementation: how much ``boundary'' is
 needed for the array, the most cache-efficient layout in memory,
 and the partitioning shape for parallel implementations.
 In this example, the access pattern is simple, static, and easily
-understood. More complex stencil computations 
+understood. More complex stencil computations
 are much more prone to error from simple lexical mistakes and
 harder to understand. For example,
 Figure~\ref{ref:navier-stokes-fragment} shows three lines from a
@@ -312,11 +313,11 @@ stencil computations that captures many common forms
 of data access pattern (Section~\ref{sec:lang})
 along with a sound denotational model (Section~\ref{sec:semantics});
 
-\item we detail inference, checking, specification synthesis, 
+\item we detail inference, checking, specification synthesis,
 and program synthesis algorithms for our language
 (Section~\ref{sec:analysis}), which relies on the semantic model;
 
-\item we evaluate our approach, providing an 
+\item we evaluate our approach, providing an
 implementation as an extension of CamFort,
 an open-source program analysis and refactoring tool for Fortran
 corpus. We use this implementation to evaluate our approach against
@@ -349,7 +350,7 @@ laplu = (u(i+1,j)-2.0*u(i,j)+u(i-1,j))/delx/delx+ &
   (u(i,j+1)-2.0*u(i,j)+u(i,j-1))/dely/dely
 \end{minted}
 (a) Excerpt from Fortran code for a Navier-Stoke fluid simulator,
-showing highly-detailed stencil computations. 
+showing highly-detailed stencil computations.
 \vspace{0.5em}
 \hrule
 %
@@ -388,10 +389,10 @@ The horizontal dimension is \texttt{dim=1} and the vertical is \texttt{dim=2}.
 
 \paragraph{Context}
 
-In recent years, there has been an increased awareness 
-of the need for formal verification techniques in 
-science~\cite{post2005computational,oberkampf2010verification,orchard2014computational}. 
-Our specification language is an approach in this direction, proving 
+In recent years, there has been an increased awareness
+of the need for formal verification techniques in
+science~\cite{post2005computational,oberkampf2010verification,orchard2014computational}.
+Our specification language is an approach in this direction, proving
 a system of lighweight specification for numerical code.
 The aim is to not only provide a way of exposing errors, but also
 for specifying program behaviour to future-proof the code and ease
@@ -417,9 +418,9 @@ for all $i, j$ within the inner boundary of the array (to avoid
 out-of-bounds access at the edges). We revisit this hypothesis
 in Section~\ref{sec:evaluation} where the inference of
 such regular stencil patterns on a corpus of numerical programs (both
-small and large). 
+small and large).
 
-Section~\ref{sec:syntax} outlines the syntax of specifications. 
+Section~\ref{sec:syntax} outlines the syntax of specifications.
  Section~\ref{sec:eqs} provides an equational
 theory for specifications via relation ($\equiv$) and a notion of
 sub-specification via relation ($<:$).  Section~\ref{sec:semantics}
@@ -434,12 +435,12 @@ equality and sub-specification relation are proven sound.
 syntax, $v$ ranges over program variables, $s$ over statements, and
 $e$ over expressions (which may be impure).  By ``variable'', we mean
 in the imperative sense (\ie{}, named binders to memory cells) instead
-of mathematical variables. 
+of mathematical variables.
 
 \begin{definition}[Base induction variable]
   A variable \textit{v} of integer type is a \emph{base induction
     variable} if it is the control variable of a ``for''
-  loop,\footnote{Or equivalent in the source language \eg{} 
+  loop,\footnote{Or equivalent in the source language \eg{}
     \texttt{do} in Fortran for our implementation.} incremented by $1$ per
 iteration. The variable is marked as a base induction variable
 only within the scope of the loop. Induction variables are ranged
@@ -624,7 +625,7 @@ Here the left hand side of \texttt{+} says that when the second dimension
 (to depth of one). The right hand side of \texttt{+} is similar but the dimensions are reversed.
 This reflects the symmetry under rotation of the five-point stencil.
 
-As another example, the following 
+As another example, the following
 implements and specifies the \emph{Roberts cross}
 edge-detection convolution~\cite{davis1975survey}:
 %%
@@ -749,7 +750,7 @@ and checked against the code.
 \begin{align*}
 \setlength{\arraycolsep}{0.05em}
 \begin{array}{c}
-%\framebox{$\textit{region} \equiv \textit{region}'$} \\[0.7em]
+\framebox{$\textit{region} \equiv \textit{region}'$} \\[0.7em]
 \begin{array}{rll}
 (\textsc{F\, \texttt{+} \,F}) \;\; &
 \stenFwdSR{n \, \textsf{max} \, m}{d}{r \vee s} \\
@@ -841,7 +842,7 @@ and checked against the code.
 %\end{array}
 \end{array}
 \end{align*}
-\caption{Equations on regions, $\textit{region} \equiv \textit{region}'$}
+\caption{Equations on specifications}
 \label{fig:equations}
 \end{figure}
 
@@ -944,69 +945,44 @@ normalisation in Section~\ref{sec:inf-step4}.
 \begin{figure}[t]
 \begin{align*}
 \begin{array}{c}
-%%
-%% INEQUATIONS ON REGION
-%% 
-%\framebox{$\textit{region} <: \textit{region}'$} \\[0.85em]
-%
-\dfrac{}{R <:^r R}\trule{\textsc{refl}} \qquad \dfrac{P <:^r R \quad R <:^r Q}{P <:^r
-  Q}\trule{\textsc{trans}} 
-\qquad
-\dfrac{R \equiv S}{R <:^r S}\trule{\textsc{eq}} 
+\dfrac{}{S <: S}(\textsc{refl}) \qquad \dfrac{R <: S \quad S <: T}{R <:
+  T}(\textsc{trans}) \\[1.5em]
+\dfrac{}{\texttt{readOnce} \, S <: S}(\textsc{rep})
 \\[1.5em]
 \setlength{\arraycolsep}{0.1em}
-\dfrac{\hspace{3em} m \leq n \qquad r \Rightarrow s \hspace{3em}}
+\dfrac{\hspace{3em} m \leq n \hspace{3em}}
 {\begin{array}{rl}
-\stenFwdSR{m}{d}{r} & <:^r \stenFwdSR{n}{d}{s}
+\stenFwdS{m}{d} & <: \stenFwdS{n}{d}
 %& \;\, ds \subseteq es \wedge n \leq m
 \\
-\wedge \; \stenBwdSR{m}{d}{r} & <:^r \stenBwdSR{n}{d}{s}
+\wedge \stenBwdS{m}{d} & <: \stenBwdS{n}{d}
 %& \;\, ds \subseteq es \wedge n \leq m
 \\
-\wedge \; \stenCenSR{m}{d}{r} & <:^r \stenCenSR{n}{d}{s}
+\wedge \; \stenCenS{m}{d} & <: \stenCenS{n}{d}
 %& \;\, ds \subseteq es \wedge n \leq m
 \\
-\wedge \; \stenBwdSR{m}{d}{r} & <:^r \stenCenSR{n}{d}{s} \\
-\wedge \; \stenFwdSR{m}{d}{r} & <:^r \stenCenSR{n}{d}{s} \\[1em]
-\end{array}}\trule{\textsc{over}} \\
+\wedge \; \stenBwdS{m}{d} & <: \stenCenS{n}{d} \\
+\wedge \; \stenFwdS{m}{d} & <: \stenCenS{n}{d} \\[1em]
+\end{array}} \\[2.5em]
 \hspace{-0.5em}
-\dfrac{P_1 <:^r R_1 \quad P_2 <:^r R_2}
-      {P_1 \, \texttt{+} \, P_2 <:^r R_1 \, \texttt{+} \, R_2}
-\trule{\textsc{cong}\texttt{+}} \;\;\;
-\dfrac{P_1 <:^r R_1 \quad P_2 <:^r R_2}
-      {P_1 \, \texttt{*} \, P_2 <:^r R_1 \, \texttt{*} \, R_2}
-\trule{\textsc{cong}\texttt{*}} \\[1.5em]
-%%
-%% INEQUATIONS ON SPEC
-%%
-%\framebox{$\textit{spec} <: \textit{spec}'$} \\[0.8em]
-%
-\dfrac{}{\term{readOnce} \, R <: R}\trule{\textsc{rep}}
-\quad
-\dfrac{}{\term{atLeast} \, R <: \term{atMost} \,
-  R}\trule{\textsc{bound}} \\[1.5em]
-%%
-\dfrac{P <:^r R}{\term{atLeast} \, P <: \term{atLeast} \,
-  R}\trule{\textsc{cong}\texttt{L}}
-\ 
-\dfrac{P <:^r R}{\term{atMost} \, P <: \term{atMost} \,
-  R}\trule{\textsc{cong}\texttt{M}} \\[1.5em]
-\dfrac{P <:^r R}{\term{readOnce} \, P <: \term{readOnce} \,
-  R}\trule{\textsc{cong}\texttt{R}} 
-%%
+\dfrac{S_1 <: T_1 \quad S_2 <: T_2}
+      {S_1 \, \texttt{+} \, S_2 <: T_1 \, \texttt{+} \, T_2}
+(\textsc{cong}\texttt{+}) \;\;\;
+\dfrac{S_1 <: T_1 \quad S_2 <: T_2}
+      {S_1 \, \texttt{*} \, S_2 <: T_1 \, \texttt{*} \, T_2}
+(\textsc{cong}\texttt{*})
 \end{array}
 \end{align*}
-\caption{Inequations $<:^r$ on \textit{regions} and
-$<:$ on \textit{specs}.}
+\caption{Inequations on regions}
 \label{fig:inequations}
 \end{figure}
 
 \paragraph{Inequations: sub-specifications}
 
 Figure~\ref{fig:inequations} defines a notion of sub-specifications
-via the relation $<:^r$ on \textit{region} 
-syntax and then $<:$ on \textit{spec} syntax inductively. 
-Both relations are reflexive and transitive (we omit 
+via the relation $<:^r$ on \textit{region}
+syntax and then $<:$ on \textit{spec} syntax inductively.
+Both relations are reflexive and transitive (we omit
 these equations for $<:$ on \textit{spec}), and congruent
 with respect to \term{+}, \term{*}, \term{atLeast}, \term{atMost},
 and \term{readOnce}. The (\trule{\textsc{eq}}) axiom connects
@@ -1016,7 +992,7 @@ The (\trule{\textsc{rule}}) allows the modifier that
 enforces that every index is read only once to be dropped
 as an approxiamtion. The (\trule{\textsc{bound}}) gives
 a connection between the \term{atLeast} and \term{atMost}
-approximation modifiers. 
+approximation modifiers.
 
 \anote{Can we say something here about why these equations are useful i.e. we use them to do simplification of stencils?}
 
@@ -1038,16 +1014,16 @@ semantics, in terms of sets of vectors which we call \emph{index
 
 \begin{definition}[Index scheme]
 An \emph{index scheme} is a vector of size $n$ (an $n$-vector)
-with values drawn from $\domainVal = \mathbb{Z} \cup \{\infty\}$. 
-Values in $\mathbb{Z}$ represent offsets 
+with values drawn from $\domainVal = \mathbb{Z} \cup \{\infty\}$.
+Values in $\mathbb{Z}$ represent offsets
 of a neighbourhood index (indexing
 expressions of the form $i + a$ where $i$ is an induction variable
 and $a$ is a constant offset, Definition~\ref{def:neighbour},
 p.~\pageref{def:neighbour}). The additional value
-$\infty$ represents any indexing behaviour--- it is a 
+$\infty$ represents any indexing behaviour--- it is a
 wildcard.
 Throughout $u, v, w$ range over index schemes, and $u_i$ denotes
-the $i^{th}$ element of $u$. 
+the $i^{th}$ element of $u$.
 \end{definition}
 
 Indexing schemes give an abstract
@@ -1059,25 +1035,25 @@ The relationship between indexing schemes and source language
 terms is given precisely by the partial function, \textsf{schematic}, which
 maps syntactic array-index terms to indexing schemes. This
 operation forms the basis of the analysis required for the inference
-and the checking procedures in Section~\ref{sec:analysis}. 
+and the checking procedures in Section~\ref{sec:analysis}.
 
 \begin{definition}[Schematic]
-The partial function $\textsf{schematic}$ maps 
+The partial function $\textsf{schematic}$ maps
 source-language indexing terms $(e_1, \ldots, e_n)$
-into $n$-dimensional index schemes 
+into $n$-dimensional index schemes
 $\in (\domainVal)^n$, defined:
 %
 \begin{align*}
-\mathsf{schematic}(e_1, \ldots, e_n) & = 
-[\downarrow\!e_1 \ldots \downarrow\!e_n ] 
-\quad \textit{iff} \; \forall i . \downarrow\!e_i \neq \bot 
+\mathsf{schematic}(e_1, \ldots, e_n) & =
+[\downarrow\!e_1 \ldots \downarrow\!e_n ]
+\quad \textit{iff} \; \forall i . \downarrow\!e_i \neq \bot
 \end{align*}
 %
 The $\downarrow$ operator is a partial\footnote{We represent
-  partiality explicitly in our types with the set $A + \bot$.} function 
+  partiality explicitly in our types with the set $A + \bot$.} function
  $\downarrow : \textit{expr} \rightarrow (\domainVal + \bot)$
 which maps each individal indexing expression to a component of
-the indexing scheme, defined: 
+the indexing scheme, defined:
 %%
 \begin{align*}
 \downarrow\!e
@@ -1090,27 +1066,27 @@ a & e \equiv i + a \; \wedge \; \mathsf{neigh}(i + a) \\
 \end{align*}
 %%
 where $\mathsf{IV}(e)$ is the set of free induction variables
- in an expression and $\neigh{}$ classifies expressions which 
-are constant offsets on an induction variable
-(Defn.~\ref{def:neighbour}). In the third case, 
+appearing in an expression, and $\neigh{}$ classifies expressions which
+are constant offsets from an induction variable
+(Defn.~\ref{def:neighbour}). In the third case,
 if the expression is not a neighbourhood index but is not
 a relative index either (\ie{} is not defined in terms
 of an induction variable) then it is mapped to $\infty$, otherwise
 $\downarrow\!e$ is undefined. The $\mathsf{schematic}$ function
 is undefined if $\downarrow$ of any of its components $e_i$ is
-undefined. 
+undefined.
 
-For example, assuming
+For example $\textsf{schematic}(i, j+1) = \vtwoh{0}{1}$ assuming
 $i$ and $j$ are induction variables and $\textsf{schematic}(i-1, 2, j)
  = \vthreeh{-1}{\infty}{0}$. However, $\textsf{schematic}(i*2, j)$, for
  example, is
- undefined as its first index is a non-neighbour relative index, which 
+ undefined as its first index is a non-neighbour relative index, which
  is outside the scope of our specification language.
 \end{definition}
 
 \begin{definition}[Generalisation]
 Given two schemes $v, w$ of dimensionality $n$,
-the $w$ is said to \emph{generalise} $v$ 
+the $w$ is said to \emph{generalise} $v$
 (or conversely $v$ \emph{specialises} $w$),
 written $v \preceq_n w$, iff the following holds:
 %%
@@ -1121,40 +1097,40 @@ v \preceq_n w \;\; \Leftrightarrow  \;\;
 %%
 That is, two schemes are related by the (reflexive and transitive) binary relation
 $\preceq_n$ over $(\mathbb{Z}_{\infty})^n$ if in each dimension
-the two schemes are equal or $w_i = \infty$ 
-in place of some $\mathbb{Z}$ in $v_i$ for $v \preceq_n w$. 
-Thus, the element $\infty$ 
-generalising any index in the same dimension. 
+the two schemes are equal or $w_i = \infty$
+in place of some $\mathbb{Z}$ in $v_i$ for $v \preceq_n w$.
+Thus, the element $\infty$
+generalising any index in the same dimension.
 
 The subscript on $\preceq_n$ is sometimes dropped when the
 intended dimensionality is clear or inconsequential.
 \end{definition}
- 
- 
+
+
 %Unification relation, $\sim$, establishes whether
 %a particular relativised subscript, $u$, of a group of subscripts involved
 %in a stencil computation conforms with a unifier, $v$, of the model for
 %the stencil computation.
 
 \begin{example}
-Three array indexing terms
-$(i, j+1)$, $(1, j+1)$ and $(3, j)$
-are mapped by \textsf{schematic} to the 
-index schemes: $\vtwoh{0}{1}$, $\vtwoh{\infty}{1}$
+Take three array indexing terms
+$(i, j+1)$, $(1, j+1)$ and $(3, j)$.
+As given by \textsf{schematic}, these have the
+corresponding schemes: $\vtwoh{0}{1}$, $\vtwoh{\infty}{1}$
 and $\vtwoh{\infty}{0}$ respectively. The following
 relationship of generalises then holds:
 %\[
 %\xymatrix@R=0.2em@C=2em{
 %[\infty \;\; 0] \ar@{-}[dr]^{\preceq_n} &  \\
 %& [0 \;\; 1]  \\
-%[\infty \;\; 1]  \ar@{-}[ur]_{\preceq_n} & 
+%[\infty \;\; 1]  \ar@{-}[ur]_{\preceq_n} &
 %}
 %\]
 %%
 \begin{equation*}
-\vtwoh{\infty}{0} \; \not\preceq_2 \; \vtwoh{0}{1} 
+\vtwoh{\infty}{0} \; \not\preceq_2 \; \vtwoh{0}{1}
 \qquad
-\vtwoh{\infty}{1} \; \preceq_2 \; \vtwoh{0}{1} 
+\vtwoh{\infty}{1} \; \preceq_2 \; \vtwoh{0}{1}
 \end{equation*}
 %%
 \end{example}
@@ -1175,7 +1151,7 @@ The model is given by the interpretation function $\interp{-}_n$
 modelled) mapping closed\footnote{That is, we assume that there are no
   occurences of \textit{rvar} in a specification being modelled.  Any
   \emph{open} specification containing region variables can be made
-  closed by straightforward syntactic subtitution with a (closed) 
+  closed by straightforward syntactic subtitution with a (closed)
   \textit{region}.} specifications to sets of
 $n$-dimensional indexing schemes. The interperation is overloaded on
 \emph{regions} in Figure~\ref{fig:region-model} and on the top-level
@@ -1187,9 +1163,9 @@ We first define some intermediate notations and definitions.
 $\singleEntry{r}{n}$, is a vector where the $r^{th}$ entry is $1$
 and all others are $\infty$, \eg{}, $\singleEntry{1}{2} =
 \vtwoh{1}{\infty}$ and $\singleEntry{2}{3} = \vthreeh{\infty}{1}{\infty}$.
-Thus, a single-entry vector is an indexing scheme which generalises 
+Thus, a single-entry vector is an indexing scheme which generalises
 all other schemes which at least have $1$ as their $r^{th}$ entry,
-describing a neighbour offset of $1$. 
+describing a neighbour offset of $1$.
 %DAO don't understand this sentence:
 %In particular the constrained
 %requires a non-zero offset from the induction variable.
@@ -1199,10 +1175,10 @@ describing a neighbour offset of $1$.
 $\zeroEntry{r}{n}$, is a vector where the $r^{th}$ entry is $0$ and all others
 are $\infty$, \eg{}, $\zeroEntry{1}{2} = \vtwoh{0}{\infty}$.
 
-Similarly to the single-entry vector, zero-entry vectors 
+Similarly to the single-entry vector, zero-entry vectors
 are generalise all other schemes
 which at least have the $r^{th}$ entry is $0$, representing indices at
-the ``origin'' in dimension $r$. 
+the ``origin'' in dimension $r$.
 \end{definition}
 
 
@@ -1210,7 +1186,7 @@ the ``origin'' in dimension $r$.
 \input{region-model.tex}
 %\textit{$a^m \in A$ means there are $n$ copies of $a$ in
 %  the multi-set $A$}
-\caption{Model of regions, 
+\caption{Model of regions,
 $\interp{-}_n : \textit{region} \rightarrow \mathcal{P}(\domainVal{}^n)$}
 \label{fig:region-model}
 \end{figure}
@@ -1219,61 +1195,62 @@ $\interp{-}_n : \textit{region} \rightarrow \mathcal{P}(\domainVal{}^n)$}
 The first four equations of Figure~\ref{fig:region-model}
 give the meanings of the region constants as sets of indexing
 schemes. The next two give the meaning of combining regions
-by $\term{+}$ and $\term{*}$. 
+by $\term{+}$ and $\term{*}$.
 
 \begin{example}
-For a $2$-dimensional situation, 
+For a $2$-dimensional situation,
 \begin{align*}
-\interp{\stenCenS{2}{1}}_2 = \; & \{i\singleEntry{1}{2} \,|\, i \in \{\text{-}2,..., 2\}\!\setminus\!0 \}
+& \interp{\stenCenS{2}{1}}_2 \\
+= \; & \{i\singleEntry{1}{2} \,|\, i \in \{\text{-}2,..., 2\}\!\setminus\!0 \}
   \cup  \{ \zeroEntry{1}{2} \,|\, \textit{true} \} \\
 = \; & \{-2\singleEntry{1}{2}, \, -\singleEntry{1}{2}, \,
   \singleEntry{1}{2}, \, 2\singleEntry{1}{2}\} \cup
   \{\zeroEntry{1}{2}\} \\
-= \; & \{\vtwoh{-2}{\infty}, \vtwoh{-1}{\infty}, \vtwoh{0}{\infty}, 
-\vtwoh{1}{\infty}, \vtwoh{2}{\infty}\} 
+= \; & \{\vtwoh{-2}{\infty}, \vtwoh{-1}{\infty}, \vtwoh{0}{\infty},
+\vtwoh{1}{\infty}, \vtwoh{2}{\infty}\}
 \end{align*}
 Note the absboring behaviour of $\infty$ with respect to
-multiplication. 
+multiplication.
 \end{example}
 \noindent
-The model of $\term{+}$ is the straightforward union of 
+The model of $\term{+}$ is the straightforward union of
 the models of subterms. The model of $\term{*}$ is
-the tensor $\otimes$ of subterm models. The tensor 
+the tensor $\otimes$ of subterm models. The tensor
 is non-trivial; we give some informal intutition first.
 
 \paragraph{$\otimes$ of models}
 
 The intuition behind $\otimes$ is that it takes
 all possible pairs of indexing schemes, treating them as the
-lower and upper bounds of an $n$-dimensional rectangle from which the 
+lower and upper bounds of an $n$-dimensional rectangle from which the
 remaining vertices of the rectangle are generated (like a bounding
 box). \eg{}:
 %%
 \begin{align*}
-\{\vtwoh{1}{2}, \vtwoh{5}{6}\} \otimes \{\vtwoh{3}{4}\} = 
+\{\vtwoh{1}{2}, \vtwoh{5}{6}\} \otimes \{\vtwoh{3}{4}\} =
 \{&\vtwoh{1}{2}, \vtwoh{3}{2}, \vtwoh{1}{4}, \vtwoh{3}{4}, \\
   & \vtwoh{3}{6}, \vtwoh{5}{4}, \vtwoh{5}{6}\}
 \end{align*}
 %%
 The tensor takes a Cartesian product of the two models,
-giving all pairs of schemes which are combined using the 
+giving all pairs of schemes which are combined using the
 \emph{pairwise permutation} written $\bowtie$ (defined later).
 Pairwise permutation generates all possible interleavings of two vectors
 (\ie{}, all possible non-deterministic choices between $u_i$ and
 $v_i$ in each dimension). Some care is then taken over
 how this interacts with $\infty$: pairwise permtuation
 corresponds to non-determinstic choice, in each dimension $i$,
-between two values $u_i$ and $v_i$, but if either 
-is $\infty$ then the resultying pairwise permutation is 
+between two values $u_i$ and $v_i$, but if either
+is $\infty$ then the resultying pairwise permutation is
 filtered out if the dimension $i$ has \emph{any other scheme
 in the model where $u_i \neq \infty$}, \eg{}:
 \begin{align*}
-\{\vtwoh{1}{\infty}\} \otimes \{\vtwoh{3}{4}\} = 
+\{\vtwoh{1}{\infty}\} \otimes \{\vtwoh{3}{4}\} =
 \{\vtwoh{1}{4}, \vtwoh{3}{4}\}
 \end{align*}
-% 
+%
 where $\vtwoh{1}{\infty}$ and $\vtwoh{3}{\infty}$ have been filtered.
-%With respect to the notion of unification, the 
+%With respect to the notion of unification, the
 %
 %
 % combines non-$\infty$ constraints
@@ -1285,7 +1262,7 @@ where $\vtwoh{1}{\infty}$ and $\vtwoh{3}{\infty}$ have been filtered.
 %in these dimensions would prevent both models to be satisfied
 %simultaneously.
 %  u in M * N   u < w
-% mplies that 
+% mplies that
 %  u_1 in M  u1 < w
 %  u_2 in M  u2 < w
 %
@@ -1295,7 +1272,7 @@ dimensions} intermediate function:
 %
 \begin{definition}[Constrained dimensions]
 Given an $n$-dimensional model $M$, the \emph{constrained dimensions}
-of that model is a subset of $\{1, \ldots, n\}$ of 
+of that model is a subset of $\{1, \ldots, n\}$ of
 the dimensions for which at least one scheme $u \in M$ has
 a non-$\infty$ value in that dimension. That is:
 %
@@ -1317,23 +1294,23 @@ models is defined:
                  $\;\; \wedge \;\, j \in (\effdims{M}{n} \cup
                    \effdims{N}{n})$\\[0.1em]
                   $\;\; \wedge \;\, i \in \{1, \ldots, 2^n\} \, \wedge
-                  \, x = (u \bowtie v)_i$ \\[0.1em]                   
+                  \, x = (u \bowtie v)_i$ \\[0.1em]
                    $\;\; \wedge \;\, x_j \neq \infty$
-                  } \Bigg\} 
+                  } \Bigg\}
 \end{alignat*}
 The first guard takes the Cartesian product of
-the two models and quantifies over all pairings $(u, v)$. 
+the two models and quantifies over all pairings $(u, v)$.
 The second guard says that $j$ ranges of the constrained
 dimensions for $M$ unioned with the constrained dimensions for $N$.
-That is, every $j$ corresponds to a dimension in which 
+That is, every $j$ corresponds to a dimension in which
 either $M$ or $N$ has a scheme $u$ where $u_j \neq \infty$,
-and thus is constrained. 
+and thus is constrained.
 
-The $\bowtie$ \emph{pairwise permutation} 
+The $\bowtie$ \emph{pairwise permutation}
 constructs a $2^n \times n$ matrix ($2^n$-vector of
 $n$-vectors), which is indexed by $i$ above
 and then $j$. Using this, the $\otimes$ operation constructs the set
-of schemes which are the 
+of schemes which are the
 pairwise permutations of every pair $(u, v)$ of schemes in the Cartesian
 product of $M \times N$. These permuted schemes are only those
 which have non-$\infty$ components in the constrained dimensions
@@ -1349,7 +1326,7 @@ $i^{th}$ entry in $u$ or the $i^{th}$ entry in $j$. For example:
 \left[
 \setlength{\arraycolsep}{0.42em}
 \begin{array}{cccccccc}
-0 & 0 & 0 & 0 & 3 & 3 & 3 & 3 \\ 
+0 & 0 & 0 & 0 & 3 & 3 & 3 & 3 \\
 1 & 1 & 4 & 4 & 1 & 1 & 4 & 4 \\
 2 & 5 & 2 & 5 & 2 & 5 & 2 & 5
 \end{array}
@@ -1403,8 +1380,8 @@ where $\textsf{Mult}$ and $\textsf{Approx}$ are labelled variants
 labelling our set-basd model with additional information.
 
 \begin{definition} The \textsf{Mult}
-and \textsf{Approx} are parametric labelled variant types 
-with injection functions given by their definition:
+and \textsf{Approx} are parametric labelled variant (sum) types
+with injection function given by their definition:
 %
 \begin{align*}
 \textsf{Mult} \, a & = \textsf{mult} \, a \,\mid\, \textsf{only} \, a \\
@@ -1412,69 +1389,39 @@ with injection functions given by their definition:
 \textsf{upper} \, a \,\mid\, \textsf{both} \, a \, a
 \end{align*}
 \ie{}, $\mathsf{lower}$ is an injection $\mathsf{lower} : a \rightarrow \mathsf{Approx} \, a$, and so
-on. The $\textsf{Mult}$ type corresponds to the presence or absence of the
-\term{readOnce} modifier as shown in Figure~\ref{fig:spatial-model}. 
-The $\textsf{Approx}$ type corresponds to the presence or absence of
-the spatial approximation modifier, with \textsf{exact} when there is
-no such modifier and \textsf{lower} and \textsf{upper} for
-\term{atLeast} and \term{atMost}. Later, it will be useful to model
-pairs of lower and upper bounds which is provided by \textsf{both} 
-(but which isn't used here). 
-
-These are used for labelled models, and other components later in
+on. These are used for labelled models, and other components later in
 Section~\ref{sec:analysis} with additional information.
 \label{def:mult-and-approx}
 \end{definition}
 %
 
-\begin{figure}[t]
+\begin{figure}
 \input{spatial-model.tex}
-\caption{\textit{spec} model, 
+\caption{\textit{spec} model,
 $\interp{-}_n : \textit{spec} \rightarrow \textsf{Mult}(\textsf{Approx}(\mathcal{P}(\domainVal{}^n)))$}
 \label{fig:spatial-model}
-\vspace{-1em}
 \end{figure}
 
 \subsection{Soundness}
 
 Given the model defined in this section we can
 consider soundness for the equational theory of
-specifications and the notion of spatial approximation. The proofs are given in our supplement.
+specifications and the notion of spatial approximation
+on specifications. The proofs are given in our supplement.
 
-\begin{theorem}[Soundness of equational theory (Figure~\ref{fig:equations})]
+\begin{theorem}[Soundness of equational theory]
 \[
-S \equiv T \; \Rightarrow \;
-\interp{S}_n = \interp{T}_n
+\overline{\texttt{v} : S}\equiv \overline{\texttt{u} : T}
+\; \Rightarrow \;
+\interp{\overline{\texttt{v} : S}} = \interp{\overline{\texttt{u} : T}}
 \]
 \end{theorem}
 
-\begin{theorem}[Soundness of inequations
-  (Figure~\ref{fig:inequations})] 
-
-Let $\leq$ be an ordering on
-$\textsf{Mult}(\textsf{Approx}(\mathcal{P}(\domainVal{}^n)))$
-and $\leq'$ be an ordering on
-$\textsf{Approx}(\mathcal{P}(\domainVal{}^n))$ defined by the
-following caluses
-\begin{align*}
-(M \leq' N \Rightarrow \textit{inj} \, M \leq \textit{inj} \, N) &
-\qquad 
-(\textsf{once} \, M \leq' \textsf{mult} \, M) \\
-%%
-%%
-(M \subseteq N \Rightarrow \textit{inj}' M \leq' \textit{inj}' N)
-& \;\;\; (\textsf{exact} M \leq  \textsf{lower} M)
-\;\;\; (\textsf{lower} M \leq  \textsf{upper} M)
-\end{align*}
-%%
-where $\textit{inj}$ ranges over the unary injections
-of $\textsf{Approx}$ and $\textit{inj}'$ ranges over the injections of
-$\textsf{Mult}$. Then, soundness of $<:$ is that:
-%%
+\begin{theorem}[Soundness of approximations]
 \[
-S <: T
+\overline{\texttt{v} : S} <: \overline{\texttt{u} : T}
 \; \Rightarrow \;
-\interp{S}_n \leq \interp{T}_n
+\interp{\overline{\texttt{v} : S}} \subseteq \interp{\overline{\texttt{u} : T}}
 \]
 \end{theorem}
 
@@ -1484,12 +1431,13 @@ S <: T
 \noindent
 We briefly sketch the algorithms for inferring and checking
 specifications and for synthesising programs from specifications.
-These build on the model of Section~\ref{sec:semantics}.
+Checking and synthesis use the set-based semantic model of
+Section~\ref{sec:semantics}.
 
-\paragraph{Syntax helper functions}
-Let \rhsExp{} map source language statements to a
+\paragraph{Syntax functions}
+The function \rhsExp{} maps statements to a
 set of expressions which occur in right-hand positions (\ie{}, not the
-target of an assignment). Let \var{} map expressions to a
+target of an assignment). The function \var{} maps expressions to a
 set of the variables used in right-hand positions.
 
 \subsection{Inference\label{subsec:inference}}
@@ -1578,7 +1526,7 @@ each $v \in \mathsf{dom}(M)$, the algorithm then constructs a group
 of regions (called \emph{spans}) which cover all contiguous groups of relative indices
 (from $M(v)$) in the $n$-dimensional space.
 Informally, indexing schemes are converted to pairs $u \mapsto (u,
-u)$, defining the lower and upper bound of a unit span 
+u)$, defining the lower and upper bound of a unit span
 in $n$-dimensions. For
 example, for the five point stencil there are five $1 \times 1$ spans.
 Figure~\ref{fig:inference-steps-informal}(a) gives an illustration
@@ -1639,7 +1587,7 @@ of these five unit spans.
 \end{array}
 \end{align*}
 \end{minipage}
-\caption{Illustration of grouping spans in 
+\caption{Illustration of grouping spans in
 specification inference}
 \label{fig:inference-steps-informal}
 \end{figure}
@@ -1766,7 +1714,7 @@ This yields:
  $\bullet$ which coalesces contiguous regions:
 %
 \begin{align*}
-\vect{x} \bullet \vect{y}
+& (\vect{x}^L,\vect{x}^U) \bullet (\vect{y}^L,\vect{y}^U) \\
 = &
 \begin{cases}
 (\vect{x}^L, \vect{y}^U) & \vect{x}^U_1 + 1 = \vect{y}^L_1 \; \wedge \;
@@ -1830,42 +1778,53 @@ result, hence we have reached a fixed point.
 \subsubsection{Step 4: Convert spans into specifications}
 \label{sec:inf-step4}
 
-\newcommand{\bplus}{\operatornamewithlimits{\term{\huge{+}}}}
+\newcommand{\bplus}{\operatornamewithlimits{\term{+}}}
 \newcommand{\tySum}[1]{#1^{\term{+}}}
 \newcommand{\tyProd}[1]{#1^{\term{*}}}
 \newcommand{\specDNF}{\textbf{spec}}
+\newcommand{\result}[1]{\lfloor{#1}\rceil}
 
 Next, the set of spans $\spanOp(M)$ covering the indexing
-space is converted into abstract syntax trees 
-of the specification language. This conversion is defined in terms
+space is converted into abstract syntax trees
+for the specification language. This conversion is defined in terms
 of an algebra on \textit{spec} syntax in disjunctive-normal form
-(which we denote \specDNF{}), and which is wrapped
-with the $\textsf{Approx}$ type (see
-Definition~\ref{def:mult-and-approx},
-p.~\pageref{def:mult-and-approx}), which we write as $\mathsf{A}$
-for brevity.  The algebra mirrors the shape
-of the region combinators for addition and multiplication, 
+(which we denote \specDNF{}).
+
+\begin{align*}
+\result{\specDNF{}} = \specDNF + ((\specDNF{} + 1) \times
+  (\specDNF{} + 1))
+\end{align*}
+
+
+
+\begin{align*}
+\result{\specDNF{}} & ::= \textsf{exact} \, \specDNF{}
+\mid \textsf{bounds} ([\specDNF{}], [\specDNF{}]) \\
+\end{align*}
+
+The algebra mirrors the shape
+of the region combinators for addition and multiplication,
 with operators $\oplus$ and $\odot$ and a constructor for \specDNF{}:
 %%
 \begin{align*}
-\oplus & : \mathsf{A}(\specDNF) \rightarrow \mathsf{A}(\specDNF) \rightarrow
-  \mathsf{A}(\specDNF) \\
-\odot & : \mathsf{A}(\specDNF) \rightarrow \mathsf{A}(\specDNF) \rightarrow
-        \mathsf{A}(\specDNF) \\
+\oplus & : \specDNF \rightarrow \specDNF \rightarrow
+  \specDNF \\
+\odot & : \specDNF \rightarrow \specDNF \rightarrow
+        \specDNF \\
 \mathsf{toSpec} & : (\mathbb{Z} \cup \{\infty\}) \rightarrow (\mathbb{Z} \cup
-  \{\infty\})  \rightarrow \mathsf{A}(\specDNF)
+  \{\infty\})  \rightarrow \specDNF
 \end{align*}
 %%
 The $\mathsf{toSpec}$ operation takes a pair of lower and upper bounds
-values (one-dimensional) and constructs a specification 
-which contains a one-dimensional region. 
+values (one-dimensional) and constructs a specification
+which contains a one-dimensional region.
 An entire span is converted into an $n$-dimensional
 specification by applying $\mathsf{toSpec}$ to each
 pair of lower and upper bounds in a span, per dimension, and multiplying these
 specifications by $\odot$. The resulting specifications for
 each span are then summed by $\oplus$:
 \begin{equation*}
-\textsf{spec}(M) = 
+\textsf{spec}(M) =
 \sum\limits_{\vect{x} \in \spanOp(M)}
 \prod\limits_{i \in \{1, \ldots, n\}} \, \mathsf{toSpec}(\vect{x}^L_i, \vect{x}^U_i)
 \end{equation*}
@@ -1877,20 +1836,21 @@ We unpack the definitions of this algebra.
 Let $r_1, ..., r_n$ range over elements of the \textit{region}
 syntax (see Figure~\ref{fig:syntax}, p.~\pageref{fig:syntax}).
 The set \specDNF{} is a subset of syntax trees \textit{spec}
-of specifications in disjunctive normal form over regions 
+of specifications in disjunctive normal form over regions
 where the disjunct is \term{+} (since its model is in terms of set
 union) and the conjunct is \term{*} (since its model is a form of tensor).
 That is elements of \specDNF{} are of the form:
 %%
 \[
-(r^1_{1} \; \term{*} \ldots \term{*} \; r^1_n)\; \term{+} \; \ldots 
+(r^1_{1} \; \term{*} \ldots \term{*} \; r^1_n)\; \term{+} \; \ldots
 \term{+} \; (r^m_1 \, \term{*} \; \ldots \term{*} \; r^m_p)
 \]
 %%
-More formally, $\specDNF \subseteq (\textit{spec} \cup \{\epsilon\})$, defined:
+More formally, $\specDNF \subseteq \textit{spec}$, defined:
 %%
 \begin{align*}
-\specDNF{} & ::= \tySum{\specDNF} \mid \epsilon \\
+\specDNF{} & ::= [\textit{mult},] \;
+\tySum{\specDNF} \\
 \tySum{\specDNF} & ::= \tyProd{\specDNF} \; \term{+} \; \tySum{\specDNF} \mid
   \tyProd{\specDNF} \\
 \tyProd{\specDNF} & ::= \textit{region} \; \term{*} \; \tyProd{\specDNF} \mid
@@ -1898,17 +1858,13 @@ More formally, $\specDNF \subseteq (\textit{spec} \cup \{\epsilon\})$, defined:
 \end{align*}
 %%
 We include the empty element $\epsilon$ which is not present in the
-syntax. 
+syntax.
 In the following, $s, t$ range over elements of
-\specDNF{}, $\tySum{s}, \tySum{t}$ range over elements of 
+\specDNF{}, $\tySum{s}, \tySum{t}$ range over elements of
 $\tySum{\specDNF}$ and $\tyProd{s}, \tyProd{t}$ range over elements
 of $\tyProd{\specDNF}$ (for example, $\tyProd{s} = r^1_{1} \; \term{*}
 \ldots \term{*} \; r^1_n$).
 \end{definition}
-
-\newcommand{\exactR}{\mathsf{exact}\;}
-\newcommand{\exact}[1]{\exactR(#1)}
-\newcommand{\upperB}[1]{\mathsf{upper}\;(#1)}
 
 \begin{definition} The $\mathsf{toSpec}$ constructor is defined:
 %%
@@ -1918,23 +1874,24 @@ of $\tyProd{\specDNF}$ (for example, $\tyProd{s} = r^1_{1} \; \term{*}
 \newcommand{\lupper}{u}
 \begin{align*}
 &\mathsf{toSpec} \; \llower \; \lupper = \\
-&\hspace{-0.4em}\begin{cases}
+&\begin{cases}
 %% FWD
-\exact{\stenFwdS{\lupper}{i}}  & \llower = 0 \, \wedge \, \lupper > 0 \\[0.2em]
-\exact{\stenFwdSR{\lupper}{i}{\irreflS}}\!\!\!\! & \llower = 1 \, \wedge \, \lupper > 0 \\[0.2em]
+ \stenFwdS{\lupper}{i}  & \llower = 0 \, \wedge \, \lupper > 0 \\[0.2em]
+ \stenFwdSR{\lupper}{i}{\irreflS}  & \llower = 1 \, \wedge \, \lupper > 0 \\[0.2em]
 %% BWD
-\exact{\stenBwdS{|\llower|}{i}}  & \llower < 0 \, \wedge \, \lupper = 0 \\[0.2em]
-\exact{\stenBwdSR{|\llower|}{i}{\irreflS}}\!\!\!\! & \llower < 0 \, \wedge \, \lupper = -1 \\[0.2em]
+ \stenBwdS{|\llower|}{i}  & \llower < 0 \, \wedge \, \lupper = 0 \\[0.2em]
+\stenBwdSR{|\llower|}{i}{\irreflS} & \llower < 0 \, \wedge \, \lupper = -1 \\[0.2em]
 %% CEN
-\exact{\stenCenS{\lupper}{i}}& \llower < 0 \wedge \lupper > 0 \wedge |\llower| = \lupper \\[0.2em]
-\exactR(\stenBwdS{|\llower|}{i} & \llower < 0 \wedge \lupper > 0  \wedge |\llower| \neq \lupper \\
-\qquad\qquad \texttt{+} \, \stenFwdS{\lupper}{i}) & \\[0.2em]
+ \stenCenS{\lupper}{i}  & \llower < 0 \, \wedge \, \lupper > 0
+ \, \wedge \, |\llower| = \lupper \\[0.2em]
+ \stenBwdS{|\llower|}{i} & \llower < 0 \, \wedge \, \lupper > 0  \, \wedge \, |\llower| \neq \lupper \\
+\quad \texttt{+} \, \stenFwdS{\lupper}{i}  & \qquad\quad \\[0.2em]
 % BOUND
-\upperB{\stenFwdS{\lupper}{i}} & \llower > 1 \\[0.2em]
-\upperB{\stenBwdS{|\llower|}{i}} \quad & \llower < (-1)
+ \texttt{atMost}, \stenFwdS{\lupper}{i} & \llower > 1 \\[0.2em]
+ \texttt{atMost}, \stenBwdS{|\llower|}{i} \quad & \llower < (-1)
  \\[0.2em]
 % ABSOLUTE REP
-\exact{\epsilon} & \llower = \infty \, \vee \, \lupper = \infty
+ \epsilon & \llower = \infty \, \vee \, \lupper = \infty
   \end{cases}
 \end{align*}
 %%
@@ -1959,90 +1916,43 @@ Thus, an upper bound is instead returned showing the maximum extent
 of the region. The penultimate case is the dual, when the lower bound is less
 than $-1$, giving an upper bound on a \texttt{backward} specification.
 
-Finally, if either bound is $\infty$, representing a non
+Finally, in the case where either bound is $\infty$, representing a non
 neighbourhood index, then an empty specification is given
  with no regions, indicating that there is not even reflexive
 0-offset access in this dimension.
 \end{definition}
 
 \begin{lemma}
-$\mathsf{toSpec}$ is total 
+$\mathsf{toSpec}$ is total (\ie{}, defined for all inputs)
  given the precondition that the lower
 bound of the input span is less than or equal to its upper bound.
 \end{lemma}
 
 %\newcommand{\mkBig}[2]{\overset{\LARGE{\term{#1}}}{#2}}
-\begin{definition} The $\odot$ operation on $\textsf{A}(\specDNF{})$
-  is defined in terms of the intermediate $\hat{\odot}$ on \specDNF{}:
-%%
+\begin{definition} The $\odot$ operation on \specDNF{} is defined
 \begin{align*}
-S \,\hat{\odot}\, \epsilon = S \quad
-\epsilon \,\hat{\odot}\, S = S \qquad
-S \,\hat{\odot}\, T = \bplus_{(\tyProd{s}, \tyProd{t}) \in (S \times
-   T)} (\tyProd{s} \; \term{*} \; \tyProd{t})
+& ([\textit{approx}_1] \; [\textit{mult}_1] \;
+\tySum{s})
+\odot
+([\textit{approx}_2] \; [\textit{mult}_2] \;
+\tySum{t}) = \\
+& \begin{cases}
+\tySum{s} \tySum{\odot} \tySum{t} & \textit{approx}_1 =
+\textit{approx_2} = \varepsilon
+\\
+\
+& \textit{approx}_1 = \texttt{atLeast}, \textit{approx}_2 = \varepsilon
+\end{cases}
+\\
 \end{align*}
-%%
-That is, the $\hat{\odot}$ product of two specifications $S$ and $T$ in DNF form 
-is the $\term{+}$ sum of all pairwise $\term{*}$ products for every
-pair of $\tyProd{spec}$ drawn from $S$ and $T$. The result
-is indeed in DNF-form. The operation is
-commutative and associative, and sound with respect to our
-model (see Lemma~\ref{lem:alg-soundness} below).
-The $\hat{\odot}$ operation is then lifted to all combinations of
-\textsf{Approx} for $\odot$:
 \begin{align*}
-\textsf{exact}(S) \odot \textsf{exact}(T) = \; & \textsf{exact}(S
-                                              \hat{\odot} T) \\
-\textsf{lower}(S) \odot \textsf{lower}(T) = \; & 
-      \textsf{lower} \, (S \hat{\odot} T) \\
-\textsf{upper}(S) \odot \textsf{upper}(T) = \; &
-      \textsf{upper} \, (S \hat{\odot} T) \\
-\textsf{lower}(S) \odot \textsf{exact}(T) = \; &
-       %\textsf{exact}(T) \odot \textsf{lower}(S) = \;
-       \textsf{both} \, (S \hat{\odot} T, \; T) \\
-\textsf{upper}(S) \odot \textsf{exact}(T) = \; & 
-       %\textsf{exact}(T) \odot \textsf{upper}(S) =
-      \; \textsf{both} \, (T, \; S \hat{\odot} T) \\
-\textsf{lower}(S) \odot \textsf{both}(T_l,T_u) = \; &
-        %\textsf{both}(T_l,T_u) \odot \textsf{lower}(S) = \;
-        \textsf{both} \, (S \hat{\odot} T_l, \; T_u) \\
-\textsf{upper}(S) \odot \textsf{both}(T_l,T_u) = \; & \textsf{both} \,
-                                                      (T_l, \; S \hat{\odot} T_u) \\
-\textsf{both}(S_l,S_u) \odot
-\textsf{both}(T_l,T_u) & = \textsf{both} (S_l \hat{\odot} T_l, \; S_u
-                         \hat{\odot} T_u)
+s \tySum{\odot} t & =
+ \bplus_{(\tyProd{s_1}, \tyProd{s_2}) \in (s \times
+   t)} (\tyProd{s_1} \; \term{*} \; \tyProd{s_2})
+%\begin{cases}%
+%\end{cases}
 \end{align*}
-For brevity we omit the cases where the parameters above are flipped
-as $\odot$ is commutative.
 \end{definition}
-
-\begin{definition}The $\oplus$ operation on $\textsf{A}(\specDNF)$ 
-is defined in a similar way to $\odot$, with $\hat{\oplus}$ on
-$\specDNF$ given by:
-%%
-\begin{equation*}
-S \,\hat{\oplus}\, \epsilon = S \quad
-\epsilon \,\hat{\oplus}\, S = S \quad
-S \, \hat{\oplus} \, T = S \, \term{+} \, T
-\end{equation*}
-%%
-Thus, if neither specification is empty, their $\oplus$ is just
-the syntatic sum $\term{+}$. Then $\oplus$ is the lifting of
-$\hat{\oplus}$ to boudns with the shape as $\odot$ in the previous
-definition.
-\end{definition}
-
-\begin{lemma}[$\hat{\odot}$, $\hat{\oplus}$ soundness] $\forall S,
-  T \in \specDNF$ where $S \neq \epsilon \wedge T \neq \epsilon$:
-\begin{align*}
-\interp{S \; \hat{\odot} \; T}_n & = \interp{S}_n \otimes \interp{T}_n
-  \\
-\interp{S \; \hat{\oplus} \; T}_n & = \interp{S}_n \cup \interp{T}_n
-\end{align*}
-\label{lem:alg-soundness}
-\end{lemma}
-%
-
 
 \subsection{Checking\label{subsec:checking}}
 
@@ -2050,16 +1960,15 @@ In checking mode, the specification is verified with respect to the indexing
 scheme of the actual access pattern. The mathematical model of the specification
 developed in Section~\ref{sec:semantics} is used this process.
 
-A specification is first synthesised into its model. Then the occurrences of an
-array in an assignment are checked against the model for consistency as defined
-in Figure~\ref{fig:consistency}. The consistency predicate is defined
-recursively.
+Checking procedure synthesises syntactic specification into its model and
+generates an injection from indexing schemes to the multiplicity of observed
+access patterns, this is formally defined in Figure~\ref{fig:consistency}.
+Then, the consistency of the injection from the indexing schemes with the model
+is checked.
 
-It first checks multiplicity if $\textsf{once}$ is at the top
-level, \ie{} specification in question involves \texttt{readOnce} modifier, then
-the array accesses are checked for uniqueness using $unique$ predicate and the
-problem is reduced to $\textsf{mult}$, which does not impose any extra
-constraints.
+It the multiplicity of the access pattern and the model is matched and are
+$\mathit{once}$, then the problem is reduced to checking consistency in
+models in which duplicate access patterns are allowed.
 
 Next, a consistency predicate considers whether the stencil is an approximation.
 Semantically, a lower bound is achieved if every indexing scheme in the
@@ -2089,56 +1998,56 @@ a(i,j) = b(i, j-1) + b(i,j) + b(i,j+1) + b(i-1,j) + b(i+1,j)
 \end{minted}
 %
 \begin{enumerate}
-\item Generate model from the specification as described in
-  Section~\ref{sec:semantics}.
+\item From now on assignment on line three is referred as $L3$ for brevity.
+  Verification is done by computing the following:
+  $$check(\texttt{stencil readOnce, fivepoint},L3,b)$$
 %
-\begin{dmath*}
-\interp{\texttt{stencil readOnce, fivepoint}}_2 =
-  \textsf{once}(
-    \textsf{exact}(
-      \{ \vtwo{-1}{\infty},
+\item Generate model from the specification as described in
+  Section~\ref{sec:semantics}. We refer to the indexing
+  schemes within the model as set $m$.
+%
+\[ m= \{  \vtwo{-1}{\infty},
           \vtwo{0}{\infty},
           \vtwo{1}{\infty},
           \vtwo{\infty}{-1},
           \vtwo{\infty}{0},
-          \vtwo{\infty}{1}\}))
+        \vtwo{\infty}{1} \} \]
+\begin{dmath*}
+\interp{\texttt{stencil readOnce, fivepoint}}_2 =
+  \{\textsf{once}(\textsf{exact}(m)) \}
 \end{dmath*}
-%
-\item Now the $cons$ predicate is applied with this model alongside the
-  assignment on line three and array $b$. For brevity the assignment is
-  referred to as $L3$ and the set of unifiers defined in the previous step as
-  $m$.
-
-  The predicate is reduced to
-  $cons(\textsf{once}(\textsf{exact}(m)),L3,b)$.
-%
-\item $cons$ predicate from the previous step evaluates to
-  $$unique(L3,b) \; \wedge \; cons(\textsf{mult}(\textsf{exact}(m)),L3,b).$$
-%
-  This condition holds as no access pattern is repeated in $L3$ by simple
-  inspection.
-%
-\item We further expand the function to 
-  \begin{equation*}
-    cons(\textsf{mult}(\textsf{up}(m)),L3,b) \wedge 
-    cons(\textsf{mult}(\textsf{low}(m),L3,b).
-  \end{equation*}
 %
 \item To evaluate the two predicates above, we need indexing schemes for the
-  array in question. This is obtained by the $analyse$ function from
-  Subsection~\ref{subsec:inference}.
+  array in question. This is obtained by $modelise$ function. For brevity the
+  set of indexing schemes is referred as $m'$.
 
-  For the example above the indexing schemes are as follows:
+  For the example above the observed model is as follows:
 %
-\begin{dmath*}
-analyse(L3,b) =
-  \{ \vtwo{0}{-1},
-     \vtwo{0}{0},
-     \vtwo{0}{1},
-     \vtwo{-1}{0},
-     \vtwo{1}{0}
+\[
+m' = \{
+    \vtwo{0}{-1},
+    \vtwo{0}{0},
+    \vtwo{0}{1},
+    \vtwo{-1}{0},
+    \vtwo{1}{0}
   \}
-\end{dmath*}
+\]
+\[modelise(L3,b) = \textsf{once}(m')\]
+%
+\item Now $cons$ predicate is applied with this model along side with the
+  assignment on line three and array $b$.
+
+  The predicate is reduced to
+  $cons(\textsf{once}(\textsf{exact}(m)),\textsf{mult}(m'))$.
+%
+\item $cons$ predicate from the previous step evaluates to
+  $$cons(\textsf{mult}(\textsf{exact}(m)),\textsf{once}(m')).$$
+%
+\item We further evaluate the predicate to
+  \begin{dmath*}
+    cons(\textsf{mult}(\textsf{up}(m)),\textsf{mult}(m')) \wedge
+    cons(\textsf{mult}(\textsf{low}(m),\textsf{mult}(m')).
+  \end{dmath*}
 %
 \item Below we present two sets of generalisations to show both the lower and
   the upper bound holds.
@@ -2163,7 +2072,7 @@ analyse(L3,b) =
   \end{align*}
 
   Since both predicates are satisfied the array accesses specified on line
-  three, the stencil comutation is consistent with the \texttt{fivepoint}
+  three, the stencil computation is consistent with the \texttt{fivepoint}
   specification.
 \end{enumerate}
 
@@ -2174,12 +2083,12 @@ the new assignment $L3'$ becomes:
 a(i,j) = b(i, j-1) + b(i,j) + b(i,j+1) + b(i-1,j) + b(i+1,j) + b(i+2,j+2)
 \end{minted}
 %
-The first four steps proceed as before. In the fifth step, the result
-of $\mathit{analyse}(L3',b)$ will have an extra term $\vtwoh{2}{2}$. In the
-sixth step, since the model has not changed and the indexing schemes are only
-augmented with a new element, the generalisations for lower bound still hold.
-However, there are no elements in the model, $m$, that can generalise
-$\vtwoh{2}{2}$, hence the model fails to hold as an upper bound.
+In the first six steps, evaluation proceeds the same way except for step three.
+In the third step, result of $\mathit{modelise}(L3',b)$ will have the extra term
+$\vtwoh{2}{2}$. In the seventh step, since the model has not changed and the
+indexing schemes are only augmented with a new element, the generalisations for
+lower bound still hold. However, there are no elements in the model, $m$, that
+can generalise $\vtwoh{2}{2}$, hence the model fails to hold as an upper bound.
 
 Note that if the specification were as follows:
 %
@@ -2188,9 +2097,11 @@ Note that if the specification were as follows:
 \end{minted}
 %
 The consistency predicate would have held because for the upper bound
-$\mathit{cons}(\textsf{mult}(\textsf{up}(m)),L3',b)$ would not have
-been needed. This semantically makes sense since the region
-$\texttt{fivepoint}$ is indeed contained in the regions touched by $b$.
+$\mathit{cons}(\textsf{mult}(\textsf{up}(m)),\textsf{mult}(m'))$ would not have
+been needed. This semantically makes sense since the region $\texttt{fivepoint}$
+is indeed contained in the regions touched by $b$.
+
+\subsubsection{A note on region approximations}
 
 \subsection{Synthesis\label{subsec:synthesis}}
 

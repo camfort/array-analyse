@@ -2474,7 +2474,7 @@ the results of the Camfort test.
 
 \subsubsection{Turbulence calculation}
 
-The Unified Model contains an implementation of the Smagorinsky subgrid-scale model for calculating turbulence. The source file in question yields 38 stencils from 340 lines of code. We selected one as an example:
+The Unified Model contains an implementation of the Smagorinsky subgrid-scale model for calculating turbulence. The source file in question yields 39 stencils from 340 lines of code. We selected one as an example:
 
 \begin{minted}[breakindent=8.1em]{fortran}
  != stencil readOnce, (forward(depth=1, dim=3, irreflexive))*(backward(depth=1, dim=1))*(backward(depth=1, dim=2)) + (forward(depth=1, dim=3))*(backward(depth=1, dim=1))*(reflexive(dim=2)) + (forward(depth=1, dim=3))*(backward(depth=1, dim=1, irreflexive))*(backward(depth=1, dim=2, irreflexive)) + (forward(depth=1, dim=3))*(backward(depth=1, dim=2))*(reflexive(dim=1)) + (backward(depth=1, dim=1))*(backward(depth=1, dim=2, irreflexive))*(reflexive(dim=3)) + (backward(depth=1, dim=1, irreflexive))*(backward(depth=1, dim=2))*(reflexive(dim=3)) :: x

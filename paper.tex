@@ -9,14 +9,22 @@
 \usepackage{fancyvrb}
 \usepackage{subfigure}
 \usepackage{amsthm}
-\usepackage{tikz}
 \usepackage{multirow}
 \usepackage{minted}
 \usepackage{breqn}
+<<<<<<< 1cc780a878e64035c9553922469999389012d707
 \usepackage{siunitx} % For pretty-printing numeric values and SI units
                      % of measure. e.g., the tabular column type S is
                      % used to print nice-looking tables of numbers.
 \sisetup{group-separator={,},group-minimum-digits={3},output-decimal-marker={.}}
+=======
+\usepackage{tikz}
+
+
+\tikzset{round left paren/.style={ncbar=0.4cm,out=110,in=-110}}
+\tikzset{round right paren/.style={ncbar=0.4cm,out=70,in=-70}}
+
+>>>>>>> group illustrations into a single line figure}
 
 \fvset{
   linenos=true,
@@ -689,53 +697,53 @@ and checked against the code.
 \begin{align*}
 \setlength{\arraycolsep}{0.05em}
 \begin{array}{c}
-\framebox{$\textit{region} \equiv \textit{region}'$} \\[1em]
+\framebox{$\textit{region} \equiv \textit{region}'$} \\[0.7em]
 \begin{array}{rll}
 (\textsc{F\, \texttt{+} \,F}) \;\; &
 \stenFwdSR{n \, \textsf{max} \, m}{d}{r \vee s} \\
- \equiv \; & \stenFwdSR{n}{d}{r} \; \texttt{+} \; \stenFwdSR{m}{d}{s} \\[1em]
+ \equiv \; & \stenFwdSR{n}{d}{r} \; \texttt{+} \; \stenFwdSR{m}{d}{s} \\[0.7em]
 %
 %
 (\textsc{B\, \texttt{+} \,B}) \;\; &
 \stenBwdSR{n \, \textsf{max} \, m}{d}{r \vee s} \\
- \equiv \; & \stenBwdS{n}{d}{r} \; \texttt{+} \; \stenBwdSR{m}{d}{s} \\[1em]
+ \equiv \; & \stenBwdS{n}{d}{r} \; \texttt{+} \; \stenBwdSR{m}{d}{s} \\[0.7em]
 %
 %
 (\textsc{C\, \texttt{+} \,C}) \;\; &
 \stenCenSR{n \, \textsf{max} \, m}{d}{r \vee s} \\
-\equiv \; & \stenCenSR{n}{d}{r} \; \texttt{+} \; \stenCenSR{m}{d}{s} \\[1em]
+\equiv \; & \stenCenSR{n}{d}{r} \; \texttt{+} \; \stenCenSR{m}{d}{s} \\[0.7em]
 %
 %
 (\textsc{C\, \texttt{+} \,F}) \;\; & \stenCenSR{n}{d}{r \vee s} \\
 \textit{$m \leq n$} \; \equiv \; & \stenCenSR{n}{d}{r} \; \texttt{+} \;
-                      \stenFwdSR{m}{d}{s} \\[1em]
+                      \stenFwdSR{m}{d}{s} \\[0.7em]
 %
 %
 (\textsc{C\, \texttt{+} \,B}) \;\; &
 \stenCenSR{n}{d}{r \vee s} \\
 \textit{$m \leq n$} \; \equiv \; & \stenCenSR{n}{d}{r} \; \texttt{+} \;
-                      \stenBwdSR{m}{d}{s} \\[1em]
+                      \stenBwdSR{m}{d}{s} \\[0.7em]
 %
 %
 (\textsc{B\, \texttt{+} \,F}) \;\; &
 \stenCenSR{n}{d}{r \vee s} \\
 \equiv \; & \stenFwdSR{n}{d}{r} \; \texttt{+} \; \stenBwdSR{n}{d}{s}
-  \\[1em]
+  \\[0.7em]
 %
 %
 (\textsc{R\, \texttt{+} \,F}) \;\; &
 \stenFwdS{n}{d} \\
-\equiv \; & \stenReflSR{d} \; \texttt{+} \; \stenFwdSR{n}{d}{r} \\[1em]
+\equiv \; & \stenReflSR{d} \; \texttt{+} \; \stenFwdSR{n}{d}{r} \\[0.7em]
 %
 %
 (\textsc{R\, \texttt{+} \,B}) \;\; &
 \stenBwdS{n}{d} \\
-\equiv \; & \stenReflSR{d} \; \texttt{+} \; \stenBwdSR{n}{d}{r} \\[1em]
+\equiv \; & \stenReflSR{d} \; \texttt{+} \; \stenBwdSR{n}{d}{r} \\[0.7em]
 %
 %
 (\textsc{R\, \texttt{+} \,C}) \;\; &
 \stenCenS{n}{d} \\
-\equiv \; & \stenReflSR{d} \; \texttt{+} \; \stenCenSR{n}{d}{r} \\[1em]
+\equiv \; & \stenReflSR{d} \; \texttt{+} \; \stenCenSR{n}{d}{r} \\[0.7em]
 %
 %
 (\textsc{irrefl}) \;\; & (R \, \term{*} \, S^\irreflS) \, \term{+} \,
@@ -761,7 +769,7 @@ and checked against the code.
 \end{array}
 %
 %\framebox{${\textit{specDec} :: \texttt{v}} \equiv
-%{\textit{specDec'} :: \texttt{v}}$} \\[1em]
+%{\textit{specDec'} :: \texttt{v}}$} \\[0.7em]
 %\begin{array}{rl}
 % MUTUAL
 %(\textsc{mutual}) \; &
@@ -1426,8 +1434,18 @@ Informally, indexing schemes are converted to pairs $u \mapsto (u,
 u)$, defining the lower and upper bound of a unit span 
 in $n$-dimensions. For
 example, for the five point stencil there are five $1 \times 1$ spans.
-%
-\begin{center}
+Figure~\ref{fig:inference-steps-informal}(a) gives an illustration
+of these five unit spans.
+
+\begin{figure}[t]
+\vspace{-0.3em}
+\hspace{-0.5em}
+\begin{minipage}{0.16\linewidth}
+\begin{align*}
+\setlength{\arraycolsep}{0em}
+\begin{array}{c}
+\quad \\[0.2em]
+{\scalebox{0.75}{
 \begin{tikzpicture}
 %\draw[step=0.5cm,lightgray,very thin] (0.5,0.5) grid (2,2);
 \node at (1.25,1.22) {\textnormal{\small{0,0}}};
@@ -1436,51 +1454,66 @@ example, for the five point stencil there are five $1 \times 1$ spans.
 \draw[thick] (1,0.5) rectangle (1.5,1);
 \draw[thick] (0.5,1) rectangle (1,1.5);
 \draw[thick] (1,1.5) rectangle (1.5,2);
+\end{tikzpicture} 
+}} \\[0.36em]
+(a)
+\end{array}
+\end{align*}
+\end{minipage} $\rightarrow$ \begin{minipage}{0.43\linewidth}
+\begin{align*}
+\setlength{\arraycolsep}{0em}
+\begin{array}{c}
+{\scalebox{0.75}{
+\begin{tikzpicture}
+%\draw[step=0.5cm,lightgray,very thin] (0.5,0.5) grid (2,2);
+%\node at (1.25,1.22) {\textnormal{\small{0,0}}};
+\draw [black, thin] (0.35,0) to [round left paren ] (0.35,2);
+\draw[thick] (0.5,1) rectangle (2,1.5);
+\draw[thick] (1,0.40) rectangle (1.5,0.90);
+\draw[thick] (1,1.60) rectangle (1.5,2.10);
+\node at (2.3,1.22) {+};
+\draw[thick] (3.8,1) rectangle (4.3,1.5);
+\draw[thick] (2.6,1) rectangle (3.1,1.5);
+\draw[thick] (3.2,0.5) rectangle (3.7,2);
+\draw [black, thin] (4.4,0) to [round right paren ] (4.4,2);
 \end{tikzpicture}
-\end{center}
+}}
+ \\ (b)
+\end{array}
+\end{align*}
+\end{minipage}$\rightarrow$ \begin{minipage}{0.25\linewidth}
+\begin{align*}
+\setlength{\arraycolsep}{0em}
+\begin{array}{c}
+{\scalebox{0.75}{
+\begin{tikzpicture}
+%\node at (1.25,1.22) {\textnormal{\small{0,0}}};
+\draw [black, thin] (0.8,0) to [round left paren ] (0.8,2);
+\draw[thick] (1,0.5) rectangle (1.5,2);
+\node at (1.8,1.22) {+};
+\draw[thick] (2.1,1) rectangle (3.6,1.5);
+\draw [black, thin] (3.7,0) to [round right paren ] (3.7,2);
+%\node at (2.75,1.22) {\textnormal{\small{0,0}}};
+\end{tikzpicture}
+}}  \\ (c)
+\end{array}
+\end{align*}
+\end{minipage}
+\caption{Illustration of grouping spans in 
+specification inference}
+\label{fig:inference-steps-informal}
+\end{figure}
+
 %
 Each dimension is traversed, coalescing consecutive spans
 which vary in $m$-dimensions into coalesced spans which vary in
 $m+1$-dimensions. In this example, the $0$-dimensional spans
- become $1$-dimensional spans (rows/columns):
-%
-\begin{align*}
-\begin{array}{cc}
-\begin{tikzpicture}
-%\draw[step=0.5cm,lightgray,very thin] (0.5,0.5) grid (2,2);
-%\node at (1.25,1.22) {\textnormal{\small{0,0}}};
-\draw[thick] (0.5,1) rectangle (2,1.5);
-\draw[thick] (1,0.40) rectangle (1.5,0.90);
-\draw[thick] (1,1.60) rectangle (1.5,2.10);
-\end{tikzpicture}
-\qquad
-&
-\qquad
-\begin{tikzpicture}
-%\draw[step=0.5cm,lightgray,very thin] (0.5,0.5) grid (2,2);
-%\node at (1.25,1.22) {\textnormal{\small{0,0}}};
-\draw[thick] (1.6,1) rectangle (2.1,1.5);
-\draw[thick] (0.4,1) rectangle (0.9,1.5);
-\draw[thick] (1,0.5) rectangle (1.5,2);
-\end{tikzpicture}
-\\
-\textit{dimension 1} \qquad & \qquad \textit{dimension 2}
-\end{array}
-\end{align*}
-%
+ become $1$-dimensional spans (rows/columns), illustrated
+in Figure~\ref{fig:inference-steps-informal}(b).
 Any spans that are contained with any other span are deleted,
 leaving a minimal set of spans (which may overlap, but none of which
-fully contains another).
-\begin{center}
-\begin{tikzpicture}
-%\node at (1.25,1.22) {\textnormal{\small{0,0}}};
-\draw[thick] (1,0.5) rectangle (1.5,2);
-\node at (2,1.22) {+};
-\draw[thick] (2.5,1) rectangle (4,1.5);
-%\node at (2.75,1.22) {\textnormal{\small{0,0}}};
-\end{tikzpicture}
-\end{center}
-%
+fully contains another) (Figure~\ref{fig:inference-steps-informal}(c).
+
 This procedure is iterated till a fixed point is reached. In this
 example this is reached in the first step. The final spans
 are used to construct stencil specification, where
@@ -1673,6 +1706,8 @@ of an algebra on \textit{spec} syntax in disjunctive-normal form
 \result{\specDNF{}} = \specDNF + ((\specDNF{} + 1) \times
   (\specDNF{} + 1))
 \end{align*}
+
+
 
 \begin{align*}
 \result{\specDNF{}} & ::= \textsf{exact} \, \specDNF{}

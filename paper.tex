@@ -2041,10 +2041,11 @@ Note that if the specification was as follows:
 != stencil atLeast, readOnce, fivepoint :: b}
 \end{minted}
 %
-The consistency function would have held as
-$\mathit{cons}(\textsf{mult}(\textsf{up}(m)),L3',b)$ for the upper bound would
-have never been needed. This semantically makes sense since the region
-$\texttt{fivepoint}$ is indeed a lower bound for the access pattern of $b$.
+The consistency function would have held because for the upper bound
+$\mathit{cons}(\textsf{mult}(\textsf{up}(m)),L3',b)$ would never have
+been needed. This semantically makes sense since the region
+$\texttt{fivepoint}$ is indeed a lower bound for the access pattern of
+$b$.
 
 \section{Evaluation}
 \label{sec:evaluation}

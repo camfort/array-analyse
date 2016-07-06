@@ -2193,7 +2193,26 @@ $\mathit{cons}(\textsf{mult}(\textsf{up}(m)),\textsf{mult}(m'))$ would not have
 been needed. This semantically makes sense since the region $\texttt{fivepoint}$
 is indeed contained in the regions touched by $b$.
 
-\subsubsection{A note on region approximations}
+\subsubsection{A note on stencil approximations}
+
+As noted above, the \textsf{fivepoint} region defined above is more accepting
+than that used in Section~\ref{sec:lang}. This introduces a new notion of
+approximation beyond that is achieved in Section~\ref{sec:semantics}
+using upper and lower bounds because the in both cases the specifications are
+used to generate \emph{exact} models. Formally, we say a specification $s'$
+approximates a more specific specification $s$ \emph{iff} $\forall m \in
+\textsf{Mult}(\domainVal) . \mathit{cons}(s,m) \implies \mathit{cons}(s',m)$.
+
+Equations provided on regions in Section~\ref{sec:lang} when all modifiers
+equal provide such approximations, but it goes further than that. The
+regions describing the fivepoint stencil for example cannot be shown equal
+using these equations, but satisfies the approximation predicate as defined
+above.
+
+The checking algorithm though happily accepts an approximation in place of the
+most specific specification. Although this decreases the likelihood of catching
+stencil errors (as more access patterns conform), it reduces the space and
+effort it takes to write the specification.
 
 \subsection{Synthesis\label{subsec:synthesis}}
 

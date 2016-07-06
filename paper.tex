@@ -1129,13 +1129,61 @@ multiplication.
 \end{example}
 \noindent
 The model of $\term{+}$ is the straightforward union of 
-the models of subterms. The model of $\term{*}$ is uses
-an intermediate tensor $\otimes$ which requires some intermediate
-definitions.
+the models of subterms. The model of $\term{*}$ is
+the tensor $\otimes$ of subterm models. The tensor 
+is non-trivial; we give some informal intutition first.
 
+\paragraph{$\otimes$ of models}
+
+The intuition behind $\otimes$ is that it takes
+all possible pairs of indexing schemes, treating them as the
+lower and upper bounds of an $n$-dimensional rectangle from which the 
+remaining vertices of the rectangle are generated (like a bounding
+box). \eg{}:
+%%
+\begin{align*}
+\{\vtwoh{1}{2}, \vtwoh{5}{6}\} \otimes \{\vtwoh{3}{4}\} = 
+\{&\vtwoh{1}{2}, \vtwoh{3}{2}, \vtwoh{1}{4}, \vtwoh{3}{4}, \\
+  & \vtwoh{3}{6}, \vtwoh{5}{4}, \vtwoh{5}{6}\}
+\end{align*}
+%%
+Internally $\otimes$ takes a Cartesian product of the indexing
+schemes (all pairs) and then combines each pair using the 
+\emph{pairwise permutation} written $\bowtie$ (defined later)
+which generates all possible interleavings of two vectors
+(\ie{}, all possible non-deterministic choices between $u_i$ and
+$v_i$ in each dimension). Some care is then taken over
+how this interacts with $\infty$: pariwse permtuation
+corresponds to non-determinstic choice, in each dimension $i$,
+between two values $u_i$ and $v_i$, but if either 
+is $\infty$ then the resultying pairwise permutation is 
+filtered out if the dimension $i$ has \emph{any other scheme
+in the model where $u_i \neq \infty$}, \eg{}:
+\begin{align*}
+\{\vtwoh{1}{\infty}\} \otimes \{\vtwoh{3}{4}\} = 
+\{\vtwoh{1}{4}, \vtwoh{3}{4}\}
+\end{align*}
+% 
+where $\vtwoh{1}{\infty}$ and $\vtwoh{3}{\infty}$ have been filtered.
+With respect to the notion of unification, the 
+%
+%
+% combines non-$\infty$ constraints
+%of the unifiers in different dimensions into less accepting unifiers.
+%This means an access pattern unifying with this unifier would require
+%both models to be satisfied. Use of $dims$ gives the dimensions that
+%constitutent models talk about and is used in the product to eliminate
+%general unifier appearing in these dimensions. Allowing general unifier
+%in these dimensions would prevent both models to be satisfied
+%simultaneously.
+%
+The notion of which dimensioons $i$ have that \emph{any scheme in the model
+has $u_i \neq \infty$} is represented by the \emph{constrained
+dimensions} intermediate function:
+%
 \begin{definition}[Constrained dimensions]
 Given an $n$-dimensional model $M$, the \emph{constrained dimensions}
-of that model is a subset of $\{1, \ldots, n\}$ giving
+of that model is a subset of $\{1, \ldots, n\}$ of 
 the dimensions for which at least one scheme $u \in M$ has
 a non-$\infty$ value in that dimension. That is:
 %
@@ -1150,14 +1198,6 @@ For example, $\effdims{\{\vtwoh{0}{\infty},\vtwoh{\infty}{\infty}\}}{2}
 
 \begin{definition}The tensor $\otimes_n$ of $n$-dimensional
 models is defined:
-%
-%\begin{align*}
-%\{\vtwoh{0}{0}, \vtwoh{1,1}\}
-% \otimes \{\vtwoh{0,\infty}\}
-%\end{align*}
-%
-%
-%%
 \begin{alignat*}{2}
 & M \otimes_n N =
   \Bigg\{x \; \Bigg| \;
@@ -1169,44 +1209,23 @@ models is defined:
                    $\;\; \wedge \;\, x_j \neq \infty$
                   } \Bigg\} 
 \end{alignat*}
-The intuition for the tensor is that it gives all possible
-ways of combining indexing schemes in two models
-such that for every scheme
-$u \in (M \otimes_n N)$ then $w \sim u$ for some $w$
-\emph{iff} $\;\exists v \in M . w \sim v$ and
-$\exists v' \in N . w \sim v'$. Thus it acts as a kind of intersection
-for indexing schemes. We unpack its definition in pieces.
-
-We start with the first guard taking the Cartesian product of
-the two models and quantifying over all pairings $(u, v)$. 
-The second guard says that $j$ is in the set of constrainted
-dimensions for $M$ and the constrained dimensions for $N$.
+The first guard takes the Cartesian product of
+the two models and quantifies over all pairings $(u, v)$. 
+The second guard says that $j$ ranges of the constrained
+dimensions for $M$ unioned with the constrained dimensions for $N$.
 That is, every $j$ corresponds to a dimension in which 
 either $M$ or $N$ has a scheme $u$ where $u_j \neq \infty$,
-and thus is constraining. 
+and thus is constrained. 
 
-%for all possible
-%pairs of schemes $(u, v)$ in the Cartesian product of the
-%two models $M \times N$, then 
-
-% combines non-$\infty$ constraints
-%of the unifiers in different dimensions into less accepting unifiers.
-%This means an access pattern unifying with this unifier would require
-%both models to be satisfied. Use of $dims$ gives the dimensions that
-%constitutent models talk about and is used in the product to eliminate
-%general unifier appearing in these dimensions. Allowing general unifier
-%in these dimensions would prevent both models to be satisfied
-%simultaneously.
-
-The $\bowtie$ operation, which we call \emph{pairwise permutation}
-(described below), constructs a $2^n \times n$ matrix ($2^n$-vector of
+The $\bowtie$ \emph{pairwise permutation} 
+constructs a $2^n \times n$ matrix ($2^n$-vector of
 $n$-vectors), which is indexed by $i$ above
 and then $j$. Using this, the $\otimes$ operation constructs the set
 of schemes which are the 
 pairwise permutations of every pair $(u, v)$ of schemes in the Cartesian
 product of $M \times N$. These permuted schemes are only those
 which have non-$\infty$ components in the constrained dimensions
-given by each model.
+given by each model, given by the guard $x_j \neq \infty$.
 
 The pairwise permutation $u \bowtie v$ takes two vectors and builds the matrix
 where the rows are all possible $n$-vectors generated by
@@ -1241,7 +1260,6 @@ defined the pairwise permutation matrix as:
 where $b$ is a logical matrix where $b_{i,j}$ is the $j$-th bit of the integer
 $i - 1$.
 %%
-\todo{Complete this}
 \end{definition}
 
 

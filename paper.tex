@@ -638,7 +638,7 @@ b(i+1) = a(i) + a(i-1) + a(i-2)
 \end{minted}
 %
 However, this would be an invalid specification if any of the
-array subscripts was repeated. This modifier provides a way to
+array subscripts were repeated. This modifier provides a way to
 rule out any accidental repetition of array subscripts.
 The notion corresponds to that of \emph{linearity} in type systems,
 though we opt for the more informative and easily understood name
@@ -857,7 +857,7 @@ equations (with labels of the form $\ldots \texttt{+} \ldots$)
 explain the notion of \emph{overlapping} regions with sum
 \term{+}. Note that in the first six, $r$ and $s$ range
 over booleans denoting the absence (true) or presence (false)
-of \irrefl{} which are combined via disjunction. For example,
+of \irrefl{}. These are combined via disjunction. For example,
 the rule $(\textsc{B} \, \term{+} \,
 \textsc{F})$ explains that the addition of \term{backward}
 and \term{forward} regions in the same dimension and the same
@@ -971,7 +971,7 @@ $<:$ on \textit{specs}.}
 
 \paragraph{Inequations: sub-specifications}
 
-Figure~\ref{fig:inequations} defines a notion of sub-specification
+Figure~\ref{fig:inequations} defines a notion of sub-specifications
 via the relation $<:^r$ on \textit{region} 
 syntax and then $<:$ on \textit{spec} syntax inductively. 
 Both relations are reflexive and transitive (we omit 
@@ -986,6 +986,8 @@ as an approxiamtion. The (\trule{\textsc{bound}}) gives
 a connection between the \term{atLeast} and \term{atMost}
 approximation modifiers. 
 
+\anote{Can we say something here about why these equations are useful i.e. we use them to do simplification of stencils?}
+
 \section{Semantics of specifications; a model}
 \label{sec:semantics}
 
@@ -998,7 +1000,7 @@ Section~\ref{sec:analysis}); (2) gives a basis for the equational
 theory and approximations of the previous section; and (3) can be used
 to guide correct implementations. The model is a denotational
 semantics, in terms of sets of vectors which we call \emph{index
-  schemes}. We introduces these first then define the denotational semantics.
+  schemes}. We introduce these first and then define the denotational semantics.
 
 \subsection{Indexing schemes and generalisation}
 
@@ -1023,7 +1025,7 @@ as indexing schemes, which explain the range of possible
 indexing behaviours allowed under the specification.
 The relationship between indexing schemes and source language
 terms is given precisely by the partial function, \textsf{schematic}, which
-maps syntactic array index terms to indexing schemes. This
+maps syntactic array-index terms to indexing schemes. This
 operation forms the basis of the analysis required for the inference
 and the checking procedures in Section~\ref{sec:analysis}. 
 
@@ -1126,11 +1128,11 @@ relationship of generalises then holds:
 \end{example}
 \noindent
 Our terminology of \emph{indexing schemes} and
-\emph{generalisation} are by analogy
+\emph{generalisation} is by analogy
 with the \emph{type schemes} and \emph{type generalisation} of
 polymorphic types in ML~\cite{milner1978theory}. Our notion is
 much more rigid however, as our schemes do not bind names
-and thus generalisation of does not require substitution; $\infty$ acts
+and thus generalisation does not require substitution; $\infty$ acts
 as a positional placeholder.
 
 
@@ -1338,7 +1340,7 @@ $i^{th}$ entry in $u$ or the $i^{th}$ entry in $j$. For example:
 The $2^n$ unique choices for $\bowtie$ on $n$-vectors
 corresponds to taking all bit-strings of length $n$ and
 selecting from $u$ for $1$ and $v$ for $0$. The pairwise permutation
-matrix  s thus defined in terms of the logical
+matrix is thus defined in terms of the logical
 matrix $b$ where $b_{i,j}$ is the $j$-th bit of the integer
 $i - 1$ as:
 %

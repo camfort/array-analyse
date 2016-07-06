@@ -150,7 +150,7 @@ xrightmargin=0.2cm,commandchars=\\\{\},baselinestretch=0.98,numbersep=0.9em}
 \newcommand{\containedin}{\sqsubseteq}
 
 %% MODEL
-\newcommand{\effdims}[2]{\mathit{dims}(#1)_{#2}}
+\newcommand{\effdims}[2]{\mathit{constr}(#1)_{#2}}
 
 \include{results}
 \include{corpussize}
@@ -408,6 +408,7 @@ variables) we often simply say \emph{induction variable}.
   the predicate \neigh{}. An array subscript $v(\bar{e})$ where every
  $e \in \bar{e}$ is a neighbourhood index is called a
  \emph{neighbourhood subscript}.
+\label{def:neighbour}
 \end{definition}
 
 
@@ -919,109 +920,292 @@ need to include notions of consistency}
 \section{Semantics of specifications; a model}
 \label{sec:semantics}
 
-\newcommand{\relix}{(\mathbb{Z}_\bot)^\mathbb{D}}
+\newcommand{\domainVal}{\mathbb{Z}_\infty}
 
-We define a semantic model of our stencil specification language as
-the basis for building correct implementations, showing the soundness
-of the equational theory and approximations, and as a basis for the
-inference, checking, and program synthesis algorithms.
-The semantics of stencil specifications can be given a denotational
-model as sets of unifiers for array indexing.
+We define a semantic model for our stencil specification language.
+This model has a number of purposes: (1) it is used in the inference,
+checking, and program synthesis algorithms (introduced in
+Section~\ref{sec:analysis}); (2) gives a basis for the equational
+theory and approximations of the previous section; and (3) can be used
+to guide correct implementations. The model is a denotational
+semantics, in terms of sets of vectors which we call \emph{index
+  schemes}. We introduce first the notion of indexing schemes
+and \emph{unification} which gives the domain of our model
+and forms the basis of the rest of the algorithsm for our
+specificaiton. We then define the denotational model
 
-\begin{definition}
-  A specification of maximum dimensionality $n$, is modelled by a
-  set of unifiers. Here, a unifier is represented as a vector of size $n$
-  whose values are drawn from $\mathbb{Z} \cup \{\infty\}$. The purpose
-  of the unifier is to accept or reject relativised indices of an array
-  subscript. Formal definition of unification in this context is given
-  later.
+\subsection{Indexing schemes and unification}
 
-  The element $\infty$ represents the general acceptor meaning it would unify
-  with any index in the same dimension including constants or any offset from
-  an induction variable.
+\begin{definition}[Index scheme]
+An \emph{index scheme} is a vector of size $n$ (an $n$-vector)
+with values drawn from $\domainVal = \mathbb{Z} \cup \{\infty\}$. 
+Values in $\mathbb{Z}$ represent offsets 
+of a neighbourhood index (indexing
+expressions of the form $i + a$ where $i$ is an induction variable
+and $a$ is a constant offset, Definition~\ref{def:neighbour},
+p.~\pageref{def:neighbour}). The additional value
+$\infty$ represents any indexing behaviour--- it is a 
+wildcard.
+Throughout $u, v, w$ will range over index schemes.
 \end{definition}
 
-\begin{definition} Unification relation, $\sim$, establishes whether
-  a particular relativised subscript, $u$, of a group of subscripts involved
-  in a stencil computation conforms with a unifier, $v$, of the model for
-  the stencil computation.
+Indexing schemes give an abstract
+representation of index expressions in the source language.
+Our model represents the meaning of stencil specifications
+as indexing schemes, which explain the range of possible
+indexing behaviours allowed under the specification.
+The relationship between indexing schemes and source language
+terms is given precisely by the partial function, \textsf{schematic}, which
+maps syntactic array index terms to indexing schemes. This
+operation forms the basis of the analysis required for the inference
+and the checking procedures in Section~\ref{sec:analysis}. 
 
-  Formally, the unification relation can be defined as follows:
-  $$u \sim_n v \triangleq
-  \{ (u,v) \; \mid \; \forall i \in \{ 1, \ldots, n \}, v_i = \infty \vee u_i = v_i \}$$
+\begin{definition}[Schematic]
+The partial function $\textsf{schematic}$ maps 
+source-language indexing terms $(e_1, \ldots, e_n)$
+into $n$-dimensional indexing schemes 
+($\in \domainVal^n$), defined:
+%
+\begin{align*}
+\mathsf{schematic}(e_1, \ldots, e_n) & = 
+[\downarrow\!e_1 \ldots \downarrow\!e_n ] 
+\quad \textit{iff} \; \forall i . \downarrow\!e_i \neq \bot 
+\end{align*}
+%
+The $\downarrow$ operator is a partial\footnote{We represent
+  partiality explicitly in our types with the set $A + \bot$.} function 
+ $\downarrow : \textit{expr} \rightarrow (\domainVal + \bot)$
+which maps each individal indexing expression to a component of
+the indexing scheme, defined: 
+%%
+\begin{align*}
+\downarrow\!e
+ & =  \begin{cases}
+a & e \equiv i + a \; \wedge \; \mathsf{neigh}(i + a) \\
+-a & e \equiv i - a \; \wedge \; \mathsf{neigh}(i - a) \\
+\infty & \textit{$\mathsf{IV}(e) = \emptyset$} \\
+\bot   & \textit{otherwise}
+\end{cases}
+\end{align*}
+%%
+where $\mathsf{IV}(e)$ is the set of free induction variables
+appearing in an expression, and $\neigh{}$ classifies expressions which 
+are constant offsets from an induction variable
+(Defn.~\ref{def:neighbour}). In the third case, 
+if the expression is not a neighbourhood index but is not
+a relative index either (\ie{} is not defined in terms
+of an induction variable) then it is mapped to $\infty$, otherwise
+$\downarrow\!e$ is undefined. The $\mathsf{schematic}$ function
+is undefined if $\downarrow$ of any of its components $e_i$ is
+undefined. 
+
+For example $\textsf{schematic}(i, j+1) = \vtwoh{0}{1}$ assuming
+$i$ and $j$ are induction variables and $\textsf{schematic}(i-1, 2, j)
+ = \vthreeh{-1}{\infty}{0}$. However, $\textsf{schematic}(i*2, j)$, for
+ example, is
+ undefined as its first index is a non-neighbour relative index, which 
+ is outside the scope of our specification language.
 \end{definition}
 
-For example, consider a unifier of the form $\vtwoh{\infty}{1}$.
+\begin{definition}[Unification]
+Two schemes $u, v$ of dimensionality $n$
+are said to be \emph{unifiable}, written
+$u \sim_n v$, iff the following holds:
+%%
+\[
+u \sim_n v \; \Leftrightarrow  \;
+  \forall i\!\in\!\{ 1,.., n \} . \, (u_i = \infty
+\, \vee \, v_i = \infty \, \vee \, u_i = v_i)
+\]
+%%
+That is, two schemes are related by the binary relation
+$\sim_n$ over $(\mathbb{Z}_{\infty})^n$ if in each dimension
+either is $\infty$ or they are equal. 
+Thus, the element $\infty$ represents the ``general acceptor''
+ meaning it unifies with any index in the same dimension. 
 
-An array index term $(i, j+1)$ would corresponds to the vector
-$\vtwoh{0}{1}$ after relativisation. This would unify with the
-$\vtwoh{\infty}{1}$ as the first dimension of the unifier have a
-general acceptor and the second dimension matches the relative index.
+The subscript on $\sim_n$ is sometimes dropped when the
+intended dimensionality is clear or inconsequential.
+\end{definition}
+ 
+ 
+%Unification relation, $\sim$, establishes whether
+%a particular relativised subscript, $u$, of a group of subscripts involved
+%in a stencil computation conforms with a unifier, $v$, of the model for
+%the stencil computation.
 
-Another index term $(3, j)$ corresponds to the vector $\vtwoh{\infty}{0}$
-after relativisation since $3$ is a non-relative index. This would fail
-to unify. In the first dimension non-relative index would unify with
-the general acceptor but in the second dimension 1 wouldn't unify with 3.
+\begin{example}
+Take three array indexing terms
+$(i, j+1)$, $(1, j+1)$ and $(3, j)$.
+As given by \textsf{schematic}, these have the 
+corresponding schemes: $\vtwoh{0}{1}$, $\vtwoh{\infty}{1}$
+and $\vtwoh{\infty}{0}$ respectively. The following
+relationship of unification (or lack of) then holds between
+them:
+%%
+\begin{equation*}
+\vtwoh{\infty}{0} \; \not\sim_2 \; \vtwoh{0}{1} \; \sim_2 \;
+\vtwoh{\infty}{1} \; \not\sim_2 \; \vtwoh{\infty}{0}
+\end{equation*}
+%%
+The middle pair unifies as $0$ and $\infty$ unify, 
+whereas the left and right pairs do not unify as
+$0 \not\sim_1 1$. 
+\end{example}
 
-We define the interpretation function $\interp{-}_n$ where $n$ is the
-maximum dimensionality of the specification being modelled, overloaded
-on regions in Figure~\ref{fig:region-model} and on the top-level of a
-specification \textit{spec} in Figure~\ref{fig:spatial-model}. Some
-intermediate notations and definitions are used.
+Our terminology of \emph{indexing schemes} and
+\emph{unification} are by analogy
+with the \emph{type schemes} and \emph{type unification} of
+ML~\cite{milner1978theory}, though our notion is much more rigid.
+
+
+\subsection{Denotational model}
+
+The model is given by the interpretation function $\interp{-}_n$
+(where $n$ is the maximum dimensionality of the specification being
+modelled) mapping closed\footnote{That is, we assume that there are no
+  occurences of \textit{rvar} in a specification being modelled.  Any
+  \emph{open} specification containing region variables can be made
+  closed by straightforward syntactic subtitution with a (closed) 
+  \textit{region}.} specifications to sets of
+$n$-dimensional indexing schemes. The interperation is overloaded on
+\emph{regions} in Figure~\ref{fig:region-model} and on the top-level
+of a specification \textit{spec} in Figure~\ref{fig:spatial-model}.
+
+We first define some intermediate notations and definitions.
 
 \begin{definition}A \emph{single-entry vector} of size $n$, denoted
 $\singleEntry{r}{n}$, is a vector where the $r^{th}$ entry is $1$
 and all others are $\infty$, \eg{}, $\singleEntry{1}{2} =
 \vtwoh{1}{\infty}$ and $\singleEntry{2}{3} = \vthreeh{\infty}{1}{\infty}$.
-
-Here the meaning of a scaled single-entry vector is that at the
-dimension it is not $\infty$, it provides a unifier for consistent
-relativised array subscript indices. In particular the constrained
-requires a non-zero offset from the induction variable.
+Thus, a single-entry vector is an indexing scheme which unifies with
+all other schemes which have $1$ as their $r^{th}$ entry,
+describing a neighbour offset of $1$. 
+%DAO don't understand this sentence:
+%In particular the constrained
+%requires a non-zero offset from the induction variable.
 \end{definition}
 
 \begin{definition}A \emph{zero-entry vector} of size $n$, denoted
 $\zeroEntry{r}{n}$, is a vector where the $r^{th}$ entry is $0$ and all others
 are $\infty$, \eg{}, $\zeroEntry{1}{2} = \vtwoh{0}{\infty}$.
 
-Similar to the single-entry vector, zero-entry vector also imposes
-a constaint on relativised indices. The only difference is the indexing
-expression crosses the origin with respect to the induction variable.
+Similarly to the single-entry vector, zero-entry vectors 
+are also indexing schemes which unify with all other schemes
+as long as the $r^{th}$ entry is $0$, representing indices at
+the ``origin'' in dimension $r$. 
 \end{definition}
 
-The first four equations of Figure~\ref{fig:region-model}
-give the meanings of the region constants as sets of unifiers.
-The next two shows how regions are composed in the model.
 
-\begin{definition}The product of two models of dimensionality
-$n$ is given by the tensor $\otimes_n$ defined:
+\begin{figure}
+\input{region-model.tex}
+%\textit{$a^m \in A$ means there are $n$ copies of $a$ in
+%  the multi-set $A$}
+\caption{Model of regions, $\interp{\textit{region}}$}
+\label{fig:region-model}
+\end{figure}
+
+\noindent
+The first four equations of Figure~\ref{fig:region-model}
+give the meanings of the region constants as sets of indexing
+schemes. The next two give the meaning of combining regions
+by $\term{+}$ and $\term{*}$. 
+
+\begin{example}
+For a $2$-dimensional situation, 
+\begin{align*}
+& \interp{\stenCenS{2}{1}}_2 \\
+= \; & \{i\singleEntry{1}{2} \,|\, i \in \{\text{-}2,..., 2\}\!\setminus\!0 \}
+  \cup  \{ \zeroEntry{1}{2} \,|\, \textit{true} \} \\
+= \; & \{-2\singleEntry{1}{2}, \, -\singleEntry{1}{2}, \,
+  \singleEntry{1}{2}, \, 2\singleEntry{1}{2}\} \cup
+  \{\zeroEntry{1}{2}\} \\
+= \; & \{\vtwoh{-2}{\infty}, \vtwoh{-1}{\infty}, \vtwoh{0}{\infty}, 
+\vtwoh{1}{\infty}, \vtwoh{2}{\infty}\} 
+\end{align*}
+Note the absboring behaviour of $\infty$ with respect to
+multiplication. 
+\end{example}
+\noindent
+The model of $\term{+}$ is the straightforward union of 
+the models of subterms. The model of $\term{*}$ is uses
+an intermediate tensor $\otimes$ which requires some intermediate
+definitions.
+
+\begin{definition}[Constrained dimensions]
+Given an $n$-dimensional model $M$, the \emph{constrained dimensions}
+of that model is a subset of $\{1, \ldots, n\}$ giving
+the dimensions for which at least one scheme $u \in M$ has
+a non-$\infty$ value in that dimension. That is:
+%
+\begin{align*}
+\effdims{M}{n} =
+\bigcup_{u \in M} \{i \mid i \in \{1,\ldots,n\} \, \wedge \, u_i \neq
+  \infty\}
+\end{align*}
+For example, $\effdims{\{\vtwoh{0}{\infty},\vtwoh{\infty}{\infty}\}}{2}
+ = \{1\}$.
+\end{definition}
+
+\begin{definition}The tensor $\otimes_n$ of $n$-dimensional
+models is defined:
+%
+%\begin{align*}
+%\{\vtwoh{0}{0}, \vtwoh{1,1}\}
+% \otimes \{\vtwoh{0,\infty}\}
+%\end{align*}
+%
+%
 %%
 \begin{alignat*}{2}
-& \effdims{M}{n} =
-\bigcup_{u \in M} \{x \mid x \in \{1,\ldots,n\}, u_x \neq \infty\} \\
 & M \otimes_n N =
   \Bigg\{x \; \Bigg| \;
-    \parbox{5.6cm}{$i \in \{1, \ldots, 2^n\},$
-                   $(u, v) \in M \times N,$ \\
-                   $x = (u \bowtie v)_i,$ \\
-                   $j \in (\effdims{M}{n} \cup \effdims{N}{n}),$ \\
-                   $x_j \neq \infty$
-                  } \Bigg\}
+    \parbox{6cm}{$(u, v) \in M \times N $ \\[0.1em]
+                 $\;\; \wedge \;\, j \in (\effdims{M}{n} \cup
+                   \effdims{N}{n})$\\[0.1em]
+                  $\;\; \wedge \;\, i \in \{1, \ldots, 2^n\} \, \wedge
+                  \, x = (u \bowtie v)_i$ \\[0.1em]                   
+                   $\;\; \wedge \;\, x_j \neq \infty$
+                  } \Bigg\} 
 \end{alignat*}
-In plain language, tensor product combines non-$\infty$ constraints
-of the unifiers in different dimensions into less accepting unifiers.
-This means an access pattern unifying with this unifier would require
-both models to be satisfied. Use of $dims$ gives the dimensions that
-constitutent models talk about and is used in the product to eliminate
-general unifier appearing in these dimensions. Allowing general unifier
-in these dimensions would prevent both models to be satisfied
-simultaneously.
+The intuition for the tensor is that it gives all possible
+ways of combining indexing schemes in two models
+such that for every scheme
+$u \in (M \otimes_n N)$ then $w \sim u$ for some $w$
+\emph{iff} $\;\exists v \in M . w \sim v$ and
+$\exists v' \in N . w \sim v'$. Thus it acts as a kind of intersection
+for indexing schemes. We unpack its definition in pieces.
+
+We start with the first guard taking the Cartesian product of
+the two models and quantifying over all pairings $(u, v)$. 
+The second guard says that $j$ is in the set of constrainted
+dimensions for $M$ and the constrained dimensions for $N$.
+That is, every $j$ corresponds to a dimension in which 
+either $M$ or $N$ has a scheme $u$ where $u_j \neq \infty$,
+and thus is constraining. 
+
+%for all possible
+%pairs of schemes $(u, v)$ in the Cartesian product of the
+%two models $M \times N$, then 
+
+% combines non-$\infty$ constraints
+%of the unifiers in different dimensions into less accepting unifiers.
+%This means an access pattern unifying with this unifier would require
+%both models to be satisfied. Use of $dims$ gives the dimensions that
+%constitutent models talk about and is used in the product to eliminate
+%general unifier appearing in these dimensions. Allowing general unifier
+%in these dimensions would prevent both models to be satisfied
+%simultaneously.
 
 The $\bowtie$ operation, which we call \emph{pairwise permutation}
 (described below), constructs a $2^n \times n$ matrix ($2^n$-vector of
-$n$-vectors). Using this, the $\otimes$ operation constructs the set of every
-pairwise permutation for every pair $(u, v)$ of $n$-vectors in the Cartesian
-product of $M \times N$.
+$n$-vectors), which is indexed by $i$ above
+and then $j$. Using this, the $\otimes$ operation constructs the set
+of schemes which are the 
+pairwise permutations of every pair $(u, v)$ of schemes in the Cartesian
+product of $M \times N$. These permuted schemes are only those
+which have non-$\infty$ components in the constrained dimensions
+given by each model.
 
 The pairwise permutation $u \bowtie v$ takes two vectors and builds the matrix
 where the rows are all possible $n$-vectors generated by
@@ -1056,6 +1240,7 @@ defined the pairwise permutation matrix as:
 where $b$ is a logical matrix where $b_{i,j}$ is the $j$-th bit of the integer
 $i - 1$.
 %%
+\todo{Complete this}
 \end{definition}
 
 
@@ -1066,13 +1251,6 @@ $i - 1$.
 %on $S$, $\interp{S}$ mapping to multisets of
 %relative indices not associated to an array variable.
 
-\begin{figure}
-\input{region-model.tex}
-%\textit{$a^m \in A$ means there are $n$ copies of $a$ in
-%  the multi-set $A$}
-\caption{Model of regions, $\interp{\textit{region}}$}
-\label{fig:region-model}
-\end{figure}
 
 \begin{figure}
 \input{spatial-model.tex}
@@ -1080,7 +1258,18 @@ $i - 1$.
 \label{fig:spatial-model}
 \end{figure}
 
-\begin{theorem}[Soundness]
+\paragraph{Model of \textit{spec}}
+
+\todo{Explain the injections and the domain here}
+
+\subsection{Soundness}
+
+Given the model defined in this section we can
+consider soundness for the equational theory of
+specifications and the notion of spatial approximation
+on specifications. The proofs are given in our supplement.
+
+\begin{theorem}[Soundness of equational theory]
 \[
 \overline{\texttt{v} : S}\equiv \overline{\texttt{u} : T}
 \; \Rightarrow \;
@@ -1088,17 +1277,13 @@ $i - 1$.
 \]
 \end{theorem}
 
-\paragraph{Proof} (see Appendix)
-
-\begin{theorem}[Soundness]
+\begin{theorem}[Soundness of approximations]
 \[
 \overline{\texttt{v} : S} <: \overline{\texttt{u} : T}
 \; \Rightarrow \;
 \interp{\overline{\texttt{v} : S}} \subseteq \interp{\overline{\texttt{u} : T}}
 \]
 \end{theorem}
-
-\paragraph{Proof} (see Appendix)
 
 \section{Inference and checking}
 \label{sec:analysis}
@@ -1280,7 +1465,7 @@ go on to form the basis of the spatial stencil specification, where
 each span is a region product \texttt{*} and multiple spans are
 combined with the region sum \texttt{+}.
 
-
+\newcommand{\spanOp}{\textsf{spans}}
 \paragraph{Span coalescing, formally}
 
 Let $\vect{x}, \vect{y}, \vect{z}$ range over the column vectors of size
@@ -1316,10 +1501,10 @@ N(\texttt{a}) = \stwo{0}{0}{0}{0} \stwo{1}{0}{1}{0} \stwo{-1}{0}{-1}{0} \stwo{0}
 \end{align*}
 %%
 A fixed point is then compute for the following
-procedure \textsf{regions} which, for per variable
+procedure \spanOp which, for per variable
 in the map, coalesces spans into contiguous regions in
 the $n$-dimensional space. That is, we compute
- $(\mu \; \textsf{regions}) N$ where \textsf{regions}
+ $(\mu \; \spanOp) N$ where \spanOp
 is defined as follows for each variable in the map:
 %
 \begin{enumerate}
@@ -1440,13 +1625,13 @@ U(\texttt{a}) =
 \end{align*}
 For our example this then yields the final result of:
 \begin{align*}
-\textsf{regions}(M)
+\spanOp(M)
 = \{\stwo{-1}{0}{1}{0} \stwo{0}{-1}{0}{1}\}
 \end{align*}
 since $\stwo{0}{1}{0}{1} \sqsubseteq \stwo{0}{-1}{0}{1}$
 and $\stwo{1}{0}{1}{0} \sqsubseteq \stwo{-1}{0}{1}{0}$.
 \end{enumerate}
-For our example, applying \textsf{regions} again yields the same
+For our example, applying \spanOp again yields the same
 result, hence we have reached a fixed point.
 
 \subsubsection{Step 4: Convert spans into specifications}
@@ -1456,14 +1641,27 @@ result, hence we have reached a fixed point.
 \newcommand{\tySum}[1]{#1^{\term{+}}}
 \newcommand{\tyProd}[1]{#1^{\term{*}}}
 \newcommand{\specDNF}{\textbf{spec}}
+\newcommand{\result}[1]{\lfloor{#1}\rceil}
 
-Given the set $\textsf{regions}(M)$ of spans covering the indexing
-space, the next step converts these into abstract syntax trees
+Next, the set of spans $\spanOp(M)$ covering the indexing
+space is converted into abstract syntax trees 
 for the specification language. This conversion is defined in terms
 of an algebra on \textit{spec} syntax in disjunctive-normal form
-(which we denote \specDNF{}). The algebra mirrors the shape
-of the region syntax with additive and multiplicative binary operators
-$\oplus$ and $\odot$ and a constructor for \specDNF{}:
+(which we denote \specDNF{}). 
+
+\begin{align*}
+\result{\specDNF{}} = \specDNF + ((\specDNF{} + 1) \times
+  (\specDNF{} + 1))
+\end{align*}
+
+\begin{align*}
+\result{\specDNF{}} & ::= \textsf{exact} \, \specDNF{}
+\mid \textsf{bounds} ([\specDNF{}], [\specDNF{}]) \\
+\end{align*}
+
+The algebra mirrors the shape
+of the region combinators for addition and multiplication, 
+with operators $\oplus$ and $\odot$ and a constructor for \specDNF{}:
 %%
 \begin{align*}
 \oplus & : \specDNF \rightarrow \specDNF \rightarrow
@@ -1475,31 +1673,52 @@ $\oplus$ and $\odot$ and a constructor for \specDNF{}:
 \end{align*}
 %%
 The $\mathsf{toSpec}$ operation takes a pair of lower and upper bounds
-values (one-dimensional) and constructs a specification (in the
-\textit{spec} syntax) which contains a one-dimensional
-region. An entire span is convereted then into a $n$-dimensional
+values (one-dimensional) and constructs a specification 
+which contains a one-dimensional region. 
+An entire span is converted into an $n$-dimensional
 specification by applying $\mathsf{toSpec}$ to each
-pair of bounds in a span, per dimension, and multiplying these
+pair of lower and upper bounds in a span, per dimension, and multiplying these
 specifications by $\odot$. The resulting specifications for
-each span are then summed by by $\oplus$, that is:
+each span are then summed by by $\oplus$, that is, this step is given by:
 \begin{equation*}
-\textit{spec}(M) = 
-\sum\limits_{\vect{x} \in \textsf{regions}(M)}
+\textsf{spec}(M) = 
+\sum\limits_{\vect{x} \in \spanOp(M)}
 \prod\limits_{i \in \{1, \ldots, n\}} \, \mathsf{toSpec}(\vect{x}^L_i, \vect{x}^U_i)
 \end{equation*}
 (where $\oplus$ is the additive and $\odot$ is the multiplicative used
 within $\Sigma$ and $\Pi$ respectively here).
+We unpack the definitions of this algebra.
 
-
-\begin{definition}[DNF specifications]
+\begin{definition}[Specifications in DNF]
 Let $r_1, ..., r_n$ range over elements of the \textit{region}
-syntax (see Figure~\ref{fig:syntax}, p.~\pageref{fig:syntax})
-The domain of \specDNF{} specifications
-in disjunctive normal form ranges over terms of the form:
+syntax (see Figure~\ref{fig:syntax}, p.~\pageref{fig:syntax}).
+The set \specDNF{} is a subset of syntax trees \textit{spec}
+of specifications in disjunctive normal form over regions 
+where the disjunct is \term{+} (since its model is in terms of set
+union) and the conjunct is \term{*} (since its model is a form of tensor).
+That is elements of \specDNF{} are of the form:
 %%
-(r_1 \term{*} \ldots \term{*} r_n)\term{+} \ldots 
-\term{+} (r_1 \term{*} \ldots \term{*} r_n)
+\[
+(r^1_{1} \; \term{*} \ldots \term{*} \; r^1_n)\; \term{+} \; \ldots 
+\term{+} \; (r^m_1 \, \term{*} \; \ldots \term{*} \; r^m_p)
+\]
 %%
+More formally, $\specDNF \subseteq \textit{spec}$, defined:
+%%
+\begin{align*}
+\specDNF{} & ::= [\textit{mult},] \;
+\tySum{\specDNF} \\
+\tySum{\specDNF} & ::= \tyProd{\specDNF} \; \term{+} \; \tySum{\specDNF} \mid
+  \tyProd{\specDNF} \\
+\tyProd{\specDNF} & ::= \textit{region} \; \term{*} \; \tyProd{\specDNF} \mid
+   \textit{region}
+\end{align*}
+%%
+In the following, $s, t$ range over elements of
+\specDNF{}, $\tySum{s}, \tySum{t}$ range over elements of 
+$\tySum{\specDNF}$ and $\tyProd{s}, \tyProd{t}$ range over elements
+of $\tyProd{\specDNF}$ (for example, $\tyProd{s} = r^1_{1} \; \term{*}
+\ldots \term{*} \; r^1_n$).
 \end{definition}
 
 \begin{definition} The $\mathsf{toSpec}$ constructor is defined:
@@ -1564,13 +1783,27 @@ $\mathsf{toSpec}$ is total (\ie{}, defined for all inputs)
 bound of the input span is less than or equal to its upper bound.
 \end{lemma}
 
-
 %\newcommand{\mkBig}[2]{\overset{\LARGE{\term{#1}}}{#2}}
-\begin{definition} The $\odot$ operation is defined:
+\begin{definition} The $\odot$ operation on \specDNF{} is defined
 \begin{align*}
-\tySum{r_1} \odot \tySum{r_2} = 
- \bplus_{(\tyProd{s_1}, \tyProd{s_2}) \in (\tySum{r_1} \times
-   \tySum{r_2})} (\tyProd{s_1} \; \term{*} \; \tyProd{s_2})
+& ([\textit{approx}_1] \; [\textit{mult}_1] \; 
+\tySum{s})
+\odot
+([\textit{approx}_2] \; [\textit{mult}_2] \;
+\tySum{t}) = \\
+& \begin{cases}
+\tySum{s} \tySum{\odot} \tySum{t} & \textit{approx}_1 =
+\textit{approx_2} = \varepsilon
+\\
+\
+& \textit{approx}_1 = \texttt{atLeast}, \textit{approx}_2 = \varepsilon
+\end{cases}
+\\
+\end{align*}
+\begin{align*}
+s \tySum{\odot} t & =
+ \bplus_{(\tyProd{s_1}, \tyProd{s_2}) \in (s \times
+   t)} (\tyProd{s_1} \; \term{*} \; \tyProd{s_2})
 %\begin{cases}%
 %\end{cases}
 \end{align*}

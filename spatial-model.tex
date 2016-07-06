@@ -2,24 +2,19 @@
 \setlength{\arraycolsep}{0.7em}
 & \interp{\textit{approx}, \textit{mult}, \textit{region}}_n
 = \interp{\textit{mult}}^m \; (\interp{\textit{approx}}^a \,
-\interp{\textit{region}}_n) \\[0.5em]
+\interp{\textit{region}}_n)
+\end{align*}
+with interpretation on modifiers:
+\begin{align*}
 & \begin{array}{lll}
 \interp{\varepsilon}^{a}   = \textsf{exact} &
 \interp{\term{atMost}}^{a} \hspace{1.3em} = \textsf{upper} &
 \interp{\term{atLeast}}^{a} = \textsf{lower} \\[0.3em]
 \interp{\varepsilon}^{m} = \textsf{once}
 & \interp{\term{readOnce}}^{m} = \textsf{mult} &
-\end{array}\\
+\end{array}\\[-1.5em]
 \end{align*}
 %
-with labelled variants types:
-%
-\begin{align*}
-\textsf{Mult} \, a & = \textsf{mult} \, a \mid \textsf{only} \, a \\
-\textsf{Approx} \, a & = \textsf{exact} \, a \mid \textsf{lower} \, a \mid
-\textsf{upper} \, a \mid \textsf{both} \, a \, a
-\end{align*}
-
 
 %\interp{approx\texttt{,} \; mult\texttt{,} \; region}_n = \\
 %   \begin{cases}

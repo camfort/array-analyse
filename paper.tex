@@ -1314,13 +1314,30 @@ $i - 1$ as:
 
 \paragraph{Model of \textit{spec}}
 
-Thus far we have explained the model of regions as sets of index
+We have explained the model of regions as sets of index
 schemes, that is
 $\interp{\textit{region}}_n \in \mathcal{P}(\domainVal{}^n)$.
 Figure~\ref{fig:spatial-model} defines the top-level model of the
 \textit{spec} syntax, which includes the multiplicity and
-approximation modifiers.
+approximation modifiers. The domain of this interepretation
+is $\textsf{Mult}(\textsf{Approx}(\mathcal{P}(\domainVal{}^n)))$
+where $\textsf{Mult}$ and $\textsf{Approx}$ are labelled variants
+labelling our set-basd model with additional information.
 
+\begin{definition} The \textsf{Mult}
+and \textsf{Approx} are parametric labelled variant types 
+with injection function given by their definition:
+%
+\begin{align*}
+\textsf{Mult} \, a & = \textsf{mult} \, a \mid \textsf{only} \, a \\
+\textsf{Approx} \, a & = \textsf{exact} \, a \mid \textsf{lower} \, a \mid
+\textsf{upper} \, a \mid \textsf{both} \, a \, a
+\end{align*}
+\ie{}, $\mathsf{lower}$ is an injection $\mathsf{lower} : a \rightarrow \mathsf{Approx} \, a$, and so
+on. 
+\label{def:mult-and-approx}
+\end{definition}
+%
 
 \begin{figure}
 \input{spatial-model.tex}

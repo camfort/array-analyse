@@ -385,6 +385,7 @@ The horizontal dimension is \texttt{dim=1} and the vertical is \texttt{dim=2}.
 \caption{Fragment of a Navier-Stokes fluid simulator and its
   specification in our language}
 \label{ref:navier-stokes-fragment}
+\vspace{-0.8em}
 \end{figure}
 
 \paragraph{Context}
@@ -440,8 +441,7 @@ of mathematical variables.
 \begin{definition}[Base induction variable]
   A variable \textit{v} of integer type is a \emph{base induction
     variable} if it is the control variable of a ``for''
-  loop,\footnote{Or equivalent in the source language \eg{}
-    \texttt{do} in Fortran for our implementation.} incremented by $1$ per
+  loop,\footnote{Or equivalent, \eg{}, \texttt{do} in Fortran, for our implementation.} incremented by $1$ per
 iteration. The variable is marked as a base induction variable
 only within the scope of the loop. Induction variables are ranged
 over by $i$, $j$, $k$ throughout. Since we do not use non-base
@@ -534,6 +534,9 @@ is irreflexive:
 b(i) = a(i-1) + a(i-2)
 \end{minted}
 %
+The \term{irreflexive} attribute cannot be used on \term{reflexive}
+regions.
+
 A \texttt{centered} stencil is a combination of \texttt{forward}
 and \texttt{backward} stencils to the same depth, \eg{},
 %%
@@ -574,6 +577,7 @@ b(i) = ( a(i) + a(i-1) + a(i+1) ) / 3.0
 \end{align*}
 \caption{Specification syntax (EBNF grammar)}
 \label{fig:syntax}
+\vspace{-0.5em}
 \end{figure}
 
 \paragraph{Sum and product of regions}
@@ -656,58 +660,58 @@ specification. For example, the specification from the previous
 This is especially useful for common stencil patterns, such as Roberts cross,
 as the region can be defined once and reused.
 %%
-\paragraph{Spatial modifiers}
+\paragraph{Modifiers}
 %%
-There are two modifiers: one used at specification and the other at region
-level to provide better descriptions for stencil computations.
+Region specifications can be modified 
+by \emph{approximation} and \emph{multiplicity} information 
+(in the \textit{spec} rule of Fig.~\ref{fig:syntax}). 
 
-At the specification level, the \texttt{readOnce} modifier enforces that no
-index appears more than once. For example, in all of the previous examples the
-\texttt{readOnce} modifier could be added, \eg{}
+The \texttt{readOnce} modifier enforces that no index appears more
+than once (that is, its multiplicity is one). For example, in all of
+the previous examples the \texttt{readOnce} modifier could be added,
+\eg{}
 %
 \begin{minted}{fortran}
 != stencil readOnce, backward(depth=2, dim=1) :: a
 b(i+1) = a(i) + a(i-1) + a(i-2)
 \end{minted}
 %
-However, this would be an invalid specification if any of the
+This specification would be invalid if any of the
 array subscripts were repeated. This modifier provides a way to
 rule out any accidental repetition of array subscripts.
-The notion corresponds to that of \emph{linearity} in type systems,
-though we opt for the more informative and easily understood name
+The notion is similar to that of \emph{linearity} in linear type
+systems~\cite{wadler1990linear}, where a value must be used
+exactly once. We opt for the more informative and easily understood name
 \texttt{readOnce}. This modifier is optional, so it need not
 be present even if the stencil is linear.
 
-At the region level, \texttt{irreflexive} modifier qualifies base
-regions of \texttt{forward}, \texttt{backward}, and \texttt{centered}.
-It indicates that in the dimension of the region there is no neighbour index
-with $0$ offset, \eg{},
+%At the region level, \texttt{irreflexive} modifier qualifies base
+%regions of \texttt{forward}, \texttt{backward}, and \texttt{centered}.
+%It indicates that in the dimension of the region there is no neighbour index
+%with $0$ offset, \eg{},
 %
-\begin{minted}{fortran}
-!= stencil centered(depth=1, dim=1, irreflexive) :: a
-b(i) = a(i+1) + a(i-1)
-\end{minted}
+%\begin{minted}{fortran}
+%!= stencil centered(depth=1, dim=1, irreflexive) :: a
+%b(i) = a(i+1) + a(i-1)
+%\end{minted}
 %
-or with just a \texttt{forward} region an example would be:
-%
-\begin{minted}{fortran}
-!= stencil forward(depth=1, dim=1, irreflexive) :: a
-b(i) = a(i+1)
-\end{minted}
+%or with just a \texttt{forward} region an example would be:
+%%
+%\begin{minted}{fortran}
+%!= stencil forward(depth=1, dim=1, irreflexive) :: a
+%b(i) = a(i+1)
+%\end{minted}
 
-Naturally, \term{irreflexive} qualifier cannot be used on \term{reflexive}
-regions.
-
-\paragraph{Under and over-approximation}
+%\paragraph{Under and over-approximation}
 
 In some cases, it is useful to give a lower and/or upper bound for a
 stencil. This can be done using either the \term{atMost} or
 \term{atLeast} modifiers. This is particularly useful in situations
-where there is a non-contiguous stencil, which does not fit the rest
-of the specification syntax. For example:
+where there is a non-contiguous stencil pattern, which cannot be expressed
+precisely in our specification syntax. For example:
 %%
 \begin{minted}{fortran}
-!= stencil atLeast, reflexive(dim=1)      :: a
+!= stencil atLeast, reflexive(dim=1)       :: a
 != stencil atMost, forward(depth=2, dim=1) :: a
 b(i) = a(i) + a(i+2)
 \end{minted}
@@ -720,10 +724,10 @@ b(i) = a(i) + a(i+2)
 The names ``forward'', ``backward'' and ``centered''
 are inspired by standard terminology in numerical analysis
 for the shape of discretisation schemes. For example,
-the standard ``explicit method'' for approximation
-PDEs is the \emph{Forward Time, Centered Space} (FTCS)
+the standard \emph{explicit method} for approximating
+PDEs is known as the \emph{Forward Time, Centered Space} (FTCS)
 scheme~\cite{dawson1991finite}. For
-the one-dimensional heat equations, an FTCS discretisation
+the one-dimensional heat equation, an FTCS discretisation
 provides approximation code with the following stencil~\cite{recktenwald2004finite}:
 %%
 \begin{minted}{fortran}
@@ -732,8 +736,8 @@ do i=2, n-1
 end do
 \end{minted}
 %%
-where \texttt{r} and \texttt{r2} are some constants.
-A valid specification for this stencil is then:
+where \texttt{r} and \texttt{r2} are constants.
+A valid specification for this is:
 %%
 \begin{minted}{fortran}
 != stencil centered(depth=1, dim=1) :: v

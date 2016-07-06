@@ -865,10 +865,10 @@ their regions, \ie{}:
             [\textit{mult},] \; \textit{region}'
 \end{align*}
 %
-To save space in the equations of Figure~\ref{fig:equations}, we use abbreviations
-\term{refl}, \term{fwd}, \term{bwd}, and \term{cen} for \term{reflexive},
-\term{forward}, \term{backward}, and \term{centered} regions
-respectively. Futhermore, the abbreviations include syntactic sugar
+The equations of Figure~\ref{fig:equations} use abbreviations
+\term{refl}, \term{fwd}, \term{bwd}, \term{cen}, and \irreflS{}
+for \term{reflexive}, \term{forward}, \term{backward},
+\term{centered}, and \irrefl{} respectively. Futhermore, the abbreviations include syntactic sugar
 for quantifying over the abseence or presence of the \irrefl{}
 attribute on region constants as a boolean. For example,
 the syntactic sugar for \term{fwd} is defined:
@@ -886,7 +886,6 @@ the syntactic sugar for \term{fwd} is defined:
 \end{align*}
 %
 and similarly for \term{bwd} and \term{cen}.
-We also frequently abbreviate \irrefl{} to \irreflS{}.
 
 The equations reveal a partial semantics for stencil
 specifications, which we briefly summarise.
@@ -894,18 +893,18 @@ specifications, which we briefly summarise.
 \paragraph{Overlapping regions with +}
 The first nine
 equations (with labels of the form $\ldots \texttt{+} \ldots$)
-explain the notion of \emph{overlapping} regions with sum
-\term{+}. Note that in the first six, $r$ and $s$ range
+explain the notion of \emph{region overlapping} with sum
+\term{+}. In the first six, $r$ and $s$ range
 over booleans denoting the absence (true) or presence (false)
 of \irrefl{}. These are combined via disjunction. For example,
 the rule $(\textsc{B} \, \term{+} \,
-\textsc{F})$ explains that the addition of \term{backward}
+\textsc{F})$ explains that the sum of \term{backward}
 and \term{forward} regions in the same dimension and the same
 depth is equivalent to a \term{centered} region of that depth.
-If the \term{forward} part is irrefleixve (\ie{}, $r =
-\textit{false}$) but \term{backward} is not (\ie{}, $s =
-\textit{true}$) then their addition is equal to a \term{centered}
-region with no \irrefl{} modifier by the disjunction ($r \vee s =
+If the \term{forward} part is irrefleixve ($r =
+\textit{false}$) but \term{backward} is not ($s =
+\textit{true}$) then their sum is equal to a \term{centered}
+region with no \irreflS{} modifier by the disjunction ($r \vee s =
 \textit{true}$), \ie{}:
 %%
 \begin{align*}
@@ -918,21 +917,21 @@ a zero-offset neighbourhood index (\eg{}, missing $\texttt{a(i)}$), but the addi
 the \term{bwd} has no irreflexive attribute and thus provides the
 missing zero offset index.
 
-The equation (\textsc{irrefl}) explains an annihilation of
-\irrefl{} using a further syntactic sugar.
+The equation (\textsc{irrefl}) provides an annihilation of
+\irreflS{} using a further syntactic sugar.
 We write $R^{\irreflS}$ to denote a region constant with an
 irreflexive attribute, \eg{},
 %%
 \begin{align*}
-\stenFwdS{n}{d}^{\irreflS} \, := \,
+\stenFwdS{n}{d}^{\irreflS}  := \,
 \stenFwdSR{n}{d}{\irreflS}
 \end{align*}
 %%
-Thus, (\textsc{irrefl}) explains the sum of a
-product of two regions $R$ and $S$ with itself,
+The left-hand side of (\textsc{irrefl}) has a sum of
+products of two regions $R$ and $S$, 
 where in each component of the sum one of $R$
 or $S$ has the irreflexive attribute. These cancel to give
-just the specification $R \, \term{*} \, S$.
+just $R \, \term{*} \, S$.
 
 
 \paragraph{Interaction between \term{+} and \term{*}}
@@ -950,19 +949,20 @@ normalisation in Section~\ref{sec:inf-step4}.
 
 \begin{figure}[t]
 \begin{align*}
+\hspace{-0.5em}
 \begin{array}{c}
 %%
 %% INEQUATIONS ON REGION
 %% 
 %\framebox{$\textit{region} <: \textit{region}'$} \\[0.85em]
 %
-\dfrac{}{R <:^r R}\trule{\textsc{refl}} \qquad \dfrac{P <:^r R \quad R <:^r Q}{P <:^r
-  Q}\trule{\textsc{trans}} 
-\qquad
-\dfrac{R \equiv S}{R <:^r S}\trule{\textsc{eq}} 
-\\[1.5em]
+%\dfrac{}{R <:^r R}\trule{\textsc{refl}} \qquad \dfrac{P <:^r R \quad R <:^r Q}{P <:^r
+%  Q}\trule{\textsc{trans}} 
+%\qquad
+%\\[1.5em]
+\vspace{-0.4em}
 \setlength{\arraycolsep}{0.1em}
-\dfrac{\hspace{3em} m \leq n \qquad r \Rightarrow s \hspace{3em}}
+\dfrac{\hspace{3em} m \leq n \qquad\qquad r \Rightarrow s \hspace{3em}}
 {\begin{array}{rl}
 \stenFwdSR{m}{d}{r} & <:^r \stenFwdSR{n}{d}{s}
 %& \;\, ds \subseteq es \wedge n \leq m
@@ -974,7 +974,7 @@ normalisation in Section~\ref{sec:inf-step4}.
 %& \;\, ds \subseteq es \wedge n \leq m
 \\
 \wedge \; \stenBwdSR{m}{d}{r} & <:^r \stenCenSR{n}{d}{s} \\
-\wedge \; \stenFwdSR{m}{d}{r} & <:^r \stenCenSR{n}{d}{s} \\[1em]
+\wedge \; \stenFwdSR{m}{d}{r} & <:^r \stenCenSR{n}{d}{s} \\[1.2em]
 \end{array}}\trule{\textsc{over}} \\
 \hspace{-0.5em}
 \dfrac{P_1 <:^r R_1 \quad P_2 <:^r R_2}
@@ -993,18 +993,21 @@ normalisation in Section~\ref{sec:inf-step4}.
 \dfrac{}{\term{atLeast} \, R <: \term{atMost} \,
   R}\trule{\textsc{bound}} \\[1.5em]
 %%
-\dfrac{P <:^r R}{\term{atLeast} \, P <: \term{atLeast} \,
+\dfrac{P <:^r R}{\term{atLeast}  P <: \term{atLeast} 
   R}\trule{\textsc{cong}\texttt{L}}
 \ 
-\dfrac{P <:^r R}{\term{atMost} \, P <: \term{atMost} \,
+\dfrac{P <:^r R}{\term{atMost}  P <: \term{atMost} 
   R}\trule{\textsc{cong}\texttt{M}} \\[1.5em]
 \dfrac{P <:^r R}{\term{readOnce} \, P <: \term{readOnce} \,
   R}\trule{\textsc{cong}\texttt{R}} 
+\quad
+\dfrac{R \equiv S}{R <:^r S}\trule{\textsc{eq}} 
 %%
 \end{array}
 \end{align*}
 \caption{Inequations $<:^r$ on \textit{regions} and
-$<:$ on \textit{specs}.}
+$<:$ on \textit{specs} (omitting reflexivity
+and transitivity). }
 \label{fig:inequations}
 \label{-0.5em}
 \end{figure}
@@ -1438,22 +1441,42 @@ $\interp{-}_n : \textit{spec} \rightarrow \textsf{Mult}(\textsf{Approx}(\mathcal
 
 Given the model defined in this section we can
 consider soundness for the equational theory of
-specifications and the notion of spatial approximation
-on specifications. The proofs are given in our supplement.
+specifications and the notion of spatial approximation. The proofs are given in our supplement.
 
-\begin{theorem}[Soundness of equational theory]
+\begin{theorem}[Soundness of equational theory (Figure~\ref{fig:equations})]
 \[
-\overline{\texttt{v} : S}\equiv \overline{\texttt{u} : T}
-\; \Rightarrow \;
-\interp{\overline{\texttt{v} : S}} = \interp{\overline{\texttt{u} : T}}
+S \equiv T \; \Rightarrow \;
+\interp{S}_n = \interp{T}_n
 \]
 \end{theorem}
 
-\begin{theorem}[Soundness of approximations]
+\begin{theorem}[Soundness of inequations
+  (Figure~\ref{fig:inequations})] 
+
+Let $\leq$ be an ordering on
+$\textsf{Mult}(\textsf{Approx}(\mathcal{P}(\domainVal{}^n)))$
+and $\leq'$ be an ordering on
+$\textsf{Approx}(\mathcal{P}(\domainVal{}^n))$ defined by the
+following caluses
+\begin{align*}
+(M \leq' N \Rightarrow \textit{inj} \, M \leq \textit{inj} \, N) &
+\qquad 
+(\textsf{once} \, M \leq' \textsf{mult} \, M) \\
+%%
+%%
+(M \subseteq N \Rightarrow \textit{inj}' M \leq' \textit{inj}' N)
+& \;\;\; (\textsf{exact} M \leq  \textsf{lower} M)
+\;\;\; (\textsf{lower} M \leq  \textsf{upper} M)
+\end{align*}
+%%
+where $\textit{inj}$ ranges over the unary injections
+of $\textsf{Approx}$ and $\textit{inj}'$ ranges over the injections of
+$\textsf{Mult}$. Then, soundness of $<:$ is that:
+%%
 \[
-\overline{\texttt{v} : S} <: \overline{\texttt{u} : T}
+S <: T
 \; \Rightarrow \;
-\interp{\overline{\texttt{v} : S}} \subseteq \interp{\overline{\texttt{u} : T}}
+\interp{S}_n \leq \interp{T}_n
 \]
 \end{theorem}
 
@@ -1810,53 +1833,42 @@ result, hence we have reached a fixed point.
 \subsubsection{Step 4: Convert spans into specifications}
 \label{sec:inf-step4}
 
-\newcommand{\bplus}{\operatornamewithlimits{\term{+}}}
+\newcommand{\bplus}{\operatornamewithlimits{\term{\huge{+}}}}
 \newcommand{\tySum}[1]{#1^{\term{+}}}
 \newcommand{\tyProd}[1]{#1^{\term{*}}}
 \newcommand{\specDNF}{\textbf{spec}}
-\newcommand{\result}[1]{\lfloor{#1}\rceil}
 
 Next, the set of spans $\spanOp(M)$ covering the indexing
-space is converted into abstract syntax trees
-for the specification language. This conversion is defined in terms
+space is converted into abstract syntax trees 
+of the specification language. This conversion is defined in terms
 of an algebra on \textit{spec} syntax in disjunctive-normal form
-(which we denote \specDNF{}).
-
-\begin{align*}
-\result{\specDNF{}} = \specDNF + ((\specDNF{} + 1) \times
-  (\specDNF{} + 1))
-\end{align*}
-
-
-
-\begin{align*}
-\result{\specDNF{}} & ::= \textsf{exact} \, \specDNF{}
-\mid \textsf{bounds} ([\specDNF{}], [\specDNF{}]) \\
-\end{align*}
-
-The algebra mirrors the shape
-of the region combinators for addition and multiplication,
+(which we denote \specDNF{}), and which is wrapped
+with the $\textsf{Approx}$ type (see
+Definition~\ref{def:mult-and-approx},
+p.~\pageref{def:mult-and-approx}), which we write as $\mathsf{A}$
+for brevity.  The algebra mirrors the shape
+of the region combinators for addition and multiplication, 
 with operators $\oplus$ and $\odot$ and a constructor for \specDNF{}:
 %%
 \begin{align*}
-\oplus & : \specDNF \rightarrow \specDNF \rightarrow
-  \specDNF \\
-\odot & : \specDNF \rightarrow \specDNF \rightarrow
-        \specDNF \\
+\oplus & : \mathsf{A}(\specDNF) \rightarrow \mathsf{A}(\specDNF) \rightarrow
+  \mathsf{A}(\specDNF) \\
+\odot & : \mathsf{A}(\specDNF) \rightarrow \mathsf{A}(\specDNF) \rightarrow
+        \mathsf{A}(\specDNF) \\
 \mathsf{toSpec} & : (\mathbb{Z} \cup \{\infty\}) \rightarrow (\mathbb{Z} \cup
-  \{\infty\})  \rightarrow \specDNF
+  \{\infty\})  \rightarrow \mathsf{A}(\specDNF)
 \end{align*}
 %%
 The $\mathsf{toSpec}$ operation takes a pair of lower and upper bounds
-values (one-dimensional) and constructs a specification
-which contains a one-dimensional region.
+values (one-dimensional) and constructs a specification 
+which contains a one-dimensional region. 
 An entire span is converted into an $n$-dimensional
 specification by applying $\mathsf{toSpec}$ to each
 pair of lower and upper bounds in a span, per dimension, and multiplying these
 specifications by $\odot$. The resulting specifications for
 each span are then summed by $\oplus$:
 \begin{equation*}
-\textsf{spec}(M) =
+\textsf{spec}(M) = 
 \sum\limits_{\vect{x} \in \spanOp(M)}
 \prod\limits_{i \in \{1, \ldots, n\}} \, \mathsf{toSpec}(\vect{x}^L_i, \vect{x}^U_i)
 \end{equation*}
@@ -1868,21 +1880,20 @@ We unpack the definitions of this algebra.
 Let $r_1, ..., r_n$ range over elements of the \textit{region}
 syntax (see Figure~\ref{fig:syntax}, p.~\pageref{fig:syntax}).
 The set \specDNF{} is a subset of syntax trees \textit{spec}
-of specifications in disjunctive normal form over regions
+of specifications in disjunctive normal form over regions 
 where the disjunct is \term{+} (since its model is in terms of set
 union) and the conjunct is \term{*} (since its model is a form of tensor).
 That is elements of \specDNF{} are of the form:
 %%
 \[
-(r^1_{1} \; \term{*} \ldots \term{*} \; r^1_n)\; \term{+} \; \ldots
+(r^1_{1} \; \term{*} \ldots \term{*} \; r^1_n)\; \term{+} \; \ldots 
 \term{+} \; (r^m_1 \, \term{*} \; \ldots \term{*} \; r^m_p)
 \]
 %%
-More formally, $\specDNF \subseteq \textit{spec}$, defined:
+More formally, $\specDNF \subseteq (\textit{spec} \cup \{\epsilon\})$, defined:
 %%
 \begin{align*}
-\specDNF{} & ::= [\textit{mult},] \;
-\tySum{\specDNF} \\
+\specDNF{} & ::= \tySum{\specDNF} \mid \epsilon \\
 \tySum{\specDNF} & ::= \tyProd{\specDNF} \; \term{+} \; \tySum{\specDNF} \mid
   \tyProd{\specDNF} \\
 \tyProd{\specDNF} & ::= \textit{region} \; \term{*} \; \tyProd{\specDNF} \mid
@@ -1890,13 +1901,17 @@ More formally, $\specDNF \subseteq \textit{spec}$, defined:
 \end{align*}
 %%
 We include the empty element $\epsilon$ which is not present in the
-syntax.
+syntax. 
 In the following, $s, t$ range over elements of
-\specDNF{}, $\tySum{s}, \tySum{t}$ range over elements of
+\specDNF{}, $\tySum{s}, \tySum{t}$ range over elements of 
 $\tySum{\specDNF}$ and $\tyProd{s}, \tyProd{t}$ range over elements
 of $\tyProd{\specDNF}$ (for example, $\tyProd{s} = r^1_{1} \; \term{*}
 \ldots \term{*} \; r^1_n$).
 \end{definition}
+
+\newcommand{\exactR}{\mathsf{exact}\;}
+\newcommand{\exact}[1]{\exactR(#1)}
+\newcommand{\upperB}[1]{\mathsf{upper}\;(#1)}
 
 \begin{definition} The $\mathsf{toSpec}$ constructor is defined:
 %%
@@ -1906,24 +1921,23 @@ of $\tyProd{\specDNF}$ (for example, $\tyProd{s} = r^1_{1} \; \term{*}
 \newcommand{\lupper}{u}
 \begin{align*}
 &\mathsf{toSpec} \; \llower \; \lupper = \\
-&\begin{cases}
+&\hspace{-0.4em}\begin{cases}
 %% FWD
- \stenFwdS{\lupper}{i}  & \llower = 0 \, \wedge \, \lupper > 0 \\[0.2em]
- \stenFwdSR{\lupper}{i}{\irreflS}  & \llower = 1 \, \wedge \, \lupper > 0 \\[0.2em]
+\exact{\stenFwdS{\lupper}{i}}  & \llower = 0 \, \wedge \, \lupper > 0 \\[0.2em]
+\exact{\stenFwdSR{\lupper}{i}{\irreflS}}\!\!\!\! & \llower = 1 \, \wedge \, \lupper > 0 \\[0.2em]
 %% BWD
- \stenBwdS{|\llower|}{i}  & \llower < 0 \, \wedge \, \lupper = 0 \\[0.2em]
-\stenBwdSR{|\llower|}{i}{\irreflS} & \llower < 0 \, \wedge \, \lupper = -1 \\[0.2em]
+\exact{\stenBwdS{|\llower|}{i}}  & \llower < 0 \, \wedge \, \lupper = 0 \\[0.2em]
+\exact{\stenBwdSR{|\llower|}{i}{\irreflS}}\!\!\!\! & \llower < 0 \, \wedge \, \lupper = -1 \\[0.2em]
 %% CEN
- \stenCenS{\lupper}{i}  & \llower < 0 \, \wedge \, \lupper > 0
- \, \wedge \, |\llower| = \lupper \\[0.2em]
- \stenBwdS{|\llower|}{i} & \llower < 0 \, \wedge \, \lupper > 0  \, \wedge \, |\llower| \neq \lupper \\
-\quad \texttt{+} \, \stenFwdS{\lupper}{i}  & \qquad\quad \\[0.2em]
+\exact{\stenCenS{\lupper}{i}}& \llower < 0 \wedge \lupper > 0 \wedge |\llower| = \lupper \\[0.2em]
+\exactR(\stenBwdS{|\llower|}{i} & \llower < 0 \wedge \lupper > 0  \wedge |\llower| \neq \lupper \\
+\qquad\qquad \texttt{+} \, \stenFwdS{\lupper}{i}) & \\[0.2em]
 % BOUND
- \texttt{atMost}, \stenFwdS{\lupper}{i} & \llower > 1 \\[0.2em]
- \texttt{atMost}, \stenBwdS{|\llower|}{i} \quad & \llower < (-1)
+\upperB{\stenFwdS{\lupper}{i}} & \llower > 1 \\[0.2em]
+\upperB{\stenBwdS{|\llower|}{i}} \quad & \llower < (-1)
  \\[0.2em]
 % ABSOLUTE REP
- \epsilon & \llower = \infty \, \vee \, \lupper = \infty
+\exact{\epsilon} & \llower = \infty \, \vee \, \lupper = \infty
   \end{cases}
 \end{align*}
 %%
@@ -1948,43 +1962,89 @@ Thus, an upper bound is instead returned showing the maximum extent
 of the region. The penultimate case is the dual, when the lower bound is less
 than $-1$, giving an upper bound on a \texttt{backward} specification.
 
-Finally, in the case where either bound is $\infty$, representing a non
+Finally, if either bound is $\infty$, representing a non
 neighbourhood index, then an empty specification is given
  with no regions, indicating that there is not even reflexive
 0-offset access in this dimension.
 \end{definition}
 
 \begin{lemma}
-$\mathsf{toSpec}$ is total (\ie{}, defined for all inputs)
+$\mathsf{toSpec}$ is total 
  given the precondition that the lower
 bound of the input span is less than or equal to its upper bound.
 \end{lemma}
 
 %\newcommand{\mkBig}[2]{\overset{\LARGE{\term{#1}}}{#2}}
-\begin{definition} The $\odot$ operation on \specDNF{} is defined
+\begin{definition} The $\odot$ operation on $\textsf{A}(\specDNF{})$
+  is defined in terms of the intermediate $\hat{\odot}$ on \specDNF{}:
+%%
 \begin{align*}
-& ([\textit{approx}_1] \; [\textit{mult}_1] \;
-\tySum{s})
-\odot
-([\textit{approx}_2] \; [\textit{mult}_2] \;
-\tySum{t}) = \\
-& \begin{cases}
-\tySum{s} \tySum{\odot} \tySum{t} & \textit{approx}_1 =
-\textit{approx_2} = \varepsilon
-\\
-\
-& \textit{approx}_1 = \texttt{atLeast}, \textit{approx}_2 = \varepsilon
-\end{cases}
-\\
+S \,\hat{\odot}\, \epsilon = S \quad
+\epsilon \,\hat{\odot}\, S = S \qquad
+S \,\hat{\odot}\, T = \bplus_{(\tyProd{s}, \tyProd{t}) \in (S \times
+   T)} (\tyProd{s} \; \term{*} \; \tyProd{t})
 \end{align*}
+%%
+That is, the $\hat{\odot}$ product of two specifications $S$ and $T$ in DNF form 
+is the $\term{+}$ sum of all pairwise $\term{*}$ products for every
+pair of $\tyProd{spec}$ drawn from $S$ and $T$. The result
+is indeed in DNF-form. The operation is
+commutative and associative, and sound with respect to our
+model (see Lemma~\ref{lem:alg-soundness} below).
+The $\hat{\odot}$ operation is then lifted to all combinations of
+\textsf{Approx} for $\odot$:
 \begin{align*}
-s \tySum{\odot} t & =
- \bplus_{(\tyProd{s_1}, \tyProd{s_2}) \in (s \times
-   t)} (\tyProd{s_1} \; \term{*} \; \tyProd{s_2})
-%\begin{cases}%
-%\end{cases}
+\textsf{exact}(S) \odot \textsf{exact}(T) = \; & \textsf{exact}(S
+                                              \hat{\odot} T) \\
+\textsf{lower}(S) \odot \textsf{lower}(T) = \; & 
+      \textsf{lower} \, (S \hat{\odot} T) \\
+\textsf{upper}(S) \odot \textsf{upper}(T) = \; &
+      \textsf{upper} \, (S \hat{\odot} T) \\
+\textsf{lower}(S) \odot \textsf{exact}(T) = \; &
+       %\textsf{exact}(T) \odot \textsf{lower}(S) = \;
+       \textsf{both} \, (S \hat{\odot} T, \; T) \\
+\textsf{upper}(S) \odot \textsf{exact}(T) = \; & 
+       %\textsf{exact}(T) \odot \textsf{upper}(S) =
+      \; \textsf{both} \, (T, \; S \hat{\odot} T) \\
+\textsf{lower}(S) \odot \textsf{both}(T_l,T_u) = \; &
+        %\textsf{both}(T_l,T_u) \odot \textsf{lower}(S) = \;
+        \textsf{both} \, (S \hat{\odot} T_l, \; T_u) \\
+\textsf{upper}(S) \odot \textsf{both}(T_l,T_u) = \; & \textsf{both} \,
+                                                      (T_l, \; S \hat{\odot} T_u) \\
+\textsf{both}(S_l,S_u) \odot
+\textsf{both}(T_l,T_u) & = \textsf{both} (S_l \hat{\odot} T_l, \; S_u
+                         \hat{\odot} T_u)
 \end{align*}
+For brevity we omit the cases where the parameters above are flipped
+as $\odot$ is commutative.
 \end{definition}
+
+\begin{definition}The $\oplus$ operation on $\textsf{A}(\specDNF)$ 
+is defined in a similar way to $\odot$, with $\hat{\oplus}$ on
+$\specDNF$ given by:
+%%
+\begin{equation*}
+S \,\hat{\oplus}\, \epsilon = S \quad
+\epsilon \,\hat{\oplus}\, S = S \quad
+S \, \hat{\oplus} \, T = S \, \term{+} \, T
+\end{equation*}
+%%
+Thus, if neither specification is empty, their $\oplus$ is just
+the syntatic sum $\term{+}$. Then $\oplus$ is the lifting of
+$\hat{\oplus}$ to boudns with the shape as $\odot$ in the previous
+definition.
+\end{definition}
+
+\begin{lemma}[$\hat{\odot}$, $\hat{\oplus}$ soundness] $\forall S,
+  T \in \specDNF$ where $S \neq \epsilon \wedge T \neq \epsilon$:
+\begin{align*}
+\interp{S \; \hat{\odot} \; T}_n & = \interp{S}_n \otimes \interp{T}_n
+  \\
+\interp{S \; \hat{\oplus} \; T}_n & = \interp{S}_n \cup \interp{T}_n
+\end{align*}
+\label{lem:alg-soundness}
+\end{lemma}
+%
 
 \subsection{Checking\label{subsec:checking}}
 

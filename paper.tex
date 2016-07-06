@@ -19,6 +19,19 @@
 \usepackage{tikz}
 \usepackage{xypic}
 
+\usetikzlibrary{calc}
+
+%% http://tex.stackexchange.com/questions/55068/is-there-a-tikz-equivalent-to-the-pstricks-ncbar-command
+\tikzset{
+    ncbar angle/.initial=90,
+    ncbar/.style={
+        to path=(\tikztostart)
+        -- ($(\tikztostart)!#1!\pgfkeysvalueof{/tikz/ncbar angle}:(\tikztotarget)$)
+        -- ($(\tikztotarget)!($(\tikztostart)!#1!\pgfkeysvalueof{/tikz/ncbar angle}:(\tikztotarget)$)!\pgfkeysvalueof{/tikz/ncbar angle}:(\tikztostart)$)
+        -- (\tikztotarget)
+    },
+    ncbar/.default=0.5cm,
+}
 
 \tikzset{round left paren/.style={ncbar=0.4cm,out=110,in=-110}}
 \tikzset{round right paren/.style={ncbar=0.4cm,out=70,in=-70}}
@@ -1108,7 +1121,7 @@ $\zeroEntry{r}{n}$, is a vector where the $r^{th}$ entry is $0$ and all others
 are $\infty$, \eg{}, $\zeroEntry{1}{2} = \vtwoh{0}{\infty}$.
 
 Similarly to the single-entry vector, zero-entry vectors 
-are also indexing schemes which generalising all other schemes
+are generalise all other schemes
 which at least have the $r^{th}$ entry is $0$, representing indices at
 the ``origin'' in dimension $r$. 
 \end{definition}
@@ -1118,7 +1131,8 @@ the ``origin'' in dimension $r$.
 \input{region-model.tex}
 %\textit{$a^m \in A$ means there are $n$ copies of $a$ in
 %  the multi-set $A$}
-\caption{Model of regions, $\interp{\textit{region}}$}
+\caption{Model of regions, 
+$\interp{-}_n : \textit{region} \rightarrow \mathcal{P}(\domainVal{}^n)$}
 \label{fig:region-model}
 \end{figure}
 
@@ -1163,13 +1177,13 @@ box). \eg{}:
   & \vtwoh{3}{6}, \vtwoh{5}{4}, \vtwoh{5}{6}\}
 \end{align*}
 %%
-Internally $\otimes$ takes a Cartesian product of the indexing
-schemes (all pairs) and then combines each pair using the 
-\emph{pairwise permutation} written $\bowtie$ (defined later)
-which generates all possible interleavings of two vectors
+The tensor takes a Cartesian product of the two models,
+giving all pairs of schemes which are combined using the 
+\emph{pairwise permutation} written $\bowtie$ (defined later).
+Pairwise permutation generates all possible interleavings of two vectors
 (\ie{}, all possible non-deterministic choices between $u_i$ and
 $v_i$ in each dimension). Some care is then taken over
-how this interacts with $\infty$: pariwse permtuation
+how this interacts with $\infty$: pairwise permtuation
 corresponds to non-determinstic choice, in each dimension $i$,
 between two values $u_i$ and $v_i$, but if either 
 is $\infty$ then the resultying pairwise permutation is 
@@ -1279,18 +1293,16 @@ $i^{th}$ entry in $u$ or the $i^{th}$ entry in $j$. For example:
 %
 The $2^n$ unique choices for $\bowtie$ on $n$-vectors
 corresponds to taking all bit-strings of length $n$ and
-selecting from $u$ for $1$ and $v$ for $0$. Thus, we can
-defined the pairwise permutation matrix as:
+selecting from $u$ for $1$ and $v$ for $0$. The pairwise permutation
+matrix  s thus defined in terms of the logical
+matrix $b$ where $b_{i,j}$ is the $j$-th bit of the integer
+$i - 1$ as:
 %
 \begin{align*}
 (u \bowtie v)_{i,j} & = b_{i,j} u_j + \neg b_{i,j} v_j
 \end{align*}
 %
-where $b$ is a logical matrix where $b_{i,j}$ is the $j$-th bit of the integer
-$i - 1$.
-%%
 \end{definition}
-
 
 %The main interpretation function is overloaded on lists of
 %variable-spec pairs $\interp{\overline{v : S}}$,
@@ -1300,15 +1312,22 @@ $i - 1$.
 %relative indices not associated to an array variable.
 
 
-\begin{figure}
-\input{spatial-model.tex}
-\caption{Model of specifications, $\interp{\textit{spec}}$}
-\label{fig:spatial-model}
-\end{figure}
-
 \paragraph{Model of \textit{spec}}
 
-\todo{Explain the injections and the domain here}
+Thus far we have explained the model of regions as sets of index
+schemes, that is
+$\interp{\textit{region}}_n \in \mathcal{P}(\domainVal{}^n)$.
+Figure~\ref{fig:spatial-model} defines the top-level model of the
+\textit{spec} syntax, which includes the multiplicity and
+approximation modifiers.
+
+
+\begin{figure}
+\input{spatial-model.tex}
+\caption{\textit{spec} model, 
+$\interp{-}_n : \textit{spec} \rightarrow \textsf{Mult}(\textsf{Approx}(\mathcal{P}(\domainVal{}^n)))$}
+\label{fig:spatial-model}
+\end{figure}
 
 \subsection{Soundness}
 
@@ -1448,8 +1467,7 @@ of these five unit spans.
 \setlength{\arraycolsep}{0em}
 \begin{array}{c}
 \quad \\[0.2em]
-{\scalebox{0.75}{
-\begin{tikzpicture}
+\begin{tikzpicture}[scale=0.75]
 %\draw[step=0.5cm,lightgray,very thin] (0.5,0.5) grid (2,2);
 \node at (1.25,1.22) {\textnormal{\small{0,0}}};
 \draw[thick] (1,1) rectangle (1.5,1.5);
@@ -1457,8 +1475,7 @@ of these five unit spans.
 \draw[thick] (1,0.5) rectangle (1.5,1);
 \draw[thick] (0.5,1) rectangle (1,1.5);
 \draw[thick] (1,1.5) rectangle (1.5,2);
-\end{tikzpicture} 
-}} \\[0.36em]
+\end{tikzpicture} \\[0.36em]
 (a)
 \end{array}
 \end{align*}
@@ -1466,8 +1483,7 @@ of these five unit spans.
 \begin{align*}
 \setlength{\arraycolsep}{0em}
 \begin{array}{c}
-{\scalebox{0.75}{
-\begin{tikzpicture}
+\begin{tikzpicture}[scale=0.75]
 %\draw[step=0.5cm,lightgray,very thin] (0.5,0.5) grid (2,2);
 %\node at (1.25,1.22) {\textnormal{\small{0,0}}};
 \draw [black, thin] (0.35,0) to [round left paren ] (0.35,2);
@@ -1479,17 +1495,14 @@ of these five unit spans.
 \draw[thick] (2.6,1) rectangle (3.1,1.5);
 \draw[thick] (3.2,0.5) rectangle (3.7,2);
 \draw [black, thin] (4.4,0) to [round right paren ] (4.4,2);
-\end{tikzpicture}
-}}
- \\ (b)
+\end{tikzpicture} \\ (b)
 \end{array}
 \end{align*}
 \end{minipage}$\rightarrow$ \begin{minipage}{0.25\linewidth}
 \begin{align*}
 \setlength{\arraycolsep}{0em}
 \begin{array}{c}
-{\scalebox{0.75}{
-\begin{tikzpicture}
+\begin{tikzpicture}[scale=0.75]
 %\node at (1.25,1.22) {\textnormal{\small{0,0}}};
 \draw [black, thin] (0.8,0) to [round left paren ] (0.8,2);
 \draw[thick] (1,0.5) rectangle (1.5,2);
@@ -1497,8 +1510,7 @@ of these five unit spans.
 \draw[thick] (2.1,1) rectangle (3.6,1.5);
 \draw [black, thin] (3.7,0) to [round right paren ] (3.7,2);
 %\node at (2.75,1.22) {\textnormal{\small{0,0}}};
-\end{tikzpicture}
-}}  \\ (c)
+\end{tikzpicture} \\ (c)
 \end{array}
 \end{align*}
 \end{minipage}

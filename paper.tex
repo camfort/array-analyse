@@ -162,8 +162,13 @@ xrightmargin=0.2cm,commandchars=\\\{\},baselinestretch=0.98,numbersep=0.9em}
 
 %% VECTOR NOTATIONS
 \newcommand{\vect}[1]{\textbf{#1}}
+
+\newcommand{\vtwohs}[2]{\setlength{\arraycolsep}{0em}
+\left[\begin{array}{cc}#1 \, & \, #2\end{array}\right]\!}
+
 \newcommand{\vtwoh}[2]{\setlength{\arraycolsep}{0em}
 \left[\begin{array}{cc}#1 \; & \; #2\end{array}\right]}
+
 \newcommand{\vthreeh}[3]{\setlength{\arraycolsep}{0em}
 \left[\begin{array}{ccc}#1 \; & \; #2 \; & \; #3\end{array}\right]}
 \newcommand{\vtwo}[2]{\setlength{\arraycolsep}{0em}
@@ -1085,9 +1090,8 @@ to $n$-dimensional index schemes, defined:
 \quad \textit{iff} \;\; \forall i . \downarrow\!e_i \neq \bot
 \end{align*}
 %
-The $\downarrow$ operator is a partial\footnote{We represent
+The $\downarrow$ operator is partial\footnote{We represent
   partiality in our signatures with the set $A + \bot$.} 
-function
  $\downarrow : \textit{expr} \rightarrow (\domainVal + \bot)$
 mapping individal indexing expressions to 
 an indexing scheme component, defined:
@@ -1122,7 +1126,7 @@ For example, assuming $i$ and $j$ are induction variables and $\textsf{schematic
 
 \begin{definition}[Generalisation]
 Given two schemes $v, w$ of dimensionality $n$,
-the $w$ is said to \emph{generalise} $v$
+then $w$ is said to \emph{generalise} $v$
 (or conversely $v$ \emph{specialises} $w$),
 written $v \preceq_n w$, iff the following holds:
 %%
@@ -1135,11 +1139,10 @@ That is, two schemes are related by the (reflexive and transitive) binary relati
 $\preceq_n$ over $(\mathbb{Z}_{\infty})^n$ if in each dimension
 the two schemes are equal or $w_i = \infty$
 in place of some $\mathbb{Z}$ in $v_i$ for $v \preceq_n w$.
-Thus, the element $\infty$
-generalising any index in the same dimension.
-
-The subscript on $\preceq_n$ is sometimes dropped when the
-intended dimensionality is clear or inconsequential.
+Thus, the element $\infty$ generalises any index in the same dimension.
+%
+%The subscript on $\preceq_n$ is sometimes dropped when the
+%intended dimensionality is clear or inconsequential.
 \end{definition}
 
 
@@ -1149,10 +1152,10 @@ intended dimensionality is clear or inconsequential.
 %the stencil computation.
 
 \begin{example}
-Take three array indexing terms
-$(i, j+1)$, $(1, j+1)$ and $(3, j)$.
-As given by \textsf{schematic}, these have the
-corresponding schemes: $\vtwoh{0}{1}$, $\vtwoh{\infty}{1}$
+The following three array indexing terms
+$(i, j+1)$, $(1, j+1)$ and $(3, j)$ 
+are given by \textsf{schematic} the 
+index schemes $\vtwoh{0}{1}$, $\vtwoh{\infty}{1}$
 and $\vtwoh{\infty}{0}$ respectively. The following
 relationship of generalises then holds:
 %\[
@@ -1163,11 +1166,9 @@ relationship of generalises then holds:
 %}
 %\]
 %%
-\begin{equation*}
-\vtwoh{\infty}{0} \; \not\preceq_2 \; \vtwoh{0}{1}
-\qquad
-\vtwoh{\infty}{1} \; \preceq_2 \; \vtwoh{0}{1}
-\end{equation*}
+$\vtwoh{\infty}{0} \; \not\preceq_2 \; \vtwoh{0}{1}$
+and
+$\vtwoh{\infty}{1} \; \preceq_2 \; \vtwoh{0}{1}$. 
 %%
 \end{example}
 \noindent
@@ -1210,49 +1211,49 @@ describing a neighbour offset of $1$.
 \begin{definition}A \emph{zero-entry vector} of size $n$, denoted
 $\zeroEntry{r}{n}$, is a vector where the $r^{th}$ entry is $0$ and all others
 are $\infty$, \eg{}, $\zeroEntry{1}{2} = \vtwoh{0}{\infty}$.
-
 Similarly to the single-entry vector, zero-entry vectors
 are generalise all other schemes
 which at least have the $r^{th}$ entry is $0$, representing indices at
 the ``origin'' in dimension $r$.
 \end{definition}
 
-
-\begin{figure}
+\begin{figure}[t]
 \input{region-model.tex}
 %\textit{$a^m \in A$ means there are $n$ copies of $a$ in
 %  the multi-set $A$}
 \caption{Model of regions,
 $\interp{-}_n : \textit{region} \rightarrow \mathcal{P}(\domainVal{}^n)$}
 \label{fig:region-model}
+\vspace{-0.7em}
 \end{figure}
 
 \noindent
-The first four equations of Figure~\ref{fig:region-model}
-give the meanings of the region constants as sets of indexing
-schemes. The next two give the meaning of combining regions
-by $\term{+}$ and $\term{*}$.
+The first four equations of Fig.~\ref{fig:region-model}
+give the model of the region constants as sets of indexing
+schemes. We illustrate with an example.
 
 \begin{example}
-For a $2$-dimensional situation,
+For a $2$-dimensional stencil computation, then
 \begin{align*}
-& \interp{\stenCenS{2}{1}}_2 \\
-= \; & \{i\singleEntry{1}{2} \,|\, i \in \{\text{-}2,..., 2\}\!\setminus\!0 \}
-  \cup  \{ \zeroEntry{1}{2} \,|\, \textit{true} \} \\
-= \; & \{-2\singleEntry{1}{2}, \, -\singleEntry{1}{2}, \,
+& \interp{\stenCenS{2}{1}}_2 \\[-0.1em]
+& \qquad = \; \{i\singleEntry{1}{2} \,|\, i \in \{\text{-}2,..., 2\}\!\setminus\!0 \}
+  \cup  \{ \zeroEntry{1}{2} \,|\, \textit{true} \} \\[-0.2em]
+& \qquad = \; \{-2\singleEntry{1}{2}, \, -\singleEntry{1}{2}, \,
   \singleEntry{1}{2}, \, 2\singleEntry{1}{2}\} \cup
-  \{\zeroEntry{1}{2}\} \\
-= \; & \{\vtwoh{-2}{\infty}, \vtwoh{-1}{\infty}, \vtwoh{0}{\infty},
+  \{\zeroEntry{1}{2}\} \\[-0.2em]
+& \qquad = \; \{\vtwoh{-2}{\infty}, \vtwoh{-1}{\infty}, \vtwoh{0}{\infty},
 \vtwoh{1}{\infty}, \vtwoh{2}{\infty}\}
 \end{align*}
-Note the absboring behaviour of $\infty$ with respect to
+Note the absorbing behaviour of $\infty$ with respect to
 multiplication.
 \end{example}
 \noindent
-The model of $\term{+}$ is the straightforward union of
-the models of subterms. The model of $\term{*}$ is
-the tensor $\otimes$ of subterm models. The tensor
-is non-trivial; we give some informal intutition first.
+The last two equations of Fig.~\ref{fig:region-model} give the
+models of $\term{+}$ and $\term{*}$. For $\term{+}$ this is the 
+straightforward union of the models of subterms. The model of
+$\term{*}$ takes the tensor $\otimes$ of subterm models. The tensor is
+non-trivial; we give some informal intutition first. 
+
 
 \paragraph{$\otimes$ of models}
 
@@ -1260,12 +1261,12 @@ The intuition behind $\otimes$ is that it takes
 all possible pairs of indexing schemes, treating them as the
 lower and upper bounds of an $n$-dimensional rectangle from which the
 remaining vertices of the rectangle are generated (like a bounding
-box). \eg{}:
+box) \eg{}:
 %%
 \begin{align*}
-\{\vtwoh{1}{2}, \vtwoh{5}{6}\} \otimes \{\vtwoh{3}{4}\} =
-\{&\vtwoh{1}{2}, \vtwoh{3}{2}, \vtwoh{1}{4}, \vtwoh{3}{4}, \\
-  & \vtwoh{3}{6}, \vtwoh{5}{4}, \vtwoh{5}{6}\}
+\{\vtwohs{1}{2}, \vtwohs{5}{6}\,\} \otimes \{\vtwohs{3}{4}\} =
+\{\vtwohs{1}{2}, \vtwohs{3}{2}, \vtwohs{1}{4}, \vtwohs{3}{4}, 
+   \vtwohs{3}{6}, \vtwohs{5}{4}, \vtwohs{5}{6}\,\}
 \end{align*}
 %%
 The tensor takes a Cartesian product of the two models,

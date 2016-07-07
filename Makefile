@@ -10,8 +10,11 @@ quick: results.tex
 
 full: results.tex
 	pdflatex -shell-escape paper
+	pdflatex -shell-escape supplement
 	bibtex paper
+	pdflatex -shell-escape supplement
 	pdflatex -shell-escape paper
+	pdflatex -shell-escape supplement
 	pdflatex -shell-escape paper
 
 bib:

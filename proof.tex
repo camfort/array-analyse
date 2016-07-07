@@ -268,37 +268,39 @@ D) \times B) = A \times B$ then:
     \end{lemma}
 
     \begin{proof}
-      Let $b$ be the matrix where each column represents the binary string from
-      $1$ to $2^n$. Now if the entire column is $\infty$, then independent of
-      the row number $i$, row $j$ must evaluate to $\infty$.
+      Let $b$ be the logical matrix where each column represents the binary
+      string from $1$ to $2^n$. Now if the entire column is $\infty$, then
+      independent of the row number $i$, column $j$ must evaluate to $\infty$.
       \begin{align*}
         (u \bowtie v)_{i,j} =& u_{j} \times b_{i,j} + v_{j} \times \neg b_{i,j}
                              & \mbox{by definition of $\bowtie$} \\
                             =& \infty \times b_{i,j} + \infty \times \neg b_{i,j}
-                             & \mbox{Here, the value of $b_{i,j}$ no longer matters} \\
-                            =& \infty
+                             & \mbox{Using the assumption in the lemma} \\
+                            =& \infty 
+                             & \mbox{The value of $b_{i,j}$ no longer matters}
       \end{align*}
     \end{proof}
 
-    \begin{lemma}
-      Effective dimensions of tensor product of two models is the union of the
-      effective dimensions of models in question separately.
+    \begin{lemma}\label{lem:tensordims}
+      Constrained dimensions of tensor product of two models is the union of the
+      constrained dimensions of models in question separately.
       \begin{align*}
         \effdims{U \otimes V}{n} = \effdims{U}{n} \cup \effdims{V}{n} \\
       \end{align*}
     \end{lemma}
 
-    \begin{proof}\label{lem:tensordims}
+    \begin{proof}
       \begin{align}
         \effdims{U \otimes V}{n} = &
           \bigcup_{x \in U \otimes V} \{ i \;|\; x_i \neq \infty \} \\
         = & \effdims{U}{n} \cup \effdims{V}{n} \\
-          & \parbox{7cm}{By definition of $\otimes$, effective dimensions of $U$
-                         and $V$ are non-$\infty$ and by Lemma~\ref{lem:bowinf} all
-                         other dimensions are.} \\
+          & \parbox{7cm}{By definition of $\otimes$, constrained dimensions of 
+                         $U$ and $V$ can be non-$\infty$ and by
+                         Lemma~\ref{lem:bowinf} all other dimensions are
+                         $\infty$.} \\
       \end{align}
     \end{proof}
-    
+%
     We have $\interp{r_1 \; \texttt{$\ast$} \;
     (r_2 \; \texttt{$\ast$} \; r_3)}_n = \interp{r_1}_n \otimes (\interp{r_2}_n
     \otimes \interp{r_3}_n)$ by definition. So we need to show $\otimes$ is

@@ -321,13 +321,10 @@ of data access pattern (Section~\ref{sec:lang}), providing
 algorithms for our language (Sect.~\ref{sec:analysis}), leveraging the semantic model;
 
 \item we provide an implementation of our approach as an extension to
-  CamFort, an open-source program analysis tool for Fortran programs.
-  We use this for a quantitative evaluation of our approach over a corpus of
-  scientific applications, totalling roughly one million lines of
-  code;
+  CamFort, an open-source program analysis tool for Fortran programs;
 
-\item we show that around 10\% of stencils are in a class that
-  represent a plausible scenario for a programming error;
+\item we identified 35,000 stencils in one million lines of code. Approximately 
+10\% of the stencils we found correspond to code where an indexing error is plausible;
 
 \item we provide a more detailed verification case study of two
   particular stencil computation and show that we

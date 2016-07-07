@@ -239,13 +239,14 @@ D) \times B) = A \times B$ then:
     \interp{r_1}_n \otimes \interp{r_2}_n$. Hence, $\texttt{$\ast$}$ is
     commutative iff $\otimes$ is commutative. Now let $\interp{r_1}_n$ and
     $\interp{r_2}_n$ be $S$ and $T$ respectively. Then from the definition of
-    $\otimes$, we have $S \otimes T = \{ (s \bowtie t)_i \mid k \in
-    \{ 1, \ldots, 2^n \}, (s,t) \in S \times T \}$. Then to show
-    commutativity of $\otimes$, it is enough to show for any vectors $s$ and
-    $t$, any row vector of $s \bowtie t$ is also a row vector in the matrix
-    $t \bowtie s$ possibly with a different row index, since $\otimes$ collects
-    row vectors of pairwise permutations. This in effect means $s \bowtie t$
-    is a permutation of $t \bowtie s$'s rows.
+    $\otimes$, we have $S \otimes T = \{ x \;|\; (s,t) \in S \times T, 
+    h \in \effdims{S}{n} \cup \effdims{T}{n}, x = (s \bowtie t)_k,
+    k \in \{ 1, \ldots, 2^n \}, x_h \neq \infty \}$. Then to show commutativity
+    of $\otimes$, it is enough to show for any vectors $s$ and $t$, any row
+    vector of $s \bowtie t$ is also a row vector in the matrix $t \bowtie s$
+    possibly with a different row index, since $\otimes$ collects row vectors of
+    pairwise permutations. This in effect means $s \bowtie t$ is a permutation
+    of $t \bowtie s$'s rows.
 
     Now let $\neg$ be a unary operator over logical matricies that revert $1$s
     to $0$s and vice versa. Then we can define pairwise permutation as

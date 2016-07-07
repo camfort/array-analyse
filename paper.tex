@@ -255,12 +255,12 @@ end do
 \end{minted}
 %
 Line 3 is the core of the stencil computation, calculating
-the value at \texttt{b(i)} from a neighbourhood of elements about
+values at \texttt{b(i)} from a neighbourhood of elements about
 \texttt{a(i)}. Line 5 swaps
 \texttt{a} and \texttt{b} between iterations, where \texttt{b} becomes the
-input for the next iteration. In Fortran, parentheses \texttt{( )} are used
-for array subscripts rather than the more familiar bracket syntax \texttt{[ ]}.
-
+input for the next iteration. %In Fortran, parentheses \texttt{( )} are used
+%for array subscripts rather than the more familiar bracket syntax \texttt{[ ]}.
+%
 %This stencil computation exhibits statically decideable
 %spatial and temporal relationships between $\texttt{a}$ and
 %$\texttt{b}$.
@@ -268,6 +268,7 @@ The shape of the data access pattern on line 3 determines other aspects of the
 program and its efficient implementation: how much ``boundary'' is
 needed for the array, the most cache-efficient layout in memory,
 and the partitioning shape for parallel implementations.
+
 In this example, the access pattern is simple, static, and easily
 understood. More complex stencil computations
 are much more prone to error from simple lexical mistakes and
@@ -321,10 +322,10 @@ of data access pattern (Section~\ref{sec:lang}), providing
 algorithms for our language (Sect.~\ref{sec:analysis}), leveraging the semantic model;
 
 \item we provide an implementation of our approach as an extension to
-  CamFort, an open-source program analysis tool for Fortran programs;
+  CamFort, an open-source program analysis tool for Fortran programs.
 
-\item we identified 35,000 stencils in one million lines of code. Approximately 
-10\% of the stencils we found correspond to code where an indexing error is plausible;
+\item we show that around 10\% of stencils are in a class that
+  represent a plausible scenario for a programming error;
 
 \item we provide a more detailed verification case study of two
   particular stencil computation and show that we

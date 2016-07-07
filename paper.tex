@@ -212,7 +212,7 @@ xrightmargin=0.2cm,commandchars=\\\{\},baselinestretch=0.98,numbersep=0.9em}
   high-level specifications for numerical code. In this paper, we
   focus on \emph{stencil computations}---a common idiom in numerical
   code, but one which is error-prone due to fine-grained indexing
-  errors. We hypothesise that in practise, stencil computations tend
+  errors. We hypothesise that in practice, stencil computations tend
   to have a regular shape which is amenable to static analysis and
   simple specification. We describe a abstract spatial specification
   language for stencil computations that can be embedded as
@@ -322,7 +322,7 @@ algorithms for our language (Sect.~\ref{sec:analysis}), leveraging the semantic 
 
 \item we provide an implementation of our approach as an extension to
   CamFort, an open-source program analysis tool for Fortran programs.
-  We use this for a quantiative evaluation of our approach over a corpus of
+  We use this for a quantitative evaluation of our approach over a corpus of
   scientific applications, totalling roughly one million lines of
   code;
 
@@ -398,11 +398,11 @@ In recent years, there has been an increased awareness
 of the need for formal verification techniques in
 science~\cite{post2005computational,oberkampf2010verification,orchard2014computational}.
 Our specification language is an approach in this direction, providing
-a system of lighweight specification for numerical code.
+a system of lightweight specification for numerical code.
 The aim is to not only provide a way of exposing errors, but also
 for specifying program behaviour to future-proof the code and ease
 its maintenance. In order to increase the likelihood of impact, we aim
-to integrate with existing practises smoothly, hence our
+to integrate with existing practices smoothly, hence our
 specifications are integrated as comments and our tool can synthesis
 specifications for the user.
 
@@ -468,7 +468,7 @@ only within the body of the loop. Since we ignore non-base
   $e \equiv i$, $e \equiv i + a$ or $e \equiv i - a$ where $a$ is an
   integer constant. That is, a neighbourhood index is a
   relative index defined as constant translations of base induction
-  variables. (The relation $\equiv$ hre identifies terms up-to commutativity
+  variables. (The relation $\equiv$ here identifies terms up-to commutativity
   of $+$ and the inverse relation of $+$ and $-$ \eg{},
   $(-b) + i \equiv i - b$).  We classify neighbourhood indices using
   the predicate \neigh{}. %An array subscript $v(\bar{e})$ where every
@@ -859,8 +859,8 @@ specifications which is defined by the binary relation $\equiv$
 between region terms. The equations use abbreviations
 \term{refl}, \term{fwd}, \term{bwd}, \term{cen}, and \irreflS{}
 for \term{reflexive}, \term{forward}, \term{backward},
-\term{centered}, and \irrefl{} respectively. Futhermore, the abbreviations include syntactic sugar
-for quantifying over the abseence or presence of the \irrefl{}
+\term{centered}, and \irrefl{} respectively. Furthermore, the abbreviations include syntactic sugar
+for quantifying over the absence or presence of the \irrefl{}
 attribute on region constants as a boolean. For example,
 the syntactic sugar for \term{fwd} is defined:
 %%
@@ -903,7 +903,7 @@ the rule $(\textsc{B} \, \term{+} \,
 \textsc{F})$ explains that the sum of \term{backward}
 and \term{forward} regions in the same dimension and the same
 depth is equivalent to a \term{centered} region of that depth.
-If the \term{forward} part is irrefleixve ($r =
+If the \term{forward} part is irreflexive ($r =
 \textit{false}$) but \term{backward} is not ($s =
 \textit{true}$) then their sum is equal to a \term{centered}
 region with no \irreflS{} modifier by the disjunction ($r \vee s =
@@ -1031,7 +1031,7 @@ equations with inequations. The (\trule{\textsc{over}}) rule explains
 the notion of spatial over-approximation via overlapping regions.
 The (\trule{\textsc{rep}}) allows the modifier that
 enforces that every index is read just once to be dropped
-as an approxiamtion; (\trule{\textsc{bound}}) gives
+as an approximation; (\trule{\textsc{bound}}) gives
 a connection between the \term{atLeast} and \term{atMost}
 approximation modifiers.
 
@@ -1091,7 +1091,7 @@ to $n$-dimensional index schemes, defined:
 %
 The $\downarrow$ operator is partial
  $\downarrow : \textit{expr} \rightarrow (\domainVal + \bot)$
-mapping individal indexing expressions to 
+mapping individual indexing expressions to 
 an indexing scheme component, defined:
 %%
 \begin{align*}
@@ -1184,11 +1184,11 @@ as a positional placeholder.
 The model is given by the interpretation function $\interp{-}_n$
 (where $n$ is the maximum dimensionality of the specification being
 modelled) mapping closed\footnote{That is, we assume that there are no
-  occurences of \textit{rvar} in a specification being modelled.  Any
+  occurrences of \textit{rvar} in a specification being modelled.  Any
   \emph{open} specification containing region variables can be made
-  closed by straightforward syntactic subtitution with a (closed)
+  closed by straightforward syntactic substitution with a (closed)
   \textit{region}.} specifications to sets of
-$n$-dimensional indexing schemes. The interperation is overloaded on
+$n$-dimensional indexing schemes. The interpretation is overloaded on
 \emph{regions} in Figure~\ref{fig:region-model} and on the top-level
 of a specification \textit{spec} in Figure~\ref{fig:spatial-model}.
 
@@ -1251,7 +1251,7 @@ The last two equations of Fig.~\ref{fig:region-model} give the
 models of $\term{+}$ and $\term{*}$. For $\term{+}$ this is the 
 straightforward union of the models of subterms. The model of
 $\term{*}$ takes the tensor $\otimes$ of subterm models. The tensor is
-non-trivial; we give some informal intutition first. 
+non-trivial; we give some informal intuition first. 
 
 
 \paragraph{$\otimes$ of models}
@@ -1274,8 +1274,8 @@ giving all pairs of schemes which are combined using the
 Pairwise permutation generates all possible interleavings of two vectors
 (\ie{}, all possible non-deterministic choices between $u_i$ and
 $v_i$ in each dimension). Some care is then taken over
-how this interacts with $\infty$: pairwise permtuation
-corresponds to non-determinstic choice, in each dimension $i$,
+how this interacts with $\infty$: pairwise permutation
+corresponds to non-deterministic choice, in each dimension $i$,
 between two values $u_i$ and $v_i$, but if either
 is $\infty$ then the resulting pairwise permutation is
 filtered out if the dimension $i$ has \emph{any other scheme
@@ -1293,12 +1293,12 @@ where $\vtwoh{1}{\infty}$ and $\vtwoh{3}{\infty}$ have been filtered.
 %of the unifiers in different dimensions into less accepting unifiers.
 %This means an access pattern generalises with this scheme would require
 %both models to be satisfied. Use of $dims$ gives the dimensions that
-%constitutent models talk about and is used in the product to eliminate
+%constituent models talk about and is used in the product to eliminate
 %general unifier appearing in these dimensions. Allowing general unifier
 %in these dimensions would prevent both models to be satisfied
 %simultaneously.
 %  u in M * N   u < w
-% mplies that
+% implies that
 %  u_1 in M  u1 < w
 %  u_2 in M  u2 < w
 %
@@ -1383,7 +1383,7 @@ $i - 1$ as:
 (u \bowtie v)_{i,j} & = b_{i,j} u_j + \neg b_{i,j} v_j
 \end{align*}
 %
-The permutated schemes $x = (u \bowtie v)_i$ added to the model 
+The permuted schemes $x = (u \bowtie v)_i$ added to the model 
 $M \otimes N$ are only those which have do not have $\infty$ in 
 the constrained dimensions given by each model ($x_j \neq
 \infty$). This filters out all permutations which have
@@ -1405,10 +1405,10 @@ schemes, that is
 $\interp{\textit{region}}_n \in \mathcal{P}(\domainVal{}^n)$.
 Figure~\ref{fig:spatial-model} defines the top-level model of the
 \textit{spec} syntax, which includes the multiplicity and
-approximation modifiers. The domain of this interepretation
+approximation modifiers. The domain of this interpretation
 is $\textsf{Mult}(\textsf{Approx}(\mathcal{P}(\domainVal{}^n)))$
 where $\textsf{Mult}$ and $\textsf{Approx}$ are labelled variants
-labelling our set-basd model with additional information.
+labelling our set-based model with additional information.
 
 \begin{definition} \textsf{Mult}
 and \textsf{Approx} are parametric labelled variant types
@@ -1583,8 +1583,8 @@ Subsequently the result of \textit{analyse} on line 5 yields the map:
           \vtwoh{0}{-1}, \vtwoh{0}{1}, \vtwoh{0}{0}\}
 \end{align*}
 %
-If the LHS $\overline{e_1}$ contains non-$0$ neighour offsets 
-then all RHS schemes are \emph{relativized} by
+If the LHS $\overline{e_1}$ contains non-$0$ neighbour offsets 
+then all RHS schemes are \emph{relativised} by
 $\textsf{schematic}(\overline{e_1})$. For example, 
 if \texttt{a(i+1) = b(i)} then relativisation of the RHS by the LHS
 produces an analysis which is equivalent to the analysis of \texttt{a(i) = b(i-1)}. 
@@ -1604,7 +1604,7 @@ in $U(x)$.
   (\emph{hyper-rectangle}) as a pair of $n$-dimensional vectors (or
   represented as a $2 \times n$ matrix) with values drawn from
   $\domainVal{}$. This gives the co-ordinates of a lower-bound vertex
-  (first comonent) and the upper-bound (second component). We write 
+  (first component) and the upper-bound (second component). We write 
   spans as $\vect{x} = [\vect{x}^L \; \vect{x}^U]$, where $\vect{x}^L$
   and $\vect{x}^U$ give the lower and upper bounds.  In
   the rest, $\vect{x}, \vect{y}$ range over spans.  For a span
@@ -1619,7 +1619,7 @@ u]$, defining the lower and upper bound.
  For the five-point stencil example there are five $1 \times 1$ spans.
 Figure~\ref{fig:inference-steps-informal}(a) illustrates these.
 
-% taking permustations is a systematic way of producing all rotations
+% taking permutations is a systematic way of producing all rotations
 % of the n-dimensional space - forward ref to fold
 The next step repeatedly coalesces any contiguous spans
 until a fixed point is reached, resulting in a set of (possibly
@@ -1654,7 +1654,7 @@ $n$-dimensional space by permutation on spans, and fold together contiguous
 regions using $\bullet$ (above). This 
 generates all possible ways of coalescing regions. For our example,
 the unit spans in Figure~\ref{fig:inference-steps-informal}(a)
-are colaesced into the contiguous spans in
+are coalesced into the contiguous spans in
 Figure~\ref{fig:inference-steps-informal}(b).
 This procedure is iterated until a fixed point is reached. In this
 example this is reached in the first step. 
@@ -2064,7 +2064,7 @@ S \, \hat{\oplus} \, T = S \, \term{+} \, T
 \end{equation*}
 %%
 Thus, if neither specification is empty, their $\hat{\oplus}$ is just
-the syntatic sum $\term{+}$. Then $\oplus$ is the lifting of
+the syntactic sum $\term{+}$. Then $\oplus$ is the lifting of
 $\hat{\oplus}$ to \textsf{Approx} with the shape as $\odot$ in the previous
 definition.
 \end{definition}
@@ -2305,7 +2305,7 @@ $\vtwoh{2}{2}$. Since the spec model has not changed and the code
 model is has only the additional scheme $\vtwoh{2}{2}$, the generalisations for
 the lower bound \eqref{eq:check-example-lower} 
 of step 4 above still holds since its consistency condition
-universally quanitifes over the \emph{spec model}. However, for
+universally quantifies over the \emph{spec model}. However, for
 the upper bound, the consistency condition universally quantifies
 over scheme $u$ of the \emph{code model} for which there exists
 a scheme $v \in M_s$ such that $u \preceq_2 v$. Thus, we require a $v
@@ -2355,16 +2355,16 @@ $\sqsubseteq$]
 %
 \noindent
 However, the converse direction does not hold. 
-The regions describing the more acceptiong five-point stencil
+The regions describing the more accepting five-point stencil
 above do not follow from the definition of $<:$ on the previous
 more specific specification.%, that is:
 %${\textcolor{darkgreen}{\term{centered(depth=1, dim=1)*reflexive(dim=2)
 %      + centered(depth=1, dim=2)*reflexive(dim=1)}}}
 %\not{<:} {\textcolor{darkgreen}{\term{centered(depth=1,dim=1) +
 %      centered(depth=1,dim=2)}}}$.
- However, consitency (and thus $\sqsubseteq$) shows
+ However, consistency (and thus $\sqsubseteq$) shows
 that we can check the five-point stencil code against the more general
-specifcation of {\textcolor{darkgreen}{\term{fivepoint}}}. Thus, we
+specification of {\textcolor{darkgreen}{\term{fivepoint}}}. Thus, we
 can always use an approximation in place of the
 more specific specification. Although this decreases the likelihood of catching
 stencil errors (as more access patterns conform), it reduces the space and
@@ -2372,7 +2372,7 @@ effort it takes to write the specification.
 
 \section{Evaluation}
 \label{sec:evaluation}
-We evaluated our specificataion language on a corpus of scientific
+We evaluated our specification language on a corpus of scientific
 code.  We overview the corpus itself before presenting our results.
 
 \subsection{Software Corpus}
@@ -2536,7 +2536,7 @@ stencil computation: \\
 \noindent 
 1) \textbf{Non-subset induction variables} occur when the
 induction variables on the RHS are not a subset of those in the LHS. These
-cases are not stencils by our definition. The degenereate case of this
+cases are not stencils by our definition. The degenerate case of this
 is to have only constant indices on the LHS. We see lots of examples
 of this in loops as accumulators \eg{} computing the sum over an array; \\
 \noindent
@@ -2626,7 +2626,7 @@ LU-decomposition with assignments such as
 %% We just don't deal with this - Lower upper decomposition solver
 
 
-If the statement meets the stencil critera but the inference process
+If the statement meets the stencil criteria but the inference process
 cannot determine an exact stencil for a statement it will instead
 produce an upper (\term{atMost}) and lower (\term{atLeast}) bound. The
 number of exact and inexact stencils are shown in columns three and
@@ -2697,7 +2697,7 @@ do lev = nlayers, 1, -1
 \end{minted}
 Note that the read from 
 \mintinline{fortran}{cldfmc} on line 5 flows to line 8. Stencils of
-the above kind require a neightbourhood index without a zero-offset in
+the above kind require a neighbourhood index without a zero-offset in
 one dimension only. The remaining dimensions must either have no
 offset or not pertain to an induction variable.
 
@@ -2937,7 +2937,7 @@ programs and running the inference process over a corpus of 1.1
 million lines of Fortran code.  Our motivation for this work was to
 provide an intermediate specification language to allow scientists to
 verify numerical computations.  Our evaluation showed that relatively
-simple stencil comptuations are the norm, for which we can specify a
+simple stencil computations are the norm, for which we can specify a
 large proportion, comprising mainly reflexive region constants which
 are less likely to give rise to programming errors.  However, around
 10\% of stencils covered more complicated program structures for which

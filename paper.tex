@@ -1170,8 +1170,8 @@ formal characterisation of stencil computations for our purposes:
   most $n$ induction variables 
   over a subset of the index space of $a$. Elements of $a$ are determined by an
   assignment $a(\bar{e}) = e_r$ where $\bar{e}$ is an array index such
-  that  $\mathsf{schematic}_I(\bar{e}) \neq \bot$ and for all $b \in
-  \bar{b}$ and all subscripts $b(\bar{e}') \in e_r . \, $
+  that  $\mathsf{schematic}_I(\bar{e}) \neq \bot$ and %for all $b \in  \bar{b}$ and
+  for all subscripts $b(\bar{e}') \in e_r . \, $
   $\mathsf{schematic}_I(\bar{e}') \neq \bot$. 
 \label{def:stencil}
 \end{definition}
@@ -2169,7 +2169,7 @@ an \term{atMost} upper-bound approximation (labelled with \textsf{up}
 as shorthand for \textsf{upper} here). 
 An upper bound specification means that for every scheme in the code
 model, modelling a source-level index, $\forall u \in M_c$ there exists
-a generalising scheme in the spec model $\exists v \in M$, \ie{}, $u
+a generalising scheme in the spec model $\exists v \in M_s$, \ie{}, $u
 \preceq_n v$. That is, every source-level index is generalised by the model.
 
 The third equation is the converse of an \term{atLeast},
@@ -2203,7 +2203,7 @@ consistency is defined inductively similar to the \textsf{exact} case.
 We give an extended example of verifying a stencil computation against
 its specification. We consider a more general, but still consistent, version of the \textit{five-point}
 stencil specification inferred previously in
-Section~\ref{subsec:inference} (see top-left):
+Section~\ref{subsec:inference}:
 %
 \begin{minted}[breakindent=8.1em]{fortran}
 != region fivepoint = centered(depth=1,dim=1) + centered(depth=1,dim=2)
@@ -2376,7 +2376,8 @@ effort it takes to write the specification.
 We evaluated our specification language on a corpus of scientific
 code.  We overview the corpus itself before presenting our results.
 
-\subsection{Software Corpus}
+%\subsection{Software Corpus}
+\paragraph{Software Corpus}
 
 Table~\ref{tab:corpus} shows summary statistics of the software
 packages used in our evaluation, all of which are written in Fortran
@@ -2480,7 +2481,7 @@ CP        & \computationalphysicstwoFiles  & \computationalphysicstwoparseOk & \
 \vspace{-1em}
 \end{table}
 \begin{table}
-\vspace{-0.5em}
+\vspace{-1em}
 \sisetup{table-format=4,table-text-alignment=right}
 \footnotesize
 \centering
@@ -2766,8 +2767,7 @@ the results of the CamFort test.
 
 \subsection{Verification case study 2: Turbulence calculation}
 
-\begin{figure}[t]
-\begin{minted}[breakindent=0em,linenos=false,xleftmargin=0em,breakafter=)]{fortran}
+\begin{figure}[t]\begin{minted}[fontsize=\scriptsize,breakindent=0em,linenos=false,xleftmargin=0em,breakafter=)]{fortran}
 !=stencil readOnce,(forward(depth=1,dim=3,irreflexive))*(backward(depth=1,dim=1))*(backward(depth=1,dim=2))+(forward(depth=1,dim=3))*(backward(depth=1,dim=1))*(reflexive(dim=2))+(forward(depth=1,dim=3))*(backward(depth=1,dim=1,irreflexive))*(backward(depth=1,dim=2,irreflexive))+(forward(depth=1,dim=3))*(backward(depth=1,dim=2))*(reflexive(dim=1))+(backward(depth=1,dim=1))*(backward(depth=1,dim=2,irreflexive))*(reflexive(dim=3))+(backward(depth=1,dim=1,irreflexive))*(backward(depth=1,dim=2))*(reflexive(dim=3))::x
 \end{minted}
 \caption{A complex specification inferred from
@@ -2795,7 +2795,7 @@ part of the same family.
 % Tried introducing indexing errors replacing one of the indices of cx_rho_instance with -1,0,+1
 % 42 cases were caught
 % 6 cases were not caught
-\section{Related work}
+\section{Related work and conclusions}
 \label{sec:discussion}
 
 Various prior approaches to specifying and verifying the behaviour
@@ -2835,8 +2835,7 @@ example, the above post condition is generated from the code~\cite [p.3]{kamil20
 do j=jmin, jmax
     t = b(imin, j)
     do i=imin+1,imax
-        q = b(i, j);  a(i, j) = q + t
-        t = q
+        q = b(i, j);  a(i, j) = q + t; t = q
     end do
 end do
 \end{minted}
@@ -2844,8 +2843,8 @@ end do
 Thus, \textsc{stng} can understand cross-loop data-dependencies
 in order to assign the above post-condition. CamFort is not currently
 able to ascribe a specification in the above case as the use of
-\texttt{t} on line 5 maps only to the definition on line 2, and not to
-that on line 6. Extending our approach to follow loop-carried dependencies is
+\texttt{t} on line 4 maps only to the definition on line 2, and not to
+that on line 4. Extending our approach to follow loop-carried dependencies is
 future work. An alternate approach for us would be to build on top of
 the work of Kamil~\emph{et al.} by inferring our specifications from
 \textsc{stng} (as an intermediate step).
@@ -2921,7 +2920,7 @@ Fortran code.
 %performance or verification, or both. Many eliminate out-of-bounds
 %errors, \eg{},~\citet{DBLP:journals/corr/abs-1109-0777}.
 
-\section{Conclusion and future work}
+\paragraph{Conclusion and future work}
 
 There is an increasing awareness
 of the need for verification techniques in
@@ -2931,24 +2930,23 @@ a system of lightweight specification for numerical code.
 Compared to other specification approaches (discussed above), our language is novel in that it does
 not aim to reify indexing in the specification, but instead
 provides abstract spatial descriptions which capture a large number
-of common patterns. Our tool is useful for both detecting
-errors and for specifying program behaviour to future-proof code and ease
- maintenance. 
+of common patterns. %Our tool is useful for both detecting
+%errors and for specifying program behaviour to future-proof code and ease
+% maintenance. 
 
 %To increase the likelihood of impact, we 
 %integrate smoothly with existing practices, providing 
 %specifications as comments and specification synthesis
 %specifications in the the tool.
 
-We evaluated our approach by implementing the stencil inference and
-checking procedure on top of CamFort, an open-source analysis
+We evaluated our approach on top of CamFort, an open-source analysis
 tool for Fortran
-programs and running the inference process over a corpus of 1.1
-million lines of Fortran code.  Our motivation for this work was to
+programs, running the inference process over a corpus of 1.1
+million lines of Fortran code. 
+ Our motivation for this work was to
 provide an intermediate specification language to allow scientists to
 verify numerical computations.  Our evaluation showed that relatively
-simple stencil computations are the norm, for which we can specify a
-large proportion, comprising mainly reflexive region constants which
+simple stencil computations are the norm comprising mainly reflexive region constants which
 are less likely to give rise to programming errors.  However, around
 10\% of stencils covered more complicated program structures for which
 indexing errors are much more plausible. In the more detailed cases,

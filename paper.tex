@@ -1,4 +1,4 @@
-\documentclass[9pt]{sigplanconf}
+\documentclass[9pt,preprint]{sigplanconf}
 
 \usepackage{amssymb}
 \usepackage{amsmath}
@@ -320,12 +320,11 @@ of data access pattern (Section~\ref{sec:lang}), providing
 \item we detail inference, checking, and specification synthesis 
 algorithms for our language (Sect.~\ref{sec:analysis}), leveraging the semantic model;
 
-\item we evaluate our approach with an
-implementation as an extension of CamFort,
-an open-source program analysis tool for Fortran
-programs. We use our implementation to evaluate our approach against
-a corpus of scientific applications, totalling roughly one million
-lines of code; 
+\item we provide an implementation of our approach as an extension to
+  CamFort, an open-source program analysis tool for Fortran programs.
+  We use this for a quantiative evaluation of our approach over a corpus of
+  scientific applications, totalling roughly one million lines of
+  code;
 
 \item we show that around 10\% of stencils are in a class that
   represent a plausible scenario for a programming error;
@@ -436,12 +435,11 @@ sub-specification.  Section~\ref{sec:semantics}
 gives a semantic model via a set-based interpretation, for which the
 equality and sub-specification relation are proven sound.
 
-\subsection{Notation and convention}
-\label{sec:notation}
+\paragraph{Notation and convention}
+%\label{sec:notation}
 
 \renewcommand*{\arraystretch}{0.8}
-For the target language
-syntax, $e$ ranges over its expressions (may be impure) and $v$
+For the target language, $e$ ranges over expressions (may be impure) and $v$
 overs its (imperative) variables. %By
 %``variable'', we mean in the imperative sense (named binders to memory cells).
 
@@ -1225,7 +1223,7 @@ the ``origin'' in dimension $r$.
 \caption{Model of regions,
 $\interp{-}_n : \textit{region} \rightarrow \mathcal{P}(\domainVal{}^n)$}
 \label{fig:region-model}
-\vspace{-0.7em}
+\vspace{-1em}
 \end{figure}
 
 \noindent
@@ -1436,7 +1434,6 @@ Section~\ref{sec:analysis}.% with additional information.
 \vspace{-0.5em}
 
 \begin{figure}
-\vspace{-0.5em}
 \input{spatial-model.tex}
 \caption{\textit{spec} model,
 $\interp{-}_n : \textit{spec} \rightarrow \textsf{Mult}(\textsf{Approx}(\mathcal{P}(\domainVal{}^n)))$}
@@ -1497,9 +1494,7 @@ S <: T
 \noindent
 We briefly sketch the algorithms for inferring and synthesising
 specifications (Sect.~\ref{subsec:inference}), for checking code
-against specifications (Sect.~\ref{subsec:checking}) and for
-synthesising programs from specifications
-(Sect.~\ref{subsec:synthesis}).  These utilise the semantic model of
+against specifications (Sect.~\ref{subsec:checking}). These utilise the semantic model of
 Section~\ref{sec:semantics}.
 
 \paragraph{Syntax helper functions}
@@ -1529,18 +1524,16 @@ end do
 The inference relies on some standard program analyses, computed
 before the main inference procedure:
 %
-\begin{enumerate}
-\item basic blocks (CFG);
-\item induction variables per basic block;
-\item (interprocedural) data-flow analysis, providing a \emph{flows to}
+\textbf{(1)} basic blocks (CFG);
+\textbf{(2)} induction variables per basic block;
+\textbf{(3)} (interprocedural) data-flow analysis, providing a \emph{flows to}
   graph (as shorthand, the function
   $\mathsf{flowTo}$ is used, implicitly parameterised by this graph,
   mapping an expression to the set of all expressions
   with forwards data-flow to this expression, based on the transitive
   closure of the flows graph);
-\item type information per variable, where we use the predicate
+\textbf{(4)} type information per variable, where we use the predicate
 \arrayTy{} to classify variables of array type.
-\end{enumerate}
 %
 
 \subsubsection{Step 2: Data-access analysis}
@@ -1690,7 +1683,7 @@ in the map U) to coalesces spans into contiguous regions, \ie{}, we compute
 
 
 \begin{figure}[t]
-\vspace{-0.6em}
+\vspace{-0.8em}
 \hspace{-0.5em}
 \begin{minipage}{0.16\linewidth}
 \begin{align*}
@@ -1784,7 +1777,7 @@ P(M_0) =
 %
 where $\pi^2_1$ is the identity permutation and $\pi^2_2$ is the
 permutation flips the order of the two elements in the 
-vectors. \\
+vectors. \\[-1em]
 
 \noindent
 \textbf{2).} Sort each permutation set into an ordered list, by the ordering:
@@ -2038,16 +2031,12 @@ model (see Lemma~\ref{lem:alg-soundness} below).
 The $\hat{\odot}$ operation is then lifted to all combinations of
 \textsf{Approx} for $\odot$:
 \begin{align*}
-%\textsf{lower}(S) \odot \textsf{lower}(T) = \; & 
-%      \textsf{lower} \, (S \hat{\odot} T) \\
-%\textsf{upper}(S) \odot \textsf{upper}(T) = \; &
-%      \textsf{upper} \, (S \hat{\odot} T) \\
 \textsf{lower}(S) \odot \textsf{exact}(T) = \; &
        %\textsf{exact}(T) \odot \textsf{lower}(S) = \;
        \textsf{both} \, (S \hat{\odot} T, \; T) \\
 \textsf{upper}(S) \odot \textsf{exact}(T) = \; & 
        %\textsf{exact}(T) \odot \textsf{upper}(S) =
-      \; \textsf{both} \, (T, \; S \hat{\odot} T) \\
+       \textsf{both} \, (T, \; S \hat{\odot} T) \\
 \textsf{lower}(S) \odot \textsf{both}(T_l,T_u) = \; &
         %\textsf{both}(T_l,T_u) \odot \textsf{lower}(S) = \;
         \textsf{both} \, (S \hat{\odot} T_l, \; T_u) \\
@@ -2405,7 +2394,6 @@ Navier    & \navierFiles                   & \navierparseOk                  & \
 CP        & \computationalphysicstwoFiles  & \computationalphysicstwoparseOk & \computationalphysicstwoLoC & \computationalphysicstwolinesParsed \\
 \hline
 \textbf{Total} & \overallFiles  & \overallparseOk & \overallLoC & \overalllinesParsed \\
-\hline
 \end{tabular}
 \caption{Summary of software packages used for
   evaluation\label{tab:corpus}}
@@ -2531,11 +2519,10 @@ CP            & \computationalphysicstwotickAssign & \SI{\computationalphysicstw
 \textbf{Total}& \overalltickAssign & \SI{\overalltickAssignPercent}{\percent}  &
                 \overalltickAssignSuccess & \SI{\overalltickAssignSuccessPercent}{\percent} &
                 \overallnumStencilLines &
-                \overallboundedBoth    \\
-\hline
+                \overallboundedBoth   
 \end{tabular}
 \caption{Stencil specification assignment rates\label{tab:tickAssign}}
-\vspace{-0.8em}
+\vspace{-1em}
 \end{table}
 
 The first two columns of Table~\ref{tab:tickAssign} show the number
@@ -2553,7 +2540,7 @@ cases are not stencils by our definition. The degenereate case of this
 is to have only constant indices on the LHS. We see lots of examples
 of this in loops as accumulators \eg{} computing the sum over an array; \\
 \noindent
- 2) \textbf{Derived induction variables} where the
+2) \textbf{Derived induction variables} where the
 indexing variable (\mintinline{fortran}{x}) is derived from an
 induction variable (\mintinline{fortran}{i}) as in
 \mintinline{fortran}{x = len - i};  \\
@@ -2779,18 +2766,24 @@ the results of the CamFort test.
 
 \subsection{Verification case study 2: Turbulence calculation}
 
-The Unified Model has an implementation of the Smagorinsky
-subgrid-scale model for calculating turbulence on which our
-inference yields 39 specs from 340 lines of code. One example is:
-
+\begin{figure}[t]
 \begin{minted}[breakindent=0em,linenos=false,xleftmargin=0em,breakafter=)]{fortran}
 !=stencil readOnce,(forward(depth=1,dim=3,irreflexive))*(backward(depth=1,dim=1))*(backward(depth=1,dim=2))+(forward(depth=1,dim=3))*(backward(depth=1,dim=1))*(reflexive(dim=2))+(forward(depth=1,dim=3))*(backward(depth=1,dim=1,irreflexive))*(backward(depth=1,dim=2,irreflexive))+(forward(depth=1,dim=3))*(backward(depth=1,dim=2))*(reflexive(dim=1))+(backward(depth=1,dim=1))*(backward(depth=1,dim=2,irreflexive))*(reflexive(dim=3))+(backward(depth=1,dim=1,irreflexive))*(backward(depth=1,dim=2))*(reflexive(dim=3))::x
 \end{minted}
-%
+\caption{A complex specification inferred from
+  \textbf{Unified Model}\label{fig:smagorinsky}}
+\vspace{-1em}
+\end{figure}
+
+\noindent
+The Unified Model has an implementation of the Smagorinsky
+subgrid-scale model for calculating turbulence on which our
+inference yields 39 specs from 340 lines of code. We show
+one example in Figure~\ref{fig:smagorinsky}. 
 This specifies the access pattern to a 3-dimensional array (which we have renamed to be called \texttt{x}). The array is accessed 8 times in the computation. We tried introducing indexing errors by changing the offset in one dimension of one of the references to \texttt{x}. For example changing \mintinline{fortran}{x(i+1,j,k)} to \mintinline{fortran}{x(i,j,k)} or \mintinline{fortran}{x(i-1,j,k)}.
 
-There are 48 possible errors of this type of which we found only 6 were not 
-detected by the specification checking. The reason is that the inferred
+There are 48 possible errors of this type of which only 6 were not 
+detected by the checker. The reason is that the inferred
 specification describes a family of access patterns. Some offset errors
 produce a stencil computation that belongs to the same family and goes
 undetected.

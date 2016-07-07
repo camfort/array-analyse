@@ -2677,10 +2677,6 @@ future work. An alternate approach for us would be to build on top of
 the work of Kamil~\emph{et al.} by inferring our specifications from
 \textsc{stng} (as an intermediate step).
 
-% Abe, 2013, Model checking stencil computations
-% -- Unable to obtain copy
-% In an alternate approach,~\citet{Abe:2013:IPDPSW}
-
 There are many DSLs for stencil computation aimed at either
 performance or verification, or both. Many eliminate out-of-bounds
 errors, \eg{},~\citet{DBLP:journals/corr/abs-1109-0777}.
@@ -2693,7 +2689,12 @@ kernel, and GPGPU programming can be viewed as a massively parallel
 method of transforming a large matrix. However, that work focuses
 mainly on the synchronisation of such kernels, and the avoidance of
 data races, while we are interested in the correctness of stencils
-embedded within a more typical general-purpose programming language.
+embedded within a more typical general-purpose programming
+language. Other work on GPGPU computation, such as
+\citet{Zhang:2012:CGO}, has been primarily focused on generating
+optimised code based upon on relatively simple specifications: to
+provide performance while keeping the programmer's effort within
+reason.
 
 % Sketching Stencils
 \citet{Solar-Lezama:2007:PLDI} give specifications of stencils using
@@ -2718,11 +2719,30 @@ parallel version that takes advantage of the Cilk compiler.  Pochoir
 is aimed primarily at assisting programmers who may be reluctant to
 implement the tricky cache-oblivious ``hypertrapezoidal'' algorithms
 that are significantly faster than the typical looping implementations
-of stencil computations.
+of stencil computations. Like much of the related work, the main goal
+is optimisation rather than catching bugs and verification of
+program correctness.
 
-% 3D stencil codes
-%\citet{Zhang:2012:CGO}
-
+By contrast, the work of \citet{Abe:2013:IPDPSW} has looked at the
+correctness problem explicitly by bringing a form of model-checking to
+verify certain stencil computations in partitioned global address
+space languages. These are scenarios where an array is divided into
+subarrays on multiple processors but each has the ability to access
+the others' memory. The authors avoid the state explosion dilemma of
+model-checking by relying upon the fact that accesses to the
+``boundary elements'' will require a different method by virtue of the
+non-locality of that memory. Since this access is performed in a
+different manner, those can be identified automatically by static
+analysis. To achieve this, the authors have designed a new language to
+be used for writing stencil computations. Much of the specification
+effort goes towards describing the nuts and bolts of distributing the
+computation over multiple processors. The code for the stencil kernel
+is generated from a relatively high-level specification. This approach
+differs from Camfort because we are interested in integrating directly
+into existing, legacy codebases and long-established languages such as
+older versions of Fortran. We infer stencil specifications from
+Fortran code and check annotations on stencil computations within
+Fortran code.
 
 \section{Conclusion and future work}
 

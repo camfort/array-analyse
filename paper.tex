@@ -230,8 +230,7 @@ xrightmargin=0.2cm,commandchars=\\\{\},baselinestretch=0.98,numbersep=0.9em}
 \end{abstract}
 
 
-\keywords{program verification, specifications, static analysis,
-  stencil computation}
+\keywords{program verification, specification, stencils}
 
 \bibliographystyle{abbrvnat}
 
@@ -291,71 +290,72 @@ inference procedure provides the following specification to line 3:
 !=  stencil centered(depth=1, dim=1) :: a
 \end{minted}
 %
-This explains that \texttt{a} is read from with a
-symmetrical access pattern (``centered'') to a depth of one in each
+This describes that \texttt{a} is accessed with a
+symmetrical pattern (``centered'') to a depth of one in each
 direction in its first (and only) dimension.
 %The second line explains
 %the temporal relationship between \texttt{b} and \texttt{a}: that
 %previous time step for \texttt{b} is actually provided by \texttt{a},
 %and vice versa. This is explained as a mutual dependence between
 %\texttt{a} and \texttt{b}.
-In the case of the Navier-Stokes example of
+In the Navier-Stokes example of
 Figure~\ref{ref:navier-stokes-fragment}, its inferred specification is shown
-in Figure~\ref{ref:navier-stokes-fragment}(b). The
+in Fig.~\ref{ref:navier-stokes-fragment}(b). The
 specification explains that, over the whole fragment, \texttt{u} is
 read from with a centered pattern to depth of 1 in both dimensions
-(this is known as the \emph{five point stencil}) and \texttt{v}
+(this is known as the \emph{five-point stencil}) and \texttt{v}
 is read from in a neighbourhood bounded by forward to depth of $1$ in
 the first dimension and backward to a depth of $1$ in the second
-dimension. Figure~\ref{ref:navier-stokes-fragment}(c) illustrates
-the specifications pictorially.
+dimension. Fig.~\ref{ref:navier-stokes-fragment}(c) illustrates
+the specification pictorially.
 
 In this paper, we make the following contributions:
 %
-\begin{itemize}
-\item we introduce our specification language for
-stencil computations that captures many common forms
-of data access pattern (Section~\ref{sec:lang})
-along with a sound denotational model (Section~\ref{sec:semantics});
+\begin{itemize}[leftmargin=0.8em]
+\item we introduce a specification language for
+stencil computation that captures many common forms
+of data access pattern (Section~\ref{sec:lang}), providing
+ an equational theory and denotational model (Sect.~\ref{sec:semantics});
 
-\item we detail inference, checking, specification synthesis,
-and program synthesis algorithms for our language
-(Section~\ref{sec:analysis}), which relies on the semantic model;
+\item we detail inference, checking, and specification synthesis 
+algorithms for our language (Sect.~\ref{sec:analysis}), leveraging the semantic model;
 
-\item we evaluate our approach, providing an
+\item we evaluate our approach with an
 implementation as an extension of CamFort,
-an open-source program analysis and refactoring tool for Fortran
-corpus. We use this implementation to evaluate our approach against
+an open-source program analysis tool for Fortran
+programs. We use our implementation to evaluate our approach against
 a corpus of scientific applications, totalling roughly one million
-lines of code, and we study some verification case studies;
+lines of code; 
 
 \item we show that around 10\% of stencils are in a class that
   represent a plausible scenario for a programming error;
 
-\item we consider two particular stencils in detail and show that we
-  are able to detect the vast majority of (synthesised) possible
+\item we provide a more detailed verification case study of two
+  particular stencil computation and show that we
+  are able to detect the vast majority  of (synthesised) possible
   indexing errors.
 \end{itemize}
 %
 
 \begin{figure}[t]
 \begin{minted}[firstnumber=20,xleftmargin=2em]{fortran}
-du2dx = ((u(i,j)+u(i+1,j))*(u(i,j)+u(i+1,j))+ &
+du2dx = ((u(i,j)+u(i+1,j))*(u(i,j)+u(i+1,j))+   &
   gamma*abs(u(i,j)+u(i+1,j))*(u(i,j)-u(i+1,j))- &
-  (u(i-1,j)+u(i,j))*(u(i-1,j)+u(i,j))- &
+  (u(i-1,j)+u(i,j))*(u(i-1,j)+u(i,j))-          &
   gamma*abs(u(i-1,j)+u(i,j))*(u(i-1,j)-u(i,j))) &
   /(4.0*delx)
 
-duvdy = ((v(i,j)+v(i+1,j))*(u(i,j)+u(i,j+1))+ &
+duvdy = ((v(i,j)+v(i+1,j))*(u(i,j)+u(i,j+1))+   &
   gamma*abs(v(i,j)+v(i+1,j))*(u(i,j)-u(i,j+1))- &
-  (v(i,j-1)+v(i+1,j-1))*(u(i,j-1)+u(i,j))- &
-  gamma*abs(v(i,j-1)+v(i+1,j-1))*(u(i,j-1)-u(i,j))) & /(4.0*dely)
+  (v(i,j-1)+v(i+1,j-1))*(u(i,j-1)+u(i,j))-      &
+  gamma*abs(v(i,j-1)+v(i+1,j-1))*(u(i,j-1)-     & 
+  u(i,j))) / (4.0*dely)
 
 laplu = (u(i+1,j)-2.0*u(i,j)+u(i-1,j))/delx/delx+ &
   (u(i,j+1)-2.0*u(i,j)+u(i,j-1))/dely/dely
 \end{minted}
-(a) Excerpt from Fortran code for a Navier-Stoke fluid simulator,
-showing highly-detailed stencil computations.
+(a) Excerpt of a Navier-Stokes fluid simulator
+(based on~\citet{griebel1997numerical}) showing highly-detailed stencil computation.
 \vspace{0.5em}
 \hrule
 %
@@ -364,7 +364,7 @@ showing highly-detailed stencil computations.
 
 != stencil forward(depth=1,dim=1) * backward(depth=1,dim=2) :: v
 \end{minted}
-(b) Inferred stencil specification from CamFort.
+(b) Inferred and synthesised specification for (a) by CamFort.
 \vspace{0.5em}
 \hrule
 %
@@ -398,7 +398,7 @@ The horizontal dimension is \texttt{dim=1} and the vertical is \texttt{dim=2}.
 In recent years, there has been an increased awareness
 of the need for formal verification techniques in
 science~\cite{post2005computational,oberkampf2010verification,orchard2014computational}.
-Our specification language is an approach in this direction, proving
+Our specification language is an approach in this direction, providing
 a system of lighweight specification for numerical code.
 The aim is to not only provide a way of exposing errors, but also
 for specifying program behaviour to future-proof the code and ease
@@ -407,10 +407,12 @@ to integrate with existing practises smoothly, hence our
 specifications are integrated as comments and our tool can synthesis
 specifications for the user.
 
-Much of this paper concerns the technical aspects of the language,
-its semantics, its inference, checking, and synthesis procedures.
-The evaluation focuses on its application to real scientific code base
-used actively in research.
+This paper considers the technical aspects of the language,
+its semantics, inference, checking, and synthesis procedures.
+We also evaluate our implementation on real scientific code 
+used actively in research. Our case studies include the Unified Weather 
+model used by the UK Met Office~\cite{um-website} ($\approx{}600\textit{kloc}$) and other
+research-based numerical models, ranging from small to large. 
 
 \section{Stencil specification language}
 \label{sec:lang}
@@ -422,14 +424,13 @@ a fixed, statically-determined access pattern. For example, the
 indices $(i, j)$, $(i-1, j)$, $(i+1, j)$, $(i, j-1)$, and $(i, j+1)$
 for all $i, j$ within the inner boundary of the array (to avoid
 out-of-bounds access at the edges). We revisit this hypothesis
-in Section~\ref{sec:evaluation} where the inference of
-such regular stencil patterns on a corpus of numerical programs (both
-small and large).
+in Section~\ref{sec:evaluation} with the inference of
+such regular stencil patterns on our corpus of numerical programs. 
 
-Section~\ref{sec:syntax} outlines the syntax of specifications.
+Section~\ref{sec:syntax} outlines the syntax.
  Section~\ref{sec:eqs} provides an equational
-theory for specifications via relation ($\equiv$) and a notion of
-sub-specification via relation ($<:$).  Section~\ref{sec:semantics}
+theory for specifications and a notion of
+sub-specification.  Section~\ref{sec:semantics}
 gives a semantic model via a set-based interpretation, for which the
 equality and sub-specification relation are proven sound.
 
@@ -438,8 +439,7 @@ equality and sub-specification relation are proven sound.
 
 \renewcommand*{\arraystretch}{0.8}
 \paragraph{Target language syntax} Throughout, for the source language
-syntax, $v$ ranges over program variables, $s$ over statements, and
-$e$ over expressions (which may be impure).  By ``variable'', we mean
+syntax, $e$ ranges over its expressions (which may be impure).  By ``variable'', we mean
 in the imperative sense (\ie{}, named binders to memory cells) instead
 of mathematical variables.
 
@@ -2132,9 +2132,9 @@ defined:
     \textsf{mult}(\mathit{analyse}(\textit{assg})(x)) & otherwise
   \end{cases}
 \end{align*}
-Thus, checking proceeds by reusing the \textit{analyse} function of
-inference (Section~\ref{subsec:inference}) to extract indexing
-schemes for stencil computations flowing to an assignment. 
+Thus, checking proceeds by reusing the \textit{analyse} function from 
+inference (Sec.~\ref{subsec:inference}) to extract index 
+schemes from source code. 
 This is then augmented with multiplicity information
 by $\mathit{modelise}$ where $\mathit{unique}(\textit{assg},x)$ is a
  predicate indicating whether indices to array $x$ in an
@@ -2414,7 +2414,7 @@ either use of a C-preprocessor, or illegal use of language features
 from a more modern Fortran variant.
 
 \textbf{The Unified
-  Model}\footnote{\url{http://www.metoffice.gov.uk/research/modelling-systems/unified-model}}
+  Model}~\cite{um-website}
 is a weather forecasting and climate modelling tool developed by the
 Met Office in the United Kingdom. It is used by research organisations
 and meteorological services around the world. We use the development

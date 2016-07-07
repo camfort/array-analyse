@@ -410,9 +410,11 @@ specifications for the user.
 This paper considers the technical aspects of the language,
 its semantics, inference, checking, and synthesis procedures.
 We also evaluate our implementation on real scientific code 
-used actively in research. Our case studies include the Unified Weather 
-model used by the UK Met Office~\cite{um-website} ($\approx{}600\textit{kloc}$) and other
-research-based numerical models, ranging from small to large. 
+used actively in research, ranging from small ($\sim$700loc) to large
+($\sim$600kloc). 
+ %Our case studies include the Unified Weather 
+%model used by the UK Met Office~\cite{um-website} ($\approx{}600\textit{kloc}$) and other
+%research-based numerical models, ranging from small to large. 
 
 \section{Stencil specification language}
 \label{sec:lang}
@@ -601,7 +603,6 @@ product of two \texttt{centered} regions in each dimension:
 x = a(i, j)   + a(i-1, j)   + a(i+1, j)
 y = a(i, j-1) + a(i-1, j-1) + a(i+1, j-1)
 z = a(i, j+1) + a(i-1, j+1) + a(i+1, j+1)
-
 != stencil centered(depth=1, dim=1) * centered(depth=1, dim=2) :: a
 b(i, j) = (x + y + z) / 9.0
 \end{minted}
@@ -723,8 +724,7 @@ b(i) = a(i) + a(i+2)
 %%
 %\subsubsection{Temporal specifications}
 
-
-\subsection{Note on the design}
+\paragraph{Note on the design}
 
 The names ``forward'', ``backward'' and ``centered''
 are inspired by standard terminology in numerical analysis
@@ -733,7 +733,7 @@ the standard \emph{explicit method} for approximating
 PDEs is known as the \emph{Forward Time, Centered Space} (FTCS)
 scheme~\cite{dawson1991finite}. For
 the one-dimensional heat equation, an FTCS discretisation
-provides approximation code with the following stencil~\cite{recktenwald2004finite}:
+provides code with the following stencil~\cite{recktenwald2004finite}:
 %%
 \begin{minted}{fortran}
 do i=2, n-1
@@ -858,18 +858,7 @@ and checked against the code.
 
 Figure~\ref{fig:equations} lists the equational theory for
 specifications which is defined by the binary relation $\equiv$
-between region terms. Stencil declarations are considered
-equal when they have the same modifiers and $\equiv$ equates
-their regions, \ie{}:
-\begin{align*}
-(\textit{region} \equiv \textit{region'}) 
- \Rightarrow \quad\;\; & \texttt{stencil} \; [\textit{approx},] \; [\textit{mult},] \;
-\textit{region} \\[-0.4em]
-\quad \equiv \; & \texttt{stencil} \; [\textit{approx},] \;
-            [\textit{mult},] \; \textit{region}'
-\end{align*}
-%
-The equations of Figure~\ref{fig:equations} use abbreviations
+between region terms. The equations use abbreviations
 \term{refl}, \term{fwd}, \term{bwd}, \term{cen}, and \irreflS{}
 for \term{reflexive}, \term{forward}, \term{backward},
 \term{centered}, and \irrefl{} respectively. Futhermore, the abbreviations include syntactic sugar
@@ -891,8 +880,19 @@ the syntactic sugar for \term{fwd} is defined:
 %
 and similarly for \term{bwd} and \term{cen}.
 
-The equations reveal a partial semantics for stencil
-specifications, which we briefly summarise.
+Stencil specifications in \textit{spec} are considered
+equal when they have the same modifiers and $\equiv$ equates
+their regions, \ie{}:
+\begin{align*}
+(\textit{region} \equiv \textit{region'}) 
+ \Rightarrow \quad\;\; & \texttt{stencil} \; [\textit{approx},] \; [\textit{mult},] \;
+\textit{region} \\[-0.4em]
+\quad \equiv \; & \texttt{stencil} \; [\textit{approx},] \;
+            [\textit{mult},] \; \textit{region}'
+\end{align*}
+
+The equations reveal a part of the semantics for our
+specification language, which we briefly unpack.
 
 \paragraph{Overlapping regions with +}
 The first nine
@@ -1066,7 +1066,6 @@ wildcard.
 Throughout $u, v, w$ range over index schemes and $u_i$ denotes
 the $i^{th}$ element of $u$. We write $(\domainVal)^n$ for
 the set of $n$-dimensional schemes.
-\end{definition}
 
 Indexing schemes give an abstract
 representation of index expressions in the source language.
@@ -1078,7 +1077,8 @@ terms is given precisely by the partial function, \textsf{schematic}, which
 maps syntactic array-index terms to indexing schemes. This
 operation is used by the inference
 and the checking procedures.
-
+\end{definition}
+%
 \begin{definition}%[Schematic]
 \label{def:schematic}
 The partial function $\textsf{schematic}$ maps
@@ -1091,8 +1091,7 @@ to $n$-dimensional index schemes, defined:
 \quad \textit{iff} \;\; \forall i . \downarrow\!e_i \neq \bot
 \end{align*}
 %
-The $\downarrow$ operator is partial\footnote{We represent
-  partiality in our signatures with the set $A + \bot$.} 
+The $\downarrow$ operator is partial
  $\downarrow : \textit{expr} \rightarrow (\domainVal + \bot)$
 mapping individal indexing expressions to 
 an indexing scheme component, defined:
@@ -1108,13 +1107,13 @@ a & e \equiv i + a \; \wedge \; \mathsf{neigh}(i + a) \\
 \end{align*}
 %%
 where $\mathsf{IV}(e)$ is the set of free induction variables
-appearing in an expression, and $\neigh{}$ classifies expressions which
+in an expression, and $\neigh{}$ classifies expressions which
 are constant offsets from an induction variable
 (Defn.~\ref{def:neighbour}). In the third case,
 if the expression is not a neighbourhood index but is not
 a relative index either (\ie{}, not defined in terms
 of an induction variable) then it is mapped to $\infty$, otherwise
-$\downarrow\!e$ is undefined. The $\mathsf{schematic}$ function
+$\downarrow\!e$ is undefined (returns $\bot$). The $\mathsf{schematic}$ function
 is undefined if $\downarrow$ of any of its components $e_i$ is
 undefined.
 
@@ -1627,67 +1626,6 @@ u]$, defining the lower and upper bound.
  For the five-point stencil example there are five $1 \times 1$ spans.
 Figure~\ref{fig:inference-steps-informal}(a) illustrates these.
 
-\begin{figure}[t]
-\vspace{-0.3em}
-\hspace{-0.5em}
-\begin{minipage}{0.16\linewidth}
-\begin{align*}
-\setlength{\arraycolsep}{0em}
-\begin{array}{c}
-\quad \\[0em]
-\begin{tikzpicture}[scale=0.8]
-%\draw[step=0.5cm,lightgray,very thin] (0.5,0.5) grid (2,2);
-\node at (1.25,1.22) {\textnormal{\footnotesize{0,0}}};
-\draw[thick] (1,1) rectangle (1.5,1.5);
-\draw[thick] (1.5,1) rectangle (2,1.5);
-\draw[thick] (1,0.5) rectangle (1.5,1);
-\draw[thick] (0.5,1) rectangle (1,1.5);
-\draw[thick] (1,1.5) rectangle (1.5,2);
-\end{tikzpicture} \\[0em]
-(a)
-\end{array}
-\end{align*}
-\end{minipage} $\rightarrow$ \begin{minipage}{0.43\linewidth}
-\begin{align*}
-\setlength{\arraycolsep}{0em}
-\begin{array}{c}
-\begin{tikzpicture}[scale=0.72]
-%\draw[step=0.5cm,lightgray,very thin] (0.5,0.5) grid (2,2);
-%\node at (1.25,1.22) {\textnormal{\small{0,0}}};
-\draw [black, thin] (0.35,0) to [round left paren ] (0.35,2);
-\draw[thick] (0.5,1) rectangle (2,1.5);
-\draw[thick] (1,0.40) rectangle (1.5,0.90);
-\draw[thick] (1,1.60) rectangle (1.5,2.10);
-\node at (2.3,1.22) {+};
-\draw[thick] (3.8,1) rectangle (4.3,1.5);
-\draw[thick] (2.6,1) rectangle (3.1,1.5);
-\draw[thick] (3.2,0.5) rectangle (3.7,2);
-\draw [black, thin] (4.4,0) to [round right paren ] (4.4,2);
-\end{tikzpicture} \\[-0.5em] (b)
-\end{array}
-\end{align*}
-\end{minipage}$\rightarrow$ \begin{minipage}{0.25\linewidth}
-\begin{align*}
-\setlength{\arraycolsep}{0em}
-\begin{array}{c}
-\begin{tikzpicture}[scale=0.72]
-%\node at (1.25,1.22) {\textnormal{\small{0,0}}};
-\draw [black, thin] (0.8,0) to [round left paren ] (0.8,2);
-\draw[thick] (1,0.5) rectangle (1.5,2);
-\node at (1.8,1.22) {+};
-\draw[thick] (2.1,1) rectangle (3.6,1.5);
-\draw [black, thin] (3.7,0) to [round right paren ] (3.7,2);
-%\node at (2.75,1.22) {\textnormal{\small{0,0}}};
-\end{tikzpicture} \\[-0.5em] (c)
-\end{array}
-\end{align*}
-\end{minipage}
-\caption{Illustration of grouping spans in
-specification inference}
-\label{fig:inference-steps-informal}
-\vspace{-0.8em}
-\end{figure}
-
 % taking permustations is a systematic way of producing all rotations
 % of the n-dimensional space - forward ref to fold
 The next step repeatedly coalesces any contiguous spans
@@ -1749,6 +1687,68 @@ In the following we let $M_0 = N(U(\texttt{a}))$ for our example.
 A fixed point of the following function, \spanOp{}, is taken (per variable
 in the map U) to coalesces spans into contiguous regions, \ie{}, we compute
  $(\mu \, \spanOp) \; N(M)$ where \spanOp{} is defined by: \\[-0.5em]
+
+
+\begin{figure}[t]
+\vspace{-0.6em}
+\hspace{-0.5em}
+\begin{minipage}{0.16\linewidth}
+\begin{align*}
+\setlength{\arraycolsep}{0em}
+\begin{array}{c}
+\quad \\[0em]
+\begin{tikzpicture}[scale=0.8]
+%\draw[step=0.5cm,lightgray,very thin] (0.5,0.5) grid (2,2);
+\node at (1.25,1.22) {\textnormal{\footnotesize{0,0}}};
+\draw[thick] (1,1) rectangle (1.5,1.5);
+\draw[thick] (1.5,1) rectangle (2,1.5);
+\draw[thick] (1,0.5) rectangle (1.5,1);
+\draw[thick] (0.5,1) rectangle (1,1.5);
+\draw[thick] (1,1.5) rectangle (1.5,2);
+\end{tikzpicture} \\[0em]
+(a)
+\end{array}
+\end{align*}
+\end{minipage} $\rightarrow$ \begin{minipage}{0.43\linewidth}
+\begin{align*}
+\setlength{\arraycolsep}{0em}
+\begin{array}{c}
+\begin{tikzpicture}[scale=0.72]
+%\draw[step=0.5cm,lightgray,very thin] (0.5,0.5) grid (2,2);
+%\node at (1.25,1.22) {\textnormal{\small{0,0}}};
+\draw [black, thin] (0.35,0) to [round left paren ] (0.35,2);
+\draw[thick] (0.5,1) rectangle (2,1.5);
+\draw[thick] (1,0.40) rectangle (1.5,0.90);
+\draw[thick] (1,1.60) rectangle (1.5,2.10);
+\node at (2.3,1.22) {+};
+\draw[thick] (3.8,1) rectangle (4.3,1.5);
+\draw[thick] (2.6,1) rectangle (3.1,1.5);
+\draw[thick] (3.2,0.5) rectangle (3.7,2);
+\draw [black, thin] (4.4,0) to [round right paren ] (4.4,2);
+\end{tikzpicture} \\[-0.5em] (b)
+\end{array}
+\end{align*}
+\end{minipage}$\rightarrow$ \begin{minipage}{0.25\linewidth}
+\begin{align*}
+\setlength{\arraycolsep}{0em}
+\begin{array}{c}
+\begin{tikzpicture}[scale=0.72]
+%\node at (1.25,1.22) {\textnormal{\small{0,0}}};
+\draw [black, thin] (0.8,0) to [round left paren ] (0.8,2);
+\draw[thick] (1,0.5) rectangle (1.5,2);
+\node at (1.8,1.22) {+};
+\draw[thick] (2.1,1) rectangle (3.6,1.5);
+\draw [black, thin] (3.7,0) to [round right paren ] (3.7,2);
+%\node at (2.75,1.22) {\textnormal{\small{0,0}}};
+\end{tikzpicture} \\[-0.5em] (c)
+\end{array}
+\end{align*}
+\end{minipage}
+\caption{Illustration of grouping spans in
+specification inference}
+\label{fig:inference-steps-informal}
+\vspace{-0.8em}
+\end{figure}
 
 \noindent
 \textit{1).\;} Compute all permutations on the column vectors in a span, \ie{},
@@ -2204,6 +2204,7 @@ consistency is defined inductively similar to the \textsf{exact} case.
 \end{definition}
 
 \begin{figure}
+\vspace{-0.4em}
 \input{consistency.tex}
 \caption{Consistency between a model and indexing schemes from a stencil computation}
 \label{fig:consistency}
@@ -2773,7 +2774,7 @@ the results of the CamFort test.
     iteration program. The correct output is shown in
     \subref{fig:jacobicorrect}.}
   \label{fig:jacobi}
-  \vspace{-0.7em}
+  \vspace{-2em}
 \end{figure}
 
 \subsection{Verification case study 2: Turbulence calculation}
@@ -2793,7 +2794,6 @@ detected by the specification checking. The reason is that the inferred
 specification describes a family of access patterns. Some offset errors
 produce a stencil computation that belongs to the same family and goes
 undetected.
-
 One of the reasons this specification can catch many offset errors is that it is
 a \texttt{readOnce} specification. This prevents offset errors leading to
 duplicate access patterns be caught even if the resulting set of accesses are
@@ -2930,16 +2930,16 @@ Fortran code.
 
 \section{Conclusion and future work}
 
-In this paper, we described an abstract specification language 
-for the access pattern of a stencil computation. Compared with the
+We presented in this work an specification language 
+for the access pattern of a stencil computation. Compared to the
 related work (discussed above), our language is novel in that it does
 not aim to replicate indexing in the specification, but instead
-provides a set of abstract spatial combinators which capture a large number
+provides abstract spatial combinators which capture a large number
 of common patterns. 
 
 We evaluated our approach by implementing the stencil inference and
 checking procedure ontop of CamFort, an open-source analysis
-tool\footnote{\url{https://github.com/camfort/camfort}} for Fortran
+tool\footnotemark for Fortran
 programs and running the inference process over a corpus of 1.1
 million lines of Fortran code.  Our motivation for this work was to
 provide an intermediate specification language to allow scientists to
@@ -2962,6 +2962,7 @@ our inference approach to more of these examples. Furthermore, our specification
 language can be used more flexibly to give descriptions of data access
 patterns in any context, not just within a stencil.
 
+\footnotetext{\url{https://github.com/camfort/camfort}}
 \bibliography{references}
 
 \end{document}

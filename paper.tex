@@ -1948,8 +1948,6 @@ of $\tyProd{\specDNF}$ (for example, $\tyProd{s} = r^1_{1} \; \term{*}
 \newcommand{\exact}[1]{\exactR(#1)}
 \newcommand{\upperB}[1]{\mathsf{upper}\;(#1)}
 
-\begin{definition} The $\mathsf{toSpec}$ constructor is defined
-in Figure~\ref{fig:to-spec}
 
 \begin{figure}[t]
 %\newcommand{\llower}{\vect{x}^L_i}
@@ -1983,11 +1981,12 @@ in Figure~\ref{fig:to-spec}
 \end{minipage}
 }}
 \caption{\textsf{toSpec} constructor of $\mathsf{A}(\specDNF)$ values.}
-\label{fig:tospec}
-\vspace{-0.9em}
+\label{fig:to-spec}
+\vspace{-0.8em}
 \end{figure}
 
-\noindent
+\begin{definition} The $\mathsf{toSpec}$ constructor is defined
+in Figure~\ref{fig:to-spec}.
 The first two cases map to \texttt{forward} stencils since the lower
 bound is $0$ or $1$, with the depth determined by the upper bound of
 the span. If the lower bound is $1$, then the
@@ -2805,16 +2804,8 @@ part of the same family.
 % Tried introducing indexing errors replacing one of the indices of cx_rho_instance with -1,0,+1
 % 42 cases were caught
 % 6 cases were not caught
-\section{Discussion}
+\section{Related work}
 \label{sec:discussion}
-
-\paragraph{Program synthesis}
-
-
-
-\anote{Any discussion left to do? - something on checking perhaps? access stencils?}
-
-\subsection{Related work}
 
 Various prior approaches to specifying and verifying the behaviour
 of stencils have been based on fine-grained representations of the
@@ -2853,8 +2844,7 @@ example, the above post condition is generated from the code~\cite [p.3]{kamil20
 do j=jmin, jmax
     t = b(imin, j)
     do i=imin+1,imax
-        q = b(i, j)
-        a(i, j) = q + t
+        q = b(i, j);  a(i, j) = q + t
         t = q
     end do
 end do
@@ -2870,17 +2860,17 @@ the work of Kamil~\emph{et al.} by inferring our specifications from
 \textsc{stng} (as an intermediate step).
 
 % GPGPU
-This work shares some similarities with efforts to verify kernels
+Our work has some similarities with efforts to verify kernels
 written for General-Purpose Graphics Processing Unit (GPGPU)
 programming, such as in \citet{Blom:2014:SoCP}. Stencils are a form of
 kernel, and GPGPU programming can be viewed as a massively parallel
 method of transforming a large matrix. However, that work focuses
-mainly on the synchronisation of such kernels, and the avoidance of
+mainly on the synchronisation of such kernels and the avoidance of
 data races, while we are interested in the correctness of stencils
 embedded within a more typical general-purpose programming
 language. Other work on GPGPU computation, such as
-\citet{Zhang:2012:CGO}, has been primarily focused on generating
-optimised code based upon on relatively simple specifications: to
+\citet{Zhang:2012:CGO}, has focused primarily on generating
+optimised code based on relatively simple specifications: to
 provide performance while keeping the programmer's effort within
 reason.
 
@@ -2895,33 +2885,37 @@ correctness, and the language of specification is much different and
 more elaborate than we envision for our system.
 
 % Pochoir
-\citet{Tang:2011:SPAA} defines a specification language for writing
+\citet{Tang:2011:SPAA} define a specification language for writing
 stencils embedded in C++ (with Cilk extensions) that are then compiled
 into fast parallel programs based on trapezoidal decompositions with
 hyperspace cuts. The Pochoir specification language is used for
-describing the computing kernel, boundary conditions and shape of the
+describing the kernel, boundary conditions and shape of the
 stencil. Programs are first compiled in C++ with a template library
 that checks whether the annotations are used correctly, and then a
 Pochoir preprocessor may be applied to generate the high-performance
-parallel version that takes advantage of the Cilk compiler.  Pochoir
+parallel versions using Cilk.  Pochoir
 is aimed primarily at assisting programmers who may be reluctant to
-implement the tricky cache-oblivious ``hypertrapezoidal'' algorithms
-that are significantly faster than the typical looping implementations
-of stencil computations. Like much of the related work, the main goal
-is optimisation rather than catching bugs and verification of
-program correctness.
+implement the high-performance tricky cache-oblivious
+``hypertrapezoidal'' algorithms for stencils. 
+%that are significantly faster than the typical looping implementations
+%of stencil computations.
+Like much of the related work, the main goal 
+is optimisation rather than verifying program correctness.
 
 By contrast, the work of \citet{Abe:2013:IPDPSW} has looked at the
 correctness problem explicitly by bringing a form of model-checking to
-verify certain stencil computations in partitioned global address
-space languages. These are scenarios where an array is divided into
-subarrays on multiple processors but each has the ability to access
-the others' memory. The authors avoid the state explosion dilemma of
-model-checking by relying upon the fact that accesses to the
-``boundary elements'' will require a different method by virtue of the
-non-locality of that memory. Since this access is performed in a
-different manner, those can be identified automatically by static
-analysis. To achieve this, the authors have designed a new language to
+verify certain stencil computations. This is in the context of
+decomposing stencils for parallel computation on multiple processors
+ in partitioned global address
+space languages. %These are scenarios where an array is divided into
+%subarrays on multiple processors but each has the ability to access
+%the others' memory. The authors avoid the state explosion dilemma of
+%model-checking by relying upon the fact that accesses to the
+%``boundary elements'' will require a different method by virtue of the
+%non-locality of that memory. Since this access is performed in a
+%different manner, those can be identified automatically by static
+%analysis. To achieve this, 
+The authors have designed a new language to
 be used for writing stencil computations. Much of the specification
 effort goes towards describing the nuts and bolts of distributing the
 computation over multiple processors. The code for the stencil kernel
@@ -2932,36 +2926,43 @@ older versions of Fortran. We infer stencil specifications from
 Fortran code and check annotations on stencil computations within
 Fortran code.
 
-There are many DSLs for stencil computation aimed at either
-performance or verification, or both. Many eliminate out-of-bounds
-errors, \eg{},~\citet{DBLP:journals/corr/abs-1109-0777}.
+%There are many DSLs for stencil computation aimed at either
+%performance or verification, or both. Many eliminate out-of-bounds
+%errors, \eg{},~\citet{DBLP:journals/corr/abs-1109-0777}.
 
 \section{Conclusion and future work}
 
-In this paper we have described an annotation language which can be
-used to specify the access pattern of a stencil computation. We
-defined a denotational semantic model for our language and proved its
-soundness. This gave a basis for an equational theory of
-specifications and also justifies our inference and checking
-procedure. We evaluated our approach by implementing the stencil inference and
-checking procedure in CamFort, an open-source analysis tool\footnote{\url{https://github.com/camfort/camfort}} for
-Fortran programs and running the inference process over a corpus of
-1.1 million lines of Fortran code.
+In this paper, we described an abstract specification language 
+for the access pattern of a stencil computation. Compared with the
+related work (discussed above), our language is novel in that it does
+not aim to replicate indexing in the specification, but instead
+provides a set of abstract spatial combinators which capture a large number
+of common patterns. 
 
-Our motivation for this work was to provide an intermediate
-specification language to allow scientists to verify numerical
-computations. The most common types of stencils we found consisted only of
-reflexive region constants which are unlikely to give rise to
-programming errors. However, around 10\% of stencils covered more
-complicated program structures for which indexing errors are much more
-plausible. We showed two examples of more complicated stencils for
-which CamFort was able to detect a significant majority of possible
-indexing errors.
+We evaluated our approach by implementing the stencil inference and
+checking procedure ontop of CamFort, an open-source analysis
+tool\footnote{\url{https://github.com/camfort/camfort}} for Fortran
+programs and running the inference process over a corpus of 1.1
+million lines of Fortran code.  Our motivation for this work was to
+provide an intermediate specification language to allow scientists to
+verify numerical computations.  Our evaluation showed that relatively
+simple stencil comptuations are the norm, for which we can specify a
+large proportion, comprising mainly reflexive region constants which
+are less likely to give rise to programming errors.  However, around
+10\% of stencils covered more complicated program structures for which
+indexing errors are much more plausible. In the more detailed cases,
+with larger specifications, the importance and impact of such
+specifications grows.  We showed two examples of more complicated
+stencils, for which CamFort was able to detect a significant majority
+of possible indexing errors in our case studies.
 
 Our definition of a stencil computation meant that we generated no
-specification for a large number of iterated array accesses in the corpus. For
-future work we will be looking at expanding the definition to allow us
-to capture more of these examples.
+specification for a large number of iterated array accesses in the
+corpus, such as stencils that incorporates reductions. For
+future work, we will be looking into expanding the flexibility of 
+our inference approach to more of these examples. Furthermore, our specification
+language can be used more flexibly to give descriptions of data access
+patterns in any context, not just within a stencil.
 
 \bibliography{references}
 

@@ -2741,7 +2741,7 @@ number but at least got the ordering of the indices correct, although
 CamFort would also detect a mixup of variables in this case as well.
 
 We assigned the specification inferred above to the generated Jacobi
-stencils. CamFort checked all 6,561 programs against this spec and found that only 24 of them were
+stencils programs. CamFort checked all 6,561 programs against this specification and found that only 24 of them were
 valid implementations of the stencil specification. This was the
 expected result as there are $4!$ possible correct permutations
 of the four terms in the kernel. All of the other programs were found
@@ -2769,17 +2769,20 @@ the results of the CamFort test.
     iteration program. The correct output is shown in
     \subref{fig:jacobicorrect}.}
   \label{fig:jacobi}
+  \vspace{-0.7em}
 \end{figure}
 
 \subsection{Verification case study 2: Turbulence calculation}
 
-The Unified Model contains an implementation of the Smagorinsky subgrid-scale model for calculating turbulence. The source file in question yields 39 stencils from 340 lines of code. We selected one as an example:
+The Unified Model has an implementation of the Smagorinsky
+subgrid-scale model for calculating turbulence on which our
+inference yields 39 specs from 340 lines of code. One example is:
 
-\begin{minted}[breakindent=0em,linenos=false,xleftmargin=0em]{fortran}
+\begin{minted}[breakindent=0em,linenos=false,xleftmargin=0em,breakafter=)]{fortran}
 !=stencil readOnce,(forward(depth=1,dim=3,irreflexive))*(backward(depth=1,dim=1))*(backward(depth=1,dim=2))+(forward(depth=1,dim=3))*(backward(depth=1,dim=1))*(reflexive(dim=2))+(forward(depth=1,dim=3))*(backward(depth=1,dim=1,irreflexive))*(backward(depth=1,dim=2,irreflexive))+(forward(depth=1,dim=3))*(backward(depth=1,dim=2))*(reflexive(dim=1))+(backward(depth=1,dim=1))*(backward(depth=1,dim=2,irreflexive))*(reflexive(dim=3))+(backward(depth=1,dim=1,irreflexive))*(backward(depth=1,dim=2))*(reflexive(dim=3))::x
 \end{minted}
-
-This stencil specifies the access pattern to a 3-dimensional array (which we have renamed to be called \texttt{x}). The array is accessed 8 times in the computation. We tried introducing indexing errors by changing the offset in one dimension of one of the references to \texttt{x}. For example changing \mintinline{fortran}{x(i+1,j,k)} to \mintinline{fortran}{x(i,j,k)} or \mintinline{fortran}{x(i-1,j,k)}. There are 48 possible errors of this type of which we found only 6 were not detected by the stencil check.
+%
+This specifies the access pattern to a 3-dimensional array (which we have renamed to be called \texttt{x}). The array is accessed 8 times in the computation. We tried introducing indexing errors by changing the offset in one dimension of one of the references to \texttt{x}. For example changing \mintinline{fortran}{x(i+1,j,k)} to \mintinline{fortran}{x(i,j,k)} or \mintinline{fortran}{x(i-1,j,k)}. There are 48 possible errors of this type of which we found only 6 were not detected by the specification checking.
 % /um/trunk/src/atmosphere/diffusion_and_filtering/turb_smagorinsky.F90
 % Tried introducing indexing errors replacing one of the indices of cx_rho_instance with -1,0,+1
 % 42 cases were caught

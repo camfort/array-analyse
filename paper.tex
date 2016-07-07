@@ -2091,7 +2091,7 @@ inference procedure. For our example, we infer and then synthesise the
 5-point specification:
 %%
 \begin{minted}[linenos=false]{fortran}
-!= stencil centered(depth=1, dim=1)*reflexive(dim=2) + centered(depth=1, dim=2)*reflexive(dim=1) :: a
+!= stencil centered(depth=1, dim=1)*reflexive(dim=2) + centered(depth=1, dim=2)*reflexive(dim=1):: a
 \end{minted}
 %%
 
@@ -2207,7 +2207,8 @@ consistency is defined inductively similar to the \textsf{exact} case.
 \begin{example}
 We give an extended example of verifying a stencil computation against
 its specification. We consider a more general, but still consistent, version of the \textit{five-point}
-stencil specification inferred previously in Section~\ref{subsec:inference}:
+stencil specification inferred previously in
+Section~\ref{subsec:inference} (see top-left):
 %
 \begin{minted}[breakindent=8.1em]{fortran}
 != region fivepoint = centered(depth=1,dim=1) + centered(depth=1,dim=2)
@@ -2262,7 +2263,7 @@ M_c = \{
 \item This condition holds by the following sets of scheme
   generalisations: for the upper bound, $\forall u \in M_c,
   \exists v \in M_s . u \preceq_2 v$: 
-  \begin{align*}
+  \begin{align}
     \begin{array}{l}
      \vtwoh{0}{-1} \preceq_2 \vtwoh{0}{\infty} \quad
      \vtwoh{0}{0} \preceq_2 \vtwoh{0}{\infty} \quad
@@ -2270,11 +2271,13 @@ M_c = \{
      \vtwoh{-1}{0} \preceq_2 \vtwoh{\infty}{0} \quad
      \vtwoh{1}{0} \preceq_2 \vtwoh{\infty}{0}
      \end{array}
-  \end{align*}
+  \label{eq:check-example-upper}
+  \end{align}
   % 
   and for the lower bound: $\forall v \in M_s, \exists u \in M_c . u
   \preceq_n v$: 
-  \begin{align*}
+  \begin{align}
+    \hspace{-1em}
     \begin{array}{l}
      \vtwoh{-1}{0} \preceq_2 \vtwoh{-1}{\infty} \quad
      \vtwoh{0}{0} \preceq_2 \vtwoh{0}{\infty} \quad
@@ -2283,26 +2286,35 @@ M_c = \{
      \vtwoh{0}{0}  \preceq_2 \vtwoh{\infty}{0} \quad
      \vtwoh{0}{1}  \preceq_2 \vtwoh{\infty}{1}
      \end{array}
-  \end{align*}
-
+    \label{eq:check-example-lower}
+  \end{align}
   Since both the consistency predicate is satisfied, the array
   accesses flowing to line three in the stencil computation are valid
   with respect to the {\textcolor{darkgreen}{\texttt{fivepoint}}} specification.
 \end{enumerate}
-\noindent
-Now when $L3$ is modified with an additional term \texttt{b(i+2,j+2)},
-the new assignment $L3'$ becomes:
+\vspace{-0.7em}
+\end{example}
+\begin{example} 
+We consider now an erroneous user modification to $l3$ with an
+additional term \texttt{b(i+2,j+2)} such that $l3'$ is:
 %
 \begin{minted}[firstnumber=3]{fortran}
-a(i,j) = b(i, j-1) + b(i,j) + b(i,j+1) + b(i-1,j) + b(i+1,j) + b(i+2,j+2)
+a(i,j) = b(i,j-1) + b(i,j) + b(i,j+1) + b(i-1,j) + b(i+1,j) + b(i+2,j+2)
 \end{minted}
 %
-In the first six steps, evaluation proceeds the same way except for step three.
-In the third step, result of $\mathit{modelise}(L3',b)$ will have the extra term
-$\vtwoh{2}{2}$. In the seventh step, since the model has not changed and the
-indexing schemes are only augmented with a new element, the generalisations for
-lower bound still hold. However, there are no elements in the model, $m$, that
-can generalise $\vtwoh{2}{2}$, hence the model fails to hold as an upper bound.
+The checking procedure proceeds in the same way as the first three
+steps of the previous example, except that the result of
+$\mathit{modelise}(l3',\texttt{b})$ generates an additional scheme
+$\vtwoh{2}{2}$. Since the spec model has not changed and the code
+model is has only the additional scheme $\vtwoh{2}{2}$, the generalisations for
+the lower bound \eqref{eq:check-example-lower} 
+of step 4 above still holds since its consistency condition
+universally quanitifes over the \emph{spec model}. However, for
+the upper bound, the consistency condition universally quantifies
+over scheme $u$ of the \emph{code model} for which there exists
+a scheme $v \in M_s$ such that $u \preceq_2 v$. Thus, we require a $v
+\in M_s$ such that $\vtwoh{2}{2} \preceq_2 v$ but no such generalising
+scheme existing in the spec model. Hence the model fails to hold as an upper bound.
 
 Note that if the specification were as follows:
 %
@@ -2310,28 +2322,54 @@ Note that if the specification were as follows:
 != stencil atLeast, readOnce, fivepoint :: b
 \end{minted}
 %
-The consistency predicate would have held because for the upper bound
-$\mathit{cons}(\textsf{mult}(\textsf{up}(m)),\textsf{mult}(m'))$ would not have
-been needed. This semantically makes sense since the region $\texttt{fivepoint}$
-is indeed contained in the regions touched by $b$.
+then consistency holds as it no longer requires the failing upper-bound case 
+$\mathit{cons}(\textsf{mult}(\textsf{up}(M_s)),\textsf{mult}(M_c))$.
+ This makes sense semantically since the region ${\textcolor{darkgreen}{\texttt{fivepoint}}}$
+is indeed contained in the regions touched by $\texttt{b}$ in $l3'$. 
 \end{example}
 
-As noted above, the \textsf{fivepoint} region defined above is more accepting
-than that used in Section~\ref{sec:lang}. This introduces a new notion of
-approximation beyond that is achieved in Section~\ref{sec:semantics}
-using upper and lower bounds because the in both cases the specifications are
-used to generate \emph{exact} models. Formally, we say a specification $s'$
-approximates a more specific specification $s$ \emph{iff} $\forall m \in
-\textsf{Mult}(\domainVal) . \mathit{cons}(s,m) \implies \mathit{cons}(s',m)$.
+As noted, the {\textcolor{darkgreen}{\term{fivepoint}}} region
+ above is more accepting than that used in
+Section~\ref{sec:lang}. This introduces a new notion of approximation
+beyond what is given by the syntactic theory of sub-specifications
+$<:$ in Section~\ref{sec:eqs}. Consistency leads to a notion of
+approximation that is a \textit{semantic sub-specification} relation:
+%using upper and lower bounds because the in both cases the specifications are
+%used to generate \emph{exact} models.
 
-Equations provided on regions in Section~\ref{sec:lang} when all modifiers
-equal provide such approximations, but it goes further than that. The
-regions describing the fivepoint stencil for example cannot be shown equal
-using these equations, but satisfies the approximation predicate as defined
-above.
-
-The checking algorithm though happily accepts an approximation in place of the
-most specific specification. Although this decreases the likelihood of catching
+\begin{definition}[Approximation]
+A specification $S'$
+\emph{approximates} a more specific specification $S$, written 
+$S \sqsubseteq S'$, \emph{iff}:
+$$
+\forall M_c \in \textsf{Mult}(\domainVal{}^n) . \mathit{cons}_n(\interp{S}_n,M_c) \implies
+\mathit{cons}(\interp{S'}_n,M_c)
+$$
+\end{definition}
+%
+For the syntactic sub-specification equations on regions $<:^r$, it follows that
+these imply semantic approximation:
+%
+\begin{lemma}[Sub-specification $<:^r$ coincides with approx 
+$\sqsubseteq$]
+\begin{equation*}
+\forall S, S' . \; S <:^r S' \Rightarrow S \sqsubseteq S'
+\end{equation*}
+\end{lemma}
+%
+However, the converse direction does not hold. 
+The regions describing the more acceptiong five-point stencil
+above do not follow from the definition of $<:$ on the previous
+more specific specification.%, that is:
+%${\textcolor{darkgreen}{\term{centered(depth=1, dim=1)*reflexive(dim=2)
+%      + centered(depth=1, dim=2)*reflexive(dim=1)}}}
+%\not{<:} {\textcolor{darkgreen}{\term{centered(depth=1,dim=1) +
+%      centered(depth=1,dim=2)}}}$.
+ However, consitency (and thus $\sqsubseteq$) shows
+that we can check the five-point stencil code against the more general
+specifcation of {\textcolor{darkgreen}{\term{fivepoint}}}. Thus, we
+can always use an approximation in place of the
+more specific specification. Although this decreases the likelihood of catching
 stencil errors (as more access patterns conform), it reduces the space and
 effort it takes to write the specification.
 

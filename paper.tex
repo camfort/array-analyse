@@ -217,7 +217,7 @@ xrightmargin=0.2cm,commandchars=\\\{\},baselinestretch=0.98,numbersep=0.9em}
   simple specification. We describe a abstract spatial specification
   language for stencil computations that can be embedded as
   annotations in source code, along with inference, checking, and
-  specification and program synthesis procedures. We evaluate our
+  specification synthesis procedures. We evaluate our
   language against a corpus of numerical Fortran code, and show that
   the vast majority of stencil computations indeed have a simple,
   regular, static shape. Around 10\% of the stencils found evoke a
@@ -225,7 +225,7 @@ xrightmargin=0.2cm,commandchars=\\\{\},baselinestretch=0.98,numbersep=0.9em}
   investigate two stencils in detail and find that we are able to
   detect the vast majority of potential errors. This paper details our
   stencil specification language, its static semantics, inference,
-  checking, and program synthesis procedures, our implementation, and
+  checking, and synthesis procedures, our implementation, and
   our evaluation study.
 \end{abstract}
 
@@ -332,7 +332,7 @@ lines of code;
 
 \item we provide a more detailed verification case study of two
   particular stencil computation and show that we
-  are able to detect the vast majority  of (synthesised) possible
+  are able to detect the vast majority of (synthesised) possible
   indexing errors.
 \end{itemize}
 %
@@ -388,7 +388,7 @@ laplu = (u(i+1,j)-2.0*u(i,j)+u(i-1,j))/delx/delx+ &
 (c) Pictorial representation of the two stencil specifications.
 The horizontal dimension is \texttt{dim=1} and the vertical is \texttt{dim=2}.
 \caption{Fragment of a Navier-Stokes fluid simulator and its
-  specification in our language}
+  specification in our language.}
 \label{ref:navier-stokes-fragment}
 \vspace{-0.8em}
 \end{figure}
@@ -438,19 +438,19 @@ equality and sub-specification relation are proven sound.
 \label{sec:notation}
 
 \renewcommand*{\arraystretch}{0.8}
-\paragraph{Target language syntax} Throughout, for the source language
-syntax, $e$ ranges over its expressions (which may be impure).  By ``variable'', we mean
-in the imperative sense (\ie{}, named binders to memory cells) instead
-of mathematical variables.
+For the target language
+syntax, $e$ ranges over its expressions (may be impure) and $v$
+overs its (imperative) variables. %By
+%``variable'', we mean in the imperative sense (named binders to memory cells).
 
 \begin{definition}[Base induction variable]
   A variable \textit{v} of integer type is a \emph{base induction
     variable} if it is the control variable of a ``for''
   loop,\footnote{Or equivalent, \eg{}, \texttt{do} in Fortran, for our implementation.} incremented by $1$ per
-iteration. The variable is marked as a base induction variable
-only within the scope of the loop. Induction variables are ranged
-over by $i$, $j$, $k$ throughout. Since we do not use non-base
-(derived) induction variables we often simply say \emph{induction variable}.
+iteration. The variable is marked as an induction variable
+only within the body of the loop. Since we ignore non-base
+(derived) induction variables, we simply say \emph{induction
+  variable}. Induction variables are ranged over by $i$, $j$, $k$ throughout. 
 \end{definition}
 
 \begin{definition}[Array subscript and index]
@@ -1220,6 +1220,7 @@ the ``origin'' in dimension $r$.
 \end{definition}
 
 \begin{figure}[t]
+\vspace{-0.9em}
 \input{region-model.tex}
 %\textit{$a^m \in A$ means there are $n$ copies of $a$ in
 %  the multi-set $A$}
@@ -1434,8 +1435,10 @@ pairs of lower and upper bounds which is provided by \textsf{both}
 Section~\ref{sec:analysis}.% with additional information.
 \label{def:mult-and-approx}
 \end{definition}
+\vspace{-0.5em}
 
 \begin{figure}
+\vspace{-0.5em}
 \input{spatial-model.tex}
 \caption{\textit{spec} model,
 $\interp{-}_n : \textit{spec} \rightarrow \textsf{Mult}(\textsf{Approx}(\mathcal{P}(\domainVal{}^n)))$}
@@ -1444,7 +1447,7 @@ $\interp{-}_n : \textit{spec} \rightarrow \textsf{Mult}(\textsf{Approx}(\mathcal
 \end{figure}
 
 \subsection{Soundness}
-
+%
 Given the above model, we can
 consider soundness for the equational theory of
 specifications and the notion of spatial approximation. The proofs are given in our supplement.
@@ -2357,6 +2360,7 @@ $\sqsubseteq$]
 \end{equation*}
 \end{lemma}
 %
+\noindent
 However, the converse direction does not hold. 
 The regions describing the more acceptiong five-point stencil
 above do not follow from the definition of $<:$ on the previous
@@ -2373,11 +2377,10 @@ more specific specification. Although this decreases the likelihood of catching
 stencil errors (as more access patterns conform), it reduces the space and
 effort it takes to write the specification.
 
-\subsection{Synthesis\label{subsec:synthesis}}
-
 \section{Evaluation}
 \label{sec:evaluation}
-We evaluated the stencil language on a corpus of scientific code. We first give an overview of the corpus itself before presenting our results.
+We evaluated our specificataion language on a corpus of scientific
+code.  We overview the corpus itself before presenting our results.
 
 \subsection{Software Corpus}
 \begin{table}
@@ -2400,7 +2403,9 @@ CP        & \computationalphysicstwoFiles  & \computationalphysicstwoparseOk & \
 \textbf{Total} & \overallFiles  & \overallparseOk & \overallLoC & \overalllinesParsed \\
 \hline
 \end{tabular}
-\caption{Summary of software packages used for evaluation\label{tab:corpus}}
+\caption{Summary of software packages used for
+  evaluation\label{tab:corpus}}
+\vspace{-1em}
 \end{table}
 
 Table~\ref{tab:corpus} shows summary statistics of the software
@@ -2409,33 +2414,37 @@ packages used in our evaluation, all of which are written in Fortran
 from 7 packages, of which we successfully parsed
 \SI{\overalllinesParsed} lines. The ``Number of files'' column shows
 how many files in each corpus that we were able to analyse with
-Camfort. The most common reasons for Camfort rejecting a file were
+CamFort. The most common reasons for CamFort rejecting a file were
 either use of a C-preprocessor, or illegal use of language features
-from a more modern Fortran variant.
+from a modern Fortran variant.
 
 \textbf{The Unified
   Model}~\cite{um}
 is a weather forecasting and climate modelling tool developed by the
 Met Office in the United Kingdom. It is used by research organisations
 and meteorological services around the world. We use the development
-branch (trunk) of the model. The code based in closed source but
+branch (trunk) of the model. The code base in closed source but
 institutional licenses are available for research purposes. The Met Office runs a comprehensive code quality system incorporating dedicated committers (we counted 11) for particular parts of the model. We counted 120 additional contributors whose submissions are reviewed and tested before being accepted into the code base.
 
 % e3mg-ea
-\textbf{E3MG} (An Energy-Environment-Economy (E3) Model at the Global Level) is a macroeconomic model used for assessment of environmental policy~\cite{RePEc:aen:journl:2006se-a12}. This model was developed by Cambridge Econometrics, an independent consultancy company.
+\textbf{E3MG} (An Energy-Environment-Economy (E3) Model at the Global Level) is a macroeconomic model used for assessment of environmental policy~\cite{RePEc:aen:journl:2006se-a12}. This was developed by Cambridge Econometrics, an independent consultancy company.
 
-\textbf{BLAS}~\cite{blas} (Basic Linear Algebra Subprograms) provides efficient and portable routines for vector and matrix operations. These routines feature in many other libraries (including LAPACK). We used version 3.6.0.
+\textbf{BLAS}~\cite{blas} (Basic Linear Algebra Subprograms) is a popular
+library providing efficient and portable routines for vector and
+matrix operations. These routines feature in many other libraries
+(including LAPACK). We used version 3.6.0. We chose to include this
+package for breadth, as it provides general numerical functions rather
+than a specialised scientific model. 
 
 \textbf{Hybrid4} is a vegetation and biomass model for simulating carbon, water and nitrogen flows~\cite{GBC:GBC635}.
 
-\textbf{GEOS-Chem}~\cite{geos-chem} is a three-dimensional model of tropospheric chemistry developed at Harvard and used by approximately 70 universities and research institutions world-wide. We examined version 10-01.
+\textbf{GEOS-Chem}~\cite{geos-chem} is a three-dimensional model of tropospheric chemistry developed at Harvard and used by $\sim$70 universities and research institutions world-wide. We examined version 10-01.
 
-\textbf{Navier} is a small project, giving a discrete
+\textbf{Navier} is a small numerical simulation, giving a discrete
 approximation to the two-dimensional Navier-Stokes fluid equations,
 based on the book of~\citet{griebel1997numerical}.
 
 \textbf{CP} consists of the example code from the second edition of the book ``Computational Physics''~\cite{nicholas2006computational} introducing numerical techniques and their application to modern physics problems such as fields, waves, statistical mechanics and quantum mechanics.
-
 
 % atLeast: number of stencils with an atLeast modifier
 % atMost: number of stencils with an atMost modifier
@@ -2467,11 +2476,12 @@ based on the book of~\citet{griebel1997numerical}.
 \subsection{Occurrences of stencils}
 
 We first examined how frequently stencil computations occur in our
-corpus. We define a \emph{potential} statement as one whose left-hand
+corpus. This was carried out by running our implementation in 
+whole-code-base inference mode. We define a \emph{potential} statement as one whose left-hand
 side is an array subscript on neighbourhood indices. These statements
-are the inputs to Step 2 of the Inference process described
+are the inputs to Step 2 of the Inference process described in 
 Section~\ref{subsec:inference}. Each potential statement for which we
-eventually generate some stencil specifications is also counted as
+eventually generate some specification is also counted as
 an \emph{actual} statement.
 
 \begin{table}
@@ -2519,24 +2529,34 @@ CP            & \computationalphysicstwotickAssign & \SI{\computationalphysicstw
 \hline
 \end{tabular}
 \caption{Stencil assignment rates\label{tab:tickAssign}}
+\vspace{-0.8em}
 \end{table}
 
-The first two columns of Table~\ref{tab:tickAssign} shows the number
+The first two columns of Table~\ref{tab:tickAssign} show the number
 of potential and actual stencils and their rate as a percentage of the
-total number of successfully parsed lines of code. There are a variety
-of reasons why we might not infer an actual stencil from a potential
-one: 1) \textbf{Non-subset induction variables} occurs when the
-induction variables on the RHS are not a subset of the LHS. These
+total number of successfully parsed lines of code. The ratio of
+actual to potential stencils overall is thus $32\%$, \ie{}, we give
+a specification to roughly a third of the potential stencil specifications.
+
+There are a variety of reasons why we might not infer a actual specification from a potential
+stencil computation: \\
+\noindent 
+1) \textbf{Non-subset induction variables} occur when the
+induction variables on the RHS are not a subset of those in the LHS. These
 cases are not stencils by our definition. The degenereate case of this
 is to have only constant indices on the LHS. We see lots of examples
-of this in loops as accumulators e.g. computing the sum over some
-other array; 2) \textbf{Derived induction variables} where the
+of this in loops as accumulators \eg{} computing the sum over an array; \\
+\noindent
+ 2) \textbf{Derived induction variables} where the
 indexing variable (\mintinline{fortran}{x}) is derived from an
-induction variable (\mintinline{fortran}{i}) as in \mintinline{fortran}{x
-  = len - i}; 3) \textbf{Inconsistent induction dimensions} occur when
+induction variable (\mintinline{fortran}{i}) as in
+\mintinline{fortran}{x = len - i};  \\
+\noindent
+3) \textbf{Inconsistent induction dimensions} occur when
 an induction variable is used to specify more than one array dimension
-on the RHS. These are common in matrix operations such as
-LU-decomposition which contains assignments such as
+on the RHS or multiple induction variables are used for the same
+dimension on the RHS. These are common in matrix operations such as
+LU-decomposition with assignments such as
 \mintinline{fortran}{a(l) = a(l) - a(m) * b(l, m)}.
 
  %% This example is from geos-chem/GeosRad/rrtmg_sw_spcvmc.F90:609
@@ -2613,7 +2633,14 @@ LU-decomposition which contains assignments such as
 %% We just don't deal with this - Lower upper decomposition solver
 
 
-If the statement meets the stencil critera but the inference process cannot determine an exact stencil for a statement it will instead produce an upper (\term{atMost}) and lower (\term{atLeast}) bound. The number of exact and inexact stencils are shown in columns three and four of Figure \ref{tab:tickAssign}. We can see that our stencil language is capable of precisely specifying the overwhelming majority of stencils. Most of the inexact stencils apply to some form of data copying. For example (taken from E3MG):
+If the statement meets the stencil critera but the inference process
+cannot determine an exact stencil for a statement it will instead
+produce an upper (\term{atMost}) and lower (\term{atLeast}) bound. The
+number of exact and inexact stencils are shown in columns three and
+four of Table~\ref{tab:tickAssign}. Note that the total for ``Exact``
+is higher than ``Actual`` because for some lines we produce multiple
+specifications (perhaps for different array variables).
+We see that our specification language is capable of precisely specifying the overwhelming majority of stencils. Most of the inexact stencils apply to some form of data copying. For example (taken from E3MG):
 \begin{minted}{fortran}
 !- stencil atLeast, readOnce, irreflexive(dims=2), (reflexive(dim=1)) :: sfda
 !- stencil atMost, readOnce, (forward(depth=8, dim=2))*(reflexive(dim=1)) :: sfdt
@@ -2623,7 +2650,7 @@ ZZ1(I,J) = SFDT(I,J+8)
 \subsection{Stencil categories}
 
 
-We grouped stencils together into four classes based on similar levels of complexity. These four classes account for 99.4\% of all the stencils we found in the corpus.
+We grouped our inferred specifications together into four classes based on similar levels of complexity. These four classes account for 99.4\% of all the stencils we found in the corpus.
 
 \textbf{All-reflexive} The vast majority (66\%) of stencils were
 reflexive in every dimension of the array. These most often correspond
@@ -2690,13 +2717,13 @@ can be expressed in a line of Fortran code,
 \begin{minted}{fortran}
   a(i,j) = (a(i-1,j)+a(i+1,j)+a(i,j+1)+a(i,j-1))/4
 \end{minted}
-and Camfort is able to infer a precise stencil specification for this
+and CamFort is able to infer a precise stencil specification for this
 line,
 \begin{minted}{fortran}
   != stencil reflexive(dim=1)*centered(depth=1, dim=2, irreflexive) + reflexive(dim=2)*centered(depth=1, dim=1, irreflexive) :: a
 \end{minted}
-which when inserted back into the program can be checked by Camfort as
-well. We then tested the error-detecting ability of Camfort by
+which when inserted back into the program can be checked by CamFort as
+well. We then tested the error-detecting ability of CamFort by
 generating a family of 6,561 Jacobi iteration programs by perturbing
 the indices used in the following manner: each access of the array was
 templated as \mintinline{fortran}{a(i+ki,j+kj)} and then all possible
@@ -2706,9 +2733,9 @@ were drawn from the set $\{-1,0,1\}$. There are four uses of
 $3^8=6561$ possible perturbations of this kind. This particular setup
 tests the class of errors in which the programmer typed an incorrect
 number but at least got the ordering of the indices correct, although
-Camfort would also detect a mixup of variables in this case as well.
+CamFort would also detect a mixup of variables in this case as well.
 
-Camfort checked all 6,561 programs and found that only 24 of them were
+CamFort checked all 6,561 programs and found that only 24 of them were
 valid implementations of the stencil specification. This was the
 expected result because there are $4!$ possible correct permutations
 of the four terms in the kernel. All of the other programs were found
@@ -2720,7 +2747,7 @@ correct variants emitted images indistinguishable from
 Figure~\ref{fig:jacobicorrect}, while all of the incorrect variants
 had wildly different image outputs. Both the ``visual test'' and a
 byte-by-byte comparison showed results that completely concurred with
-the results of the Camfort test.
+the results of the CamFort test.
 
 \begin{figure}[t]
   \centering
@@ -2754,6 +2781,10 @@ This stencil specifies the access pattern to a 3-dimensional array (which we hav
 
 \section{Discussion}
 \label{sec:discussion}
+
+\paragraph{Program synthesis}
+
+
 
 \anote{Any discussion left to do? - something on checking perhaps? access stencils?}
 
@@ -2874,7 +2905,7 @@ be used for writing stencil computations. Much of the specification
 effort goes towards describing the nuts and bolts of distributing the
 computation over multiple processors. The code for the stencil kernel
 is generated from a relatively high-level specification. This approach
-differs from Camfort because we are interested in integrating directly
+differs from CamFort because we are interested in integrating directly
 into existing, legacy codebases and long-established languages such as
 older versions of Fortran. We infer stencil specifications from
 Fortran code and check annotations on stencil computations within
@@ -2888,7 +2919,7 @@ defined a denotational semantic model for our language and proved its
 soundness. This gave a basis for an equational theory of
 specifications and also justifies our inference and checking
 procedure. We evaluated our approach by implementing the stencil inference and
-checking procedure in Camfort, an open-source analysis tool\footnote{\url{https://github.com/camfort/camfort}} for
+checking procedure in CamFort, an open-source analysis tool\footnote{\url{https://github.com/camfort/camfort}} for
 Fortran programs and running the inference process over a corpus of
 1.1 million lines of Fortran code.
 
@@ -2914,5 +2945,5 @@ to capture more of these examples.
 %%  LocalWords:  refactoring affine parameterised irreflexive atMost
 %%  LocalWords:  centered readOnce atLeast discretisation Equational
 %%  LocalWords:  equational disjunction denotational dimensionality
-%%  LocalWords:  interprocedural Fortran Camfort preprocessor
+%%  LocalWords:  interprocedural Fortran CamFort preprocessor
 %%  LocalWords:  committers

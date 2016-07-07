@@ -2424,7 +2424,7 @@ is a weather forecasting and climate modelling tool developed by the
 Met Office in the United Kingdom. It is used by research organisations
 and meteorological services around the world. We use the development
 branch (trunk) of the model. The code base in closed source but
-institutional licenses are available for research purposes. The Met Office runs a comprehensive code quality system incorporating dedicated committers (we counted 11) for particular parts of the model. We counted 120 additional contributors whose submissions are reviewed and tested before being accepted into the code base.
+institutional licenses are available for research purposes. %The Met Office runs a comprehensive code quality system incorporating dedicated committers (we counted 11) for particular parts of the model. We counted 120 additional contributors whose submissions are reviewed and tested before being accepted into the code base.
 
 % e3mg-ea
 \textbf{E3MG} (An Energy-Environment-Economy (E3) Model at the Global Level) is a macroeconomic model used for assessment of environmental policy~\cite{RePEc:aen:journl:2006se-a12}. This was developed by Cambridge Econometrics, an independent consultancy company.
@@ -2438,7 +2438,9 @@ than a specialised scientific model.
 
 \textbf{Hybrid4} is a vegetation and biomass model for simulating carbon, water and nitrogen flows~\cite{GBC:GBC635}.
 
-\textbf{GEOS-Chem}~\cite{geos-chem} is a three-dimensional model of tropospheric chemistry developed at Harvard and used by $\sim$70 universities and research institutions world-wide. We examined version 10-01.
+\textbf{GEOS-Chem}~\cite{geos-chem} is a three-dimensional model of
+tropospheric chemistry developed at Harvard and used by $\sim$70
+universities and research institutions world-wide. We use v.10-01.
 
 \textbf{Navier} is a small numerical simulation, giving a discrete
 approximation to the two-dimensional Navier-Stokes fluid equations,
@@ -2640,7 +2642,7 @@ number of exact and inexact stencils are shown in columns three and
 four of Table~\ref{tab:tickAssign}. Note that the total for ``Exact``
 is higher than ``Actual`` because for some lines we produce multiple
 specifications (perhaps for different array variables).
-We see that our specification language is capable of precisely specifying the overwhelming majority of stencils. Most of the inexact stencils apply to some form of data copying. For example (taken from E3MG):
+We see that our specification language is capable of precisely specifying the overwhelming majority of stencils. Most of the inexact stencils apply to some form of data copying. For example (taken from \textbf{E3MG}):
 \begin{minted}{fortran}
 !- stencil atLeast, readOnce, irreflexive(dims=2), (reflexive(dim=1)) :: sfda
 !- stencil atMost, readOnce, (forward(depth=8, dim=2))*(reflexive(dim=1)) :: sfdt
@@ -2649,46 +2651,48 @@ ZZ1(I,J) = SFDT(I,J+8)
 
 \subsection{Stencil categories}
 
-
 We grouped our inferred specifications together into four classes based on similar levels of complexity. These four classes account for 99.4\% of all the stencils we found in the corpus.
 
-\textbf{All-reflexive} The vast majority (66\%) of stencils were
-reflexive in every dimension of the array. These most often correspond
-to applying point-wise transformations to data such as scaling
-e.g. \begin{minted}{fortran}
+\textbf{All-reflexive} The vast majority (66\%) of specification are
+reflexive in every dimension. These most often correspond
+to point-wise transformations on data such as scaling, \eg{} from \textbf{E3MG}: \begin{minted}{fortran}
 ZZ1(I,K) = .000041868*ZZ1(I,K)
 \end{minted}
-Arrays with this class of stencil must be indexed by all the induction
+Arrays with this class of stencil are indexed by all the induction
 variables used in the LHS without any offsets.
 
-\textbf{Some-reflexive} stencils (24\%) consist of only reflexive terms but
-leave some dimensions unspecified. Here are two examples:
+\textbf{Some-reflexive} specifications (24\%) consist of only reflexive terms but
+leave some dimensions unspecified. These two examples are from
+\textbf{GEOS-Chem} and \textbf{E3MG}: 
 \begin{minted}{fortran}
 leafpools(:,age_class)=leafpool(:,1)
 RVM(J,I2) = VRFO(ivar,J)
 \end{minted}
 where for the first example \mintinline{fortran}{leafpools} contains an
-implicit loop, and for the second example \mintinline{fortran}{J} is
+implicit loop due to the range term \texttt{:}, and for the second \mintinline{fortran}{J} is
 the induction variable. This stencil permits array indexing by a subset of the LHS induction variables but again without
 any offsets.
 
-\textbf{Single-action} stencils (6\%) consist of a single \term{backward},
-\term{forward}, or \term{centered} region constant and some number of \term{reflexive}
-region constants.
+\textbf{Single-action} specifications (6\%) consist of a single \term{backward},
+\term{forward}, or \term{centered} region and some number of \term{reflexive}
+region constants. For example, taken from \textbf{GEOS-Chem}: 
 % /home/mrd45/src/corpus/geos-chem/GTMM/CasaRegridModule.F90:645
-\begin{minted}{fortran}
+\begin{minted}[breakafter=*]{fortran}
 do j=2,jm-ig
    do i=1,im
-      != stencil readOnce, (backward(depth=1, dim=2))*(reflexive(dim=1)) :: dm, q
+      != stencil readOnce, (backward(depth=1, dim=2)) *(reflexive(dim=1)) :: dm, q
       al(i,j) = 0.5e+0_fp*(q(i,j-1)+q(i,j)) + r3*(dm(i,j-1) - dm(i,j))
-   enddo
-enddo
 \end{minted}
-This stencil requires a neighbourhood index including zero-offset in one dimension only. The remaining dimensions must either have no offset or not pertain to an induction variable.
+% TODO: A BIT UNCLEAR
+%This stencil requires a neighbourhood index including zero-offset in one dimension only. The remaining dimensions must either have no offset or not pertain to an induction variable.
+These kinds of specification require zero offsets in one dimension and 
+and neighbourhood offsets (from 0 to $-1$ above) in the other.
+The remaining dimensions must either have no offset or not pertain to
+an induction variable.
 
-\textbf{Single-action-irreflexive} stencils (3\%) ) consist of a single
-\term{backward}, \term{forward}, or \term{centered} irreflexive region constant
-and some number of reflexive region constants.
+\textbf{Single-action-irreflexive} specifications (3\%) consist of a single
+\term{backward}, \term{forward}, or \term{centered} irreflexive region 
+and some number of reflexive region constants, \eg{}, from \textbf{GEOS-Chem}:
 % /home/mrd45/src/corpus/geos-chem/GeosRad/rrtmg_lw_rtrnmc.F90:355
 \begin{minted}{fortran}
 do lev = nlayers, 1, -1
@@ -2697,33 +2701,34 @@ do lev = nlayers, 1, -1
        efclfrac(lev,igc) * (1. - atrans(lev))) + &
        gassrc + cldfmc(igc,lev) * &
        (bbdtot * atot(lev) - gassrc)
-    != stencil readOnce, (forward(depth=1, dim=2, irreflexive)) :: cldfmc
+    != stencil readOnce, forward(depth=1, dim=2, irreflexive) :: cldfmc
     drad(lev-1) = drad(lev-1) + radld
 \end{minted}
-Notice that, in this last example, the read from
-\mintinline{fortran}{cldfmc} flows through onto the line with the
-stencil. Stencils of this type required a neightbourhood index without a zero-offset in one dimension only. The remaining dimensions must either have no offset or not pertain to an induction variable.
+Note that the read from 
+\mintinline{fortran}{cldfmc} on line 5 flows to line 8. Stencils of
+the above kind require a neightbourhood index without a zero-offset in
+one dimension only. The remaining dimensions must either have no
+offset or not pertain to an induction variable.
 
-The remaining stencil shapes (less than 1\%) consisted primarily of multiple \term{forward}, \term{backward}, or \term{centered} dimensions. We note that only 0.2\% of stencils found required use of the union (\term{+}) operator. Despite this low frequency these stencils are arguably the most important since they represent more complicated code and thus greater potential for programming errors.
+The remaining specification shapes (less than 1\%) consisted
+primarily of multiple \term{forward}, \term{backward}, or
+\term{centered} dimensions. We note that only $\sim$0.4\% of inferred
+stencil specifications required use of the \term{+} operator. Despite their low frequency these stencils are arguably the most important since they represent more complicated code and thus greater potential for programming errors.
 
-\subsection{Detecting programming errors}
+\subsection{Verification case study 1: 2-D Jacobi iteration}
 
-\subsubsection{Example: 2-D Jacobi iteration}
-
-One relatively basic example of a stencil program is two dimensional
+One relatively basic example of a stencil computation is two-dimensional
 Jacobi iteration that repeatedly goes through each cell in a matrix
 and computes the average value of the four adjacent cells. The kernel
-can be expressed in a line of Fortran code,
+can be expressed in a line of Fortran code:
 \begin{minted}{fortran}
   a(i,j) = (a(i-1,j)+a(i+1,j)+a(i,j+1)+a(i,j-1))/4
 \end{minted}
-and CamFort is able to infer a precise stencil specification for this
-line,
-\begin{minted}{fortran}
-  != stencil reflexive(dim=1)*centered(depth=1, dim=2, irreflexive) + reflexive(dim=2)*centered(depth=1, dim=1, irreflexive) :: a
+and CamFort is able to infer a precise specification for this:
+\begin{minted}[breakafter=+:,breakindent=-0.6em,breaksymbolsep=0.4em,linenos=false,xleftmargin=-0.5em]{fortran}
+  != stencil reflexive(dim=1)*centered(depth=1,dim=2,irreflexive)+ reflexive(dim=2)*centered(depth=1,dim=1,irreflexive) :: a
 \end{minted}
-which when inserted back into the program can be checked by CamFort as
-well. We then tested the error-detecting ability of CamFort by
+We then tested the error-detecting ability of our approach by 
 generating a family of 6,561 Jacobi iteration programs by perturbing
 the indices used in the following manner: each access of the array was
 templated as \mintinline{fortran}{a(i+ki,j+kj)} and then all possible
@@ -2735,9 +2740,10 @@ tests the class of errors in which the programmer typed an incorrect
 number but at least got the ordering of the indices correct, although
 CamFort would also detect a mixup of variables in this case as well.
 
-CamFort checked all 6,561 programs and found that only 24 of them were
+We assigned the specification inferred above to the generated Jacobi
+stencils. CamFort checked all 6,561 programs against this spec and found that only 24 of them were
 valid implementations of the stencil specification. This was the
-expected result because there are $4!$ possible correct permutations
+expected result as there are $4!$ possible correct permutations
 of the four terms in the kernel. All of the other programs were found
 to violate the specification in some way. Another way to test the
 programs is through visual examination of their output in graphical
@@ -2765,7 +2771,7 @@ the results of the CamFort test.
   \label{fig:jacobi}
 \end{figure}
 
-\subsubsection{Turbulence calculation}
+\subsection{Verification case study 2: Turbulence calculation}
 
 The Unified Model contains an implementation of the Smagorinsky subgrid-scale model for calculating turbulence. The source file in question yields 39 stencils from 340 lines of code. We selected one as an example:
 

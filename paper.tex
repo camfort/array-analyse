@@ -760,53 +760,53 @@ and checked against the code.
 \begin{align*}
 \setlength{\arraycolsep}{0.05em}
 \begin{array}{c}
-%\framebox{$\textit{region} \equiv \textit{region}'$} \\[0.7em]
+%\framebox{$\textit{region} \equiv \textit{region}'$} \\[0.6em]
 \begin{array}{rll}
 (\textsc{F\, \texttt{+} \,F}) \;\; &
 \stenFwdSR{n \, \textsf{max} \, m}{d}{r \vee s} \\
- \equiv \; & \stenFwdSR{n}{d}{r} \; \texttt{+} \; \stenFwdSR{m}{d}{s} \\[0.7em]
+ \equiv \; & \stenFwdSR{n}{d}{r} \; \texttt{+} \; \stenFwdSR{m}{d}{s} \\[0.6em]
 %
 %
 (\textsc{B\, \texttt{+} \,B}) \;\; &
 \stenBwdSR{n \, \textsf{max} \, m}{d}{r \vee s} \\
- \equiv \; & \stenBwdSR{n}{d}{r} \; \texttt{+} \; \stenBwdSR{m}{d}{s} \\[0.7em]
+ \equiv \; & \stenBwdSR{n}{d}{r} \; \texttt{+} \; \stenBwdSR{m}{d}{s} \\[0.6em]
 %
 %
 (\textsc{C\, \texttt{+} \,C}) \;\; &
 \stenCenSR{n \, \textsf{max} \, m}{d}{r \vee s} \\
-\equiv \; & \stenCenSR{n}{d}{r} \; \texttt{+} \; \stenCenSR{m}{d}{s} \\[0.7em]
+\equiv \; & \stenCenSR{n}{d}{r} \; \texttt{+} \; \stenCenSR{m}{d}{s} \\[0.6em]
 %
 %
 (\textsc{C\, \texttt{+} \,F}) \;\; & \stenCenSR{n}{d}{r \vee s} \\
 \textit{$m \leq n$} \; \equiv \; & \stenCenSR{n}{d}{r} \; \texttt{+} \;
-                      \stenFwdSR{m}{d}{s} \\[0.7em]
+                      \stenFwdSR{m}{d}{s} \\[0.6em]
 %
 %
 (\textsc{C\, \texttt{+} \,B}) \;\; &
 \stenCenSR{n}{d}{r \vee s} \\
 \textit{$m \leq n$} \; \equiv \; & \stenCenSR{n}{d}{r} \; \texttt{+} \;
-                      \stenBwdSR{m}{d}{s} \\[0.7em]
+                      \stenBwdSR{m}{d}{s} \\[0.6em]
 %
 %
 (\textsc{B\, \texttt{+} \,F}) \;\; &
 \stenCenSR{n}{d}{r \vee s} \\
 \equiv \; & \stenFwdSR{n}{d}{r} \; \texttt{+} \; \stenBwdSR{n}{d}{s}
-  \\[0.7em]
+  \\[0.6em]
 %
 %
 (\textsc{R\, \texttt{+} \,F}) \;\; &
 \stenFwdS{n}{d} \\
-\equiv \; & \stenReflSR{d} \; \texttt{+} \; \stenFwdSR{n}{d}{r} \\[0.7em]
+\equiv \; & \stenReflSR{d} \; \texttt{+} \; \stenFwdSR{n}{d}{r} \\[0.6em]
 %
 %
 (\textsc{R\, \texttt{+} \,B}) \;\; &
 \stenBwdS{n}{d} \\
-\equiv \; & \stenReflSR{d} \; \texttt{+} \; \stenBwdSR{n}{d}{r} \\[0.7em]
+\equiv \; & \stenReflSR{d} \; \texttt{+} \; \stenBwdSR{n}{d}{r} \\[0.6em]
 %
 %
 (\textsc{R\, \texttt{+} \,C}) \;\; &
 \stenCenS{n}{d} \\
-\equiv \; & \stenReflSR{d} \; \texttt{+} \; \stenCenSR{n}{d}{r} \\[0.7em]
+\equiv \; & \stenReflSR{d} \; \texttt{+} \; \stenCenSR{n}{d}{r} \\[0.6em]
 %
 %
 (\textsc{irrefl}) \;\; & (R \, \term{*} \, S^\irreflS) \, \term{+} \,
@@ -852,7 +852,7 @@ and checked against the code.
 %\end{array}
 \end{array}
 \end{align*}
-\caption{Equations on specifications (regions)}
+\caption{Equations on specifications (\emph{regions})}
 \vspace{-1em}
 \label{fig:equations}
 \end{figure}
@@ -1948,14 +1948,16 @@ of $\tyProd{\specDNF}$ (for example, $\tyProd{s} = r^1_{1} \; \term{*}
 \newcommand{\exact}[1]{\exactR(#1)}
 \newcommand{\upperB}[1]{\mathsf{upper}\;(#1)}
 
-\begin{definition} The $\mathsf{toSpec}$ constructor is defined:
+\begin{definition} The $\mathsf{toSpec}$ constructor is defined
+in Figure~\ref{fig:to-spec}
 
+\begin{figure}[t]
 %\newcommand{\llower}{\vect{x}^L_i}
 %\newcommand{\lupper}{\vect{x}^U_i}
+\vspace{-0.7em}
 \newcommand{\llower}{l}
 \newcommand{\lupper}{u}
 {\scalebox{0.97}{
-\hspace{-1.8em}
 \begin{minipage}{1\linewidth}
 \begin{align*}
 &\mathsf{toSpec} \; \llower \; \lupper = \\
@@ -1979,7 +1981,11 @@ of $\tyProd{\specDNF}$ (for example, $\tyProd{s} = r^1_{1} \; \term{*}
   \end{cases}
 \end{align*}
 \end{minipage}
-}}\\
+}}
+\caption{\textsf{toSpec} constructor of $\mathsf{A}(\specDNF)$ values.}
+\label{fig:tospec}
+\vspace{-0.9em}
+\end{figure}
 
 \noindent
 The first two cases map to \texttt{forward} stencils since the lower
@@ -2077,8 +2083,8 @@ $\hat{\oplus}$ to \textsf{Approx} with the shape as $\odot$ in the previous
 definition.
 \end{definition}
 
-\begin{lemma}[$\hat{\odot}$, $\hat{\oplus}$ soundness] $\forall S,
-  T \in \specDNF$ where $S \neq \epsilon \wedge T \neq \epsilon$:
+\begin{lemma}[$\hat{\odot}$, $\hat{\oplus}$ soundness]$\forall S,
+  T \in \specDNF$ where $S\!\neq \epsilon \wedge T\!\neq \epsilon$:
 \begin{align*}
 \interp{S \; \hat{\odot} \; T}_n = \interp{S}_n \otimes \interp{T}_n
   \qquad
@@ -2108,8 +2114,8 @@ schemes from the source code. The source code is then valid with
 respect to the specification if $N$ is \emph{consistent} with $M$. The
 notion of consistency is built out of index scheme 
 \emph{generalisation} (Sect.~\ref{subsec:schemes-and-gen}). 
-Consistency is defined in Figure~\ref{fig:consistency},
-but we first set up some intermediate definitions before unpacking its definition.
+%Consistency is defined in Figure~\ref{fig:consistency},
+We first set up some intermediate definitions.% before unpacking its definition.
 
 \begin{definition}[Checking]
 Let \texttt{a} be an array variable and let
@@ -2405,7 +2411,7 @@ CP        & \computationalphysicstwoFiles  & \computationalphysicstwoparseOk & \
 \end{tabular}
 \caption{Summary of software packages used for
   evaluation\label{tab:corpus}}
-\vspace{-1em}
+\vspace{-0.7em}
 \end{table}
 
 Table~\ref{tab:corpus} shows summary statistics of the software
@@ -2530,7 +2536,7 @@ CP            & \computationalphysicstwotickAssign & \SI{\computationalphysicstw
                 \overallboundedBoth    \\
 \hline
 \end{tabular}
-\caption{Stencil assignment rates\label{tab:tickAssign}}
+\caption{Stencil specification assignment rates\label{tab:tickAssign}}
 \vspace{-0.8em}
 \end{table}
 
@@ -2726,8 +2732,9 @@ can be expressed in a line of Fortran code:
 \end{minted}
 and CamFort is able to infer a precise specification for this:
 \begin{minted}[breakafter=+:,breakindent=-0.6em,breaksymbolsep=0.4em,linenos=false,xleftmargin=-0.5em]{fortran}
-  != stencil reflexive(dim=1)*centered(depth=1,dim=2,irreflexive)+ reflexive(dim=2)*centered(depth=1,dim=1,irreflexive) :: a
+  != stencil reflexive(dim=1)*centered(depth=1,dim=2,irreflexive)+reflexive(dim=2)*centered(depth=1,dim=1,irreflexive)
 \end{minted}
+assigned to \term{a}. 
 We then tested the error-detecting ability of our approach by 
 generating a family of 6,561 Jacobi iteration programs by perturbing
 the indices used in the following manner: each access of the array was
@@ -2808,12 +2815,11 @@ computation in their specifications.
 \emph{verified lifting} for mapping low-level, possibly
 greatly optimised, stencil computations into a high-level
 predicate language using inductive program synthesis.
-The aim is that these high-level abstract specifications can
-then be translated into high-performance DSLs, easing the
-use of high-performance DSLs. Compared to our approach,
+The aim is that the high-level abstract specifications can
+be automatically translated into high-performance DSLs. Compared to our approach,
 their specification language is more fine grained, capturing
 the exact indexing pattern of a stencil. For example, the following
-is an example post-condition in their language, generated by their
+is a post-condition generated by their
 compiler \textsc{stng} from a Fortran stencil computation~\cite [p.3]{kamil2016verified}:
 %
 \begin{align*}
@@ -2827,7 +2833,7 @@ compiler \textsc{stng} from a Fortran stencil computation~\cite [p.3]{kamil2016v
 Notably, the bounds of the stencil and the exact indexing pattern
 are captured. Our approach aims to be much more abstract, to
 facilitate human reasoning, and avoid low-level lexical
-errors. However, \textsf{stng} specifications are generated, \ie{},
+errors. However, \textsc{stng} specifications are generated, \ie{},
 are never written by a programmer, avoiding this
 problem. Their inductive program synthesis approach allows
 specifications to extracted even from optimised and unrolled code. For
@@ -2847,15 +2853,11 @@ end do
 Thus, \textsc{stng} can understand cross-loop data-dependencies
 in order to assign the above post-condition. CamFort is not currently
 able to ascribe a specification in the above case as the use of
-\texttt{t} on line 5 maps only to the definition on line 2, and no on
-line 6. Extending our approach to follow loop-carried dependencies is
+\texttt{t} on line 5 maps only to the definition on line 2, and not to
+that on line 6. Extending our approach to follow loop-carried dependencies is
 future work. An alternate approach for us would be to build on top of
 the work of Kamil~\emph{et al.} by inferring our specifications from
 \textsc{stng} (as an intermediate step).
-
-There are many DSLs for stencil computation aimed at either
-performance or verification, or both. Many eliminate out-of-bounds
-errors, \eg{},~\citet{DBLP:journals/corr/abs-1109-0777}.
 
 % GPGPU
 This work shares some similarities with efforts to verify kernels
@@ -2919,6 +2921,10 @@ into existing, legacy codebases and long-established languages such as
 older versions of Fortran. We infer stencil specifications from
 Fortran code and check annotations on stencil computations within
 Fortran code.
+
+There are many DSLs for stencil computation aimed at either
+performance or verification, or both. Many eliminate out-of-bounds
+errors, \eg{},~\citet{DBLP:journals/corr/abs-1109-0777}.
 
 \section{Conclusion and future work}
 

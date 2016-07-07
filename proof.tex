@@ -260,20 +260,95 @@ D) \times B) = A \times B$ then:
                       &= (t \bowtie s)_l
     \end{align*}
 
-  \item[\textsc{Case *ASSOC}:] We have $\interp{r_1 \; \texttt{$\ast$} \;
+  \item[\textsc{Case *ASSOC}:]
+    \begin{lemma}\label{lem:bowinf}
+      Pairwise mutation, $u \bowtie v$, would produce $\infty$ column $j$ vector
+      if both $u$ and $v$ are $\infty$ in vector.
+    \end{lemma}
+
+    \begin{proof}
+      Let $b$ be the matrix where each column represents the binary string from
+      $1$ to $2^n$. Now if the entire column is $\infty$, then independent of
+      the row number $i$, row $j$ must evaluate to $\infty$.
+      \begin{align*}
+        (u \bowtie v)_{i,j} =& u_{j} \times b_{i,j} + v_{j} \times \neg b_{i,j}
+                             & \mbox{by definition of $\bowtie$} \\
+                            =& \infty \times b_{i,j} + \infty \times \neg b_{i,j}
+                             & \mbox{Here, the value of $b_{i,j}$ no longer matters} \\
+                            =& \infty
+      \end{align*}
+    \end{proof}
+
+    \begin{lemma}
+      Effective dimensions of tensor product of two models is the union of the
+      effective dimensions of models in question separately.
+      \begin{align*}
+        \effdims{U \otimes V}{n} = \effdims{U}{n} \cup \effdims{V}{n} \\
+      \end{align*}
+    \end{lemma}
+
+    \begin{proof}\label{lem:tensordims}
+      \begin{align}
+        \effdims{U \otimes V}{n} = &
+          \bigcup_{x \in U \otimes V} \{ i \;|\; x_i \neq \infty \} \\
+        = & \effdims{U}{n} \cup \effdims{V}{n} \\
+          & \parbox{7cm}{By definition of $\otimes$, effective dimensions of $U$
+                         and $V$ are non-$\infty$ and by Lemma~\ref{lem:bowinf} all
+                         other dimensions are.} \\
+      \end{align}
+    \end{proof}
+    
+    We have $\interp{r_1 \; \texttt{$\ast$} \;
     (r_2 \; \texttt{$\ast$} \; r_3)}_n = \interp{r_1}_n \otimes (\interp{r_2}_n
     \otimes \interp{r_3}_n)$ by definition. So we need to show $\otimes$ is
     associative. Now let $\interp{r_1}_n$, $\interp{r_2}_n$, and
-    $\interp{r_3}_n$ be $R$, $S$, and $T$ respectively. From the definition of
-    $\otimes$ we have, $\{ (r \bowtie st)_j \mid j \in \{ 1, \ldots, 2^n\},
-    (r, st) \in R \times (S \otimes T) \}$ and that is the same as
-    $\{ (r \bowtie (s \bowtie t)_i)_j \mid i,j \in \{ 1, \ldots, 2^n \}, (r,s,t)
-    \in R \times S \times T \}$. If $\ast$ is associative, then an equivalent
-    definition is $\{ ((r \bowtie s)_k \bowtie t)_l \mid k,l \in \{ 1, \ldots,
-    2^n \}, (r,s,t) \in R \times S \times T \}$. For these two sets to be
-    equivalent, it is enough to show that for any $r$, $s$, and $t$, for each
-    $(i,j)$ pair there is a $(k,l)$ pair. When definition of $\bowtie$ is
-    expanded, we then get the following equality:
+    $\interp{r_3}_n$ be $R$, $S$, and $T$ respectively.
+
+    Expanding the definition of $\otimes$,
+%
+    \begin{align*}
+        & \interp{r_1}_n \otimes (\interp{r_2}_n \otimes \interp{r_3}_n) \\
+      = & \bigg\{ x \; \bigg| \; 
+            \parbox{10cm}{
+              $(r,st) \in R \times (S \otimes T),
+               h \in \effdims{R}{n} \cup \effdims{S \otimes T}{n},$ \\
+              $j \in \{ 1, \ldots, 2^n \},
+                 x = (r \bowtie st)_j, x_h \neq \infty$
+            } \bigg\} \\
+      = & \bigg\{ x \; \bigg| \; 
+            \parbox{10cm}{
+              $(r,st) \in R \times (S \otimes T),
+               h \in \effdims{R}{n} \cup \effdims{S}{n} \cup \effdims{T}{n},$ \\
+              $j \in \{ 1, \ldots, 2^n \},
+                 x = (r \bowtie st)_j, x_h \neq \infty$
+            } \bigg\} \\
+        & \mbox{using Lemma~\ref{lem:tensordims} and expanding} \\
+      = & \bigg\{ x \; \bigg| \; 
+            \parbox{10cm}{
+              $(r,s,t) \in R \times (S \times T),
+               h \in \effdims{R}{n} \cup \effdims{S}{n} \cup \effdims{T}{n},$ \\
+              $i,j \in \{ 1, \ldots, 2^n \},
+                y = (s \bowtie t)_i, x = (r \bowtie y)_j,
+                x_h \neq \infty, y_h \neq \infty$
+            } \bigg\} \\
+        & \mbox{expanding definition of $\otimes$} \\
+    \end{align*}
+%
+    If $\ast$ is associative, then an equivalent definition is:
+    \begin{equation*}
+          \bigg\{ x \; \bigg| \; 
+            \parbox{10cm}{
+              $(r,s,t) \in R \times (S \times T),
+               h \in \effdims{R}{n} \cup \effdims{S}{n} \cup \effdims{T}{n},$ \\
+              $k,l \in \{ 1, \ldots, 2^n \},
+                y = (r \bowtie s)_k, x = (y \bowtie t)_l,
+                x_h \neq \infty, y_h \neq \infty$
+            } \bigg\}
+    \end{equation*}
+%
+    For these two sets to be equivalent, it is enough to show that for any $r$,
+    $s$, and $t$, for each $(i,j)$ pair there is a $(k,l)$ pair. When definition
+    of $\bowtie$ is expanded, we then get the following equality:
 
     $$r \odot b_j + s \odot b_i \odot \neg b_j + t \odot \neg b_i \odot \neg b_j
     = r \odot b_k \odot b_l + s \odot \neg b_k \odot b_l + t \odot \neg b_l$$
@@ -315,8 +390,8 @@ D) \times B) = A \times B$ then:
     \begin{proof}
       \begin{align*}
         \effdims{U \cup V}{n} &= \bigcup_{x \in U \cup V} \{ i \; | \; i \in \{1, \ldots, n\} \wedge x_i \neq \infty \} \\
-        &= \bigcup_{x \in U} \{ i \; | \; i \in \{1, \ldots, n\} \wedge x_i \neq \infty \} \cup
-           \bigcup_{x \in V} \{ i \; | \; i \in \{1, \ldots, n\} \wedge x_i \neq \infty \} \\
+        &= \bigcup_{x \in U} \{ i \; | \; i \in \{1, \ldots, n\}, x_i \neq \infty \} \cup
+           \bigcup_{x \in V} \{ i \; | \; i \in \{1, \ldots, n\}m x_i \neq \infty \} \\
         &= \effdims{U}{n} \cup \effdims{V}{n} \\
       \end{align*}
     \end{proof}
@@ -327,33 +402,38 @@ D) \times B) = A \times B$ then:
       \equiv & \interp{r_1}_n \otimes (\interp{r_2}_n \cup \interp{r_3}_n) \\
       \equiv &
   \bigg\{x \; \bigg| \;
-    \parbox{11cm}{$(u, v) \in \interp{r_1}_n \times (\interp{r_2}_n \cup \interp{r_3}_n)
-                  \; \wedge \; j \in (\effdims{\interp{r_1}_n}{n} \cup
-                   \effdims{\interp{r_2}_n \cup \interp{r_3}_n}{n})$\\[0.1em]
-                  $\;\; \wedge \;\; i \in \{1, \ldots, 2^n\} \; \wedge
-                  \; x = (u \bowtie v)_i \; \wedge \; x_j \neq \infty$
+    \parbox{11cm}{$(u, v) \in \interp{r_1}_n \times (\interp{r_2}_n \cup \interp{r_3}_n),
+                   j \in \effdims{\interp{r_1}_n}{n} \cup
+                         \effdims{\interp{r_2}_n \cup 
+                         \interp{r_3}_n}{n},$ \\[0.1em]
+                  $i \in \{1, \ldots, 2^n\}, 
+                   x = (u \bowtie v)_i, x_j \neq \infty$
                   } \bigg\} \\
-      \equiv & 
+      \equiv &
   \Bigg\{x \; \Bigg| \;
-    \parbox{11cm}{$((u, v) \in \interp{r_1}_n \times \interp{r_2}_n \vee (u, v) \in \interp{r_1}_n \times \interp{r_3}_n)) \\
-                  \; \wedge \; (j \in (\effdims{\interp{r_1}_n}{n} \cup
-                  \effdims{\interp{r_2}_n}{n} \vee j \in \effdims{\interp{r_1}_n}{n} \cup \effdims{\interp{r_3}_n}{n}))$\\[0.1em]
-                  $\; \wedge \; i \in \{1, \ldots, 2^n\} \; \wedge
-                  \; x = (u \bowtie v)_i \; \wedge \; x_j \neq \infty$
+    \parbox{11cm}{$(u, v) \in \interp{r_1}_n \times \interp{r_2}_n \vee (u, v) \in \interp{r_1}_n \times \interp{r_3}_n), \\
+                   j \in \effdims{\interp{r_1}_n}{n} \cup
+                          \effdims{\interp{r_2}_n}{n} \vee
+                    j \in \effdims{\interp{r_1}_n}{n} \cup
+                          \effdims{\interp{r_3}_n}{n},$ \\ [0.1em]
+                  $i \in \{1, \ldots, 2^n\},
+                   x = (u \bowtie v)_i, x_j \neq \infty$
                   } \Bigg\} \\
              & \mbox{using Lemma~\ref{lem:effdims} and distributivity of cartesian product over union.} \\
       \equiv &
   \bigg\{x \; \bigg| \;
-    \parbox{8cm}{$(u, v) \in \interp{r_1}_n \times \interp{r_2}_n
-                  \; \wedge \; j \in \effdims{\interp{r_1}_n}{n} \cup \effdims{\interp{r_2}_n}{n}$ \\
-                  $\; \wedge \; i \in \{1, \ldots, 2^n\} \; \wedge
-                  \; x = (u \bowtie v)_i \; \wedge \; x_j \neq \infty$
+    \parbox{9cm}{$(u, v) \in \interp{r_1}_n \times \interp{r_2}_n,
+                  j \in \effdims{\interp{r_1}_n}{n} \cup
+                        \effdims{\interp{r_2}_n}{n},$ \\
+                 $i \in \{1, \ldots, 2^n\}, 
+                  x = (u \bowtie v)_i, x_j \neq \infty$
                   } \bigg\} \cup \\
   & \bigg\{x \; \bigg| \;
-    \parbox{8cm}{$(u, v) \in \interp{r_1}_n \times \interp{r_3}_n
-                  \; \wedge \; j \in \effdims{\interp{r_1}_n}{n} \cup \effdims{\interp{r_3}_n}{n}$ \\
-                  $\; \wedge \; i \in \{1, \ldots, 2^n\} \; \wedge
-                  \; x = (u \bowtie v)_i \; \wedge \; x_j \neq \infty$
+    \parbox{9cm}{$(u, v) \in \interp{r_1}_n \times \interp{r_3}_n,
+                  j \in \effdims{\interp{r_1}_n}{n} \cup 
+                        \effdims{\interp{r_3}_n}{n},$ \\
+                 $i \in \{1, \ldots, 2^n\},
+                  x = (u \bowtie v)_i, x_j \neq \infty$
                   } \bigg\} \\
       \equiv & (\interp{r_1}_n \otimes \interp{r_2}_n)
         \cup (\interp{r_1}_n \otimes \interp{r_3}_n) \\

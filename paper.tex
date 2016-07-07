@@ -625,7 +625,7 @@ stencil which is the sum of two compound \texttt{reflexive} and
 %%
 \begin{minted}{fortran}
 != stencil centered(depth=1, dim=1)*reflexive(dim=2) + centered(depth=1, dim=2)*reflexive(dim=1) :: a
-b(i,j) = -4*a(i,j) + a(i-1,j) + a(i+1,j)
+b(i,j) = -4*a(i,j) + a(i-1,j) + a(i+1,j) &
                    + a(i,j-1) + a(i,j+1)
 \end{minted}
 %%

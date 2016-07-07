@@ -629,7 +629,7 @@ b(i,j) = -4*a(i,j) + a(i-1,j) + a(i+1,j)
                    + a(i,j-1) + a(i,j+1)
 \end{minted}
 %%
-Here the left hand side of \texttt{+} says that when the second dimension
+Here the left-hand side of \texttt{+} says that when the second dimension
 (induction variable $j$) is fixed at the origin, the first dimension
 (induction variable $i$) accesses the immediate vicinity of the origin
 (to depth of one). The right hand side of \texttt{+} is similar but the dimensions are reversed.
@@ -1052,6 +1052,7 @@ to guide correct implementations. The model domain is over sets of vectors which
   schemes}, which we introduce first before the model in Section~\ref{subsec:model}.
 
 \subsection{Indexing schemes and generalisation}
+\label{subsec:schemes-and-gen}
 
 \begin{definition}
 An \emph{index scheme} is a vector of size $n$ (an $n$-vector)
@@ -1550,13 +1551,13 @@ subscript on neighbourhood indices, a finite map is computed which
 maps array variables to a set of vectors representing array
 subscripts.  This finite map contains all array subscript expressions
 which flow to this statement. More formally, a function
-$\textsf{analyse}$ is applied to each statement in a program with the
+$\textit{analyse}$ is applied to each statement in a program with the
 following clause:
 %
 \begin{align*}
 \hspace{-0.5em}
 \begin{array}{lr}
-\textsf{analyse}(v(\overline{e_1}) = e_2)
+\textit{analyse}(v(\overline{e_1}) = e_2)
  := \qquad\qquad & \textit{where} \; \neigh(\overline{e_1}) \wedge \arrayTy(v)  \\[0.3em]
 \multicolumn{2}{l}{\qquad \bigcup\{v' \mapsto \{
 \textsf{schematic}(\bar{e})\} \mid v'(\bar{e}) \leftarrow \mathsf{flowsTo}(e_2),
@@ -1575,7 +1576,7 @@ p.~\pageref{def:schematic}).
 $\bar{e}$ contains relative indices which are not neighbourhood
 indices (\ie{}, these are not stencil computations we can handle). 
 
-For our example, the \textsf{analyse} function matches on
+For our example, the \textit{analyse} function matches on
 line 5, with the following set for $\textsf{flowsTo}(\texttt{a(i, j) + x +
   y})$:
 %
@@ -1583,7 +1584,7 @@ line 5, with the following set for $\textsf{flowsTo}(\texttt{a(i, j) + x +
 \{\texttt{a(i-1, j)}, \texttt{a(i+1, j)}, \texttt{a(i, j-1)},
   \texttt{a(i, j+1)}, \texttt{a(i, j)}\}
 \end{align*}
-Subsequently the result of \textsf{analyse} on line 5 yields the map:
+Subsequently the result of \textit{analyse} on line 5 yields the map:
 \begin{align*}
 \texttt{a} \mapsto \{\vtwoh{-1}{0}, \vtwoh{1}{0},
           \vtwoh{0}{-1}, \vtwoh{0}{1}, \vtwoh{0}{0}\}
@@ -1598,7 +1599,7 @@ produces an analysis which is equivalent to the analysis of \texttt{a(i) = b(i-1
 \subsubsection{Step 3: Coalesce contiguous schemes into spans}
 \label{sec:inf-step3}
 
-Let $U$ range over the finite maps computed by \textsf{analyse}.  For
+Let $U$ range over the finite maps computed by \textit{analyse}.  For
 each $x \in \mathsf{dom}(U)$, the algorithm 
 constructs next a set of $n$-dimensional rectangles covering all contiguous groups of schemes
 in $U(x)$. 
@@ -2067,145 +2068,228 @@ S \,\hat{\oplus}\, \epsilon = S \quad
 S \, \hat{\oplus} \, T = S \, \term{+} \, T
 \end{equation*}
 %%
-Thus, if neither specification is empty, their $\oplus$ is just
+Thus, if neither specification is empty, their $\hat{\oplus}$ is just
 the syntatic sum $\term{+}$. Then $\oplus$ is the lifting of
-$\hat{\oplus}$ to boudns with the shape as $\odot$ in the previous
+$\hat{\oplus}$ to \textsf{Approx} with the shape as $\odot$ in the previous
 definition.
 \end{definition}
 
 \begin{lemma}[$\hat{\odot}$, $\hat{\oplus}$ soundness] $\forall S,
   T \in \specDNF$ where $S \neq \epsilon \wedge T \neq \epsilon$:
 \begin{align*}
-\interp{S \; \hat{\odot} \; T}_n & = \interp{S}_n \otimes \interp{T}_n
-  \\
-\interp{S \; \hat{\oplus} \; T}_n & = \interp{S}_n \cup \interp{T}_n
+\interp{S \; \hat{\odot} \; T}_n = \interp{S}_n \otimes \interp{T}_n
+  \qquad
+\interp{S \; \hat{\oplus} \; T}_n = \interp{S}_n \cup \interp{T}_n
 \end{align*}
 \label{lem:alg-soundness}
+\vspace{-2em}
 \end{lemma}
 %
+\noindent
+Thus our model validates the specification synthesis process which concludes the
+inference procedure. For our example, we infer and then synthesise the
+5-point specification:
+%%
+\begin{minted}[linenos=false]{fortran}
+!= stencil centered(depth=1, dim=1)*reflexive(dim=2) + centered(depth=1, dim=2)*reflexive(dim=1) :: a
+\end{minted}
+%%
 
-\subsection{Checking\label{subsec:checking}}
+\subsection{Specification checking\label{subsec:checking}}
 
-In checking mode, the specification is verified with respect to the indexing
-scheme of the actual access pattern. The mathematical model of the specification
-developed in Section~\ref{sec:semantics} is used this process.
+In checking mode, the access pattern of a stencil computation in the
+source language is verified against a specification. The model of
+Section~\ref{sec:semantics} again aids this process.  Checking
+proceeds by generating a model $M$ from a specification and generating a set $N$ of indexing
+schemes from the source code. The source code is then valid with
+respect to the specification if $N$ is \emph{consistent} with $M$. The
+notion of consistency is built out of index scheme 
+\emph{generalisation} (Sect.~\ref{subsec:schemes-and-gen}). 
+Consistency is defined in Figure~\ref{fig:consistency},
+but we first set up some intermediate definitions before unpacking its definition.
 
-Checking procedure synthesises syntactic specification into its model and
-generates an injection from indexing schemes to the multiplicity of observed
-access patterns, this is formally defined in Figure~\ref{fig:consistency}.
-Then, the consistency of the injection from the indexing schemes with the model
-is checked.
+\begin{definition}[Checking]
+Let \texttt{a} be an array variable and let
+$S \in \textit{spec}$ be a specification with
+the \textit{specDec} \texttt{!= stencil
+  $S$ :: a} in our syntax.
+For a array subscript
+assignment statement $\textit{assg} = v(\overline{e_1}) = e_2$ in our source language
+(with all the appropriate data flow information in place)
+where $e_2$ has at most $n$-dimensional array access, 
+then the assignment conforms to the specification $S$ if 
+the predicate $\mathit{check}_n(S, \textit{assg}, \texttt{a})$ holds, 
+defined:
+\begin{align*}
+& \mathit{check_n}(S, \textit{assg}, x) =
+  \mathit{cons_n}(\interp{S}_n, \, \textit{modelise}(\textit{assg},
+  x)) \\
+& \mathit{modelise} : \textit{statement} \times \textit{variable}
+  \rightarrow \textsf{Mult}((\domainVal)^n) \\ 
+& \mathit{modelise} (\textit{assg}, x) =
+  \begin{cases}
+    \textsf{once}(\mathit{analyse}(\textit{assg})(x)) & \textit{unique}(\textit{assg},x) \\
+    \textsf{mult}(\mathit{analyse}(\textit{assg})(x)) & otherwise
+  \end{cases}
+\end{align*}
+Thus, checking proceeds by reusing the \textit{analyse} function of
+inference (Section~\ref{subsec:inference}) to extract indexing
+schemes for stencil computations flowing to an assignment. 
+This is then augmented with multiplicity information
+by $\mathit{modelise}$ where $\mathit{unique}(\textit{assg},x)$ is a
+ predicate indicating whether indices to array $x$ in an
+assignment $\textit{assg}$ are unique or not. 
+\end{definition}
 
-It the multiplicity of the access pattern and the model is matched and are
-$\mathit{once}$, then the problem is reduced to checking consistency in
-models in which duplicate access patterns are allowed.
+Subsequently the binary predicate for consistency, at the heart of checking
+is defined over the sets: 
+%
+\begin{equation*}
+\textit{cons}_n \subseteq \textsf{Mult}(\textsf{Approx}(\domainVal{}^n))
+\times \textsf{Mult}(\domainVal{}^N)
+\end{equation*}
+%
+where first component is a model of a specification,
+and the second component is a set of indexing schemes generated from
+the array subscripts in a program, with added multiplicity
+information. Giving \textsf{Approx} information to the
+index schemes inferred from the program is not necessary, nor
+desirable-- we have an exact set of schemes. We refer to the first
+component of the predicate as \emph{spec model} and the second as \emph{code model}. 
 
-Next, a consistency predicate considers whether the stencil is an approximation.
-Semantically, a lower bound is achieved if every indexing scheme in the
-model generalises some relativised access pattern that means all cells
-described in the specification are part of the access pattern. Conversely,
-an upper bound means all observed access patterns can be generalised with
-the indexing schemes of the model. Hence, the actual cells are a subset of the
-specified ones. In combination an exact specification, \ie{} one without any
-approximation modifiers, is one that is both a lower and an upper bound.
+\begin{definition}
+Consistency is defined in Figure~\ref{fig:consistency}. We let
+$M_s, M_c$ range over elements of $\domainVal{}^n$ where $M_s$ comes
+from the spec model and $M_c$ comes from \textit{modelise} on the
+source code. Let $N_c$ range over elements of
+$\textsf{Mult}(\domainVal{}^n)$ coming from the code model, and $A_s$
+over elements of $\textsf{Mult}(\textsf{Approx}(\domainVal{}^n))$ from the spec model.
+
+The first equation states that, if the multiplicity of the spec and code
+model are both $\mathsf{once}$, then the problem is reduced to checking consistency of
+models in which non-unique indexing is allowed, labelled with
+$\mathsf{mult}$. 
+
+The second equation considers the case where the specification is
+an \term{atMost} upper-bound approximation (labelled with \textsf{up}
+as shorthand for \textsf{upper} here). 
+An upper bound specification means that for every scheme in the code
+model, modelling a source-level index, $\forall u \in M_c$ there exists
+a generalising scheme in the spec model $\exists v \in M$, \ie{}, $u
+\preceq_n v$. That is, every source-level index is generalised by the model.
+
+The third equation is the converse of an \term{atLeast},
+lower approximation (labelled \textsf{low} as shorthand for
+\textsf{lower}). Consistency is dual to the above: 
+for every scheme in the spec model $\forall v \in M_s$ there
+exists a scheme in the code model $\exists u \in M_c$ such that $u
+\preceq_n v$. That is, every model scheme is generalised by source indexing.
+
+These two are combined for consistency on an \textsf{exact}
+specification (the fourth equation) such that the spec model
+provides both a consistent lower and consistent upper bound on
+the source code. Thus, for every scheme in the code model there
+is a scheme in the spec model that generalises it, and for every
+scheme in the spec model there is a scheme in the source model that
+specialises it.  
+
+Lastly, if the spec model has both an upper and lower bound
+consistency is defined inductively similar to the \textsf{exact} case.
+\end{definition}
 
 \begin{figure}
 \input{consistency.tex}
-\caption{Consistency function of a model against stencil computation}
+\caption{Consistency between a model and indexing schemes from a stencil computation}
 \label{fig:consistency}
+\vspace{-0.9em}
 \end{figure}
 
-We will consider an extended example of a stencil computation that is
-consistent with its annotation to show how checking works. The following is an
-example with a looser but still consistent version of the \textit{fivepoint}
-stencil specification inferred previously in the
-Subsection~\ref{subsec:inference}:
+\begin{example}
+We give an extended example of verifying a stencil computation against
+its specification. We consider a more general, but still consistent, version of the \textit{five-point}
+stencil specification inferred previously in Section~\ref{subsec:inference}:
 %
 \begin{minted}[breakindent=8.1em]{fortran}
 != region fivepoint = centered(depth=1,dim=1) + centered(depth=1,dim=2)
 != stencil readOnce, fivepoint :: b
-a(i,j) = b(i, j-1) + b(i,j) + b(i,j+1) + b(i-1,j) + b(i+1,j)
+a(i,j) = b(i,j-1) + b(i,j) + b(i,j+1) + b(i-1,j) + b(i+1,j)
 \end{minted}
 %
-\begin{enumerate}
-\item From now on assignment on line three is referred as $L3$ for brevity.
-  Verification is done by computing the following:
-  $$check(\texttt{stencil readOnce, fivepoint},L3,b)$$
+We refer to the assignment on line three as $l3$ for brevity.
+
+Verification of the code against the spec is then given by 
+$check(({\textcolor{darkgreen}{\texttt{readOnce, fivepoint}}}),l3,\texttt{b})$. 
+We explain the steps.
+\begin{enumerate}  
 %
-\item Generate model from the specification as described in
-  Section~\ref{sec:semantics}. We refer to the indexing
-  schemes within the model as set $m$.
+\item Generate the model from the specification as in
+  Section~\ref{sec:semantics}. 
 %
-\[ m= \{  \vtwo{-1}{\infty},
+\begin{align*}
+ M_s= \{  \vtwo{-1}{\infty},
           \vtwo{0}{\infty},
           \vtwo{1}{\infty},
           \vtwo{\infty}{-1},
           \vtwo{\infty}{0},
-        \vtwo{\infty}{1} \} \]
-\begin{dmath*}
-\interp{\texttt{stencil readOnce, fivepoint}}_2 =
-  \{\textsf{once}(\textsf{exact}(m)) \}
-\end{dmath*}
+        \vtwo{\infty}{1} \}  \\[0.4em]
+\interp{{\textcolor{darkgreen}{\texttt{readOnce, fivepoint}}}}_2 =
+  \textsf{once}(\textsf{exact} (M_s))
+\end{align*}
 %
-\item To evaluate the two predicates above, we need indexing schemes for the
-  array in question. This is obtained by $modelise$ function. For brevity the
-  set of indexing schemes is referred as $m'$.
-
-  For the example above the observed model is as follows:
+\item Obtained the code model via $\textit{modelise}$, giving:
 %
-\[
-m' = \{
+\begin{align*}
+M_c = \{
     \vtwo{0}{-1},
     \vtwo{0}{0},
     \vtwo{0}{1},
     \vtwo{-1}{0},
     \vtwo{1}{0}
   \}
-\]
-\[modelise(L3,b) = \textsf{once}(m')\]
+\\[0.4em]
+\textit{modelise}(l3, \texttt{b}) = \textsf{once} (M_c)
+\end{align*}
 %
-\item Now $cons$ predicate is applied with this model along side with the
-  assignment on line three and array $b$.
-
-  The predicate is reduced to
-  $cons(\textsf{once}(\textsf{exact}(m)),\textsf{mult}(m'))$.
-%
-\item $cons$ predicate from the previous step evaluates to
-  $$cons(\textsf{mult}(\textsf{exact}(m)),\textsf{once}(m')).$$
-%
-\item We further evaluate the predicate to
-  \begin{dmath*}
-    cons(\textsf{mult}(\textsf{up}(m)),\textsf{mult}(m')) \wedge
-    cons(\textsf{mult}(\textsf{low}(m),\textsf{mult}(m')).
-  \end{dmath*}
-%
-\item Below we present two sets of generalisations to show both the lower and
-  the upper bound holds.
-
-  The generalisations for the upper bound:
+\item Consistency $cons_2(\textsf{once}(\textsf{exact}(M_s)),
+  \textsf{once}(M_c))$ holds when 
+  $\textit{cons}_2(\textsf{mult}(\textsf{exact}(M_s)),\textsf{mult}(M_c))$ (Fig.~\ref{fig:consistency}) 
+  which holds when: 
   \begin{align*}
-     \vtwoh{0}{-1} & \preceq_2 \vtwoh{0}{\infty} \\
-     \vtwoh{0}{0} & \preceq_2 \vtwoh{0}{\infty} \\
-     \vtwoh{0}{1} & \preceq_2 \vtwoh{0}{\infty} \\
-     \vtwoh{-1}{0} & \preceq_2 \vtwoh{\infty}{0} \\
-     \vtwoh{1}{0} & \preceq_2 \vtwoh{\infty}{0}
+     & \textit{cons}_2(\textsf{mult}(\textsf{up}(M_s)),\textsf{mult}(M_c)) \\
+   \wedge \; & \textit{cons}_2(\textsf{mult}(\textsf{low}(M_s),\textsf{mult}(M_c))
+  \end{align*}
+%
+\item This condition holds by the following sets of scheme
+  generalisations: for the upper bound, $\forall u \in M_c,
+  \exists v \in M_s . u \preceq_2 v$: 
+  \begin{align*}
+    \begin{array}{l}
+     \vtwoh{0}{-1} \preceq_2 \vtwoh{0}{\infty} \quad
+     \vtwoh{0}{0} \preceq_2 \vtwoh{0}{\infty} \quad
+     \vtwoh{0}{1} \preceq_2 \vtwoh{0}{\infty} \\[0.5em]
+     \vtwoh{-1}{0} \preceq_2 \vtwoh{\infty}{0} \quad
+     \vtwoh{1}{0} \preceq_2 \vtwoh{\infty}{0}
+     \end{array}
+  \end{align*}
+  % 
+  and for the lower bound: $\forall v \in M_s, \exists u \in M_c . u
+  \preceq_n v$: 
+  \begin{align*}
+    \begin{array}{l}
+     \vtwoh{-1}{0} \preceq_2 \vtwoh{-1}{\infty} \quad
+     \vtwoh{0}{0} \preceq_2 \vtwoh{0}{\infty} \quad
+     \vtwoh{1}{0} \preceq_2 \vtwoh{1}{\infty}  \\
+     \vtwoh{0}{-1}  \preceq_2 \vtwoh{\infty}{-1} \quad
+     \vtwoh{0}{0}  \preceq_2 \vtwoh{\infty}{0} \quad
+     \vtwoh{0}{1}  \preceq_2 \vtwoh{\infty}{1}
+     \end{array}
   \end{align*}
 
-  The generalisations for the lower bound:
-  \begin{align*}
-     \vtwoh{-1}{0} & \preceq_2 \vtwoh{-1}{\infty} \\
-     \vtwoh{0}{0} & \preceq_2 \vtwoh{0}{\infty} \\
-     \vtwoh{1}{0} & \preceq_2 \vtwoh{1}{\infty}  \\
-     \vtwoh{0}{-1} & \preceq_2 \vtwoh{\infty}{-1} \\
-     \vtwoh{0}{0} & \preceq_2 \vtwoh{\infty}{0} \\
-     \vtwoh{0}{1} & \preceq_2 \vtwoh{\infty}{1}
-  \end{align*}
-
-  Since both predicates are satisfied the array accesses specified on line
-  three, the stencil computation is consistent with the \texttt{fivepoint}
-  specification.
+  Since both the consistency predicate is satisfied, the array
+  accesses flowing to line three in the stencil computation are valid
+  with respect to the {\textcolor{darkgreen}{\texttt{fivepoint}}} specification.
 \end{enumerate}
-
+\noindent
 Now when $L3$ is modified with an additional term \texttt{b(i+2,j+2)},
 the new assignment $L3'$ becomes:
 %
@@ -2230,8 +2314,7 @@ The consistency predicate would have held because for the upper bound
 $\mathit{cons}(\textsf{mult}(\textsf{up}(m)),\textsf{mult}(m'))$ would not have
 been needed. This semantically makes sense since the region $\texttt{fivepoint}$
 is indeed contained in the regions touched by $b$.
-
-\subsubsection{A note on stencil approximations}
+\end{example}
 
 As noted above, the \textsf{fivepoint} region defined above is more accepting
 than that used in Section~\ref{sec:lang}. This introduces a new notion of

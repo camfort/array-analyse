@@ -59,7 +59,7 @@
 \definecolor{darkgreen}{rgb}{0.0,0.4,0.0}
 \definecolor{darkdarkgreen}{rgb}{0.0,0.35,0.0}
 
-\usepackage[]{hyperref}
+\usepackage[draft]{hyperref}
 \hypersetup{
     unicode=false,          % non-Latin characters in Acrobat's bookmarks
     pdftoolbar=true,        % show Acrobat toolbar?
@@ -206,27 +206,28 @@ xrightmargin=0.2cm,commandchars=\\\{\},baselinestretch=0.98,numbersep=0.9em}
   Verifying the correctness of numerical computations relies on first
   giving a specification of their behaviour. In many cases, a
   numerical computation is derived from an underlying mathematical
-  model, but this is often difficult to use as a specification as it
-  is highly decoupled from the implementation. We have been studying
-  specification techniques in the middle ground between low-level and
-  high-level specifications for numerical code. In this paper, we
-  focus on \emph{stencil computations}---a common idiom in numerical
+  model, but this is often infeasible as a specification since it
+  is highly decoupled from the implementation. In this paper, we consider a 
+  lightweight specification technique between low-level and
+  high-level specifications for numerical code. We
+  target \emph{stencil computations}---a common idiom in numerical
   code, but one which is error-prone due to fine-grained indexing
-  errors. We hypothesise that in practice, stencil computations tend
+  errors. We show that in practice, stencil computations tend
   to have a regular shape which is amenable to static analysis and
-  simple specification. We describe a abstract spatial specification
+  simple specification. We describe an abstract spatial specification
   language for stencil computations that can be embedded as
   annotations in source code, along with inference, checking, and
-  specification synthesis procedures. We evaluate our
+  specification synthesis. We evaluate our
   language against a corpus of numerical Fortran code, and show that
   the vast majority of stencil computations indeed have a simple,
   regular, static shape. Around 10\% of the stencils found evoke a
-  programming pattern for which indexing errors are plausible. We
-  investigate two stencils in detail and find that we are able to
-  detect the vast majority of potential errors. This paper details our
-  stencil specification language, its static semantics, inference,
+  programming pattern for which indexing errors are plausible. 
+  We simulate relevant programming errors in two stencil examples, 
+  and show that we are able to detect the vast majority of potential
+  errors. This paper details our stencil specification language, a
+  denotational model, inference,
   checking, and synthesis procedures, our implementation, and
-  our evaluation study.
+  our evaluation studies.
 \end{abstract}
 
 
@@ -284,7 +285,7 @@ In practice, most stencil computations have a regular shape that can
 be described simply and abstractly with a small set of coarse-grained
 spatial descriptions. We introduce a simple specification language of
 such descriptions, abstracting over the fine-grained detail of stencil
-access patterns. For our first Laplace example, our
+access patterns. For the Laplace example, our
 inference procedure provides the following specification to line 3:
 %
 \begin{minted}[linenos=false]{fortran}
@@ -313,21 +314,25 @@ the specification pictorially.
 In this paper, we make the following contributions:
 %
 \begin{itemize}[leftmargin=0.8em]
-\item we introduce a specification language for
-stencil computation that captures many common forms
-of data access pattern (Section~\ref{sec:lang}), providing
- an equational theory and denotational model (Sect.~\ref{sec:semantics});
+\item we introduce a specification language for stencils 
+  that captures many common forms of data access pattern
+  (Section~\ref{sec:lang}); 
 
 \item we detail inference, checking, and specification synthesis 
-algorithms for our language (Sect.~\ref{sec:analysis}), leveraging the semantic model;
+algorithms for our language (Sect.~\ref{sec:analysis}), derived from
+the a denotational model for the language (Sect.~\ref{sec:semantics});
 
 \item we provide an implementation of our approach as an extension to
-  CamFort, an open-source program analysis tool for Fortran programs.
+  CamFort, an open-source program analysis tool for Fortran;
+  
+\item we give a quantiative study of
+  stencil computations in a corpus of numerical Fortran code,
+  totalling one million lines of code. Our tool identifies and
+  synthesises specifications for 35,000 stencil computations in the
+  corpus. Approximately 10\% of the stencils we found are non-trivial,
+  corresponding to code which is a possible source of errors;
 
-\item we show that around 10\% of stencils are in a class that
-  represent a plausible scenario for a programming error;
-
-\item we provide a more detailed verification case study of two
+\item we give a more detailed verification case study of two
   particular stencil computation and show that we
   are able to detect the vast majority of (synthesised) possible
   indexing errors.
@@ -468,13 +473,11 @@ only within the body of the loop. Since we ignore non-base
   relative index defined as constant translations of base induction
   variables. (The relation $\equiv$ here identifies terms up-to commutativity
   of $+$ and the inverse relation of $+$ and $-$ \eg{},
-  $(-b) + i \equiv i - b$).  We classify neighbourhood indices using
-  the predicate \neigh{}. %An array subscript $v(\bar{e})$ where every
-% $e \in \bar{e}$ is a neighbourhood index is called a
-% \emph{neighbourhood subscript}.
+  $(-b) + i \equiv i - b$).  We classify neighbourhood indices 
+  by the predicate $\neigh_I$ where $I$ is a set of induction
+  variables. We omit $I$ when implicit from the context.
 \label{def:neighbour}
 \end{definition}
-
 
 \subsection{Specification syntax}
 \label{sec:syntax}
@@ -1077,47 +1080,41 @@ and the checking procedures.
 %
 \begin{definition}%[Schematic]
 \label{def:schematic}
-The partial function $\textsf{schematic}$ maps
-source indexing terms $(e_1, .., e_n)$
+The partial function $\textsf{schematic}_I$ (parameterised by a set of
+induction variables $I$) maps source indexing terms $(e_1, .., e_n)$
 to $n$-dimensional index schemes, defined:
 %
 \begin{align*}
-\mathsf{schematic}(e_1, \ldots, e_n) & =
-[\downarrow\!e_1 \ldots \downarrow\!e_n ]
-\quad \textit{iff} \;\; \forall i . \downarrow\!e_i \neq \bot
+\mathsf{schematic}_I(e_1, ..., e_n) & =
+[\mathsf{s}_I(e_1) ... \mathsf{s}_I(e_n) ]
+\quad \textit{iff} \;\; \forall x . \mathsf{s}_I(e_x) \neq \bot
 \end{align*}
 %
-The $\downarrow$ operator is partial
- $\downarrow : \textit{expr} \rightarrow (\domainVal + \bot)$
-mapping individual indexing expressions to 
-an indexing scheme component, defined:
+where $\mathsf{s}_I$ is partial and 
+maps individual indexing expressions to 
+ indexing scheme components in $\domainVal{}$ defined:
 %%
 \begin{align*}
-\downarrow\!e
+\mathsf{s}_I(e)
  & =  \begin{cases}
-a & e \equiv i + a \; \wedge \; \mathsf{neigh}(i + a) \\
--a & e \equiv i - a \; \wedge \; \mathsf{neigh}(i - a) \\
+a & e \equiv i + a \; \wedge \; \neigh_I(e) \\
+-a & e \equiv i - a \; \wedge \; \neigh_I(e) \\
 \infty & \textit{$\mathsf{IV}(e) = \emptyset$} \\
 \bot   & \textit{otherwise}
 \end{cases}
 \end{align*}
 %%
 where $\mathsf{IV}(e)$ is the set of free induction variables
-in an expression, and $\neigh{}$ classifies expressions which
-are constant offsets from an induction variable
+in an expression, and $\neigh_I$ classifies expressions which
+are constant offsets from an induction variable $i \in I$
 (Defn.~\ref{def:neighbour}). In the third case,
 if the expression is not a neighbourhood index but is not
 a relative index either (\ie{}, not defined in terms
 of an induction variable) then it is mapped to $\infty$, otherwise
-$\downarrow\!e$ is undefined (returns $\bot$). The $\mathsf{schematic}$ function
-is undefined if $\downarrow$ of any of its components $e_i$ is
-undefined.
-
-For example, assuming $i$ and $j$ are induction variables and $\textsf{schematic}(i-1, 2, j)
- = \vthreeh{-1}{\infty}{0}$. However, $\textsf{schematic}(i*2, j)$, for
- example, is
- undefined as its first index is a non-neighbour relative index, which
- is outside the scope of our specification language.
+$\mathsf{s}_I(e)$ is undefined (returns $\bot$). The $\mathsf{schematic}$ function
+is undefined if $\mathsf{s}_I$ of any of its components $e_i$ is
+undefined. We omit the parameter set of induction variables $I$ to
+$\mathsf{schematic}$ when clear from the context. 
 \end{definition}
 
 \begin{definition}[Generalisation]
@@ -1165,7 +1162,10 @@ relationship of generalises then holds:
 $\vtwoh{\infty}{0} \; \not\preceq_2 \; \vtwoh{0}{1}$
 and
 $\vtwoh{\infty}{1} \; \preceq_2 \; \vtwoh{0}{1}$. 
-%%
+
+As an example of undefined \textsf{schematic}, 
+ $\textsf{schematic}(i*2, j) = \bot$ as its first index is a non-neighbour relative index, which
+ is outside the scope of our specification language.
 \end{example}
 \noindent
 Our terminology of \emph{indexing schemes} and
@@ -1175,6 +1175,24 @@ polymorphic types in ML~\cite{milner1978theory}. Our notion is
 much more rigid however, as our schemes do not bind names
 and thus generalisation does not require substitution; $\infty$ acts
 as a positional placeholder.
+
+From \textsf{schematic} we now give a
+formal characterisation of stencil computations for our purposes:
+%%
+\begin{definition}[Stencil computations]
+  Let $a$ be an array of dimensionality $n$ and $\overline{b}$ a
+  collection of arrays of arbitrary (possible differing)
+  dimensionalities.  
+  A \emph{stencil computation} comprises an iteration by a set of at
+  most $n$ induction variables $I$ 
+  over a subset of the index space of $a$. Elements of $a$ are determined by an
+  assignment $a(\bar{e}) = e_r$ where $\bar{e}$ is an array index such
+  that  $\mathsf{schematic}_I(\bar{e}) \neq \bot$ and for all array
+  subscripts $b(\bar{e}') \in e_r$ then
+  $\mathsf{schematic}_I(\bar{e}') \neq \bot$. 
+\label{def:stencil}
+\end{definition}
+%%
 
 \subsection{Denotational model}
 \label{subsec:model}
@@ -2534,7 +2552,7 @@ stencil computation: \\
 \noindent 
 1) \textbf{Non-subset induction variables} occur when the
 induction variables on the RHS are not a subset of those in the LHS. These
-cases are not stencils by our definition. The degenerate case of this
+cases are not stencils by our definition (Defn.~\ref{def:stencil},p.~\pageref{def:stencil}). The degenerate case of this
 is to have only constant indices on the LHS. We see lots of examples
 of this in loops as accumulators \eg{} computing the sum over an array; \\
 \noindent

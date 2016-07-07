@@ -10,17 +10,17 @@ corpus module: blas
     lexOrParseFailed: 4
     linesParsed: 15946
     linesTotal: 16046
-    mulOps0: 2022
+    mulOps0: 326
     mulOps1: 468
     nonNeighbour: 368
     numStencilLines: 700
     numStencilSpecs: 794
     parseFailed: 4
     parseOk: 147
-    plusOps0: 2490
+    plusOps0: 794
     readOnce: 712
     reflexive: 794
-    regionOps0: 2022
+    regionOps0: 326
     regionOps1: 468
     relativized: 40
     tickAssign: 1298
@@ -41,16 +41,16 @@ corpus module: computational_physics_2
     lexOrParseFailed: 1
     linesParsed: 755
     linesTotal: 793
-    mulOps0: 205
+    mulOps0: 80
     mulOps1: 1
     numStencilLines: 62
     numStencilSpecs: 81
     parseFailed: 1
     parseOk: 15
-    plusOps0: 206
+    plusOps0: 81
     readOnce: 70
     reflexive: 44
-    regionOps0: 205
+    regionOps0: 80
     regionOps1: 1
     relativized: 34
     tickAssign: 97
@@ -78,21 +78,23 @@ corpus module: e3mg_ea
     lexOrParseFailed: 19
     linesParsed: 43336
     linesTotal: 52296
-    mulOps0: 8765
+    mulOps0: 2660
     mulOps1: 1880
-    mulOps2: 20
+    mulOps2: 19
+    mulOps3: 1
     nonNeighbour: 287
     numStencilLines: 3223
     numStencilSpecs: 4560
     parseFailed: 4
     parseOk: 120
-    plusOps0: 10658
-    plusOps1: 7
+    plusOps0: 4552
+    plusOps1: 8
     readOnce: 3788
     reflexive: 4558
-    regionOps0: 8765
+    regionOps0: 2660
     regionOps1: 1873
-    regionOps2: 27
+    regionOps2: 26
+    regionOps4: 1
     relativized: 4
     tickAssign: 4483
     tickAssignSuccess: 2458
@@ -116,7 +118,7 @@ corpus module: geos_chem
     lexOrParseFailed: 414
     linesParsed: 213519
     linesTotal: 471138
-    mulOps0: 45024
+    mulOps0: 2262
     mulOps1: 101
     mulOps2: 4
     nonNeighbour: 131
@@ -124,10 +126,10 @@ corpus module: geos_chem
     numStencilSpecs: 2367
     parseFailed: 98
     parseOk: 182
-    plusOps0: 45129
+    plusOps0: 2367
     readOnce: 2203
     reflexive: 2296
-    regionOps0: 45024
+    regionOps0: 2262
     regionOps1: 101
     regionOps2: 4
     relativized: 87
@@ -148,17 +150,17 @@ corpus module: hybrid4
     lexOrParseFailed: 9
     linesParsed: 2765
     linesTotal: 4831
-    mulOps0: 60
+    mulOps0: 22
     mulOps1: 5
     nonNeighbour: 10
     numStencilLines: 20
     numStencilSpecs: 27
     parseFailed: 5
     parseOk: 20
-    plusOps0: 65
+    plusOps0: 27
     readOnce: 25
     reflexive: 23
-    regionOps0: 60
+    regionOps0: 22
     regionOps1: 5
     tickAssign: 34
     tickAssignSuccess: 18
@@ -174,18 +176,16 @@ corpus module: navier
     irreflexive: 17
     linesParsed: 510
     linesTotal: 510
-    mulOps0: 40
     mulOps1: 34
     mulOps2: 5
     nonNeighbour: 16
     numStencilLines: 39
     numStencilSpecs: 39
     parseOk: 7
-    plusOps0: 74
+    plusOps0: 34
     plusOps1: 5
     readOnce: 31
     reflexive: 37
-    regionOps0: 40
     regionOps1: 34
     regionOps3: 5
     tickAssign: 45
@@ -225,41 +225,42 @@ corpus module: um
     lexOrParseFailed: 282
     linesParsed: 526998
     linesTotal: 619776
-    mulOps0: 76726
+    mulOps0: 21520
     mulOps1: 11430
     mulOps10: 5
     mulOps12: 4
-    mulOps2: 10579
-    mulOps3: 173
-    mulOps4: 41
-    mulOps5: 38
+    mulOps2: 10540
+    mulOps3: 212
+    mulOps4: 37
+    mulOps5: 42
     mulOps6: 2
     mulOps9: 6
     nonNeighbour: 6021
-    numStencilLines: 30247
+    numStencilLines: 30269
     numStencilSpecs: 43798
     parseFailed: 95
     parseOk: 2251
-    plusOps0: 98884
-    plusOps1: 82
-    plusOps2: 12
-    plusOps3: 17
+    plusOps0: 43599
+    plusOps1: 160
+    plusOps2: 13
+    plusOps3: 13
     plusOps4: 5
     plusOps5: 4
+    plusOps6: 4
     readOnce: 38193
     reflexive: 42622
-    regionOps0: 76726
-    regionOps1: 11423
-    regionOps11: 4
+    regionOps0: 21520
+    regionOps1: 11383
+    regionOps11: 8
     regionOps12: 2
     regionOps14: 5
     regionOps17: 4
     regionOps2: 10581
-    regionOps3: 166
-    regionOps4: 12
+    regionOps3: 167
+    regionOps4: 51
     regionOps5: 20
     regionOps6: 44
-    regionOps7: 15
+    regionOps7: 11
     regionOps8: 2
     relativized: 1200
     tickAssign: 39353
@@ -300,41 +301,42 @@ overall
     lexOrParseFailed: 729
     linesParsed: 803829
     linesTotal: 1165390
-    mulOps0: 132842
+    mulOps0: 26870
     mulOps1: 13919
     mulOps10: 5
     mulOps12: 4
-    mulOps2: 10608
-    mulOps3: 173
-    mulOps4: 41
-    mulOps5: 38
+    mulOps2: 10568
+    mulOps3: 213
+    mulOps4: 37
+    mulOps5: 42
     mulOps6: 2
     mulOps9: 6
     nonNeighbour: 6833
-    numStencilLines: 35572
+    numStencilLines: 35594
     numStencilSpecs: 51666
     parseFailed: 207
     parseOk: 2742
-    plusOps0: 157506
-    plusOps1: 94
-    plusOps2: 12
-    plusOps3: 17
+    plusOps0: 51454
+    plusOps1: 173
+    plusOps2: 13
+    plusOps3: 13
     plusOps4: 5
     plusOps5: 4
+    plusOps6: 4
     readOnce: 45022
     reflexive: 50374
-    regionOps0: 132842
-    regionOps1: 13905
-    regionOps11: 4
+    regionOps0: 26870
+    regionOps1: 13865
+    regionOps11: 8
     regionOps12: 2
     regionOps14: 5
     regionOps17: 4
-    regionOps2: 10612
-    regionOps3: 171
-    regionOps4: 12
+    regionOps2: 10611
+    regionOps3: 172
+    regionOps4: 52
     regionOps5: 20
     regionOps6: 44
-    regionOps7: 15
+    regionOps7: 11
     regionOps8: 2
     relativized: 1365
     tickAssign: 80501

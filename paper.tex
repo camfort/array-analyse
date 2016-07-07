@@ -195,7 +195,7 @@ xrightmargin=0.2cm,commandchars=\\\{\},baselinestretch=0.98,numbersep=0.9em}
 
 \title{Verification of Stencil Computations with Spatial
   Specifications}
-\authorinfo{Blind}{}{}
+\authorinfo{}{}{}
 %\authorinfo{Dominic Orchard \and Mistral Contrastin
 %\and Matthew Danish \and Andrew Rice}{University of Cambridge}{}
 
@@ -272,13 +272,12 @@ and the partitioning shape for parallel implementations.
 
 In this example, the access pattern is simple, static, and easily
 understood. More complex stencil computations
-are much more prone to error from simple lexical mistakes and
-harder to understand. For example,
+are much more prone to error from simple lexical mistakes. For example,
 Figure~\ref{ref:navier-stokes-fragment} shows three lines from a
-Navier-Stokes fluid simulator in which two arrays are read from with
+Navier-Stokes fluid simulator in which two arrays are read with
 different data access patterns, across two dimensions. The interaction
 is much harder to understand, with the potential for the developer to
-accidentally introduce an error via simple textual mistakes, for
+introduce an error via simple textual mistakes, for
 example writing $\texttt{(i-1,j)}$ instead of $\texttt{(i+1,j)}$.
 
 In practice, most stencil computations have a regular shape that can
@@ -300,13 +299,12 @@ direction in its first (and only) dimension.
 %previous time step for \texttt{b} is actually provided by \texttt{a},
 %and vice versa. This is explained as a mutual dependence between
 %\texttt{a} and \texttt{b}.
-In the Navier-Stokes example of
-Figure~\ref{ref:navier-stokes-fragment}, its inferred specification is shown
+The inferred specification for the Navier-Stokes example is shown 
 in Fig.~\ref{ref:navier-stokes-fragment}(b). The
-specification explains that, over the whole fragment, \texttt{u} is
-read from with a centered pattern to depth of 1 in both dimensions
+specification requires that, over the whole fragment, \texttt{u} is
+accessed with a centered pattern to depth of 1 in both dimensions
 (this is known as the \emph{five-point stencil}) and \texttt{v}
-is read from in a neighbourhood bounded by forward to depth of $1$ in
+is accessed in a neighbourhood bounded by forward to depth of $1$ in
 the first dimension and backward to a depth of $1$ in the second
 dimension. Fig.~\ref{ref:navier-stokes-fragment}(c) illustrates
 the specification pictorially.
@@ -319,14 +317,14 @@ In this paper, we make the following contributions:
   (Section~\ref{sec:lang}); 
 
 \item we detail inference, checking, and specification synthesis 
-algorithms for our language (Sect.~\ref{sec:analysis}), derived from
-the a denotational model for the language (Sect.~\ref{sec:semantics});
+algorithms for our language (Section~\ref{sec:analysis}), derived from
+a denotational model for the language (Section~\ref{sec:semantics});
 
 \item we provide an implementation of our approach as an extension to
   CamFort, an open-source program analysis tool for Fortran;
   
-\item we perform a quantitative study of
-  stencil computations in a corpus of numerical Fortran programs
+\item we report on a quantitative study of
+  stencil computations on a corpus of numerical Fortran programs
   (ranging from small to large),  totalling one million lines of code. Our tool identifies and
   synthesises specifications for 35,000 stencil computations in the
   corpus. Approximately 10\% of the stencils we found are non-trivial,
@@ -407,10 +405,10 @@ The horizontal dimension is \texttt{dim=1} and the vertical is \texttt{dim=2}.
 \section{Stencil specification language}
 \label{sec:lang}
 
-Our specification language is based on the observation
+Our specification language is based on the hypothesis
 that most forms of array access in numerical code have
 a fixed, statically-determined access pattern. For example, the
-``\emph{five-point stencil}'' on a two-dimensional array reads from array
+\emph{five-point stencil} on a two-dimensional array reads from array
 indices $(i, j)$, $(i-1, j)$, $(i+1, j)$, $(i, j-1)$, and $(i, j+1)$
 for all $i, j$ within the inner boundary of the array (to avoid
 out-of-bounds access at the edges). We revisit this hypothesis
@@ -429,11 +427,11 @@ equality and sub-specification relation are proven sound.
 
 \renewcommand*{\arraystretch}{0.8}
 For the target language, $e$ ranges over expressions (may be impure) and $v$
-overs its (imperative) variables. %By
+over its (imperative) variables. %By
 %``variable'', we mean in the imperative sense (named binders to memory cells).
 
 \begin{definition}[Base induction variable]
-  A variable \textit{v} of integer type is a \emph{base induction
+  A integer variable \textit{v} is a \emph{base induction
     variable} if it is the control variable of a ``for''
   loop,\footnote{Or equivalent, \eg{}, \texttt{do} in Fortran, for our implementation.} incremented by $1$ per
 iteration. The variable is marked as an induction variable
@@ -443,8 +441,7 @@ only within the body of the loop. Since we ignore non-base
 \end{definition}
 
 \begin{definition}[Array subscript and index]
-  An \emph{array subscript} is an expression that indexes an array
-  (for the purpose of reading or writing an element), which we denote
+  An \emph{array subscript} is an expression that indexes an array, which we denote
   by $v(\bar{e})$ for the source language where $\bar{e}$ is shorthand
   for a syntactic list of indexing expressions. A \emph{relative
     index} is a list $\bar{e}$ where each $e \in \bar{e}$ is defined
@@ -461,7 +458,7 @@ only within the body of the loop. Since we ignore non-base
   of $+$ and the inverse relation of $+$ and $-$ \eg{},
   $(-b) + i \equiv i - b$).  We classify neighbourhood indices 
   by the predicate $\neigh_I$ where $I$ is a set of induction
-  variables. We omit $I$ when implicit from the context.
+  variables. We omit $I$ when clear from the context.
 \label{def:neighbour}
 \end{definition}
 
@@ -487,7 +484,7 @@ $\bar{v}$, describing how the array variables $\bar{v}$ are accessed.
 %\subsubsection{Spatial specification syntax}
 
 \emph{Regions} are the central building blocks of spatial
-specifications. Regions can either be declared along with a
+specifications. Regions can either be declared alone with a
 \nonterm{regionDec}, assigning a region specification \nonterm{region} to
 a region variable \nonterm{rvar} or given directly within a
 \nonterm{spatial} specification.
@@ -509,7 +506,7 @@ neighbourhood indices ranging from $i + 0$ up to $i \pm n$ inclusively,
 b(i, 0) = a(i, 0) + a(i+1, 0) + a(i+2, 0)
 \end{minted}
 %%
-were \texttt{i} is an induction variable.  The specification
+where \texttt{i} is an induction variable.  The specification
 is associated to the array variable \texttt{a}. Note that the second
 dimension is constant.
 
@@ -592,14 +589,14 @@ z = a(i, j+1) + a(i-1, j+1) + a(i+1, j+1)
 b(i, j) = (x + y + z) / 9.0
 \end{minted}
 %%
-This pattern is a common image convolution (for example
+This pattern is common in image convolution applicaitons (for example
 for edge detection). The specification ranges over the
-values that flow the array subscript on the left-hand side,
+values that flow to the array subscript on the left-hand side,
 and so ranges over the intermediate assignments to \term{x},
 \term{y}, and \term{z}.
 
 The region constructor \texttt{*} can also be interpreted as a
-kind of conjunction on specifications since they constraint
+kind of conjunction on specifications since they constrain
 indices to be within both regions simultaneously.
 
 The sum of two regions $r \texttt{+} r'$ specifies that an array is
@@ -798,9 +795,9 @@ and checked against the code.
 \equiv \; R \, \term{*} \, S \\[0.4em]
 %
 %
-(\texttt{+}\textsc{idem}) \;\; & S \; \texttt{+} \; S \; \equiv \; S \quad
+(\texttt{+}\textsc{idem}) \;\; & S \; \texttt{+} \; S \; \equiv \; S \\[0.4em]
 %
-(\texttt{+}\textsc{comm}) \;\; S \; \texttt{+} \; T \; \equiv \; T \;
+(\texttt{+}\textsc{comm}) \;\; & S \; \texttt{+} \; T \; \equiv \; T \;
                        \texttt{+} \; S \\[0.4em]
 %
 (\texttt{+}\textsc{assoc}) \;\; & R \; \texttt{+} \; (S \; \texttt{+} \; T) \; \equiv \; (R \;
@@ -837,7 +834,7 @@ and checked against the code.
 \end{array}
 \end{align*}
 \caption{Equations on specifications (\emph{regions})}
-\vspace{-1em}
+\vspace{-0.5em}
 \label{fig:equations}
 \end{figure}
 
@@ -955,7 +952,7 @@ procedure (Section~\ref{subsec:inference}) to simplify specifications.
 %\\[1.5em]
 \vspace{-0.4em}
 \setlength{\arraycolsep}{0.1em}
-\dfrac{\hspace{3em} m \leq n \qquad\qquad r \Rightarrow s \hspace{3em}}
+\dfrac{\hspace{3em} m \leq n \qquad\qquad r \implies s \hspace{3em}}
 {\begin{array}{rl}
 \stenFwdSR{m}{d}{r} & <:^r \stenFwdSR{n}{d}{s}
 %& \;\, ds \subseteq es \wedge n \leq m
@@ -1133,10 +1130,10 @@ Thus, the element $\infty$ generalises any index in the same dimension.
 \begin{example}
 The following three array indexing terms
 $(i, j+1)$, $(1, j+1)$ and $(3, j)$ 
-are given by \textsf{schematic} the 
+are mapped by \textsf{schematic} to the 
 index schemes $\vtwoh{0}{1}$, $\vtwoh{\infty}{1}$
 and $\vtwoh{\infty}{0}$ respectively. The following
-relationship of generalises then holds:
+relationships of generalisation then holds:
 %\[
 %\xymatrix@R=0.2em@C=2em{
 %[\infty \;\; 0] \ar@{-}[dr]^{\preceq_n} &  \\
@@ -1158,9 +1155,9 @@ Our terminology of \emph{indexing schemes} and
 \emph{generalisation} is by analogy
 with the \emph{type schemes} and \emph{type generalisation} of
 polymorphic types in ML~\cite{milner1978theory}. Our notion is
-much more rigid however, as our schemes do not bind names
-and thus generalisation does not require substitution; $\infty$ acts
-as a positional placeholder.
+much more rigid however, as our schemes do not bind names.
+%and thus generalisation does not require substitution; $\infty$ acts
+%as a positional placeholder.
 
 From \textsf{schematic} we now give a
 formal characterisation of stencil computations for our purposes:
@@ -1169,12 +1166,12 @@ formal characterisation of stencil computations for our purposes:
   Let $a$ be an array of dimensionality $n$ and $\overline{b}$ a
   collection of arrays of arbitrary (possible differing)
   dimensionalities.  
-  A \emph{stencil computation} comprises an iteration by a set of at
-  most $n$ induction variables $I$ 
+  A \emph{stencil computation} comprises an iteration by a set $I$ of at
+  most $n$ induction variables 
   over a subset of the index space of $a$. Elements of $a$ are determined by an
   assignment $a(\bar{e}) = e_r$ where $\bar{e}$ is an array index such
-  that  $\mathsf{schematic}_I(\bar{e}) \neq \bot$ and for all array
-  subscripts $b(\bar{e}') \in e_r$ then
+  that  $\mathsf{schematic}_I(\bar{e}) \neq \bot$ and for all $b \in
+  \bar{b}$ and all subscripts $b(\bar{e}') \in e_r . \, $
   $\mathsf{schematic}_I(\bar{e}') \neq \bot$. 
 \label{def:stencil}
 \end{definition}
@@ -1249,7 +1246,7 @@ Note the absorbing behaviour of $\infty$ with respect to
 multiplication.
 \end{example}
 \noindent
-The last two equations of Fig.~\ref{fig:region-model} give the
+The final two equations of Fig.~\ref{fig:region-model} give the
 models of $\term{+}$ and $\term{*}$. For $\term{+}$ this is the 
 straightforward union of the models of subterms. The model of
 $\term{*}$ takes the tensor $\otimes$ of subterm models. The tensor is
@@ -1495,8 +1492,8 @@ S <: T
 
 \noindent
 We briefly sketch the algorithms for inferring and synthesising
-specifications (Sect.~\ref{subsec:inference}), for checking code
-against specifications (Sect.~\ref{subsec:checking}). These utilise the semantic model of
+specifications (Section~\ref{subsec:inference}), for checking code
+against specifications (Section~\ref{subsec:checking}). These utilise the semantic model of
 Section~\ref{sec:semantics}.
 
 \paragraph{Syntax helper functions}
@@ -1520,7 +1517,7 @@ do i = 1, (n-1)
 end do
 \end{minted}
 %%
-\subsubsection{Step 1: Standard control and data-flow analyses}
+\subsubsection{Step 1: Analyse standard control and data-flow}
 \label{sec:inf-step1}
 
 The inference relies on some standard program analyses, computed
@@ -1538,7 +1535,7 @@ before the main inference procedure:
 \arrayTy{} to classify variables of array type.
 %
 
-\subsubsection{Step 2: Data-access analysis}
+\subsubsection{Step 2: Analyse data-access}
 \label{sec:inf-step2}
 
 For each assignment statement whose left-hand side is an array
@@ -1609,7 +1606,7 @@ in $U(x)$.
   (first component) and the upper-bound (second component). We write 
   spans as $\vect{x} = [\vect{x}^L \; \vect{x}^U]$, where $\vect{x}^L$
   and $\vect{x}^U$ give the lower and upper bounds.  In
-  the rest, $\vect{x}, \vect{y}$ range over spans.  For a span
+  the following, $\vect{x}, \vect{y}$ range over spans.  For a span
   $\vect{x}$, we write $\vect{x}_{i:j}$ for the sub-span comprises the
   subvectors $[\vect{x}^L_{i:j} \; \vect{x}^U_{i:j}]$ from entry $i$
   to entry $j$ (inclusive).
@@ -1663,7 +1660,7 @@ example this is reached in the first step.
  Then any spans that are completely contained by any other span are deleted,
 leaving a minimal set of spans (which may overlap, but none of which
 fully contains another), Figure~\ref{fig:inference-steps-informal}(c).
-The final spans are used to synthesis concrete stencil specification
+The final spans are used to synthesise concrete stencil specification
 syntax (Section~\ref{sec:inf-step4}), where
 each span becomes a product \texttt{*} of regions which are 
 combined by the sum \texttt{+}.
@@ -1679,9 +1676,9 @@ N(U(\texttt{a})) = \stwo{0}{0}{0}{0} \stwo{1}{0}{1}{0} \stwo{-1}{0}{-1}{0} \stwo
 %%
 In the following we let $M_0 = N(U(\texttt{a}))$ for our example.
 
-A fixed point of the following function, \spanOp{}, is taken (per variable
-in the map U) to coalesces spans into contiguous regions, \ie{}, we compute
- $(\mu \, \spanOp) \; N(M)$ where \spanOp{} is defined by: \\[-0.5em]
+Each set of unit spans is applied to the fixed point of the \spanOp{} function
+(defined shortly), which coalesces spans into contiguous regions. That is, we compute
+ $(\mu \, \spanOp)$ on input $N(M)$, where \spanOp{} is defined by the steps:
 
 
 \begin{figure}[t]
@@ -1746,7 +1743,7 @@ specification inference}
 \end{figure}
 
 \noindent
-\textit{1).\;} Compute all permutations on the column vectors in a span, \ie{},
+\textbf{1)\,} Compute all permutations on the column vectors in a span, \ie{},
   $[\vect{x}^L \vect{x}^U] \mapsto [\pi\vect{x}^L \, \pi\vect{x}^U]$
 for a permutation $\pi$. For each permutation function $\pi^n_i$
 (the $i$-th permutation for vectors of size $n$) we pair the
@@ -1782,7 +1779,7 @@ permutation flips the order of the two elements in the
 vectors. \\[-1em]
 
 \noindent
-\textbf{2).} Sort each permutation set into an ordered list, by the ordering:
+\textbf{2)\,} Sort each permutation set into an ordered list, by the ordering:
 \begin{equation*}
   \vect{x} \leq \vect{y} =
       \exists i \, . \; \vect{x}^L_{i} \leq \vect{y}^L_{i} \; \wedge \;
@@ -1808,7 +1805,7 @@ giving the sorting function $\textsf{sort}(M)$. For our example:
 \stwo{0}{1}{0}{1}])\}
 \end{align*}
 \noindent
-\textbf{3).} Reduce each list pairwise by $\bullet$ operation 
+\textbf{3)\,} Reduce each list pairwise by $\bullet$ operation 
 (Defn.~\ref{def:span-coalesc}) to coalesce contiguous regions,
 given by $\textsf{fold}\bullet$. For our example, this yields:
 %
@@ -1823,7 +1820,7 @@ given by $\textsf{fold}\bullet$. For our example, this yields:
 \stwo{0}{1}{0}{1}])\}
 \end{align*}
 %
-\textbf{4).} Un-permute and union together, \ie{},
+\textbf{4)\,} Un-permute and union together, \ie{},
 %
 \[
 U(M) = \bigcup \{[\pi \vect{x}^L, \pi \vect{x}^U]
@@ -1841,7 +1838,7 @@ U(M) =
 \stwo{1}{0}{1}{0}\}
 \end{align*}
 %
-\textbf{5).} Filter by the region containment predicate $\containedin$, that
+\textbf{5)\,} Filter by the region containment predicate $\containedin$, that
   is, if any region is contained within another then remove the
   smaller, defined:
 %
@@ -1863,6 +1860,8 @@ result for our example; the fixed point is reached.
 \subsubsection{Step 4: Synthesise specifications from spans}
 \label{sec:inf-step4}
 
+\newcommand{\oplusbig}{\operatornamewithlimits{\term{\Large{$\oplus$}}}}
+\newcommand{\odobig}{\operatornamewithlimits{\term{\Large{$\odot$}}}}
 \newcommand{\bplus}{\operatornamewithlimits{\term{\Large{+}}}}
 \newcommand{\tySum}[1]{#1^{\term{+}}}
 \newcommand{\tyProd}[1]{#1^{\term{*}}}
@@ -1889,7 +1888,7 @@ with operators $\oplus$ and $\odot$ and a constructor for \specDNF{}:
   \{\infty\})  \rightarrow \mathsf{A}(\specDNF)
 \end{align*}
 %%
-The $\mathsf{toSpec}$ functions maps a pair of lower and upper bounds
+The $\mathsf{toSpec}$ function maps a pair of lower and upper bound
 values (one-dimensional) to a specification with a one-dimensional region. 
 An entire span is converted into an $n$-dimensional
 specification by applying $\mathsf{toSpec}$ to each
@@ -1898,11 +1897,9 @@ specifications by $\odot$. The resulting specifications for
 each span are then summed by $\oplus$:
 \begin{equation*}
 \textsf{spec}(M) = 
-\sum\limits_{\vect{x} \in \spanOp(M)}
-\prod\limits_{i \in \{1, \ldots, n\}} \, \mathsf{toSpec}(\vect{x}^L_i, \vect{x}^U_i)
+\oplusbig\limits_{\vect{x} \in \spanOp(M)} \,
+\odobig\limits_{i \in \{1, \ldots, n\}} \, \mathsf{toSpec}(\vect{x}^L_i, \vect{x}^U_i)
 \end{equation*}
-(where $\oplus$ is the additive and $\odot$ is the multiplicative used
-within $\Sigma$ and $\Pi$ respectively here).
 We unpack the definitions of this algebra.
 
 \begin{definition}[Specifications in DNF]
@@ -2326,6 +2323,8 @@ $\mathit{cons}(\textsf{mult}(\textsf{up}(M_s)),\textsf{mult}(M_c))$.
 is indeed contained in the regions touched by $\texttt{b}$ in $l3'$. 
 \end{example}
 
+\subsection{Approximations and checking}
+
 As noted, the {\textcolor{darkgreen}{\term{fivepoint}}} region
  above is more accepting than that used in
 Section~\ref{sec:lang}. This introduces a new notion of approximation
@@ -2340,7 +2339,7 @@ A specification $S'$
 \emph{approximates} a more specific specification $S$, written 
 $S \sqsubseteq S'$, \emph{iff}:
 $$
-\forall M_c \in \textsf{Mult}(\domainVal{}^n) . \mathit{cons}_n(\interp{S}_n,M_c) \implies
+\forall M_c \in \textsf{Mult}(\domainVal{}^n) . \;\, \mathit{cons}_n(\interp{S}_n,M_c) \implies
 \mathit{cons}(\interp{S'}_n,M_c)
 $$
 \end{definition}
@@ -2378,29 +2377,6 @@ We evaluated our specification language on a corpus of scientific
 code.  We overview the corpus itself before presenting our results.
 
 \subsection{Software Corpus}
-\begin{table}
-\centering
-\footnotesize
-\begin{tabular}{lS[table-format=4]S[table-format=4]SS}
-\hline
-& \multicolumn{2}{c}{Number of files} & \multicolumn{2}{c}{Lines of code} \\
-
-Package   & {Total} & {Parsed} & {Total} & {Parsed}  \\ % braces prevent headers from being formatted as numbers
-\hline
-UM        & \umFiles                       & \umparseOk                      & \umLoC                      & \umlinesParsed \\
-E3MG      & \ethreemgeaFiles               & \ethreemgeaparseOk              & \ethreemgeaLoC              & \ethreemgealinesParsed \\
-BLAS      & \blasFiles                     & \blasparseOk                    & \blasLoC                    & \blaslinesParsed \\
-Hybrid4   & \hybridfourFiles               & \hybridfourparseOk              & \hybridfourLoC              & \hybridfourlinesParsed \\
-GEOS-Chem & \geoschemFiles                 & \geoschemparseOk                & \geoschemLoC                & \geoschemlinesParsed \\
-Navier    & \navierFiles                   & \navierparseOk                  & \navierLoC                  & \navierlinesParsed \\
-CP        & \computationalphysicstwoFiles  & \computationalphysicstwoparseOk & \computationalphysicstwoLoC & \computationalphysicstwolinesParsed \\
-\hline
-\textbf{Total} & \overallFiles  & \overallparseOk & \overallLoC & \overalllinesParsed \\
-\end{tabular}
-\caption{Summary of software packages used for
-  evaluation\label{tab:corpus}}
-\vspace{-0.7em}
-\end{table}
 
 Table~\ref{tab:corpus} shows summary statistics of the software
 packages used in our evaluation, all of which are written in Fortran
@@ -2481,6 +2457,30 @@ eventually generate some specification is also counted as
 an \emph{actual} statement.
 
 \begin{table}
+\centering
+\footnotesize
+\begin{tabular}{lS[table-format=4]S[table-format=4]SS}
+\hline
+& \multicolumn{2}{c}{Number of files} & \multicolumn{2}{c}{Lines of code} \\
+
+Package   & {Total} & {Parsed} & {Total} & {Parsed}  \\ % braces prevent headers from being formatted as numbers
+\hline
+UM        & \umFiles                       & \umparseOk                      & \umLoC                      & \umlinesParsed \\
+E3MG      & \ethreemgeaFiles               & \ethreemgeaparseOk              & \ethreemgeaLoC              & \ethreemgealinesParsed \\
+BLAS      & \blasFiles                     & \blasparseOk                    & \blasLoC                    & \blaslinesParsed \\
+Hybrid4   & \hybridfourFiles               & \hybridfourparseOk              & \hybridfourLoC              & \hybridfourlinesParsed \\
+GEOS-Chem & \geoschemFiles                 & \geoschemparseOk                & \geoschemLoC                & \geoschemlinesParsed \\
+Navier    & \navierFiles                   & \navierparseOk                  & \navierLoC                  & \navierlinesParsed \\
+CP        & \computationalphysicstwoFiles  & \computationalphysicstwoparseOk & \computationalphysicstwoLoC & \computationalphysicstwolinesParsed \\
+\hline
+\textbf{Total} & \overallFiles  & \overallparseOk & \overallLoC & \overalllinesParsed \\
+\end{tabular}
+\caption{Summary of software packages used for
+  evaluation\label{tab:corpus}}
+\vspace{-1em}
+\end{table}
+\begin{table}
+\vspace{-0.5em}
 \sisetup{table-format=4,table-text-alignment=right}
 \footnotesize
 \centering
@@ -2923,26 +2923,26 @@ Fortran code.
 
 \section{Conclusion and future work}
 
-In recent years, there has been an increased awareness
-of the need for formal verification techniques in
+There is an increasing awareness
+of the need for verification techniques in
 science~\cite{post2005computational,oberkampf2010verification,orchard2014computational}.
 Our specification language is an approach in this direction, providing
 a system of lightweight specification for numerical code.
 Compared to other specification approaches (discussed above), our language is novel in that it does
-not aim to replicate indexing in the specification, but instead
-provides abstract spatial combinators which capture a large number
-of common patterns. 
+not aim to reify indexing in the specification, but instead
+provides abstract spatial descriptions which capture a large number
+of common patterns. Our tool is useful for both detecting
+errors and for specifying program behaviour to future-proof code and ease
+ maintenance. 
 
-Our aim is to not only provide a way of exposing errors, but also
-for specifying program behaviour to future-proof the code and ease
-its maintenance. To increase the likelihood of impact, we 
-integrate smoothly with existing practices, providing 
-specifications as comments and specification synthesis
-specifications in the the tool.
+%To increase the likelihood of impact, we 
+%integrate smoothly with existing practices, providing 
+%specifications as comments and specification synthesis
+%specifications in the the tool.
 
 We evaluated our approach by implementing the stencil inference and
 checking procedure on top of CamFort, an open-source analysis
-tool\footnotemark for Fortran
+tool for Fortran
 programs and running the inference process over a corpus of 1.1
 million lines of Fortran code.  Our motivation for this work was to
 provide an intermediate specification language to allow scientists to
@@ -2965,7 +2965,7 @@ our inference approach to more of these examples. Furthermore, our specification
 language can be used more flexibly to give descriptions of data access
 patterns in any context, not just within a stencil.
 
-\footnotetext{\url{https://github.com/camfort/camfort}}
+%\footnotetext{\url{https://github.com/camfort/camfort}}
 \bibliography{references}
 
 \end{document}

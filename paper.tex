@@ -59,7 +59,7 @@
 \definecolor{darkgreen}{rgb}{0.0,0.4,0.0}
 \definecolor{darkdarkgreen}{rgb}{0.0,0.35,0.0}
 
-\usepackage[draft]{hyperref}
+\usepackage{hyperref}
 \hypersetup{
     unicode=false,          % non-Latin characters in Acrobat's bookmarks
     pdftoolbar=true,        % show Acrobat toolbar?
@@ -325,16 +325,16 @@ the a denotational model for the language (Sect.~\ref{sec:semantics});
 \item we provide an implementation of our approach as an extension to
   CamFort, an open-source program analysis tool for Fortran;
   
-\item we give a quantiative study of
-  stencil computations in a corpus of numerical Fortran code,
-  totalling one million lines of code. Our tool identifies and
+\item we perform a quantitative study of
+  stencil computations in a corpus of numerical Fortran programs
+  (ranging from small to large),  totalling one million lines of code. Our tool identifies and
   synthesises specifications for 35,000 stencil computations in the
   corpus. Approximately 10\% of the stencils we found are non-trivial,
   corresponding to code which is a possible source of errors;
 
-\item we give a more detailed verification case study of two
-  particular stencil computation and show that we
-  are able to detect the vast majority of (synthesised) possible
+\item we give a detailed verification case study of two
+  particular stencil computation, simulating programming errors.
+  Our approach is able to detect the vast majority of possible
   indexing errors.
 \end{itemize}
 %
@@ -395,25 +395,11 @@ The horizontal dimension is \texttt{dim=1} and the vertical is \texttt{dim=2}.
 \vspace{-0.8em}
 \end{figure}
 
-\paragraph{Context}
-
-In recent years, there has been an increased awareness
-of the need for formal verification techniques in
-science~\cite{post2005computational,oberkampf2010verification,orchard2014computational}.
-Our specification language is an approach in this direction, providing
-a system of lightweight specification for numerical code.
-The aim is to not only provide a way of exposing errors, but also
-for specifying program behaviour to future-proof the code and ease
-its maintenance. In order to increase the likelihood of impact, we aim
-to integrate with existing practices smoothly, hence our
-specifications are integrated as comments and our tool can synthesis
-specifications for the user.
-
-This paper considers the technical aspects of the language,
-its semantics, inference, checking, and synthesis procedures.
-We also evaluate our implementation on real scientific code 
-used actively in research, ranging from small ($\sim$700loc) to large
-($\sim$600kloc). 
+%This paper considers the technical aspects of the language,
+%its semantics, inference, checking, and synthesis procedures.
+%We also evaluate our implementation on real scientific code 
+%used actively in research, ranging from small ($\sim$700loc) to large
+%($\sim$600kloc). 
  %Our case studies include the Unified Weather 
 %model used by the UK Met Office~\cite{um-website} ($\approx{}600\textit{kloc}$) and other
 %research-based numerical models, ranging from small to large. 
@@ -552,7 +538,7 @@ b(i) = ( a(i) + a(i-1) + a(i+1) ) / 3.0
 \end{minted}
 
 \begin{figure}[t]
-\vspace{-0.1em}
+\vspace{-0.5em}
 \begin{align*}
 \def\arraystretch{1.2}
 \setlength{\arraycolsep}{0.2em}
@@ -812,9 +798,9 @@ and checked against the code.
 \equiv \; R \, \term{*} \, S \\[0.4em]
 %
 %
-(\texttt{+}\textsc{idem}) \;\; & S \; \texttt{+} \; S \; \equiv \; S \\[0.4em]
+(\texttt{+}\textsc{idem}) \;\; & S \; \texttt{+} \; S \; \equiv \; S \quad
 %
-(\texttt{+}\textsc{comm}) \;\; & S \; \texttt{+} \; T \; \equiv \; T \;
+(\texttt{+}\textsc{comm}) \;\; S \; \texttt{+} \; T \; \equiv \; T \;
                        \texttt{+} \; S \\[0.4em]
 %
 (\texttt{+}\textsc{assoc}) \;\; & R \; \texttt{+} \; (S \; \texttt{+} \; T) \; \equiv \; (R \;
@@ -856,21 +842,21 @@ and checked against the code.
 \end{figure}
 
 Figure~\ref{fig:equations} lists the equational theory for
-specifications which is defined by the binary relation $\equiv$
-between region terms. The equations use abbreviations
+specifications given by the binary relation $\equiv$
+on \emph{region} terms. The equations use abbreviations
 \term{refl}, \term{fwd}, \term{bwd}, \term{cen}, and \irreflS{}
 for \term{reflexive}, \term{forward}, \term{backward},
 \term{centered}, and \irrefl{} respectively. Furthermore, the abbreviations include syntactic sugar
 for quantifying over the absence or presence of the \irrefl{}
 attribute on region constants as a boolean. For example,
-the syntactic sugar for \term{fwd} is defined:
+\term{fwd} syntactic sugar is defined:
 %%
 \begin{align*}
 \hspace{-0.25em}
 & \stenFwdSR{n}{d}{r}
 \; := \; \\[-0.4em]
 & \qquad \begin{cases}
-\stenFwd{n}{d}{, \irrefl} & \;\;\textit{if} \;\, \neg \, r \\
+\stenFwd{n}{d}{, \irrefl} & \;\;\textit{if} \;\, \neg \, r \\[-0.1em]
 \stenFwd{n}{d}{}  & \;\;\textit{if} \;\,  r
 \end{cases} \\
 \textit{or} \;\;
@@ -889,7 +875,7 @@ their regions, \ie{}:
 \quad \equiv \; & \texttt{stencil} \; [\textit{approx},] \;
             [\textit{mult},] \; \textit{region}'
 \end{align*}
-
+%
 The equations reveal a part of the semantics for our
 specification language, which we briefly unpack.
 
@@ -982,7 +968,7 @@ procedure (Section~\ref{subsec:inference}) to simplify specifications.
 \\
 \wedge \; \stenBwdSR{m}{d}{r} & <:^r \stenCenSR{n}{d}{s} \\
 \wedge \; \stenFwdSR{m}{d}{r} & <:^r \stenCenSR{n}{d}{s} \\[1.2em]
-\end{array}}\trule{\textsc{over}} \\
+\end{array}}\trule{\textsc{over}} \\[-0.2em]
 \hspace{-0.5em}
 \dfrac{P_1 <:^r R_1 \quad P_2 <:^r R_2}
       {P_1 \, \texttt{+} \, P_2 <:^r R_1 \, \texttt{+} \, R_2}
@@ -2059,13 +2045,13 @@ The $\hat{\odot}$ operation is then lifted to all combinations of
 \textsf{upper}(S) \odot \textsf{both}(T_l,T_u) = \; & \textsf{both} \,
                                                       (T_l, \; S \hat{\odot} T_u) \\
 \textsf{both}(S_l,S_u) \odot
-\textsf{both}(T_l,T_u) & = \textsf{both} (S_l \hat{\odot} T_l, \; S_u
+\textsf{both}(T_l,T_u)  = \; & \textsf{both} (S_l \hat{\odot} T_l, \; S_u
                          \hat{\odot} T_u) \\
 \textit{inj}(S) \odot \textit{inj}(T) = \; & \textit{inj}(S
                                               \hat{\odot} T)
 \end{align*}
 where in the last case $\textit{inj}$ corresponds to the unary
-injections of \textsf{Approx}. For brevity we omit the cases where the parameters above are flipped
+injections of \textsf{Approx}. For brevity we omit the cases where the arguments above are flipped
 as $\odot$ is commutative.
 \end{definition}
 
@@ -2769,9 +2755,9 @@ the results of the CamFort test.
   %\subcaptionbox{}{\includegraphics[width=0.1\textwidth]{jacobi-incorrect1.png}}
   %\subcaptionbox{}{\includegraphics[width=0.1\textwidth]{jacobi-incorrect2.png}}
   %\subcaptionbox{}{\includegraphics[width=0.1\textwidth]{jacobi-incorrect3.png}}
-  \subfigure[]{\label{fig:jacobicorrect}\includegraphics[width=0.1\textwidth]{jacobi-correct.png}}
-  \subfigure[]{\includegraphics[width=0.1\textwidth]{jacobi-incorrect1.png}}
-  \subfigure[]{\includegraphics[width=0.1\textwidth]{jacobi-incorrect2.png}}
+  \subfigure[]{\label{fig:jacobicorrect}\includegraphics[width=0.1\textwidth]{jacobi-correct.png}}\;\;
+  \subfigure[]{\includegraphics[width=0.1\textwidth]{jacobi-incorrect1.png}}\;\;
+  \subfigure[]{\includegraphics[width=0.1\textwidth]{jacobi-incorrect2.png}}\;\;
   \subfigure[]{\includegraphics[width=0.1\textwidth]{jacobi-incorrect3.png}}
   \caption{Perturbations of Jacobi code; \subref{fig:jacobicorrect} is reference output.}
   \label{fig:jacobi}
@@ -2937,15 +2923,25 @@ Fortran code.
 
 \section{Conclusion and future work}
 
-We presented in this work an specification language 
-for the access pattern of a stencil computation. Compared to the
-related work (discussed above), our language is novel in that it does
+In recent years, there has been an increased awareness
+of the need for formal verification techniques in
+science~\cite{post2005computational,oberkampf2010verification,orchard2014computational}.
+Our specification language is an approach in this direction, providing
+a system of lightweight specification for numerical code.
+Compared to other specification approaches (discussed above), our language is novel in that it does
 not aim to replicate indexing in the specification, but instead
 provides abstract spatial combinators which capture a large number
 of common patterns. 
 
+Our aim is to not only provide a way of exposing errors, but also
+for specifying program behaviour to future-proof the code and ease
+its maintenance. To increase the likelihood of impact, we 
+integrate smoothly with existing practices, providing 
+specifications as comments and specification synthesis
+specifications in the the tool.
+
 We evaluated our approach by implementing the stencil inference and
-checking procedure ontop of CamFort, an open-source analysis
+checking procedure on top of CamFort, an open-source analysis
 tool\footnotemark for Fortran
 programs and running the inference process over a corpus of 1.1
 million lines of Fortran code.  Our motivation for this work was to

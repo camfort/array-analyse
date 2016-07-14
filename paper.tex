@@ -491,7 +491,7 @@ $\bar{v}$, describing how the array variables $\bar{v}$ are accessed.
 \emph{Regions} are the central building blocks of spatial
 specifications. Regions can either be declared alone with a
 \nonterm{regionDec}, assigning a region specification \nonterm{region} to
-a region variable \nonterm{rvar} or given directly within a
+a region variable \nonterm{rvar} (via $\texttt{::}$) or given directly within a
 \nonterm{spatial} specification.
 
 \paragraph{Region constants}
@@ -549,7 +549,7 @@ b(i) = ( a(i) + a(i-1) + a(i+1) ) / 3.0
 \nonterm{specification} ::= & \nonterm{regionDec} \mid \nonterm{specDec} \\
 \nonterm{specDec} ::= & \term{stencil} \; \nonterm{spec} \;
                         \texttt{::} \; v \\
-\nonterm{regionDec} ::= &  \texttt{region} \; \nonterm{rvar} \; \texttt{=} \;
+\nonterm{regionDec} ::= &  \texttt{region} \; \texttt{::} \; \nonterm{rvar} \; \texttt{=} \;
                          \nonterm{region}\\[0.4em]
 %\nonterm{spec} ::= & \nonterm{spatial} \mid \nonterm{temporal}
 %\\[1em]
@@ -645,9 +645,9 @@ specification. For example, the specification from the previous
  example can be restated as:
 %%
 \begin{minted}{fortran}
-!= region r1 = forward(depth=1, dim=1)
-!= region r2 = forward(depth=1, dim=2)
-!= region robertsCross = r1*r2
+!= region :: r1 = forward(depth=1, dim=1)
+!= region :: r2 = forward(depth=1, dim=2)
+!= region :: robertsCross = r1*r2
 != stencil robertsCross :: a
 \end{minted}
 This is especially useful for common stencil patterns, such as Roberts cross,
@@ -2211,7 +2211,7 @@ stencil specification inferred previously in
 Section~\ref{subsec:inference}:
 %
 \begin{minted}[breakindent=8.1em]{fortran}
-!= region fivepoint = centered(depth=1,dim=1) + centered(depth=1,dim=2)
+!= region :: fivepoint = centered(depth=1,dim=1) + centered(depth=1,dim=2)
 != stencil readOnce, fivepoint :: b
 a(i,j) = b(i,j-1)+b(i,j)+b(i,j+1)+b(i-1,j)+b(i+1,j)
 \end{minted}

@@ -2167,7 +2167,9 @@ over elements of $\textsf{Mult}(\textsf{Approx}(\domainVal{}^n))$ from the spec 
 The first equation states that, if the multiplicity of the spec and code
 model are both $\mathsf{once}$, then the problem is reduced to checking consistency of
 models in which non-unique indexing is allowed, labelled with
-$\mathsf{mult}$. 
+$\mathsf{mult}$. Similarly, the second rule ensures that absence of
+\texttt{readOnce} modifier in the specification does not prohibit a set of
+unique stencil accesses from being consistent.
 
 The second equation considers the case where the specification is
 an \term{atMost} upper-bound approximation (labelled with \textsf{up}

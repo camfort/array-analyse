@@ -2330,6 +2330,18 @@ $\mathit{cons}(\textsf{mult}(\textsf{up}(M_s)),\textsf{mult}(M_c))$.
 is indeed contained in the regions touched by $\texttt{b}$ in $l3'$. 
 \end{example}
 
+One way implementation may deviate from the model is elimination of all $\infty$
+offset vector that occurs when all indices are in non-neighbourhood form \eg{}
+\mintinline{fortran}{b(42,0)}. The only generalisation scheme that can unify
+with this pattern is the most general one, meaning it requires outright
+rejection of an otherwise fine stencil computation. See the following example,
+where not discarding all $\infty$ access pattern prevents verification:
+%
+\begin{minted}{fortran}
+!= stencil forward(dim=1,depth=1) :: a
+a(i) = a(i) + a(i+1) + a(1)
+\end{minted}
+
 \subsection{Approximations and checking}
 
 As noted, the {\textcolor{darkgreen}{\term{fivepoint}}} region

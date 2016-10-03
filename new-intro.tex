@@ -1,0 +1,191 @@
+\documentclass{article}
+
+\usepackage{enumitem}
+\usepackage{minted}
+\newcommand{\ie}{\emph{i.e.}}
+\newcommand{\eg}{\emph{e.g.}}
+\usemintedstyle{vs}
+\fvset{
+  linenos=true,
+  fontsize=\small,
+  breaklines=true,
+  breakafter=),
+  xleftmargin=4em
+}
+
+\begin{document}
+
+\emph{Stencils} are a ubiquitous programming pattern, common in
+scientific and numerical computing applications. Informally, a stencil
+computation computes an array whose value at each index $i$ is
+calculated from a \emph{neighbourhood} of values around $i$ in some
+input array(s), \eg{}, the Game of Life, convolutions in image
+processing, approximations to differential equations. For example, the
+following computes the one-dimensional discrete Laplace transform (an
+approximation to a derivative) in Fortran:
+%
+\begin{minted}{fortran}
+do i = 1, (n-1)
+   b(i) = a(i-1) - 2*a(i) + a(i+1)
+end do
+\end{minted}
+%
+Values \texttt{b(i)} are calculated from a neighbourhood of elements
+around \texttt{i} in the input array \texttt{a}.  In this example, the
+access pattern is simple and easily understood. More complex
+stencil computations are more prone to errors from simple lexical
+mistakes. For example, the following is a three-line snippet from a
+Navier-Stokes fluid simulator in which two arrays are read with
+different data access patterns, across two dimensions.
+%%
+\begin{minted}[firstnumber=20,xleftmargin=4em]{fortran}
+du2dx = ((u(i,j)+u(i+1,j))*(u(i,j)+u(i+1,j))+   &
+  gamma*abs(u(i,j)+u(i+1,j))*(u(i,j)-u(i+1,j))- &
+  (u(i-1,j)+u(i,j))*(u(i-1,j)+u(i,j))-          &
+  gamma*abs(u(i-1,j)+u(i,j))*(u(i-1,j)-u(i,j))) &
+  /(4.0*delx)
+
+duvdy = ((v(i,j)+v(i+1,j))*(u(i,j)+u(i,j+1))+   &
+  gamma*abs(v(i,j)+v(i+1,j))*(u(i,j)-u(i,j+1))- &
+  (v(i,j-1)+v(i+1,j-1))*(u(i,j-1)+u(i,j))-      &
+  gamma*abs(v(i,j-1)+v(i+1,j-1))*(u(i,j-1)-     &
+  u(i,j))) / (4.0*dely)
+
+laplu = (u(i+1,j)-2.0*u(i,j)+u(i-1,j))/delx/delx+ &
+  (u(i,j+1)-2.0*u(i,j)+u(i,j-1))/dely/dely
+
+f(i,j) = u(i,j)+del_t*(laplu/Re-du2dx-duvdy)
+\end{minted}
+%%
+The access pattern is much harder to understand than the
+one-dimensional Laplace.  The miasma of indexing expressions of the
+form \texttt{var(i$\pm$a, j$\pm$b)} is not only hard to read, but is
+prone to simple textual input mistakes, \eg{}, swapping \texttt{-} and
+\texttt{+}, missing an indexing term, or transforming the wrong
+variable \eg{} \texttt{(i+1,j)} instead of \texttt{(i,j+1)}.
+
+In practice, we find that the usual development procedure for complex
+stencil computations involves some ad hoc testing to ensure that no
+transcription mistakes have been made. This may involve visual
+inspection of the results, based on a rendered image. Typically such
+testing is then discarded once the code is seen to be correct.
+
+This is not the only information that is typically discarded. The
+shape of the indexing pattern is often a result of choices made in the
+numerical-analysis discretisation procedure used to convert a set of
+continuous equations into a discrete approximation. Rarely are these
+decisions captured in the source code, yet the shape of access is
+usually uniform and is given a perspicuous and concise description in
+numerical analysis literature \eg{}, ``\emph{centered in space, to a
+  depth of 1}'' referring to indexing terms \texttt{a(i)},
+\texttt{a(i-1)} and \texttt{a(i+1)}.
+
+To support the development of correct stencil computations, we propose
+a simple, abstract specification language for the data access pattern
+of stencils. The shape of the stencil computation in the
+Laplace example is specifed in our language as:
+%
+\begin{minted}[linenos=false]{fortran}
+!=  stencil centered(depth=1, dim=1) :: a
+\end{minted}
+%
+This describes that \texttt{a} is accessed with a symmetrical pattern
+(``centered'') to a depth of one in each direction in its first
+dimension.  The stencil computation shape in the Navier-Stokes example
+is specified as:
+%
+\begin{minted}[linenos=false,xleftmargin=4em,breakindent=3em]{fortran}
+!= stencil centered(depth=1,dim=1)*reflexive(dim=2) + centered(depth=1,dim=2)*reflexive(dim=1) :: u
+
+!= stencil forward(depth=1,dim=1) * backward(depth=1,dim=2) :: v
+\end{minted}
+%
+The specification requires that, over the whole fragment, \texttt{u}
+is accessed with a centered pattern to depth of 1 in both dimensions
+(this is known as the \emph{five-point stencil}) and \texttt{v} is
+accessed in a neighbourhood bounded forwards to depth of $1$ in the
+first dimension and backward to a depth of $1$ in the second
+dimension.
+
+We provide a verification tool for such specification which can check
+the correctness of code against the specification, and can also infer
+specifications, synthesising these as comments in the
+source code. The main features and benefits of our approach are as follows:
+%
+\begin{itemize}
+\item The main use case is that a programmers writes a specification
+  first (perhaps informed by their numerical analysis), then writes
+  the corresponding source code, and lastly has the tool check its
+  conformance to the specifications. This specify-and-check approach
+  removes the usually ad hoc testing effort, and provides the
+  opportunity for easy re-verification in the event of any refactoring
+  of software maintenance activities.
+%
+\item The specification provides a concise description which can be
+  preserved in the source code to provide documentation to future
+  developers, contrasting with ad hoc tests which are usually
+  discarded or specialised to the development environment. Separate from the
+  verification procedure, the infer-and-synthesise mode of the tool
+  provides a way to automatically generate additional useful
+  documentation for future users.
+%
+\item Specifications are integrated into the code as comments for easy
+integration with existing tools, as well as
+  documentation systems (\eg{}, we support Doxygen syntax).
+%
+\item Our specification format is deliberately abstract, with a small
+  number of combinators that \emph{do not involve any indexing
+    expressions}, \eg{} does not involve expressions like
+  \texttt{a(i+1,j-1)}. This contrasts with other stencil specification
+  approaches. For example, the work of Kamil et al. provides
+  full-functionality specifications of stencil computations from which
+  equivalent DSL code can be generated.  If a user wishes to specify,
+  say, the Naiver-Stokes stencil above, they must write a
+  specification which is very similar, involving textually dense
+  array-indexing expressions. Therefore any low-level mistakes that
+  could be made programming complex indexing code could also be made
+  when writing a specification. Our specifications are much more
+  abstract, and also more lightweight with the aim of aiding adoption
+  by scientists.
+\end{itemize}
+
+It should be noted that our verification tool does not deal in the
+class of bugs that can be detected automatically (\emph{push-button
+  verification}). Instead, stencil computation bugs must largely be
+identified relative to a specification of the intended behaviour.
+
+In this paper, we make the following contributions:
+%
+\begin{itemize}
+\item we introduce our specification language for stencils
+  that captures many common forms of data access pattern
+  (Section~\ref{sec:lang});
+
+\item we detail checking and inference algorithms for our
+  specifications (Section~\ref{sec:analysis}), derived from a
+  denotational model for the specificaiton language
+  (Section~\ref{sec:semantics});
+
+\item we provide an implementation of our approach as an extension to
+  CamFort, an open-source program analysis tool for Fortran;
+
+\item we report on a quantitative study of stencil computations on a
+  corpus of numerical Fortran programs (ranging from small to large),
+  totalling one million lines of code. Our tool identifies and infers
+  specifications for 35,000 stencil computations in the
+  corpus. Approximately 10\% of the stencils we found are non-trivial,
+  corresponding to code which is a possible source of errors. This
+  validates our hypothesis that the majority of stencil computations have a
+  regular shape, and validates the design of our language in its
+  capability to capture many core patterns.
+
+\item We give a detailed verification case study of two
+  particular stencil computation, simulating programming errors.
+  Our approach is able to detect the all possible
+  indexing errors.
+\end{itemize}
+%
+
+
+
+\end{document}

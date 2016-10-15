@@ -316,11 +316,11 @@ In this paper, we make the following contributions:
 \begin{itemize}[leftmargin=0.8em]
 \item we introduce a specification language for stencils 
   that captures many common forms of data access pattern
-  (Section~\ref{sec:lang}); 
+  (\S~\ref{sec:lang}); 
 
 \item we detail inference, checking, and specification synthesis 
-algorithms for our language (Section~\ref{sec:analysis}), derived from
-a denotational model for the language (Section~\ref{sec:semantics});
+algorithms for our language (\S~\ref{sec:analysis}), derived from
+a denotational model for the language (\S~\ref{sec:semantics});
 
 \item we provide an implementation of our approach as an extension to
   CamFort, an open-source program analysis tool for Fortran;
@@ -416,13 +416,13 @@ a fixed, statically-determined access pattern. For example, the
 indices $(i, j)$, $(i-1, j)$, $(i+1, j)$, $(i, j-1)$, and $(i, j+1)$
 for all $i, j$ within the inner boundary of the array (to avoid
 out-of-bounds access at the edges). We revisit this hypothesis
-in Section~\ref{sec:evaluation} with the inference of
+in \S~\ref{sec:evaluation} with the inference of
 such regular stencil patterns on our corpus of numerical programs. 
 
-Section~\ref{sec:syntax} outlines the syntax.
- Section~\ref{sec:eqs} provides an equational
+\S~\ref{sec:syntax} outlines the syntax.
+ \S~\ref{sec:eqs} provides an equational
 theory for specifications and a notion of
-sub-specification.  Section~\ref{sec:semantics}
+sub-specification.  \S~\ref{sec:semantics}
 gives a semantic model via a set-based interpretation, for which the
 equality and sub-specification relation are proven sound.
 
@@ -934,12 +934,12 @@ commutative. This distribution of \term{*} over \term{+} is key as it
 is used internally to give a normal form for stencil specifications
 akin to Disjunctive Normal Form (DNF) (where \term{+} is taken as
 ``disjunction'' and \term{*} as the ``conjunction''). We revisit this
-normalisation in Section~\ref{sec:inf-step4}.
+normalisation in \S~\ref{sec:inf-step4}.
 
 The equational theory provides not only an axiomatic semantics
 for the language, which the user can use to rewrite their
 specification, but it is also used extensively in the inference
-procedure (Section~\ref{subsec:inference}) to simplify specifications.
+procedure (\S~\ref{subsec:inference}) to simplify specifications.
 
 \begin{figure}[t]
 \begin{align*}
@@ -1030,11 +1030,11 @@ approximation modifiers.
 
 We define a denotational model of the semantics of our 
 stencil specification language. This model has a number of purposes: (1) it is used in the inference,
-checking, and synthesis algorithms (Section~\ref{sec:analysis}); (2)
+checking, and synthesis algorithms (\S~\ref{sec:analysis}); (2)
 justifies the equational
 theory and approximations of the previous section; and (3) can be used
 to guide correct implementations. The model domain is over sets of vectors which we call \emph{index
-  schemes}, which we introduce first before the model in Section~\ref{subsec:model}.
+  schemes}, which we introduce first before the model in \S~\ref{subsec:model}.
 
 \subsection{Indexing schemes and generalisation}
 \label{subsec:schemes-and-gen}
@@ -1431,7 +1431,7 @@ no such modifier and \textsf{lower} and \textsf{upper} for
 \term{atLeast} and \term{atMost}. Later, it will be useful to model
 pairs of lower and upper bounds which is provided by \textsf{both} 
 (but which isn't used here). These are used for labelled models, and other components later in
-Section~\ref{sec:analysis}.% with additional information.
+\S~\ref{sec:analysis}.% with additional information.
 \label{def:mult-and-approx}
 \end{definition}
 \vspace{-0.5em}
@@ -1496,9 +1496,9 @@ S <: T
 
 \noindent
 We briefly sketch the algorithms for inferring and synthesising
-specifications (Section~\ref{subsec:inference}), for checking code
-against specifications (Section~\ref{subsec:checking}). These utilise the semantic model of
-Section~\ref{sec:semantics}.
+specifications (\S~\ref{subsec:inference}), for checking code
+against specifications (\S~\ref{subsec:checking}). These utilise the semantic model of
+\S~\ref{sec:semantics}.
 
 \paragraph{Syntax helper functions}
 The function \rhsExp{} maps source statements to a
@@ -1665,7 +1665,7 @@ example this is reached in the first step.
 leaving a minimal set of spans (which may overlap, but none of which
 fully contains another), Figure~\ref{fig:inference-steps-informal}(c).
 The final spans are used to synthesise concrete stencil specification
-syntax (Section~\ref{sec:inf-step4}), where
+syntax (\S~\ref{sec:inf-step4}), where
 each span becomes a product \texttt{*} of regions which are 
 combined by the sum \texttt{+}.
 
@@ -2097,7 +2097,7 @@ inference procedure. For our example, we infer and then synthesise the
 
 In checking mode, the access pattern of a stencil computation in the
 source language is verified against a specification. The model of
-Section~\ref{sec:semantics} again aids this process.  Checking
+\S~\ref{sec:semantics} again aids this process.  Checking
 proceeds by generating a model $M$ from a specification and generating a set $N$ of indexing
 schemes from the source code. The source code is then valid with
 respect to the specification if $N$ is \emph{consistent} with $M$. The
@@ -2209,7 +2209,7 @@ consistency is defined inductively similar to the \textsf{exact} case.
 We give an extended example of verifying a stencil computation against
 its specification. We consider a more general, but still consistent, version of the \textit{five-point}
 stencil specification inferred previously in
-Section~\ref{subsec:inference}:
+\S~\ref{subsec:inference}:
 %
 \begin{minted}[breakindent=8.1em]{fortran}
 != region :: fivepoint = centered(depth=1,dim=1) + centered(depth=1,dim=2)
@@ -2225,7 +2225,7 @@ We explain the steps.
 \begin{enumerate}  
 %
 \item Generate the model from the specification as in
-  Section~\ref{sec:semantics}. 
+  \S~\ref{sec:semantics}. 
 %
 \begin{align*}
  M_s= \{  \vtwo{-1}{\infty},
@@ -2345,9 +2345,9 @@ a(i) = a(i) + a(i+1) + a(1)
 
 As noted, the {\textcolor{darkgreen}{\term{fivepoint}}} region
  above is more accepting than that used in
-Section~\ref{sec:lang}. This introduces a new notion of approximation
+\S~\ref{sec:lang}. This introduces a new notion of approximation
 beyond what is given by the syntactic theory of sub-specifications
-$<:$ in Section~\ref{sec:eqs}. Consistency leads to a notion of
+$<:$ in \S~\ref{sec:eqs}. Consistency leads to a notion of
 approximation that is a \textit{semantic sub-specification} relation:
 %using upper and lower bounds because the in both cases the specifications are
 %used to generate \emph{exact} models.
@@ -2471,7 +2471,7 @@ corpus. This was carried out by running our implementation in
 whole-code-base inference mode. We define a \emph{potential} statement as one whose left-hand
 side is an array subscript on neighbourhood indices. These statements
 are the inputs to Step 2 of the Inference process described in 
-Section~\ref{subsec:inference}. Each potential statement for which we
+\S~\ref{subsec:inference}. Each potential statement for which we
 eventually generate some specification is also counted as
 an \emph{actual} statement.
 

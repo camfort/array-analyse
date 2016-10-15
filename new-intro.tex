@@ -137,16 +137,15 @@ integration with existing tools, as well as
   number of combinators that \emph{do not involve any indexing
     expressions}, \eg{} does not involve expressions like
   \texttt{a(i+1,j-1)}. This contrasts with other stencil specification
-  approaches. For example, the work of Kamil et al. provides
-  full-functionality specifications of stencil computations from which
-  equivalent DSL code can be generated.  If a user wishes to specify,
-  say, the Naiver-Stokes stencil above, they must write a
-  specification which is very similar, involving textually dense
-  array-indexing expressions. Therefore any low-level mistakes that
-  could be made programming complex indexing code could also be made
-  when writing a specification. Our specifications are much more
-  abstract, and also more lightweight with the aim of aiding adoption
-  by scientists.
+  approaches. For example, the work of Kamil et al.~\cite{kamil2016verified}
+  provides full-functionality specifications of stencil computations from which
+  equivalent DSL code can be generated.  If a user wishes to specify, say, the
+  Naiver-Stokes stencil above, they must write a specification which is very
+  similar, involving textually dense array-indexing expressions. Therefore any
+  low-level mistakes that could be made programming complex indexing code could
+  also be made when writing a specification. Our specifications are much more
+  abstract, and also more lightweight with the aim of aiding adoption by
+  scientists.
 \end{itemize}
 
 It should be noted that our verification tool does not deal in the

@@ -189,17 +189,22 @@ xrightmargin=0.2cm,commandchars=\\\{\},baselinestretch=0.98,numbersep=0.9em}
 \newcommand{\effdims}[2]{\mathit{constr}(#1)_{#2}}
 
 \newcommand{\trule}[1]{{\footnotesize{#1}}}
-
-\include{results}
+%\include{results}
 
 \title{Verification of Stencil Computations with Spatial
   Specifications}
-\titlebanner{DRAFT -- Do not distribute}
+%\titlebanner{DRAFT -- Do not distribute}
 \authorinfo{}{}{}
-\preprintfooter{DO NOT DISTRIBUTE}
+%\preprintfooter{DO NOT DISTRIBUTE}
 
 \begin{document}
 \maketitle
+
+\keywords{program verification, specification, stencils}
+
+\bibliographystyle{abbrvnat}
+
+\section{Introduction}
 
 \emph{Stencils} are a ubiquitous programming pattern, common in
 scientific and numerical computing applications. Informally, a stencil
@@ -212,7 +217,7 @@ approximation to a derivative) in Fortran:
 %
 \begin{minted}{fortran}
 do i = 1, (n-1)
-   b(i) = a(i-1) - 2*a(i) + a(i+1)
+      b(i) = a(i-1) - 2*a(i) + a(i+1)
 end do
 \end{minted}
 %
@@ -224,7 +229,7 @@ mistakes. For example, the following is a three-line snippet from a
 Navier-Stokes fluid simulator in which two arrays are read with
 different data access patterns, across two dimensions.
 %%
-\begin{minted}[firstnumber=20,xleftmargin=4em]{fortran}
+\begin{minted}[firstnumber=20,xleftmargin=2em]{fortran}
 du2dx = ((u(i,j)+u(i+1,j))*(u(i,j)+u(i+1,j))+   &
   gamma*abs(u(i,j)+u(i+1,j))*(u(i,j)-u(i+1,j))- &
   (u(i-1,j)+u(i,j))*(u(i-1,j)+u(i,j))-          &
@@ -234,7 +239,7 @@ du2dx = ((u(i,j)+u(i+1,j))*(u(i,j)+u(i+1,j))+   &
 duvdy = ((v(i,j)+v(i+1,j))*(u(i,j)+u(i,j+1))+   &
   gamma*abs(v(i,j)+v(i+1,j))*(u(i,j)-u(i,j+1))- &
   (v(i,j-1)+v(i+1,j-1))*(u(i,j-1)+u(i,j))-      &
-  gamma*abs(v(i,j-1)+v(i+1,j-1))*(u(i,j-1)-     &
+  gamma*abs(v(i,j-1)+v(i+1,j-1))*(u(i,j-1)-     & 
   u(i,j))) / (4.0*dely)
 
 laplu = (u(i+1,j)-2.0*u(i,j)+u(i-1,j))/delx/delx+ &

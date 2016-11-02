@@ -13,7 +13,11 @@
   xleftmargin=4em
 }
 
+\title{Spatial Verification of Stencil Computations with Lightweight
+   Specifications}
+
 \begin{document}
+\maketitle
 
 \emph{Stencils} are a ubiquitous programming pattern, common in
 scientific and numerical computing applications. Informally, a stencil
@@ -149,7 +153,8 @@ integration with existing tools, as well as
 \end{itemize}
 
 It should be noted that our verification tool does not deal in the
-class of bugs that can be detected automatically (\emph{push-button
+class of bugs that can be detected automatic
+ally (\emph{push-button
   verification}). Instead, stencil computation bugs must largely be
 identified relative to a specification of the intended behaviour.
 
@@ -158,12 +163,13 @@ In this paper, we make the following contributions:
 \begin{itemize}
 \item we introduce our specification language for stencils
   that captures many common forms of data access pattern
-  (\S~\ref{sec:lang});
+  (\S~\ref{sec:lang}); we explain the syntax and describe informally
+  its semantics before giving a concrete denotational model
+  which makes the meaning precise (\S~\ref{sec:model});
 
 \item we detail checking and inference algorithms for our
-  specifications (\S~\ref{sec:analysis}), derived from a
-  denotational model for the specificaiton language
-  (\S~\ref{sec:semantics});
+  specifications (\S~\ref{sec:analysis}), derived from the
+  denotational model;
 
 \item we provide an implementation of our approach as an extension to
   CamFort, an open-source program analysis tool for Fortran;
@@ -172,16 +178,16 @@ In this paper, we make the following contributions:
   corpus of numerical Fortran programs (ranging from small to large)
   (\S~\ref{sec:evaluation}), totalling one million lines of code. Our tool
   identifies and infers specifications for 35,000 stencil computations in the
-  corpus. Approximately 10\% of the stencils we found are non-trivial,
-  corresponding to code which is a possible source of errors. This validates
+  corpus. Approximately 10\% of the stencils we found are non-trivial;
+  we quantify the different classes of pattern found in our corpus. This validates
   our hypothesis that the majority of stencil computations have a regular
   shape, and validates the design of our language in its capability to capture
   many core patterns.
 
-\item We give a detailed verification case study of two
+\item to test our implementation, we give a verification case study of two
   particular stencil computation commonly used in scientifc computing,
   simulating programming errors. Our approach is able to detect all
-  possible indexing errors for these computations.
+  possible indexing errors for these computations (\S~\ref{sec:casestudies}).
 \end{itemize}
 %
 

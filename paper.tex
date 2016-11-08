@@ -154,7 +154,7 @@ xrightmargin=0.2cm,commandchars=\\\{\},baselinestretch=0.98,numbersep=0.9em}
 \newcommand{\stenReflSR}[1]{\term{refl} (\term{dim=}#1)}
 
 % SYNTAX OPERATIONS AND PREDICATES
-\newcommand{\neigh}{\textsf{neigh}}
+%\newcommand{\neigh}{\textsf{neigh}}
 \newcommand{\arrayTy}{\textsf{array}}
 \newcommand{\rhsExp}{\textsf{rhsExp}}
 \newcommand{\var}{\textsf{var}}
@@ -379,6 +379,41 @@ In this paper, we make the following contributions:
 \newcommand{\domainVal}{\mathbb{Z}_\infty}
 \section{Stencil specifications}
 
+\begin{definition}[Base induction variable]
+  An integer variable is a \emph{base induction variable} if is the
+  control variable of a ``for'' loop (or equivalent, \eg{},
+  \texttt{do} in Fortran for our implementation) incremented by $1$
+  per iteration. The variable is interpreted as a based induction
+variable only within the scope of the loop body. For brevity we
+say \emph{induction variable}, which are ranged over by $i, j, k$
+throughout.
+%TODO: consider mentioning derived, non-based induction variables
+% as we did before.
+\end{definition}
+
+\begin{definition}[Array subscripts and indices]
+  An \emph{array subscript}, denoted $a(\bar{e})$, is an expression
+  which reads from an array $a$ at an \emph{index} specified by a
+  comma-separated sequence of integer expressions denoted $\bar{e}$ or 
+  in expanded form as $(e_1, \ldots, e_n)$. An
+  \emph{index} $\bar{e}$ is called \emph{relative} if it is defined in
+  terms of induction variables.
+\end{definition}
+
+\begin{definition}[Neighbourhood index]
+\label{def:neighbour}
+  For an array subscript $a(\bar{e})$ an index $\bar{e}$ is called a
+  \emph{neighbourhood index} if every $e \in \bar{e}$ is of the form
+  $e \equiv i$ or $e \equiv i + c$ or $e \equiv i - c$ where $c$ is an
+  integer constant. That is, a neighbourhood index is a relative index
+  where each component is a constant translation of a base induction
+  variable. (The relation $\equiv$ here identifies terms up-to
+  commutativity of $+$ and the inverse relationship of $+$ and $-$
+  \eg{}, $(-b) + i \equiv i - b$).  %We classify neighbourhood indices
+%  by the predicate $\neigh_I$ where $I$ is a set of induction
+%  variables. We omit $I$ when clear from the context.
+\end{definition}
+
 \section{The language}
 
 We define a simple set-theoretic denotational model of the semantics
@@ -391,6 +426,71 @@ approximations of the previous section; and (4) can be used to guide
 correct implementations. The model domain is over sets of vectors
 which we call \emph{index schemes}, which we introduce first before
 the model in \S~\ref{subsec:model}.
+
+\begin{definition}
+  An \emph{index scheme} is a vector of size $n$ (an $n$-vector) with
+  values drawn from $\domainVal = \mathbb{Z} \cup \{\infty\}$.  Values
+  in $\mathbb{Z}$ represent constant offsets of neighbourhood indices
+  (expressions of the form $i \pm c$ where $i$ is an induction
+  variable and $c$ is a constant integer, Def.~\ref{def:neighbour},
+  p.~\pageref{def:neighbour}). $\infty$ represents any indexing
+  behaviour--- it is a wildcard.  Throughout $u, v, w$ range over
+  index schemes and $u_i$ denotes the $i^{th}$ element of $u$. We
+  write $(\domainVal)^n$ for the set of $n$-dimensional schemes.
+\end{definition} 
+
+Indexing schemes give an abstract
+representation of array subscripts in the source language.
+Our model represents the meaning of stencil specifications
+as indexing schemes, which explain the range of possible
+indexing behaviours which are consistent with the specification.
+The relationship between indexing schemes and source language
+terms is given precisely by the following function \textsf{schematic} which
+maps syntactic index expressions to indexing schemes. This
+is used in inference and checking.
+
+\newcommand{\schemeOne}{\textsf{s}_I}
+%\newcommand{\schemeOne}{\textsf{schema$^1_I$}}
+\newcommand{\schemeN}{\textsf{schematic}_I}
+%\newcommand{\schemeN}{\textsf{schema$^n_I$}}
+\begin{definition}%[Schematic]
+\label{def:schematic}
+Let $\schemeOne$ be a partial function, parameterised by a set of
+induction variables $I$, mapping expression syntax to
+$\domainVal$ values:
+%%
+\begin{align*}
+\schemeOne(e)
+ & =  \begin{cases}
+c & e \equiv i + c \;\; \wedge \;\; i \in I \\
+-c & e \equiv i - c \;\; \wedge \;\; i \in I \\
+\infty & \textit{$I \not\subseteq \textit{FV}(e)$} \\
+\bot   & \textit{otherwise}
+\end{cases}
+\end{align*}
+where $\textit{FV}(e)$ is the set of free variables in $e$. In the
+first two cases, expressions that are a constant offset of an 
+induction variable (\ie{}, neighbourhood indices) are mapped to the
+offset $c$ or $-c$ $\in \domainVal$. In the third case, if the
+expression is not a neighbourhood index, but neither is it a relative
+index (\ie{}, it is not defined in terms of an induction variable) then it
+is mapped to $\infty \in \domainVal{}$. Otherwise, $\schemeOne(e)$
+is undefined (returns $\bot$). 
+
+The partial function $\schemeN$, also parameterised by a set of
+induction variables $I$, uses the above operation $\schemeOne$ to
+ maps from the syntax of indices to index schemes, \ie{} values of 
+$\domainVal^n$. It is defined on the syntax of index
+expressions $\bar{e} = (e_1, ..., e_n)$ as:
+\begin{align*}
+\schemeN(e_1, ..., e_n) & =
+[\schemeOne(e_1) ... \schemeOne(e_n) ]
+\quad \textit{iff} \;\; \forall x . \schemeOne(e_x) \neq \bot
+\end{align*}
+%
+Thus, for an indexing expression, if each component is a neighbourhood
+index, then $\schemeN$ maps it to an indexing scheme.
+\end{definition}
 
 \bibliography{references}
 

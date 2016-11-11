@@ -388,13 +388,13 @@ over its (imperative) variables. %By
 %``variable'', we mean in the imperative sense (named binders to memory cells).
 
 \begin{definition}[Base induction variable]
-  An integer variable is a \emph{base induction variable} if is the
+  An integer variable is a \emph{base induction variable} (or simply
+\emph{induction variable} for brevity) if it is the
   control variable of a ``for'' loop (or equivalent, \eg{},
   \texttt{do} in Fortran for our implementation) incremented by $1$
   per iteration. The variable is interpreted as a based induction
-variable only within the scope of the loop body. For brevity we
-say \emph{induction variable}, which are ranged over by $i, j, k$
-throughout.
+variable only within the scope of the loop body. Induction varaibles 
+are ranged over by $i, j, k$ throughout.
 %TODO: consider mentioning derived, non-based induction variables
 % as we did before.
 \end{definition}
@@ -402,10 +402,14 @@ throughout.
 \begin{definition}[Array subscripts and indices]
   An \emph{array subscript}, denoted $a(\bar{e})$, is an expression
   which reads from an array $a$ at an \emph{index} specified by a
-  comma-separated sequence of integer expressions denoted $\bar{e}$ or 
-  in expanded form as $(e_1, \ldots, e_n)$. An
-  \emph{index} $\bar{e}$ is called \emph{relative} if it is defined in
-  terms of induction variables.
+  comma-separated sequence of integer expressions denoted $\bar{e}$ or
+  in expanded form as $(e_1, \ldots, e_n)$. An \emph{index} $\bar{e}$
+  is called \emph{relative} if each $e \in \bar{e}$ is defined in
+  terms of an induction variable.
+
+  Relative indices contrast with absolute indices where each $e \in
+  \bar{e}$ is a constant integer expression relative to the containing
+  loop, \ie{}, $e$ is not defined in terms of an induction variable.
 \end{definition}
 
 \begin{definition}[Neighbourhood index]
@@ -417,26 +421,84 @@ throughout.
   where each component is a constant translation of a base induction
   variable. (The relation $\equiv$ here identifies terms up-to
   commutativity of $+$ and the inverse relationship of $+$ and $-$
-  \eg{}, $(-b) + i \equiv i - b$).  %We classify neighbourhood indices
-%  by the predicate $\neigh_I$ where $I$ is a set of induction
-%  variables. We omit $I$ when clear from the context.
+  \eg{}, $(-b) + i \equiv i - b$). 
 \end{definition}
 
-\dnote{Define: Stencil kernel, or maybe stencil assignment,
- and stencil much earlier than previously?}
+\begin{definition}[Stencil computations]
+  Let $a$ be an array of dimensionality $n$ and $\overline{b}$ a
+  collection of arrays of arbitrary (possible differing)
+  dimensionalities.  
+  A \emph{stencil computation} comprises an iteration by a set $I$ of at
+  most $n$ induction variables 
+  over a subset of the index space of $a$. Elements of $a$ are determined by an
+  assignment $a(\bar{e}) = e_r$ where each $e \in
+  \bar{e}$ is either a neighbourhood or constant index.
+  For all arrays $b \in \bar{b}$ and array subscripts $b(\var{e'})$ in
+  $e_r$ and that flow to $e_r$, then each $e' \in \bar{e'}$ is also
+  either a neighbourhood or constant index.
 
-Specification declarations associate (via
-the operator $\texttt{::}$) a specification to one or more array
-variables $\bar{v}$.% specifying the shape of indexing expressions for
+  We refer to the assignment $a(\bar{e}) = e_r$ and all the associated
+  statements with dataflow to $e_r$ as the \emph{stencil kernel}.
+\label{def:stencil}
+\end{definition}
+
+Specification declarations associate to a stencil kernel 
+a specification for the array access on one or more array
+variables $\bar{v}$ within that kernel.
+
+% specifying the shape of indexing expressions for
 %arrays $\bar{v}$ that are simultaenously permitted and expected within
 %the code to which the specification is given.
 
 \begin{definition}[Consistency, informal]
-  A stencil specification defines a \emph{region} which, informally,
-  is an n-dimensional rectangle which is possibly infinite in some
-  dimensions. A stencil kernel in code is \emph{consistent} with a
-  specification on array variable $a$ if every array index on $a$
+  A stencil specification defines a \emph{region} associated to an
+  array variable $a$ against which a stencil kernel should be
+  \emph{consistent}. Informally, the region defined by a specification
+  is an $n$-dimensional rectangle crossing the origin.
+  Consistency is then a two way requirement.
+  On the one hand, all array subscripts contributing to the kernel
+  should be consistent with the region; on the other, all parts of the
+  region should have an index which fits the space. 
 \end{definition}
+\todo{Improve the above- haven't quite introduce enough yet to say
+more}
+
+\begin{figure}[t]
+\vspace{-0.5em}
+\begin{align*}
+\def\arraystretch{1.2}
+\setlength{\arraycolsep}{0.2em}
+\newcommand{\dimTy}{\mathbb{N}_{>0}}
+\begin{array}{rl}
+\nonterm{specification} ::= & \nonterm{regionDec} \mid \nonterm{specDec} \\
+\nonterm{specDec} ::= & \term{stencil} \; \nonterm{spec} \;
+                        \texttt{::} \; v \\
+\nonterm{regionDec} ::= &  \texttt{region} \; \texttt{::} \; \nonterm{rvar} \; \texttt{=} \;
+                         \nonterm{region}\\[0.4em]
+%\nonterm{spec} ::= & \nonterm{spatial} \mid \nonterm{temporal}
+%\\[1em]
+\nonterm{spec} ::= & [\nonterm{mult},] \; [\nonterm{approx},] \; \nonterm{region} \\
+\nonterm{mult} ::= & \term{readOnce} \\
+\nonterm{approx} ::= & \term{atMost} \; \mid \; \term{atLeast} \\[0.1em]
+\nonterm{region} ::= & \nonterm{rvar} \; \\
+\multicolumn{2}{l}{\qquad\qquad \mid \; \stenRefl{\dimTy}} \\
+\multicolumn{2}{l}{\qquad\qquad \mid \;\stenFwd{\mathbb{N}_{>0}}{\dimTy}{\;[, \texttt{nonpointwise}]}} \\
+\multicolumn{2}{l}{\qquad\qquad \mid \; \stenBwd{\mathbb{N}_{>0}}{\dimTy}{\;[, \texttt{nonpointwise}]}} \\
+\multicolumn{2}{l}{\qquad\qquad \mid \; \stenCen{\mathbb{N}_{>0}}{\dimTy}{\;[, \texttt{nonpointwise}]}} \\
+\multicolumn{2}{l}{\qquad\qquad \mid \; \nonterm{region} \, \term{+}
+  \, \nonterm{region} \; \mid \; \nonterm{region} \; \term{*} \; \nonterm{region}} \\[0.5em]
+%\multicolumn{2}{l}{\qquad\qquad \mid \; \nonterm{rvar}}  
+%\\[0.5em]
+%\nonterm{temporal} ::= \; & \term{dependency} \; (v \; \{ , v \}) [, \texttt{mutual}]
+%  \\[0.5em]
+\nonterm{rvar} ::= \; & [\text{\term{a}-\term{z}$\,$\term{A}-\term{Z}$\,$\term{0}-\term{9}}]+\\[-0.5em]
+\end{array}
+\end{align*}
+\caption{Specification syntax (EBNF grammar)}
+\label{fig:syntax}
+\vspace{-0.8em}
+\end{figure}
+
 
 \subsection{Specification syntax}
 \label{sec:syntax}
@@ -467,21 +529,23 @@ inclusively for some induction variable $i$.  Similarly, a
 indices in dimension $d$ from $i$ to $i - n$, and \term{centered}
 of depth $n$ from $i - n$ to $i + n$. A \term{pointwise}
 stencil specifies a neighbour index $i$. For example the
-following shows three specifications with three consistent stencil
-kernels reading from arrays \term{a}, \term{b}, and \term{c} respectively:
+following shows four specifications with four consistent stencil
+kernels reading from arrays \term{a}, \term{b}, \term{c} and \term{d} respectively:
 %%
 \begin{minted}{fortran}
 != stencil forward(depth=2, dim=1) :: a
-d(i, 0) = a(i, 0) + a(i+1, 0) + a(i+2, 0)
+e(i, 0) = a(i, 0) + a(i+1, 0) + a(i+2, 0)
 != stencil backward(depth=2, dim=1) :: b
-d(i, j) = b(i, j) + b(i-1, j) + b(i-2, j)
+e(i, j) = b(i, j) + b(i-1, j) + b(i-2, j)
 != stencil centered(depth=1, dim=2) :: c
-d(i, j) = (c(j-1) + c(j) + c(j+1))/3.0
+e(i, j) = (c(j-1) + c(j) + c(j+1))/3.0
+!= stencil pointwise(dim=3) :: d
+e(i, j) = d(0, 0, i)
 \end{minted}
 %%
 Note that every dimension need not be specified for; in the above, the
-specifications on lines $1$ and $5$ are the principal specifications
-for code on lines $2$ and $6$, but the specification on line
+specifications on lines $1$ and $5$ and $7$ are the principal specifications
+for code on lines $2$ and $6$ and $8$, but the specification on line
 $3$ is not principal for line $4$;
 we return to the notion of principality later.
 
@@ -496,8 +560,7 @@ variables, \ie{}, offset by $0$.  For example, the following is a
 b(i) = a(i-1) + a(i-2)
 \end{minted}
 %
-The \term{nonpointwise} attribute cannot be used on \term{pointwise}
-regions.
+The \term{pointwise} regions cannot have a \term{nonpointwise} attribute.
 
 
 

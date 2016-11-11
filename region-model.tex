@@ -6,16 +6,19 @@
 \def\arraystretch{1.4}
 \hspace{-0.2em}
 \begin{array}{rl}
-\multicolumn{2}{l}{\interp{\stenFwdSR{k}{d}{r}}_n\!=\!
- \{i\singleEntry{d}{n} \,|\, i \in \{1, ..., k\} \} \, \cup \, \{
-                             \zeroEntry{d}{n} \mid r \}} \\
+\multicolumn{2}{l}{\interp{\stenFwdSR{k}{d}{p}}_n\!=\!
+ \{\zeroEntry{d}{n} \mid p \} \cup
+ \{i\singleEntry{d}{n} \,|\, i \in \{1, ..., k\} \}} \\
 %%
-\multicolumn{2}{l}{\interp{\stenBwdSR{k}{d}{r}}_n\!=\!\{i\singleEntry{d}{n} \,|\, i \in \{-k, ..., -1\} \}\!\cup\!\{
-  \zeroEntry{d}{n} \,|\, r \}} \\
+\multicolumn{2}{l}{\interp{\stenBwdSR{k}{d}{p}}_n\!=\!
+\{\zeroEntry{d}{n} \,|\, p \} \cup
+\{i\singleEntry{d}{n} \,|\, i \in \{-k, ..., -1\} \}} \\
 %%
 \multicolumn{2}{l}{
-\interp{\stenCenSR{k}{d}{r}}_n\!=\!\{i\singleEntry{d}{n} \,|\, i \in \{\text{-}k,..., k\}\!\setminus\!0 \}
-\!\cup\!\{ \zeroEntry{d}{n} \,|\, r \}} \\
+\interp{\stenCenSR{k}{d}{p}}_n\!=\!
+\{ \zeroEntry{d}{n} \,|\, p \} \cup
+\{i\singleEntry{d}{n} \,|\, i \in \{\text{-}k,..., k\}\!\setminus\!0 \}}
+\\
 \interp{\stenReflS{d}}_n & = \{ \zeroEntry{d}{n} \} \\
 %
 % REGION PROD model

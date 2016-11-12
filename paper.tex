@@ -188,7 +188,7 @@ xrightmargin=0.2cm,commandchars=\\\{\},baselinestretch=0.98,numbersep=0.9em}
 %% MODEL
 \newcommand{\effdims}[2]{\mathit{constr}(#1)_{#2}}
 
-\newcommand{\trule}[1]{{\footnotesize{#1}}}
+\newcommand{\trule}[1]{{\footnotesize{(\text{#1})}}}
 %\include{results}
 
 \title{Verification of Stencil Computations with Spatial
@@ -917,21 +917,90 @@ $\infty$ in a constrained dimension position.
 
 \section{Checking and inference}
 
+%\newcommand{\cons}[3]{\mathbf{C}_{#3}(#1, #2)}
+\newcommand{\cons}[3]{#2 \;\, \textbf{cons} \,\, #1}
+\newcommand{\consA}[3]{#2 \;\, \textbf{cons}_M \,\, #1}
+
 \subsection{Specification checking}
 
-%\newcommand{\cons}[3]{\mathbf{C}_{#3}(#1, #2)}
-\newcommand{\cons}[3]{#2 \;\, \textbf{consistent} \,\, #1}
+\begin{definition}
+Consistency is defined in terms of the binary predicate
+$\textbf{cons}$ in Figure~\ref{fig:consistency}.
+Consistency relates models of source code and models 
+of specifications (which are bounded), thus
+ $\textbf{cons} \subseteq \mathcal{P}(\domainVal{}^n)
+\times \textsf{Approx}(\mathcal{P}(\domainVal{}^n))$. 
+We denote sets of indexing schemes $\mathcal{P}(\domainVal{}^n)$
+that come from a specification model by $S$ and from source code model
+by $C$.
+
+Rules (\emph{up}) and (\emph{low}) are the core rules relating models of
+specifications and models of code. The (up) rule 
+considers the case where the specification is
+an \term{atMost} upper-bound approximation.
+An upper bound specification means that for every scheme in the code
+model, modelling a source-level index, $\forall u \in C$ there exists
+a generalising scheme in the spec model $\exists v \in S$, \ie{}, $u
+\preceq v$. That is, every source-level index scheme is generalised by the specification.
+The (down) rule provides the case of 
+\term{atLeast} lower-bound specifications. Consistency is dual to the above: 
+for every scheme in the specification model $\forall v \in S$ there
+exists a scheme in the code model $\exists u \in C$ such that $u
+\preceq v$. That is, every specification scheme is generalised by some source
+index scheme.
+
+The (\emph{up}) and (\emph{down}) rules are combined for an \textsf{exact}
+specification (\textit{exact}) such that a specification's model
+provides both a consistent lower and consistent upper bound on
+for the source code. Thus, for every scheme in the code model there
+is a scheme in the spec model that generalises it, and for every
+scheme in the spec model there is a scheme in the source model that
+specialises it.  The (\textit{both}) rule is similar, decomposing
+a specification which has both a lower and upper bound into
+consistency of these bounds.
+
+Rules $(1)$ and $(*)$ extend the $\textbf{cons}$
+predicate to $\textbf{cons}_M \subseteq
+\textsf{Mult}(\mathcal{P}(\domainVal{}^n)) 
+\times \textsf{Mult}(\textsf{Approx}(\mathcal{P}(\domainVal{}^n)))$
+which inludes multiplicity information. Both rules 
+state that consistent models remain consistent if they
+have the same multiplicity. Relatedly, rule $(1 < *)$ ensures
+that absence of a \texttt{readOnce} modifier in the specification
+does not prohibit a set of unique stencil accesses in the
+code from being consistent.
+\end{definition}
+
+\begin{figure}[t]
 \begin{align*}
-\dfrac{\forall u \in C, \exists v \in S .  \, u \preceq v}
-      {\cons{\mathsf{up}(S)}{C}{n}}
+\begin{array}{c}
+%%
+\trule{up}\dfrac{\forall u \in C \, \exists v \in S .  \, u \preceq v}
+      {\cons{\textsf{upper}(S)}{C}{n}}
 \qquad
-\dfrac{\forall v \in S, \exists u \in C . \, u \preceq v}
-      {\cons{\mathsf{low}(S)}{C}{n}} \\[0.75em]
-\dfrac{\cons{\mathsf{down}(S)}{C}{n} \qquad \cons{\mathsf{up}(S)}{C}{n}}
-  {\cons{\mathsf{exact}(S)}{C}{n}} \\[0.75em]
-\dfrac{\cons{\mathsf{down}(S_1)}{C}{n} \qquad \cons{\mathsf{up}(S_2)}{C}{n}}
-  {\cons{\mathsf{both}(S_1, S_2)}{C}{n}}
+\trule{low}\dfrac{\forall v \in S \, \exists u \in C . \, u \preceq v}
+      {\cons{\textsf{lower}(S)}{C}{n}} \\[1.5em]
+%%
+\trule{exact}\dfrac{\cons{\textsf{lower}(S)}{C}{n} \qquad \cons{\textsf{upper}(S)}{C}{n}}
+  {\cons{\textsf{exact}(S)}{C}{n}} \\[1.5em]
+%%
+\trule{both}\dfrac{\cons{\textsf{lower}(S_1)}{C}{n} \qquad \cons{\textsf{upper}(S_2)}{C}{n}}
+  {\cons{\textsf{both}(S_1, S_2)}{C}{n}}\\[1.5em]
+%%
+\trule{$1$}
+\dfrac{\cons{S}{C}{n}}{\consA{\textsf{once}(S)}{\textsf{once}(C)}{n}}
+\;\;
+\trule{$*$}
+\dfrac{\cons{S}{C}{n}}{\consA{\textsf{mult}(S)}{\textsf{mult}(C)}{n}}
+  \\[1.5em]
+\trule{$1 < *$}
+\dfrac{\cons{S}{C}{n}}{\consA{\textsf{mult}(S)}{\textsf{once}(C)}{n}}
+\end{array}
 \end{align*}
+\caption{Consistency between models of code and specification}
+\label{fig:consistency}
+\vspace{-0.9em}
+\end{figure}
 
 \subsection{Specification inference} 
 

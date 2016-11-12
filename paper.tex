@@ -49,7 +49,7 @@
   linenos=true,
   fontsize=\footnotesize,
   breaklines=true,
-  breakafter=),
+ breakafter=w),
   xleftmargin=\parindent
 }
 
@@ -127,14 +127,14 @@ xrightmargin=0.2cm,commandchars=\\\{\},baselinestretch=0.98,numbersep=0.9em}
 \newcommand{\nonterm}[1]{\textit{#1}}
 \newcommand{\term}[1]{\texttt{#1}}
 
-\newcommand{\stenRefl}[1]{\term{pointwise} \, (\term{dim=}#1)}
+\newcommand{\stenRefl}[1]{\term{pointed} \, (\term{dim=}#1)}
 \newcommand{\stenFwd}[3]{\term{forward} \, (\term{depth=}#1,
   \term{dim=}#2{#3})}
 \newcommand{\stenBwd}[3]{\term{backward} \, (\term{depth=}#1,
   \term{dim=}#2{#3})}
 \newcommand{\stenCen}[3]{\term{centered} \, (\term{depth=}#1,
   \term{dim=}#2{#3})}
-\newcommand{\irrefl}{\texttt{nonpointwise}}
+\newcommand{\irrefl}{\texttt{nonpointed}}
 
 \newcommand{\stenReflS}[1]{\term{point} \, (\term{dim=}#1)}
 \newcommand{\stenFwdS}[2]{\term{fwd} \, (\term{depth=}#1,
@@ -225,8 +225,9 @@ Values \texttt{b(i)} are calculated from a neighbourhood of elements
 around \texttt{i} in the input array \texttt{a}.  In this example, the
 access pattern is simple and easily understood. More complex
 stencil computations are more prone to errors from simple lexical
-mistakes. For example, the following is a three-line snippet from a
-Navier-Stokes fluid simulator in which two arrays are read with
+mistakes. For example, the following is a small snippet from a
+Navier-Stokes fluid simulator (based on~\citet{griebel1997numerical}) 
+ in which two arrays are read with
 different data access patterns, across two dimensions.
 %%
 \begin{minted}[firstnumber=20,xleftmargin=2em]{fortran}
@@ -255,18 +256,18 @@ prone to simple textual input mistakes, \eg{}, swapping \texttt{-} and
 \texttt{+}, missing an indexing term, or transforming the wrong
 variable \eg{} \texttt{(i+1,j)} instead of \texttt{(i,j+1)}.
 
-In practice, we find that the usual development procedure for complex
+In practice, the typical development procedure for complex
 stencil computations involves some ad hoc testing to ensure that no
 transcription mistakes have been made. This may involve visual
 inspection of the results, based on a rendered image. Typically such
-testing is then discarded once the code is seen to be correct.
+testing is discarded once the code is seen to be correct.
 
-This is not the only information that is typically discarded. The
-shape of the indexing pattern is often a result of choices made in the
-numerical-analysis discretisation procedure used to convert a set of
+This is not the only information that is often discarded. The
+``shape'' of the indexing pattern is usually the result of choices made in the
+numerical-analysis procedure to convert some 
 continuous equations into a discrete approximation. Rarely are these
 decisions captured in the source code, yet the shape of access is
-usually uniform and is given a perspicuous and concise description in
+usually uniform and is has a perspicuous and concise description in
 numerical analysis literature \eg{}, ``\emph{centered in space, to a
   depth of 1}'' referring to indexing terms \texttt{a(i)},
 \texttt{a(i-1)} and \texttt{a(i+1)}.
@@ -282,13 +283,13 @@ Laplace example is specifed in our language as:
 %
 This describes that \texttt{a} is accessed with a symmetrical pattern
 (``centered'') to a depth of one in each direction in its first
-dimension.  The stencil computation shape in the Navier-Stokes example
+dimension.  The shape of the Navier-Stokes example
 is specified as:
 %
-\begin{minted}[linenos=false,xleftmargin=4em,breakindent=3em]{fortran}
-!= stencil centered(depth=1,dim=1) * pointwise(dim=2) + centered(depth=1,dim=2) * pointwise(dim=1) :: u
+\begin{minted}[linenos=false,xleftmargin=0em,xrightmargin=1.1em,breakindent=1.9em]{fortran}
+!= stencil centered(depth=1,dim=1)*pointed(dim=2)     + centered(depth=1,dim=2)*pointed(dim=1) :: u
 
-!= stencil forward(depth=1,dim=1) * backward(depth=1,dim=2) :: v
+!= stencil forward(depth=1,dim=1)                          * backward(depth=1,dim=2) :: v
 \end{minted}
 %
 The specification requires that, over the whole fragment, \texttt{u}
@@ -296,9 +297,10 @@ is accessed with a centered pattern to depth of 1 in both dimensions
 (this is known as the \emph{five-point stencil}) and \texttt{v} is
 accessed in a neighbourhood bounded forwards to depth of $1$ in the
 first dimension and backward to a depth of $1$ in the second
-dimension.
+dimension. Note the relatively small size of the specification
+compared to the source code, and its high-level of abstraction.
 
-We provide a verification tool for such specification which can check
+We provide a verification tool for such specifications which can check
 the correctness of code against the specification, and can also infer
 specifications, synthesising these as comments in the
 source code. The main features and benefits of our approach are as follows:
@@ -327,13 +329,15 @@ integration with existing tools, as well as
 \item Our specification format is deliberately abstract, with a small
   number of combinators that \emph{do not involve any indexing
     expressions}, \eg{} does not involve expressions like
-  \texttt{a(i+1,j-1)}. This contrasts with other stencil specification
-  approaches. For example, the work of Kamil et al.~\cite{kamil2016verified}
-  provides full-functionality specifications of stencil computations from which
-  equivalent DSL code can be generated.  If a user wishes to specify, say, the
-  Naiver-Stokes stencil above, they must write a specification which is very
-  similar, involving textually dense array-indexing expressions. Therefore any
-  low-level mistakes that could be made programming complex indexing code could
+  \texttt{a(i+1,j-1)}. This contrasts with other specification
+  approaches.% For example, the work of Kamil et al.~\cite{kamil2016verified}
+  %provides full-functionality specifications of stencil computations
+  %in the form of a domain-specific language.  
+  If a user wishes to specify, say, the
+  Naiver-Stokes stencil above, in a deductive verification languages
+  like ACSL, they must write a specification which is very
+  similar to the code, involving textually dense array-indexing expressions. Therefore any
+  low-level mistakes that could be made whilst programming complex indexing code could
   also be made when writing a specification. Our specifications are much more
   abstract, and also more lightweight with the aim of aiding adoption by
   scientists.
@@ -341,7 +345,7 @@ integration with existing tools, as well as
 
 It should be noted that our verification tool does not deal in the
 class of bugs that can be detected automatically (\emph{push-button
-  verification}). Instead, stencil computation bugs must largely be
+  verification}). Instead, stencil computation bugs must be
 identified relative to a specification of the intended behaviour.
 
 In this paper, we make the following contributions:
@@ -379,6 +383,27 @@ In this paper, we make the following contributions:
 \newcommand{\domainVal}{\mathbb{Z}_\infty}
 \section{Stencil specifications}
 
+Our specification language is based on the hypothesis
+that most forms of array access in numerical code have
+a fixed, statically-determined access pattern. For example, the
+\emph{five-point stencil} on a two-dimensional array reads from array
+indices $(i, j)$, $(i-1, j)$, $(i+1, j)$, $(i, j-1)$, and $(i, j+1)$
+for all $i, j$ within the inner boundary of the array (to avoid
+out-of-bounds access at the edges). We revisit this hypothesis
+in \S~\ref{sec:evaluation} with the inference of
+such regular stencil patterns on our corpus of numerical programs. 
+
+We first set up various definitions used in this paper.
+\S~\ref{sec:syntax} then outlines the syntax of stencil specifications
+and gives an informal introduction. \S~\ref{sec:semantics} then
+gives a semantic model via a set-based interpretation which makes 
+concrete the meaning of specifications. \S~\ref{sec:eqs} then provides
+a syntactic equational theory for specifications which is 
+sound with respect to the model.
+%sub-specification for which the
+%equality and sub-specification relation are proven sound.
+
+
 \paragraph{Notation and convention}
 %\label{sec:notation}
 
@@ -392,7 +417,7 @@ over its (imperative) variables. %By
 \emph{induction variable} for brevity) if it is the
   control variable of a ``for'' loop (or equivalent, \eg{},
   \texttt{do} in Fortran for our implementation) incremented by $1$
-  per iteration. The variable is interpreted as a based induction
+  per iteration. A variable is interpreted as a base induction
 variable only within the scope of the loop body. Induction varaibles 
 are ranged over by $i, j, k$ throughout.
 %TODO: consider mentioning derived, non-based induction variables
@@ -403,9 +428,8 @@ are ranged over by $i, j, k$ throughout.
   An \emph{array subscript}, denoted $a(\bar{e})$, is an expression
   which reads from an array $a$ at an \emph{index} specified by a
   comma-separated sequence of integer expressions denoted $\bar{e}$ or
-  in expanded form as $(e_1, \ldots, e_n)$. An \emph{index} $\bar{e}$
-  is called \emph{relative} if each $e \in \bar{e}$ is defined in
-  terms of an induction variable.
+  in expanded form as $(e_1, \ldots, e_n)$. An index $\bar{e}$
+  is called \emph{relative} if each $e \in \bar{e}$ involves an induction variable.
 
   Relative indices contrast with absolute indices where each $e \in
   \bar{e}$ is a constant integer expression relative to the containing
@@ -430,11 +454,12 @@ are ranged over by $i, j, k$ throughout.
   dimensionalities.  
   A \emph{stencil computation} comprises an iteration by a set $I$ of at
   most $n$ induction variables 
-  over a subset of the index space of $a$. Elements of $a$ are determined by an
+  over a subset of the index space of $a$. Each step of the interation
+  determs the elements of $a$ by an 
   assignment $a(\bar{e}) = e_r$ where each $e \in
   \bar{e}$ is either a neighbourhood or constant index.
-  For all arrays $b \in \bar{b}$ and array subscripts $b(\var{e'})$ in
-  $e_r$ and that flow to $e_r$, then each $e' \in \bar{e'}$ is also
+  For all arrays $b \in \bar{b}$ and array subscripts $b(\bar{e}')$ in
+  $e_r$ and that flow to $e_r$, then each $e' \in \bar{e}'$ is also
   either a neighbourhood or constant index.
 
   We refer to the assignment $a(\bar{e}) = e_r$ and all the associated
@@ -442,9 +467,10 @@ are ranged over by $i, j, k$ throughout.
 \label{def:stencil}
 \end{definition}
 
-Specification declarations associate to a stencil kernel 
-a specification for the array access on one or more array
-variables $\bar{v}$ within that kernel.
+\noindent
+Specifications are associated to a stencil kernel 
+and are declared for one or more array variables
+$\bar{v}$ within that kernel.
 
 % specifying the shape of indexing expressions for
 %arrays $\bar{v}$ that are simultaenously permitted and expected within
@@ -456,9 +482,9 @@ variables $\bar{v}$ within that kernel.
   \emph{consistent}. Informally, the region defined by a specification
   is an $n$-dimensional rectangle crossing the origin.
   Consistency is then a two way requirement.
-  On the one hand, all array subscripts contributing to the kernel
+  On the one hand, all array subscripts on $a$ contributing to the kernel
   should be consistent with the region; on the other, all parts of the
-  region should have an index which fits the space. 
+  region should have an index corresponding to that part.
 \end{definition}
 \todo{Improve the above- haven't quite introduce enough yet to say
 more}
@@ -482,9 +508,9 @@ more}
 \nonterm{approx} ::= & \term{atMost} \; \mid \; \term{atLeast} \\[0.1em]
 \nonterm{region} ::= & \nonterm{rvar} \; \\
 \multicolumn{2}{l}{\qquad\qquad \mid \; \stenRefl{\dimTy}} \\
-\multicolumn{2}{l}{\qquad\qquad \mid \;\stenFwd{\mathbb{N}_{>0}}{\dimTy}{\;[, \texttt{nonpointwise}]}} \\
-\multicolumn{2}{l}{\qquad\qquad \mid \; \stenBwd{\mathbb{N}_{>0}}{\dimTy}{\;[, \texttt{nonpointwise}]}} \\
-\multicolumn{2}{l}{\qquad\qquad \mid \; \stenCen{\mathbb{N}_{>0}}{\dimTy}{\;[, \texttt{nonpointwise}]}} \\
+\multicolumn{2}{l}{\qquad\qquad \mid \;\stenFwd{\mathbb{N}_{>0}}{\dimTy}{\;[, \texttt{nonpointed}]}} \\
+\multicolumn{2}{l}{\qquad\qquad \mid \; \stenBwd{\mathbb{N}_{>0}}{\dimTy}{\;[, \texttt{nonpointed}]}} \\
+\multicolumn{2}{l}{\qquad\qquad \mid \; \stenCen{\mathbb{N}_{>0}}{\dimTy}{\;[, \texttt{nonpointed}]}} \\
 \multicolumn{2}{l}{\qquad\qquad \mid \; \nonterm{region} \, \term{+}
   \, \nonterm{region} \; \mid \; \nonterm{region} \; \term{*} \; \nonterm{region}} \\[0.5em]
 %\multicolumn{2}{l}{\qquad\qquad \mid \; \nonterm{rvar}}  
@@ -514,20 +540,21 @@ combined via region operators \term{+} and \term{*}.
 
 \paragraph{Region constants}
 
-Region constants specify a pattern of continguous array accesses in a
-single dimension.  Region constants are either \term{pointwise},
+Region constants specify a finite contiguous region in a
+single dimension relative to the origin and are either \term{pointed},
 \term{forward}, \term{backward}, or \term{centered}.  Each region
-constant has a dimension identifier $d$ given by a natural number
-greater than 0. Each constant except \term{pointwise} is given a depth
-parameter $n$, a natural number greater than 0; \term{pointwise}
+constant has a dimension identifier $d$ given as a natural number
+greater than 0. Each constant except \term{pointed} has a depth
+parameter $n$ given as a natural number greater than 0; \term{pointed}
 regions implicitly have a depth of $0$. 
 
-A \term{forward} region of depth $n$ specifies continguous
-neighbourhood indices in dimension $d$ ranging from $i$ to $i + n$
+A \term{forward} region of depth $n$ specifies a continguous
+region in dimension $d$ starting at the origin; this corresponds
+to specifying neighbourhood indices in dimension $d$ ranging from $i$ to $i + n$
 inclusively for some induction variable $i$.  Similarly, a
-\term{backward} region of depth $n$ specifies contiguous neighbour
-indices in dimension $d$ from $i$ to $i - n$, and \term{centered}
-of depth $n$ from $i - n$ to $i + n$. A \term{pointwise}
+\term{backward} region of depth $n$ corresponds to contiguous indices
+in dimension $d$ from $i$ to $i - n$, and \term{centered}
+of depth $n$ from $i - n$ to $i + n$. A \term{pointed}
 stencil specifies a neighbour index $i$. For example the
 following shows four specifications with four consistent stencil
 kernels reading from arrays \term{a}, \term{b}, \term{c} and \term{d} respectively:
@@ -539,38 +566,111 @@ e(i, 0) = a(i, 0) + a(i+1, 0) + a(i+2, 0)
 e(i, j) = b(i, j) + b(i-1, j) + b(i-2, j)
 != stencil centered(depth=1, dim=2) :: c
 e(i, j) = (c(j-1) + c(j) + c(j+1))/3.0
-!= stencil pointwise(dim=3) :: d
+!= stencil pointed(dim=3) :: d
 e(i, j) = d(0, 0, i)
 \end{minted}
 %%
-Note that every dimension need not be specified for; in the above, the
-specifications on lines $1$ and $5$ and $7$ are the principal specifications
-for code on lines $2$ and $6$ and $8$, but the specification on line
-$3$ is not principal for line $4$;
-we return to the notion of principality later.
+Not every dimension needs to be specified. In the above, the
+specifications on line $1$, $3$, and $7$ leaves some dimensions unspecified.
 
 The \term{forward}, \term{backward}, and \term{centered} regions may
-all have an additional attribute \term{nonpointwise} which marks that
-the region does not include indices which are purely base induction
-variables, \ie{}, offset by $0$.  For example, the following is a
-\term{nonpointwise} \term{backward} stencil
+all have an additional attribute \term{nonpointed} which marks that
+the region does not include the origin.  For example, the following is a
+\term{nonpointed} \term{backward} stencil
 %
 \begin{minted}{fortran}
-!= stencil backward(depth=2, dim=1, nonpointwise) :: a
+!= stencil backward(depth=2, dim=1, nonpointed) :: a
 b(i) = a(i-1) + a(i-2)
 \end{minted}
 %
-The \term{pointwise} regions cannot have a \term{nonpointwise} attribute.
+The \term{pointed} regions cannot have a \term{nonpointed} attribute.
 
 \paragraph{Combining regions}
 
+% r+s means that indices must be consistent with either r or s 
+% r*s means that indices must be consistent with both r and s at the
+% same time
+
+% specifications correspond to a set of schemes
+
+% r+s means an index must be generalised by a scheme in either r or s
+%       and every scheme in r must have an index which specialises it
+%       and every scheme in s must have an index which specialises it
+
+% r*s means an index must be generalised by a scheme in r and a scheme in s
+%       and every pairs of schemes in r and s must have an index which 
+%           specialises both 
+%      
+
 The region operators \term{+} and \term{*} provide ways to combine
-regions in a disjunctive and conjuctive fashion respectively.
+regions disjunctively and conjuctively respectively.
 
 The conjuction of two regions $r \term{*} s$ means that any indices
-in the specified code must be consistent with both $r$ and $s$ at
-the same time. Dually, there must be an index which is consitent
-with every component of region $r$ and 
+in the specified code must be consistent with both $r$ and $s$
+simultaenously. Dually, for every pair of components in the regions
+$r$ and $s$ there must be an index consistent with both.
+For example, the following code (defining a \emph{nine-point stencil}) 
+has a specification given by the product of two \texttt{centered}
+regions in each dimension:
+%%
+\begin{minted}[breakindent=2.9em]{fortran}
+x = a(i, j)   + a(i-1, j)   + a(i+1, j)
+y = a(i, j-1) + a(i-1, j-1) + a(i+1, j-1)
+z = a(i, j+1) + a(i-1, j+1) + a(i+1, j+1)
+!= stencil centered(depth=1, dim=1) * centered(depth=1, dim=2) :: a
+b(i, j) = (x + y + z) / 9.0
+\end{minted}
+%%
+This pattern is common in image convolution applicaitons (for example
+for edge detection). The specification ranges over the
+values that flow to the array subscript on the left-hand side,
+and so ranges over the intermediate assignments to \term{x},
+\term{y}, and \term{z}. Each index in the code is consitent
+with both specifications simultaneously, \eg{}, \texttt{a(i-1, j+1)}
+is within the centered region in dimension $1$ and the centered region
+in dimension $2$. 
+
+The product $r \term{*} s$ can also be thought of as a bounding box
+over the two regions $r$ and $s$.
+
+The disjunction of two regions $r \term{+} s$ means that any indices
+in the spcified code must be consistent with either of $r$ or $s$. 
+Dually, for every component in the region $r$ there must be an index
+within it and every component in the region $s$ must have an index
+within it. For
+example, the following gives the specification of a five-point
+stencil which is the sum of two compound \texttt{pointed} and
+\texttt{centered} regions in each dimension:
+%
+\begin{minted}{fortran}
+!= stencil centered(depth=1, dim=1)*pointed(dim=2)    + centered(depth=1, dim=2)*pointed(dim=1) :: a
+b(i,j) = -4*a(i,j) + a(i-1,j) + a(i+1,j) &
+                   + a(i,j-1) + a(i,j+1)
+\end{minted}
+%%
+Here the left-hand side of \texttt{+} says that when the second dimension
+(induction variable $j$) is fixed at the origin, the first dimension
+(induction variable $i$) accesses the immediate vicinity of the origin
+(to depth of one). The right hand side of \texttt{+} is similar but the dimensions are reversed.
+This reflects the symmetry under rotation of the five-point stencil.
+
+As another example, the following
+implements and specifies the \emph{Roberts cross}
+edge-detection convolution~\cite{davis1975survey}:
+%%
+\begin{minted}[breakindent=5.5em]{fortran}
+do j=0, jmax-1
+  do i=0, imax-1
+    x = a(i,j)-a(i+1,j+1); y = a(i+1,j)-a(i,j+1)
+    != stencil forward(depth=1,dim=1) * forward(depth=1,dim=2) :: a
+    b(i,j) = sqrt(x*x+y*y)
+  end do
+end do
+\end{minted}
+
+
+
+
 
 \section{A model}
 
@@ -779,12 +879,6 @@ straightforward union of the models of subterms. The model of
 $\term{*}$ takes the tensor $\otimes$ of subterm models. The tensor is
 more involved; we give some informal intuition first.
 
-% r+s means that indices must be consistent with either r or s 
-% r*s means that indices must be consistent with both r and s at the
-% same time
-
-
-
 % specifications correspond to a set of schemes
 
 % r+s means an index must be generalised by a scheme in either r or s
@@ -804,11 +898,6 @@ more involved; we give some informal intuition first.
 % r*s means indices must be consistent simultaenously with both r and s
 %           and there are indices which are generalised 
 % 
-
-%  forward(depth=1,dim=2) & pointwise(dim=1) 
-% | forward(depth=1,dim=1) & pointwise(dim=2)
-
-% (o, p) \preceq [[ ]] 
 
 \paragraph{$\otimes$ of models}
 
@@ -1329,7 +1418,7 @@ a(i) = a(i) + a(i+1) + a(1)
 
 \end{document}
 
-%%  LocalWords:  refactoring affine parameterised nonpointwise atMost
+%%  LocalWords:  refactoring affine parameterised nonpointed atMost
 %%  LocalWords:  centered readOnce atLeast discretisation Equational
 %%  LocalWords:  equational disjunction denotational dimensionality
 %%  LocalWords:  interprocedural Fortran CamFort preprocessor

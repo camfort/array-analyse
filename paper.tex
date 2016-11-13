@@ -840,7 +840,7 @@ $(i, j+1)$, $(1, j+1)$, $(3, j)$ and $(i*2, j)$:
 There is one generalisation between these
 schemes, namely that $\vtwoh{0}{1} \preceq_2 \vtwoh{\infty}{1}$.
 At the level of syntax, this translates to saying
-$(i, j+1)$ can be instantiated (specialised) to $(1, j+1)$. 
+$(i, j+1)$ can be instantiated to $(1, j+1)$. 
 Note the last example is undefined as its first expression is a
 non-neighbour relative index.
 \end{example}
@@ -942,6 +942,14 @@ more involved; we give some informal intuition first.
 % r*s means indices must be consistent simultaenously with both r and s
 %           and there are indices which are generalised 
 % 
+
+\begin{figure}
+\input{spatial-model.tex}
+\caption{\textit{spec} model,
+$\interp{-}_n : \textit{spec} \rightarrow \textsf{Mult}(\textsf{Approx}(\mathcal{P}(\domainVal{}^n)))$}
+\label{fig:spatial-model}
+\vspace{-0.75em}
+\end{figure}
 
 \paragraph{$\otimes$ of models}
 
@@ -1068,25 +1076,19 @@ with injection function given by their definition:
 \textsf{Approx} \, a & = \textsf{exact} \, a \,\mid\, \textsf{lower} \, a \,\mid\,
 \textsf{upper} \, a \,\mid\, \textsf{both} \, a \, a
 \end{align*}
-\ie{}, $\mathsf{lower}$ is an injection $\mathsf{lower} : a \rightarrow \mathsf{Approx} \, a$, and so
-on. The $\textsf{Mult}$ type corresponds to the presence or absence of the
-\term{readOnce} modifier as shown in Figure~\ref{fig:spatial-model}. 
+\eg{}, $\mathsf{lower}$ is an injection
+$\mathsf{lower} : a \rightarrow \mathsf{Approx} \, a$ etc. The
+$\textsf{Mult}$ type corresponds to the presence or absence of the
+\term{readOnce} modifier as shown in Figure~\ref{fig:spatial-model}.
 The $\textsf{Approx}$ type corresponds to the presence or absence of
 the spatial approximation modifier, with \textsf{exact} when there is
 no such modifier and \textsf{lower} and \textsf{upper} for
 \term{atLeast} and \term{atMost}. Later, it will be useful to model
-pairs of lower and upper bounds which is provided by \textsf{both} 
-but which is not used here.% These are used for labelled models, and other components later in.
+pairs of lower and upper bounds provided by \textsf{both} but which is
+not used
+here.% These are used for labelled models, and other components later in.
 \label{def:mult-and-approx}
 \end{definition}
-
-\begin{figure}
-\input{spatial-model.tex}
-\caption{\textit{spec} model,
-$\interp{-}_n : \textit{spec} \rightarrow \textsf{Mult}(\textsf{Approx}(\mathcal{P}(\domainVal{}^n)))$}
-\label{fig:spatial-model}
-\vspace{-0.75em}
-\end{figure}
 
 \section{Equational theory}
 \label{sec:eqs}
@@ -1097,7 +1099,7 @@ specifications are subject to a notion of approximation. We outline
 the equational theory and notion of approximation here.
 
 \begin{figure}
-%\vspace{-0.2em}
+\vspace{-0.3em}
 \begin{align*}
 \setlength{\arraycolsep}{0.05em}
 \begin{array}{c}

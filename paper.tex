@@ -1238,9 +1238,9 @@ region with no \irreflS{} modifier by the disjunction ($p \vee q =
 \equiv \;\; & \stenFwdSR{n}{d}{\irrefl} \; \texttt{+} \; \stenBwdS{n}{d}
 \end{align*}
 %%
-That is, the \term{fwd} region is irreflexive describing code which is missing
+That is, the \term{fwd} region is non-pointed describing code which is missing
 a zero-offset neighbourhood index (\eg{}, missing $\texttt{a(i)}$), but the addition of
-the \term{bwd} has no irreflexive attribute and thus provides the
+the \term{bwd} has no non-pointed attribute and thus provides the
 missing zero offset index.
 
 The equation (\textsc{irrefl}) provides an annihilation of
@@ -1256,7 +1256,7 @@ non-pointed attribute, \eg{},
 The left-hand side of (\textsc{irrefl}) has a sum of
 products of two regions $R$ and $S$, 
 where in each component of the sum one of $R$
-or $S$ has the irreflexive attribute. These cancel to give
+or $S$ has the non-pointed attribute. These cancel to give
 just $R \, \term{*} \, S$.
 
 \paragraph{Interaction between \term{+} and \term{*}}
@@ -1488,6 +1488,7 @@ analysis...}
 
 
 \begin{example}
+\label{exm:checking}
 We demonstrate the analysis and modelise procedures over the
 following example program which computes the mean value
 of a five-point stencil:
@@ -1786,11 +1787,537 @@ where not discarding all $\infty$ access pattern prevents verification:
 a(i) = a(i) + a(i+1) + a(1)
 \end{minted}
 
-
-
 \subsection{Specification inference} 
+\label{subsec:inference}
+
+We demonstrate the inference procedure over the
+ program from Exmaple~\ref{exm:checking} (p.~\pageref{exm:checking})
+ computing the mean of a five-point stencil:
+%%
+\begin{minted}{fortran}
+do i = 1, (n-1)
+  do j = 1, (m-1)
+    x = a(i-1, j)+a(i+1, j); y = a(i, j-1)+a(i, j+1)
+    b(i, j) = (a(i, j) + x + y) / 5.0
+  end do
+end do
+\end{minted}
+%
+\subsubsection{Step 1: Standard analysis and data access analysis}
+\label{sec:inf-step1}
+
+The first step of the inference is to perform the 
+analysis of Section~\ref{subsec:analysis} to produce a 
+model of the code in terms of indexing schemes.
+The \emph{analyse} and \emph{modelise} procedures before yielded the finite map:
+%
+\begin{align*}
+\texttt{a} \mapsto \mathsf{only}(\{\vtwoh{-1}{0}, \vtwoh{1}{0},
+          \vtwoh{0}{-1}, \vtwoh{0}{1}, \vtwoh{0}{0}\})
+\end{align*}
+%
+
+\subsubsection{Step 2: Coalesce contiguous schemes into spans}
+\label{sec:inf-step3}
+
+Let $U$ range over the finite maps computed by \textit{modelise}.  For
+each array variable $a \in \mathsf{dom}(U)$, the algorithm constructs next a set of
+$n$-dimensional rectangles covering all contiguous groups of schemes
+in $U(a)$.
+
+\newcommand{\spanOp}{\textsf{spans}}
+
+\begin{definition}[Spans]
+  A \emph{span} represents an $n$-dimensional rectangle
+  as a pair of $n$-dimensional vectors (or
+  represented as a $2 \times n$ matrix) with values drawn from
+  $\domainVal{}$. This gives the co-ordinates of a lower-bound vertex
+  (first component) and the upper-bound (second component). We write 
+  spans as $\vect{x} = [\vect{x}^L \; \vect{x}^U]$, where $\vect{x}^L$
+  and $\vect{x}^U$ give the lower and upper bounds.  In
+  the following, $\vect{x}, \vect{y}$ range over spans.  For a span
+  $\vect{x}$, we write $\vect{x}_{i:j}$ for the sub-span comprising the
+  subvectors $[\vect{x}^L_{i:j} \; \vect{x}^U_{i:j}]$ from entry $i$
+  to entry $j$ (inclusive).
+\end{definition}
+
+\noindent
+Each indexing scheme $u \in U(a)$ is converted to a \emph{unit} span
+$u \mapsto [u \; u]$, defining the lower and upper bound of an
+$n$-dimensional cube of side length $1$.  For the five-point stencil
+example there are five unit spans.
+Figure~\ref{fig:inference-steps-informal}(a) illustrates these.
+
+The next step repeatedly coalesces any contiguous spans until a fixed
+point is reached, resulting in a set of (possibly overlapping) spans
+covering the original space of schemes. Two $n$-dimensional spans
+$\vect{x}$ and $\vect{y}$ are contiguous if for all but one
+$j \in \{1, \ldots, n\}$ then $\vect{x}_j = \vect{y}_j$ and for one
+$j$ then $\vect{x}^U_1 + 1 = \vect{y}^U$. For example, spans
+$\left[\vtwoh{-1}{0}\; \vtwoh{-1}{0}\right]$ and
+$[\vtwoh{0}{0} \; \vtwoh{1}{0}]$ are contiguous in the first dimension
+and can be coalesced into the span $[\vtwoh{-1}{0} \; \vtwoh{1}{0}]$.
+
+\begin{definition}\label{def:span-coalesc} 
+  Span coalescing $\bullet$ is defined for spans contiguous in the
+  first dimension:
+%%
+\begin{align*}
+\vect{x} \bullet \vect{y}
+= &
+\begin{cases}
+(\vect{x}^L, \vect{y}^U) & \vect{x}^U_1 + 1 = \vect{y}^L_1 \; \wedge \;
+\vect{x}_{2:n} = \vect{y}_{2:n}) \\
+\bot  & \textit{otherwise}
+\end{cases}
+% $m$-dimensions into coalesced spans which vary in
+% $m+1$-dimensions.
+\end{align*}
+%%
+\end{definition}
+\noindent
+To coalesce regions which are contiguous in other dimensions
+other than the first, we generate all rotations of the spans in
+$n$-dimensional space by permutation on spans, and fold together contiguous
+regions using $\bullet$ (above). This 
+generates all possible ways of coalescing regions. For our example,
+the unit spans in Figure~\ref{fig:inference-steps-informal}(a)
+are coalesced into the contiguous spans in
+Figure~\ref{fig:inference-steps-informal}(b).
+This procedure is iterated until a fixed point is reached. In this
+example this is reached in the first step. 
+ Then any spans that are completely contained by any other span are deleted,
+leaving a minimal set of spans (which may overlap, but none of which
+fully contains another), Figure~\ref{fig:inference-steps-informal}(c).
+The final spans are used to synthesise concrete stencil specification
+syntax (\S~\ref{sec:inf-step4}), where
+each span becomes a product \texttt{*} of regions which are 
+combined by the sum \texttt{+}.
+
+More formally the algorithm proceeds as follows.
+For all $a \in \mathsf{dom}(U)$, let $M = U(a)$. Every scheme in $M$ 
+is mapped to a unit span
+by $\textsf{unitSpans}(M) = \{[u \; u] \mid u\!\in\!M\}$. For our example:
+%%
+\begin{align*}
+  N(U(\texttt{a})) = \stwo{0}{0}{0}{0} \stwo{1}{0}{1}{0} \stwo{-1}{0}{-1}{0} \stwo{0}{1}{0}{1} \stwo{0}{-1}{0}{-1}
+\end{align*}
+%%
+In the following we let $M_0 = N(U(\texttt{a}))$ for our example.
+
+Each set of unit spans is applied to the fixed point of the \spanOp{} function
+(defined shortly), which coalesces spans into contiguous regions. That is, we compute
+ $(\mu \, \spanOp)$ on input $N(M)$, where \spanOp{} is defined by the steps:
+
+\begin{figure}[t]
+\vspace{-0.8em}
+\hspace{-0.5em}
+\begin{minipage}{0.16\linewidth}
+\begin{align*}
+\setlength{\arraycolsep}{0em}
+\begin{array}{c}
+\quad \\[0em]
+\begin{tikzpicture}[scale=0.8]
+%\draw[step=0.5cm,lightgray,very thin] (0.5,0.5) grid (2,2);
+\node at (1.25,1.22) {\textnormal{\footnotesize{0,0}}};
+\draw[thick] (1,1) rectangle (1.5,1.5);
+\draw[thick] (1.5,1) rectangle (2,1.5);
+\draw[thick] (1,0.5) rectangle (1.5,1);
+\draw[thick] (0.5,1) rectangle (1,1.5);
+\draw[thick] (1,1.5) rectangle (1.5,2);
+\end{tikzpicture} \\[0em]
+(a)
+\end{array}
+\end{align*}
+\end{minipage} $\rightarrow$ \begin{minipage}{0.43\linewidth}
+\begin{align*}
+\setlength{\arraycolsep}{0em}
+\begin{array}{c}
+\begin{tikzpicture}[scale=0.72]
+%\draw[step=0.5cm,lightgray,very thin] (0.5,0.5) grid (2,2);
+%\node at (1.25,1.22) {\textnormal{\small{0,0}}};
+\draw [black, thin] (0.35,0) to [round left paren ] (0.35,2);
+\draw[thick] (0.5,1) rectangle (2,1.5);
+\draw[thick] (1,0.40) rectangle (1.5,0.90);
+\draw[thick] (1,1.60) rectangle (1.5,2.10);
+\node at (2.3,1.22) {+};
+\draw[thick] (3.8,1) rectangle (4.3,1.5);
+\draw[thick] (2.6,1) rectangle (3.1,1.5);
+\draw[thick] (3.2,0.5) rectangle (3.7,2);
+\draw [black, thin] (4.4,0) to [round right paren ] (4.4,2);
+\end{tikzpicture} \\[-0.5em] (b)
+\end{array}
+\end{align*}
+\end{minipage}$\rightarrow$ \begin{minipage}{0.25\linewidth}
+\begin{align*}
+\setlength{\arraycolsep}{0em}
+\begin{array}{c}
+\begin{tikzpicture}[scale=0.72]
+%\node at (1.25,1.22) {\textnormal{\small{0,0}}};
+\draw [black, thin] (0.8,0) to [round left paren ] (0.8,2);
+\draw[thick] (1,0.5) rectangle (1.5,2);
+\node at (1.8,1.22) {+};
+\draw[thick] (2.1,1) rectangle (3.6,1.5);
+\draw [black, thin] (3.7,0) to [round right paren ] (3.7,2);
+%\node at (2.75,1.22) {\textnormal{\small{0,0}}};
+\end{tikzpicture} \\[-0.5em] (c)
+\end{array}
+\end{align*}
+\end{minipage}
+\caption{Illustration of grouping spans in
+specification inference}
+\label{fig:inference-steps-informal}
+\vspace{-0.8em}
+\end{figure}
+
+\noindent
+\textbf{1)\,} Compute all permutations on the column vectors in a span, \ie{},
+  $[\vect{x}^L \vect{x}^U] \mapsto [\pi\vect{x}^L \, \pi\vect{x}^U]$
+for a permutation $\pi$. For each permutation function $\pi^n_i$
+(the $i$-th permutation for vectors of size $n$) we pair the
+permutation function with the set of permuted spans so that
+the spans can be un-permuted later.
+%
+\begin{equation*}
+P(M) = \bigcup_{i \in n!} (\pi^n_{i} , \; \{[\pi^n_i
+\vect{x}^L \; \pi^n_i\vect{x}^U] \, \mid \, [\vect{x}^L \; \vect{x}^U]
+\leftarrow M\}
+\end{equation*}
+%
+This corresponds to all rotations of the space.  For our example:
+%
+\begin{align*}
+P(M_0) =
+\{&(\pi^2_1, \{ \stwo{0}{0}{0}{0},
+\stwo{1}{0}{1}{0},
+\stwo{-1}{0}{-1}{0},
+\stwo{0}{1}{0}{1},
+\stwo{0}{-1}{0}{-1} \})
+\\
+&(\pi^2_2, \{
+ \stwo{0}{0}{0}{0},
+ \stwo{0}{1}{0}{1},
+ \stwo{0}{-1}{0}{-1},
+ \stwo{1}{0}{1}{0},
+ \stwo{-1}{0}{-1}{0}\})\}
+\end{align*}
+%
+where $\pi^2_1$ is the identity permutation and $\pi^2_2$ is the
+permutation flips the order of the two elements in the 
+vectors. 
+
+\noindent
+\textbf{2)\,} Sort each permutation set into an ordered list, by the ordering:
+\begin{equation*}
+  \vect{x} \leq \vect{y} =
+      \exists i \, . \; \vect{x}^L_{i} \leq \vect{y}^L_{i} \; \wedge \;
+        (i = n \vee \vect{x}_{i+1:n} = \vect{y}_{i+1:n})
+\end{equation*}
+%
+giving the sorting function $\textsf{sort}(M)$. For our example:
+%%
+\begin{align*}
+\textsf{sort}(P(M_0)) = 
+\{&(\pi^2_1, [
+\stwo{0}{-1}{0}{-1},
+\stwo{-1}{0}{-1}{0},
+\stwo{0}{0}{0}{0},
+\stwo{1}{0}{1}{0},
+\stwo{0}{1}{0}{1}] )
+\\
+&(\pi^2_2, [
+\stwo{0}{-1}{0}{-1},
+\stwo{-1}{0}{-1}{0},
+\stwo{0}{0}{0}{0},
+\stwo{1}{0}{1}{0},
+\stwo{0}{1}{0}{1}])\}
+\end{align*}
+\noindent
+\textbf{3)\,} Reduce each list pairwise by $\bullet$ operation 
+(Defn.~\ref{def:span-coalesc}) to coalesce contiguous regions,
+given by $\textsf{fold}\bullet$. For our example, this yields:
+%
+\begin{align*}
+\{&(\pi^2_1, [
+\stwo{0}{-1}{0}{-1},
+\stwo{-1}{0}{1}{0},
+\stwo{0}{1}{0}{1}
+]), (\pi^2_2, [
+\stwo{0}{-1}{0}{-1},
+\stwo{-1}{0}{1}{0},
+\stwo{0}{1}{0}{1}])\}
+\end{align*}
+%
+\textbf{4)\,} Un-permute and union together, \ie{},
+%
+\[
+U(M) = \bigcup \{[\pi \vect{x}^L, \pi \vect{x}^U]
+ \mid [\vect{x}^L, \vect{x}^U] \leftarrow S, (\pi, S) \leftarrow M\}
+\]
+For our example:
+%
+\begin{align*}
+U(M) =
+\{\stwo{0}{-1}{0}{-1},
+\stwo{-1}{0}{1}{0},
+\stwo{0}{1}{0}{1},
+\stwo{-1}{0}{-1}{0},
+\stwo{0}{-1}{0}{1},
+\stwo{1}{0}{1}{0}\}
+\end{align*}
+%
+\textbf{5)\,} Filter by the region containment predicate $\containedin$, that
+  is, if any region is contained within another then remove the
+  smaller, defined:
+%
+\begin{align*}
+& \vect{x} \containedin \vect{y} = \vect{y}^L_1 \leq \vect{x}^L_1 \wedge \vect{x}^U_1 \leq \vect{y}^U_1
+  \wedge (\vect{x}^L_{2:n}, \vect{x}^U_{2:n}) \containedin
+  (\vect{y}^L_{2:n}, \vect{y}^U_{2:n})
+\end{align*}
+For our example this then yields the final result of:
+\begin{align*}
+\spanOp(M)
+= \{\stwo{-1}{0}{1}{0} \stwo{0}{-1}{0}{1}\}
+\end{align*}
+since $\stwo{0}{1}{0}{1} \sqsubseteq \stwo{0}{-1}{0}{1}$
+and $\stwo{1}{0}{1}{0} \sqsubseteq \stwo{-1}{0}{1}{0}$.
+Applying \spanOp{} again yields the same
+result for our example; the fixed point is reached.
+
+\subsubsection{Step 4: Synthesise specifications from spans}
+\label{sec:inf-step4}
+
+\newcommand{\oplusbig}{\operatornamewithlimits{\term{\Large{$\oplus$}}}}
+\newcommand{\odobig}{\operatornamewithlimits{\term{\Large{$\odot$}}}}
+\newcommand{\bplus}{\operatornamewithlimits{\term{\Large{+}}}}
+\newcommand{\tySum}[1]{#1^{\term{+}}}
+\newcommand{\tyProd}[1]{#1^{\term{*}}}
+\newcommand{\specDNF}{\textbf{spec}}
+
+Abstract syntax trees of the specification language
+are synthesised from the set $\spanOp(M)$ of coverings spans. 
+This conversion is defined in terms
+of an algebra on \textit{spec} syntax in disjunctive-normal form
+(which we denote \specDNF{}) and which is wrapped
+in the $\textsf{Approx}$ type (see
+Defn.~\ref{def:mult-and-approx},
+p.~\pageref{def:mult-and-approx}).  The algebra mirrors the shape
+of the region combinators for sum and product, 
+with operators $\oplus$ and $\odot$ and a constructor for \specDNF{}:
+%%
+\begin{align*}
+\oplus & : \mathsf{Approx}(\specDNF) \rightarrow \mathsf{Approx}(\specDNF) \rightarrow
+  \mathsf{Approx}(\specDNF) \\
+\odot & : \mathsf{Approx}(\specDNF) \rightarrow \mathsf{Approx}(\specDNF) \rightarrow
+        \mathsf{Approx}(\specDNF) \\
+\mathsf{toSpec} & : \mathbb{N}_{>0} \rightarrow (\domainVal{} \times \domainVal{}) \rightarrow \mathsf{Approx}(\specDNF)
+\end{align*}
+%%
+The $\mathsf{toSpec}$ function maps a dimension identifier
+and a pair of lower and upper bound
+values (one-dimensional) to a specification with a one-dimensional region. 
+An entire span is converted into an $n$-dimensional
+specification by applying $\mathsf{toSpec}$ to each
+pair of lower and upper bounds in a span, per dimension, and multiplying these
+specifications by $\odot$. The resulting specifications for
+each span are then summed by $\oplus$:
+\begin{equation*}
+\textsf{spec}(M) = 
+\oplusbig\limits_{\vect{x} \in \spanOp(M)} \,
+\odobig\limits_{i \in \{1, \ldots, n\}} \, \mathsf{toSpec} \; i \; (\vect{x}^L_i, \vect{x}^U_i)
+\end{equation*}
+We unpack the definitions of this algebra.
+
+\begin{definition}[Specifications in DNF]
+Let $r_1, ..., r_n$ range over elements of the \textit{region}
+syntax (see Figure~\ref{fig:syntax}, p.~\pageref{fig:syntax}).
+The set \specDNF{} is a subset of syntax trees \textit{spec},
+containing specifications in disjunctive normal form over regions 
+where the disjunct is \term{+} (since its model is in terms of set
+union) and the conjunct is \term{*} (since its model is a form of tensor).
+That is elements of \specDNF{} are of the form:
+%%
+$
+(r^1_{1} \; \term{*} \ldots \term{*} \; r^1_n)\; \term{+} \; \ldots 
+\term{+} \; (r^m_1 \, \term{*} \; \ldots \term{*} \; r^m_p)
+$. 
+
+More formally, $\specDNF \subseteq (\textit{spec} \cup \{\epsilon\})$, defined:
+%%
+\begin{align*}
+\specDNF{} & ::= \tySum{\specDNF} \mid \epsilon \\
+\tySum{\specDNF} & ::= \tyProd{\specDNF} \; \term{+} \; \tySum{\specDNF} \mid
+  \tyProd{\specDNF} \\
+\tyProd{\specDNF} & ::= \textit{region} \; \term{*} \; \tyProd{\specDNF} \mid
+   \textit{region}
+\end{align*}
+%%
+We include the empty element $\epsilon$ which is not present in the
+syntax. 
+In the following, $S, T$ range over elements of
+\specDNF{} and $\tyProd{s}, \tyProd{t}$ range over elements
+of $\tyProd{\specDNF}$ (for example, $\tyProd{s} = r^1_{1} \; \term{*}
+\ldots \term{*} \; r^1_n$).
+\end{definition}
+
+\newcommand{\exactR}{\mathsf{exact}\;}
+\newcommand{\exact}[1]{\exactR(#1)}
+\newcommand{\upperB}[1]{\mathsf{upper}\;(#1)}
 
 
+\begin{figure}[t]
+%\newcommand{\llower}{\vect{x}^L_i}
+%\newcommand{\lupper}{\vect{x}^U_i}
+\vspace{-0.7em}
+\newcommand{\llower}{l}
+\newcommand{\lupper}{u}
+{\scalebox{0.97}{
+\begin{minipage}{1\linewidth}
+\begin{align*}
+&\mathsf{toSpec} \; d \; (\llower, \lupper) = \\
+&\hspace{-0.4em}\begin{cases}
+%% POINT
+\exact{\stenReflS{d}} & \llower = 0 \, \wedge \, \lupper = 0\\[0.2em]
+%% FWD
+\exact{\stenFwdS{\lupper}{d}}  & \llower = 0 \, \wedge \, \lupper > 0 \\[0.2em]
+\exact{\stenFwdSR{\lupper}{d}{\irreflS}}\!\!\!\! & \llower = 1 \, \wedge \, \lupper > 0 \\[0.2em]
+%% BWD
+\exact{\stenBwdS{|\llower|}{d}}  & \llower < 0 \, \wedge \, \lupper = 0 \\[0.2em]
+\exact{\stenBwdSR{|\llower|}{d}{\irreflS}}\!\!\!\! & \llower < 0 \, \wedge \, \lupper = -1 \\[0.2em]
+%% CEN
+\exact{\stenCenS{\lupper}{d}}& \llower < 0 \wedge \lupper > 0 \wedge |\llower| = \lupper \\[0.2em]
+\exactR(\stenBwdS{|\llower|}{d} & \llower < 0 \wedge \lupper > 0  \wedge |\llower| \neq \lupper \\
+\qquad\qquad \texttt{+} \, \stenFwdS{\lupper}{d}) & \\[0.2em]
+% BOUND
+\upperB{\stenFwdS{\lupper}{d}} & \llower > 1 \\[0.2em]
+\upperB{\stenBwdS{|\llower|}{d}} \quad & \llower < (-1)
+ \\[0.2em]
+% ABSOLUTE REP
+\exact{\epsilon} & \llower = \infty \, \vee \, \lupper = \infty
+  \end{cases}
+\end{align*}
+\end{minipage}
+}}
+\caption{\textsf{toSpec} constructor of $\mathsf{Approx}(\specDNF)$ values.}
+\label{fig:to-spec}
+\vspace{-0.8em}
+\end{figure}
+
+\begin{definition} The $\mathsf{toSpec}$ constructor is defined
+in Figure~\ref{fig:to-spec}.
+The first two cases map to \texttt{forward} stencils since the lower
+bound is $0$ or $1$, with the depth determined by the upper bound of
+the span. If the lower bound is $1$, then the
+$0$-offset point is missing so the region is given a
+\texttt{nonpointed} attribute. The second two cases are similar for
+\texttt{backward} but now the depth of the region is determined by the
+absolute of the lower bound. In the fifth-case, where the lower bound
+is negative and the upper bound is positive and they have the same
+magnitude, then a \texttt{centered} region is constructed with
+the depth as the common magnitude. If the magnitudes are not the same
+(sixth case) then separated \texttt{forward} and \texttt{backward}
+regions are summed, with their corresponding depths.
+
+If the lower bound is greater than 1
+(which implies the upper bound is greater than 1 too) then
+this represents a region that is not at the origin (or next to) the
+origin and thus cannot be represented in the specification language.
+Thus, an upper bound is instead returned showing the maximum extent
+of the region. The penultimate case is the dual, when the lower bound is less
+than $-1$, giving an upper bound on a \texttt{backward} specification.
+
+Finally, if either bound is $\infty$, representing a non
+neighbourhood index, then an empty specification is given
+ with no regions, indicating that there is not even a 
+pointed 0-offset access in this dimension.
+
+Note, $\mathsf{toSpec} \, d \, (l, u)$ is always defined 
+ if $l$ less than or equal to $u$. 
+\end{definition}
+
+\begin{definition} The $\odot$ operation on $\textsf{Approx}(\specDNF{})$
+  is defined in terms of the intermediate operator $\hat{\odot}$ on
+  \specDNF{}, defined:
+%%
+\begin{align*}
+S \,\hat{\odot}\, \epsilon = S \quad
+\epsilon \,\hat{\odot}\, S = S \qquad
+S \,\hat{\odot}\, T = \bplus_{(\tyProd{s}, \tyProd{t}) \in (S \times
+   T)} (\tyProd{s} \; \term{*} \; \tyProd{t})
+\end{align*}
+%%
+That is, the $\hat{\odot}$ product of two specifications $S$ and $T$ in DNF form 
+is the $\term{+}$ sum of all pairwise $\term{*}$ products for every
+pair of $\tyProd{spec}$ drawn from $S$ and $T$. The result
+is indeed in DNF-form, where $\hat{\odot}$ is essentially applying
+ the (\trule{\textsc{dist}}) rule of our equational theory
+ (Fig.~\ref{fig:equations},p.~\pageref{fig:equations}). The operation is
+commutative and associative, and sound with respect to our
+model (see Lemma~\ref{lem:alg-soundness} below).
+The $\hat{\odot}$ operation is then lifted to all combinations of
+\textsf{Approx} for $\odot$:
+\begin{align*}
+\textsf{lower}(S) \odot \textsf{exact}(T) = \; &
+       %\textsf{exact}(T) \odot \textsf{lower}(S) = \;
+       \textsf{both} \, (S \hat{\odot} T, \; T) \\
+\textsf{upper}(S) \odot \textsf{exact}(T) = \; & 
+       %\textsf{exact}(T) \odot \textsf{upper}(S) =
+       \textsf{both} \, (T, \; S \hat{\odot} T) \\
+\textsf{lower}(S) \odot \textsf{both}(T_l,T_u) = \; &
+        %\textsf{both}(T_l,T_u) \odot \textsf{lower}(S) = \;
+        \textsf{both} \, (S \hat{\odot} T_l, \; T_u) \\
+\textsf{upper}(S) \odot \textsf{both}(T_l,T_u) = \; & \textsf{both} \,
+                                                      (T_l, \; S \hat{\odot} T_u) \\
+\textsf{both}(S_l,S_u) \odot
+\textsf{both}(T_l,T_u)  = \; & \textsf{both} (S_l \hat{\odot} T_l, \; S_u
+                         \hat{\odot} T_u) \\
+\textit{inj}(S) \odot \textit{inj}(T) = \; & \textit{inj}(S
+                                              \hat{\odot} T)
+\end{align*}
+where in the last case $\textit{inj}$ corresponds to the unary
+injections of \textsf{Approx}. For brevity we omit the cases where the arguments above are flipped
+as $\odot$ is commutative.
+\end{definition}
+
+\begin{definition}The $\oplus$ operation on $\textsf{Approx}(\specDNF)$ 
+is defined in a similar way to $\odot$, with the intermediate $\hat{\oplus}$ on
+$\specDNF$ given by:
+%%
+\begin{equation*}
+S \,\hat{\oplus}\, \epsilon = S \quad
+\epsilon \,\hat{\oplus}\, S = S \quad
+S \, \hat{\oplus} \, T = S \, \term{+} \, T
+\end{equation*}
+%%
+Thus, if neither specification is empty, their $\hat{\oplus}$ is just
+the syntactic sum $\term{+}$. Then $\oplus$ is the lifting of
+$\hat{\oplus}$ to \textsf{Approx} with the shape as $\odot$ in the previous
+definition.
+\end{definition}
+
+\begin{lemma}[$\hat{\odot}$, $\hat{\oplus}$ soundness]$\forall S,
+  T \in \specDNF$ where $S\!\neq \epsilon \wedge T\!\neq \epsilon$:
+\begin{align*}
+\interp{S \; \hat{\odot} \; T}_n = \interp{S}_n \otimes \interp{T}_n
+  \qquad
+\interp{S \; \hat{\oplus} \; T}_n = \interp{S}_n \cup \interp{T}_n
+\end{align*}
+\label{lem:alg-soundness}
+\vspace{-2em}
+\end{lemma}
+%
+\noindent
+Thus our model validates the specification synthesis process which concludes the
+inference procedure. For our example, we infer and then synthesise the
+5-point specification:
+%%
+\begin{minted}[linenos=false]{fortran}
+!= stencil centered(depth=1, dim=1)*pointed(dim=2) + centered(depth=1, dim=2)*pointed(dim=1):: a
+\end{minted}
+%%
+
+\section{Evaluation}
 
 \bibliography{references}
 

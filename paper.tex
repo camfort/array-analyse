@@ -191,11 +191,20 @@ xrightmargin=0.2cm,commandchars=\\\{\},baselinestretch=0.98,numbersep=0.9em}
 \newcommand{\trule}[1]{{\footnotesize{(\text{#1})}}}
 %\include{results}
 
+
+%\newcommand{\cons}[3]{\mathbf{C}_{#3}(#1, #2)}
+\newcommand{\consName}{\textbf{cons0}}
+\newcommand{\cons}[2]{#2 \;\, \consName{} \,\, #1}
+\newcommand{\consAName}{\textbf{cons}}
+\newcommand{\consA}[2]{#2 \;\, \consAName{} \,\, #1}
+
+
 \title{Verification of Stencil Computations with Spatial
   Specifications}
 %\titlebanner{DRAFT -- Do not distribute}
 \authorinfo{}{}{}
 %\preprintfooter{DO NOT DISTRIBUTE}
+
 
 \begin{document}
 \maketitle
@@ -1250,21 +1259,137 @@ where in each component of the sum one of $R$
 or $S$ has the irreflexive attribute. These cancel to give
 just $R \, \term{*} \, S$.
 
+\paragraph{Interaction between \term{+} and \term{*}}
+
+The last seven equations (from (\textsc{\term{*}Dim}) inclusive), explain
+the algebraic behaviour of \term{+} and \term{*}.  Together, we see
+that \term{+} is an associative, commutative, idempotent binary
+operator that distributes with \term{*}, which is associative and
+commutative. This distribution of \term{*} over \term{+} is key as it
+is used internally to give a normal form for stencil specifications
+akin to Disjunctive Normal Form (DNF) (where \term{+} is 
+disjunction and \term{*} is conjunction). We revisit this
+normalisation in \S~\ref{sec:inf-step4}.
+
 The equation (\textsc{$\ast$Dim}) uses syntactic sugar
 where $R^d$ and $S^d$ denote regions whose dimension is $d$.
-Thus, the rule shows that a product of two regions on 
+This equation shows that a product of two regions on 
 the same dimension is equal to their addition.
 
+The equational theory provides not only an axiomatic semantics
+for the language, which the user can use to rewrite their
+specification, but it is also used extensively in the inference
+procedure (\S~\ref{subsec:inference}) to simplify specifications.
 
+\begin{theorem}[Soundness of equational theory]
+\begin{equation*}
+\forall S, T, n . \quad
+S \equiv T \; \Rightarrow \;
+\interp{S}_n = \interp{T}_n
+\end{equation*}
+\end{theorem}
+
+\subsection{Approximation}
+
+Figure~\ref{fig:inequations} defines a notion of sub-specifications
+via the relation $<:^r$ on \textit{region}
+syntax and then $<:$ on \textit{spec} syntax inductively.
+Both relations are reflexive and transitive (we omit
+these equations) and congruent
+with respect to \term{+}, \term{*}, \term{atLeast}, \term{atMost},
+and \term{readOnce}. The (\trule{\textsc{eq}}) rule connects region
+equations with inequations. The (\trule{\textsc{over}}) rule explains
+the notion of spatial over-approximation via overlapping regions.
+The (\trule{\textsc{rep}}) allows the modifier that
+enforces that every index is read just once to be dropped
+as an approximation; (\trule{\textsc{bound}}) gives
+a connection between the \term{atLeast} and \term{atMost}
+approximation modifiers.
+
+\begin{theorem}[Soundness of approximation]
+\begin{equation*}
+\forall S, T, M, n . \quad
+S <: T \; \wedge (\consA{\interp{S}_n}{M})
+\Rightarrow (\consA{\interp{T}_n}{M})
+\end{equation*}
+\end{theorem}
+
+
+\begin{figure}[t]
+\begin{align*}
+\hspace{-0.5em}
+\begin{array}{c}
+%%
+%% INEQUATIONS ON REGION
+%% 
+%\framebox{$\textit{region} <: \textit{region}'$} \\[0.85em]
+%
+%\dfrac{}{R <:^r R}\trule{\textsc{refl}} \qquad \dfrac{P <:^r R \quad R <:^r Q}{P <:^r
+%  Q}\trule{\textsc{trans}} 
+%\qquad
+%\\[1.5em]
+\vspace{-0.4em}
+\setlength{\arraycolsep}{0.1em}
+\dfrac{\hspace{3em} m \leq n \qquad\qquad r \implies s \hspace{3em}}
+{\begin{array}{rl}
+\stenFwdSR{m}{d}{r} & <:^r \stenFwdSR{n}{d}{s}
+%& \;\, ds \subseteq es \wedge n \leq m
+\\
+\wedge \; \stenBwdSR{m}{d}{r} & <:^r \stenBwdSR{n}{d}{s}
+%& \;\, ds \subseteq es \wedge n \leq m
+\\
+\wedge \; \stenCenSR{m}{d}{r} & <:^r \stenCenSR{n}{d}{s}
+%& \;\, ds \subseteq es \wedge n \leq m
+\\
+\wedge \; \stenBwdSR{m}{d}{r} & <:^r \stenCenSR{n}{d}{s} \\
+\wedge \; \stenFwdSR{m}{d}{r} & <:^r \stenCenSR{n}{d}{s} \\[1.2em]
+\end{array}}\trule{\textsc{over}} \\[-0.2em]
+\hspace{-0.5em}
+\dfrac{R_1 <:^r S_1 \quad R_2 <:^r S_2}
+      {R_1 \, \texttt{+} \, R_2 <:^r S_1 \, \texttt{+} \, S_2}
+\trule{\textsc{cong}\texttt{+}} 
+\dfrac{R_1 <:^r S_1 \quad R_2 <:^r S_2}
+      {R_1 \, \texttt{*} \, R_2 <:^r S_1 \, \texttt{*} \, S_2}
+\trule{\textsc{cong}\texttt{*}} \\[1.5em]
+%%
+%% INEQUATIONS ON SPEC
+%%
+%\framebox{$\textit{spec} <: \textit{spec}'$} \\[0.8em]
+%
+%
+\dfrac{R <:^r S}{\term{atLeast}  S <: \term{atLeast} 
+  R}\trule{\texttt{L}}
+\;\;
+\dfrac{R <:^r S}{\term{atMost}  R <: \term{atMost} 
+  S}\trule{\texttt{M}} \\[1.5em]
+\dfrac{R <:^r S}{R <: \term{atMost} \, S}\trule{\textsc{shrink}} \quad
+\dfrac{R <:^r S}{S <: \term{atLeast} \, R}\trule{\textsc{grow}} \quad
+ \\[1.5em]
+%%
+\dfrac{\mathsf{dims}(R) \cap \mathsf{dims}(S) = \emptyset}{R \ast S <: R}
+\trule{\textsc{Gen$\ast$}}
+\quad
+\dfrac{R \equiv S}{R <: S}\trule{\textsc{eq}} 
+%%
+\\[1.5em]
+\dfrac{R <: S}{\term{readOnce} \, R <: \term{readOnce} \,
+  S}\trule{\textsc{cong}\texttt{R}}
+\;\;
+\dfrac{}{\term{readOnce} \, R <: R}\trule{\textsc{rep}}
+%\dfrac{}{R <: \term{atMost} R} 
+%\quad
+%\dfrac{}{R <: \term{atLeast} R}\\[1.5em]
+\end{array}
+\end{align*}
+\caption{Inequations $<:^r$ on \textit{regions} and
+$<:$ on \textit{specs} (omitting reflexivity
+and transitivity). }
+\label{fig:inequations}
+\vspace{-0.8em}
+\end{figure}
 
 \section{Analysis, checking, and inference}
 \label{sec:analysis}
-
-%\newcommand{\cons}[3]{\mathbf{C}_{#3}(#1, #2)}
-\newcommand{\consName}{\textbf{cons0}}
-\newcommand{\cons}[2]{#2 \;\, \consName{} \,\, #1}
-\newcommand{\consAName}{\textbf{cons}}
-\newcommand{\consA}[2]{#2 \;\, \consAName{} \,\, #1}
 
 \noindent
 We outline here the procecures for checking the conformance
@@ -1497,10 +1622,10 @@ code from being consistent.
 \begin{align*}
 \begin{array}{c}
 %%
-\trule{up}\dfrac{\forall u \in M \, \exists v \in N .  \, u \preceq v}
+\trule{up}\dfrac{\forall u \in M, \, \exists v \in N .  \, u \preceq v}
       {\cons{\textsf{upper}(N)}{M}}
 \qquad
-\trule{low}\dfrac{\forall v \in N \, \exists u \in M . \, u \preceq v}
+\trule{low}\dfrac{\forall v \in Nm \, \exists u \in M . \, u \preceq v}
       {\cons{\textsf{lower}(N)}{M}} \\[1.5em]
 %%
 \trule{exact}\dfrac{\cons{\textsf{lower}(N)}{M} \qquad \cons{\textsf{upper}(N)}{M}}

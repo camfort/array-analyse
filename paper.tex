@@ -496,8 +496,8 @@ $\bar{v}$ within that kernel.
   A stencil specification defines a \emph{region} associated to an
   array variable $a$ against which a stencil kernel should be
   \emph{consistent}. Informally, the region defined by a specification
-  is an $n$-dimensional rectangle crossing the origin.
-  Consistency is then a two way requirement.
+  is an $n$-dimensional shape crossing the origin with respect to the induction
+  variable. Consistency is then a two way requirement.
   On the one hand, all array subscripts on $a$ contributing to the kernel
   should be consistent with the region; on the other, all parts of the
   region should have an index corresponding to that part.

@@ -475,14 +475,12 @@ over its (imperative) variables. %By
 
 \begin{definition}[Neighbourhood index]
 \label{def:neighbour}
-  For an array subscript $a(\bar{e})$ an index $\bar{e}$ is called a
-  \emph{neighbourhood index} if every $e \in \bar{e}$ is of the form
-  $e \equiv i$ or $e \equiv i + c$ or $e \equiv i - c$ where $c$ is an
-  integer constant. That is, a neighbourhood index is a relative index
-  where each component is a constant translation of a base induction
-  variable. (The relation $\equiv$ here identifies terms up-to
-  commutativity of $+$ and the inverse relationship of $+$ and $-$
-  \eg{}, $(-b) + i \equiv i - b$).
+  For an array subscript $a(\bar{e})$ an index $e \in \bar{e}$ is a
+  \emph{neighbourhood index} if $e$ is of the form $e \equiv i$, $e \equiv i +
+  c$, or $e \equiv i - c$, where $c$ is an integer constant. That is, a
+  neighbourhood index is a constant translation of an induction variable. (The
+  relation $\equiv$ identifies terms up-to commutativity of $+$ and the inverse
+  relationship of $+$ and $-$ \eg{}, $(-b) + i \equiv i - b$).
 \end{definition}
 
 \begin{definition}[Stencil computations]

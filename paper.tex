@@ -574,19 +574,19 @@ combined via region operators \term{+} and \term{*}.
 Region constants specify a finite contiguous region in a
 single dimension relative to the origin and are either \term{pointed},
 \term{forward}, \term{backward}, or \term{centered}.  Each region
-constant has a dimension identifier $d$ given as a natural number
-greater than 0. Each constant except \term{pointed} has a depth
-parameter $n$ given as a natural number greater than 0; \term{pointed}
+constant has a dimension identifier $d$ given as a positive natural number.
+Each constant except \term{pointed} has a depth
+parameter $n$ given as a positive natural number; \term{pointed}
 regions implicitly have a depth of $0$.
 
 A \term{forward} region of depth $n$ specifies a continguous
-region in dimension $d$ starting at the origin; this corresponds
+region in dimension $d$ starting at the origin. This corresponds
 to specifying neighbourhood indices in dimension $d$ ranging from $i$ to $i + n$
-inclusively for some induction variable $i$.  Similarly, a
+for some induction variable $i$. Similarly, a
 \term{backward} region of depth $n$ corresponds to contiguous indices
-in dimension $d$ from $i$ to $i - n$, and \term{centered}
+from $i$ to $i - n$ and \term{centered}
 of depth $n$ from $i - n$ to $i + n$. A \term{pointed}
-stencil specifies a neighbour index $i$. For example the
+stencil specifies a neighbour index $i$. For example, the
 following shows four specifications with four consistent stencil
 kernels reading from arrays \term{a}, \term{b}, \term{c} and \term{d} respectively:
 %%
@@ -605,16 +605,14 @@ Not every dimension needs to be specified. In the above, the
 specifications on line $1$, $3$, and $7$ leaves some dimensions unspecified.
 
 The \term{forward}, \term{backward}, and \term{centered} regions may
-all have an additional attribute \term{nonpointed} which marks that
-the region does not include the origin.  For example, the following is a
+all have an additional attribute \term{nonpointed} which marks absence
+of the origin.  For example, the following is a
 \term{nonpointed} \term{backward} stencil
 %
 \begin{minted}{fortran}
 != stencil backward(depth=2, dim=1, nonpointed) :: a
-b(i) = a(i-1) + a(i-2)
+b(i) = a(i-1) + 10*a(i-2)
 \end{minted}
-%
-The \term{pointed} regions cannot have a \term{nonpointed} attribute.
 
 \paragraph{Combining regions}
 

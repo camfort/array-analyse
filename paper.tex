@@ -433,9 +433,9 @@ out-of-bounds access at the edges). We revisit this hypothesis
 in \S~\ref{sec:evaluation} with the inference of
 such regular stencil patterns on our corpus of numerical programs.
 
-We give various definitions used in the paper then 
+We give various definitions used in the paper then
 \S~\ref{sec:syntax} outlines the syntax of stencil specifications
-with an informal introduction. \S~\ref{sec:semantics} 
+with an informal introduction. \S~\ref{sec:semantics}
 gives a semantic model via a set-based interpretation which makes
 concrete the meaning of specifications. \S~\ref{sec:eqs} then provides
 a syntactic equational theory for specifications which is
@@ -2349,6 +2349,12 @@ inference procedure. For our example, we infer and then synthesise the
 
 \section{Evaluation}
 
+We have processed nearly one million lines of Fortran code using our
+CamFort tool and examined the output to try and determine how useful
+and applicable it may be. The body of Fortran code is collected from
+many computational science projects for which we believe our tool will
+be potentially helpful.
+
 % Corpus details
 % specfem3d ``simulates acoustic (fluid), elastic (solid), coupled
 % acoustic/elastic, poroelastic or seismic wave propagation in any
@@ -2365,8 +2371,15 @@ inference procedure. For our example, we infer and then synthesise the
 (as in Definition~\ref{def:stencil}) are a common programming pattern
 in numerical code}
 
+
+%    numStencilSpecs: 60525
+% 4338 files, linesTotal: 1357377, linesParsed: 959427
 % Number of stencils (tickAssign) / number of loops
 % Percentage of a code base that is taken up by stencils
+
+Out of 1.35 million lines of code that we fed into our program, and
+the 959,427 lines that we were able to parse, we identified 60,525
+cases that fit our criteria for stencil specification.
 
 \paragraph{Hypothesis 2: Most stencil computations
 have a regular pattern which can be captured with a simple
@@ -2375,16 +2388,44 @@ language of contiguous regions}
 % Number of stencils we give a spec to (where a spec declaration to n
 % variables is counted n times) as percentage of number of stencils
 
+    % tickAssign: 97439
+    % tickAssignSuccess: 29402 % <- number of times tickAssign is accompanied by a successful stencil inference
+                               % counts only by +1 each time that tickAssign finds a stencil
+
+In the analysed body of code we found that we were able to deduce
+some form of stencil specification from approximately 30\% of the
+potential stencils examined.
+
+
 %
 \subsection{Analysing the design of our specifications}
 
 % 1. How may are just reflexive and how many some reflexive
+% justReflexive: 55504
+% someReflexive: 15823
+
+55,504 specifications involved only reflexive regions, of which 15,823
+only had specifications for some of the dimensions, while 39,681 were
+reflexive on all dimensions.
+
+% (/ 55504.0 60525) = 91.7%
+% (/ 15823.0 60525) = 26.1%
+% 91.7\% of the specifications involved only reflexive regions. 26.1\%
+
 
 % 2. Break down of "interesting specifications" (contain more than
 % just reflexive)
 %   - Single-action, histogram on depths
 %   - Single-action + irreflexives, histogram on depths
 %   - Bounded specs (how many lower, upper, or both)
+
+Bounded specifications were fairly unusual, with only 157
+\texttt{atMost} and 36 \texttt{atLeast}, the latter of which were
+always also bounded on both sides.
+    % atLeast: 36
+    % atMost: 157
+    % boundedBoth: 36
+
 %   - Multi-action combined only by *
 %   - Multi-action combined also by +, histogram of tree depths
 

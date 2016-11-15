@@ -1115,190 +1115,80 @@ here.% These are used for labelled models, and other components later in.
 \section{Equational theory}
 \label{sec:eqs}
 
-Specifications are subject to a set of equations which can be used to
-understand when specifications are equivalent. Furthermore,
-specifications are subject to a notion of approximation. We outline
-the equational theory and notion of approximation here.
+Specifications have a theory of equality $\equiv$ as well
+as approximation $<:$ which we define here.
+For brevity we use abbreviations $\term{fwd}$, $\term{bwd}$, and
+$\term{cen}$ for region constants here.
 
-\begin{figure}
-\vspace{-0.3em}
-\begin{align*}
-\setlength{\arraycolsep}{0.05em}
-\begin{array}{c}
-%\framebox{$\textit{region} \equiv \textit{region}'$} \\[0.6em]
-\begin{array}{rll}
-(\textsc{F\, \texttt{+} \,F}) \;\; &
-\stenFwdSR{n \, \textsf{max} \, m}{d}{p \vee q} \\
- \equiv \; & \stenFwdSR{n}{d}{p} \; \texttt{+} \; \stenFwdSR{m}{d}{q} \\[0.6em]
+The equality relation $\equiv$ is defined over \emph{region}
+syntax which gives the following axioms on regions:
 %
-%
-(\textsc{B\, \texttt{+} \,B}) \;\; &
-\stenBwdSR{n \, \textsf{max} \, m}{d}{p \vee q} \\
- \equiv \; & \stenBwdSR{n}{d}{p} \; \texttt{+} \; \stenBwdSR{m}{d}{q} \\[0.6em]
-%
-%
-(\textsc{C\, \texttt{+} \,C}) \;\; &
-\stenCenSR{n \, \textsf{max} \, m}{d}{p \vee q} \\
-\equiv \; & \stenCenSR{n}{d}{p} \; \texttt{+} \; \stenCenSR{m}{d}{q} \\[0.6em]
-%
-%
-(\textsc{C\, \texttt{+} \,F}) \;\; & \stenCenSR{n}{d}{p \vee q} \\
-\textit{$m \leq n$} \; \equiv \; & \stenCenSR{n}{d}{p} \; \texttt{+} \;
-                      \stenFwdSR{m}{d}{q} \\[0.6em]
-%
-%
-(\textsc{C\, \texttt{+} \,B}) \;\; &
-\stenCenSR{n}{d}{p \vee q} \\
-\textit{$m \leq n$} \; \equiv \; & \stenCenSR{n}{d}{p} \; \texttt{+} \;
-                      \stenBwdSR{m}{d}{q} \\[0.6em]
-%
-%
-(\textsc{B\, \texttt{+} \,F}) \;\; &
-\stenCenSR{n}{d}{p \vee q} \\
-\equiv \; & \stenFwdSR{n}{d}{p} \; \texttt{+} \; \stenBwdSR{n}{d}{q}
-  \\[0.6em]
-%
-%
-(\textsc{P\, \texttt{+} \,F}) \;\; &
-\stenFwdS{n}{d} \\
-\equiv \; & \stenReflSR{d} \; \texttt{+} \; \stenFwdSR{n}{d}{p} \\[0.6em]
-%
-%
-(\textsc{P\, \texttt{+} \,B}) \;\; &
-\stenBwdS{n}{d} \\
-\equiv \; & \stenReflSR{d} \; \texttt{+} \; \stenBwdSR{n}{d}{p} \\[0.6em]
-%
-%
-(\textsc{P\, \texttt{+} \,C}) \;\; &
-\stenCenS{n}{d} \\
-\equiv \; & \stenReflSR{d} \; \texttt{+} \; \stenCenSR{n}{d}{p} \\[0.6em]
-%
-%
-(\textsc{npoint}) \;\; & (R \, \term{*} \, S^\irreflS) \, \term{+} \,
-                         (R^\irreflS \, \term{*} \, S) \;
-\equiv \; R \, \term{*} \, S \\[0.4em]
-%
-(\textsc{$\ast$Dim}) \;\; & R^d \, \term{$\ast$} \, S^d \equiv R^d
-                             \, \term{+} \, S^d \\[0.4em]
-%
-(\texttt{+}\textsc{idem}) \;\; & S \; \texttt{+} \; S \; \equiv \; S \\[0.4em]
-%
-(\texttt{+}\textsc{comm}) \;\; & S \; \texttt{+} \; T \; \equiv \; T \;
-                       \texttt{+} \; S \\[0.4em]
-%
-(\texttt{+}\textsc{assoc}) \;\; & R \; \texttt{+} \; (S \; \texttt{+} \; T) \; \equiv \; (R \;
-                       \texttt{+} \; S) \; \texttt{+} \; T \\[0.4em]
-(\texttt{*}\textsc{comm}) \;\; & S \; \texttt{*} \; T \; \equiv \; T \;
-                       \texttt{*} \; S \\[0.4em]
-%
-(\texttt{*}\textsc{assoc}) \;\; & R \; \texttt{*} \; (S \; \texttt{*} \; T) \; \equiv \; (R \;
-                       \texttt{*} \; S) \; \texttt{*} \; T \\[0.4em]
-(\textsc{dist}) \;\; & R \; \texttt{*} \; (S \; \texttt{+} \; T) \; \equiv \; (R \;
+\begin{itemize}
+\item $\term{+}$ is idempotent, commutative, and associative;
+\item $\term{*}$ is commutative, associative, and distributes over
+$\term{+}$, \ie{},  $R \; \texttt{*} \; (S \; \texttt{+} \; T) \; \equiv \; (R \;
                        \texttt{*} \; S) \; \texttt{+} \; (R
-                       \; \texttt{*} \; T)
-\end{array}
-\end{array}
-\end{align*}
-\caption{Equations on specifications (\emph{regions})}
-\vspace{-0.5em}
-\label{fig:equations}
-\end{figure}
+                       \; \texttt{*} \; T)$. 
+Distributivity is 
+used later to give a normal form for specifications
+akin to Disjunctive Normal Form (\S~\ref{sec:inf-step4}).
 
-Figure~\ref{fig:equations} lists the equational theory for
-specifications given by the binary relation $\equiv$
-on \emph{region} terms. The equations use abbreviations
-\term{point}, \term{fwd}, \term{bwd}, \term{cen}
-for \term{nonpointed}, \term{forward}, \term{backward},
-\term{centered} respectively. Furthermore, the abbreviations include syntactic sugar
-for quantifying over the absence or presence of the \irrefl{}
-attribute on region constants as a boolean. For example,
-\term{fwd} syntactic sugar is defined:
-%%
+\item (\emph{overlapping}) Given two region constants $R_1$ and $R_2$ 
+on the same dimension, then some combinations of region constants
+can be coalesced into a single region constant $R_3$ if $R_1$ completely
+overlaps $R_2$. There are five possible instantiations of the
+following rule $R_1 + R_2 \equiv R_3$ which we denote: $\term{fwd + fwd} \equiv \term{fwd}$, $\term{bwd + bwd} \equiv \term{bwd}$, 
+$\term{cen + cen} \equiv \term{cen}$, $\term{cen + fwd} \equiv \term{cen}$ and
+$\term{cen + bwd} \equiv \term{cen}$
+%
+\newcommand{\stenGR}[4]{\small{\textit{#4}(\term{depth=}#1,
+  \term{dim=}#2, #3)}}
+\newcommand{\stenG}[3]{\small{\textit{#3}(\term{depth=}#1,
+  \term{dim=}#2)}}
 \begin{align*}
-\hspace{-0.25em}
-& \stenFwdSR{n}{d}{r}
-\; := \; \\[-0.4em]
-& \qquad \begin{cases}
-\stenFwd{n}{d}{, \irrefl} & \;\;\textit{if} \;\, \neg \, r \\[-0.1em]
-\stenFwd{n}{d}{}  & \;\;\textit{if} \;\,  r
-\end{cases} \\
-\textit{or} \;\;
-& \stenFwdS{n}{d} := \stenFwd{n}{d}{}
+\hspace{-1em} & \stenGR{n}{d}{p \vee q}{$R_3$} \\[-0.4em]
+\hspace{-1em} \equiv \; & \stenGR{n}{d}{p}{$R_1$} \; \texttt{+} \; \stenGR{m}{d}{q}{$R_2$}
+\end{align*}
+where $n \geq m$ and $p$ and $q$ range
+over booleans representing the absence (true) or presence (false)
+of \irrefl{} which are combined via disjunction.
+
+\item (\textit{overlapping pointed}) \term{pointed} regions coalesce with other regions of the
+same dimension:
+%
+\begin{align*}
+& \stenG{n}{d}{region} \\[-0.4em]
+\equiv \; & \stenGR{n}{d}{p}{region} \; \texttt{+} \;
+                          \stenReflS{d}
 \end{align*}
 %
-and similarly for \term{bwd} and \term{cen}.
-
+\item \textit{(centered)} a forward and backward region of the same
+  depth and dimension coalseces into a centered region:
+\begin{align*}
+\hspace{-1em} & {\small{\stenCen{n}{d}{, p \vee q}}} \\[-0.4em]
+\hspace{-1em} \equiv \; & {\small{\stenFwdSR{n}{d}{p} \; \texttt{+} \;
+                          \stenBwdSR{n}{d}{q}}}
+\end{align*}
+%%
+\item $(\textsc{point}) \;\; (R \, \term{*} \, S^\irreflS) \, \term{+} \,
+                         (R^\irreflS \, \term{*} \, S) \; \equiv \; R
+                         \, \term{*} \, S$
+meaning that for the sum of products of two regions $R$ and $S$,
+where in each component one of $R$ or $S$ has the non-pointed
+attribute denoted by $R^{\term{np}}$ and $S^{\term{op}}$,
+the non-pointed attributes cancel to give $R \, \term{*} \, S$.
+%
+\item $(\textsc{$\ast$Dim}) \;\; R^d \, \term{$\ast$} \, S^d \equiv R^d
+                             \, \term{+} \, S^d$
+%
+where $R^d$ and $S^d$ denote regions whose dimension is $d$.
+Thus a product of two regions on
+the same dimension is equal to their addition.
+\end{itemize}
+%
 Stencil specifications in \textit{spec} are considered
 equal when they have the same modifiers and $\equiv$ equates
-their regions, \ie{}:
-\begin{align*}
-(\textit{region} \equiv \textit{region'})
- \Rightarrow \quad\;\; & \texttt{stencil} \; [\textit{approx},] \; [\textit{mult},] \;
-\textit{region} \\[-0.4em]
-\quad \equiv \; & \texttt{stencil} \; [\textit{approx},] \;
-            [\textit{mult},] \; \textit{region}'
-\end{align*}
-%
-
-\paragraph{Overlapping regions with +}
-The first nine
-equations (with labels of the form $\ldots \texttt{+} \ldots$)
-explain the notion of \emph{region overlapping} with sum
-\term{+}. In the first six, $p$ and $q$ range
-over booleans denoting the absence (true) or presence (false)
-of \irrefl{}. These are combined via disjunction. For example,
-the rule $(\textsc{B} \, \term{+} \,
-\textsc{F})$ explains that the sum of \term{backward}
-and \term{forward} regions in the same dimension and the same
-depth is equivalent to a \term{centered} region of that depth.
-If the \term{forward} part is non-pointed ($p =
-\textit{false}$) but \term{backward} is pointed ($q =
-\textit{true}$) then their sum is equal to a \term{centered}
-region with no \irreflS{} modifier by the disjunction ($p \vee q =
-\textit{true}$), \ie{}:
-%%
-\begin{align*}
-& \stenCenS{n}{d}  \\[-0.2em]
-\equiv \;\; & \stenFwdSR{n}{d}{\irrefl} \; \texttt{+} \; \stenBwdS{n}{d}
-\end{align*}
-%%
-That is, the \term{fwd} region is non-pointed describing code which is missing
-a zero-offset neighbourhood index (\eg{}, missing $\texttt{a(i)}$), but the addition of
-the \term{bwd} has no non-pointed attribute and thus provides the
-missing zero offset index.
-
-The equation (\textsc{point}) provides an annihilation of
-\irrefl{} using a further syntactic sugar.
-We write $R^{\irreflS}$ to denote a region constant with an
-non-pointed attribute, \eg{},
-%%
-\begin{align*}
-\stenFwdS{n}{d}^{\irreflS}  := \,
-\stenFwdSR{n}{d}{\irrefl}
-\end{align*}
-%%
-The left-hand side of (\textsc{point}) has a sum of
-products of two regions $R$ and $S$,
-where in each component of the sum one of $R$
-or $S$ has the non-pointed attribute. These cancel to give
-just $R \, \term{*} \, S$.
-
-\paragraph{Interaction between \term{+} and \term{*}}
-
-The last seven equations (from (\textsc{\term{*}Dim}) inclusive), explain
-the algebraic behaviour of \term{+} and \term{*}.  Together, we see
-that \term{+} is an associative, commutative, idempotent binary
-operator that distributes with \term{*}, which is associative and
-commutative. This distribution of \term{*} over \term{+} is key as it
-is used internally to give a normal form for stencil specifications
-akin to Disjunctive Normal Form (DNF) (where \term{+} is
-disjunction and \term{*} is conjunction). We revisit this
-normalisation in \S~\ref{sec:inf-step4}.
-
-The equation (\textsc{$\ast$Dim}) uses syntactic sugar
-where $R^d$ and $S^d$ denote regions whose dimension is $d$.
-This equation shows that a product of two regions on
-the same dimension is equal to their addition.
+their regions.
 
 The equational theory provides not only an axiomatic semantics
 for the language, which the user can use to rewrite their
@@ -1313,35 +1203,44 @@ S \equiv T \; \Rightarrow \;
 \end{equation*}
 \end{theorem}
 
-\subsection{Approximation}
-
 Figure~\ref{fig:inequations} defines a notion of sub-specifications
 via the relation $<:^r$ on \textit{region}
 syntax and then $<:$ on \textit{spec} syntax inductively.
 Both relations are reflexive and transitive (we omit
-these equations) and congruent
-with respect to \term{+}, \term{*}, \term{atLeast}, \term{atMost},
-and \term{readOnce}. The \trule{\textsc{eq}} rule connects region
-equations with inequations. The \trule{\textsc{over}} rule explains
-the notion of spatial over-approximation via overlapping regions.
-The \trule{\textsc{rep}} allows the modifier that
-enforces that every index is read just once to be dropped
-as an approximation; \trule{\textsc{bound}} gives
-a connection between the \term{atLeast} and \term{atMost}
-approximation modifiers.
+these equations). The $<:^r$ relation is congruent
+with respect to \term{+} and \term{*} $<:$ is congruent
+with repect to \term{readOnce}, the equations of which we omit for brevity.
+
+The \trule{\textsc{eq}} rule connects region
+equations to approximation; \trule{\textsc{over}} explains
+the notion of spatial over-approximation via overlapping regions; 
+\trule{\textsc{rep}} allows the \term{readOnly} modifier that
+to be dropped. The \trule{\textsc{shrink}} 
+and \trule{\textsc{grow}} rules turn the spatial approxiamation on
+regions into approximation on specifications via the \term{atLeast} and \term{atMost}
+modifiers. Finally, \trule{\textsc{Gen$\ast$}} shows
+that specifications can be generalised by removing parts of a product
+$\ast$ which have disjoint dimensions to the rest of the region
+product (where $\mathsf{dims}$ denotes the set of dimensions specified
+in a region).
 
 \begin{theorem}[Soundness of approximation]
+A piece of code consistent with a specification $S$
+ is consistent with a generalisation $T$ of the specification.
+That is for all models $M$ of a piece of code:
 \begin{equation*}
-\forall S, T, M, n . \quad
-S <: T \; \wedge (\consA{M}{\interp{S}_n})
-\Rightarrow (\consA{M}{\interp{T}_n})
+S <: T \; \wedge (\consA{M}{\interp{S}_n}) \;
+\Rightarrow \; (\consA{M}{\interp{T}_n})
 \end{equation*}
+where $\consAName$ is the consistency predicate used in checking (\S~\ref{subsec:checking}).
 \end{theorem}
 
 
 \begin{figure}[t]
+\vspace{-0.5em}
 \begin{align*}
 \hspace{-0.5em}
+{\small{
 \begin{array}{c}
 %%
 %% INEQUATIONS ON REGION
@@ -1368,13 +1267,13 @@ S <: T \; \wedge (\consA{M}{\interp{S}_n})
 \wedge \; \stenBwdSR{m}{d}{r} & <:^r \stenCenSR{n}{d}{s} \\
 \wedge \; \stenFwdSR{m}{d}{r} & <:^r \stenCenSR{n}{d}{s} \\[1.2em]
 \end{array}}\trule{\textsc{over}} \\[-0.2em]
-\hspace{-0.5em}
-\dfrac{R_1 <:^r S_1 \quad R_2 <:^r S_2}
-      {R_1 \, \texttt{+} \, R_2 <:^r S_1 \, \texttt{+} \, S_2}
-\trule{\textsc{cong}\texttt{+}}
-\dfrac{R_1 <:^r S_1 \quad R_2 <:^r S_2}
-      {R_1 \, \texttt{*} \, R_2 <:^r S_1 \, \texttt{*} \, S_2}
-\trule{\textsc{cong}\texttt{*}} \\[1.5em]
+%\hspace{-0.5em}
+%\dfrac{R_1 <:^r S_1 \quad R_2 <:^r S_2}
+%      {R_1 \, \texttt{+} \, R_2 <:^r S_1 \, \texttt{+} \, S_2}
+%\trule{\textsc{cong}\texttt{+}}
+%\dfrac{R_1 <:^r S_1 \quad R_2 <:^r S_2}
+%      {R_1 \, \texttt{*} \, R_2 <:^r S_1 \, \texttt{*} \, S_2}
+%\trule{\textsc{cong}\texttt{*}} \\[1.5em]
 %%
 %% INEQUATIONS ON SPEC
 %%
@@ -1386,28 +1285,28 @@ S <: T \; \wedge (\consA{M}{\interp{S}_n})
 \;\;
 \dfrac{R <:^r S}{\term{atMost}  R <: \term{atMost}
   S}\trule{\texttt{M}} \\[1.5em]
-\dfrac{R <:^r S}{R <: \term{atMost} \, S}\trule{\textsc{grow}} \quad
-\dfrac{R <:^r S}{S <: \term{atLeast} \, R}\trule{\textsc{shrink}} \quad
+\dfrac{R <:^r S}{R <: \term{atMost} \, S}\trule{\textsc{grow}} \,
+\dfrac{R <:^r S}{S <: \term{atLeast} \, R}\trule{\textsc{shrink}} \,
+\dfrac{R \equiv S}{R <:^r S}\trule{\textsc{eq}}
  \\[1.5em]
 %%
 \dfrac{\mathsf{dims}(R) \cap \mathsf{dims}(S) = \emptyset}{R \ast S <: R}
 \trule{\textsc{Gen$\ast$}}
 \quad
-\dfrac{R \equiv S}{R <: S}\trule{\textsc{eq}}
 %%
-\\[1.5em]
-\dfrac{R <: S}{\term{readOnce} \, R <: \term{readOnce} \,
-  S}\trule{\textsc{cong}\texttt{R}}
-\;\;
+%\\[1.5em]
+%\dfrac{R <: S}{\term{readOnce} \, R <: \term{readOnce} \,
+%  S}\trule{\textsc{cong}\texttt{R}}
+%\;\;
+\;
 \dfrac{}{\term{readOnce} \, R <: R}\trule{\textsc{rep}}
 %\dfrac{}{R <: \term{atMost} R}
 %\quad
 %\dfrac{}{R <: \term{atLeast} R}\\[1.5em]
-\end{array}
+\end{array}}}
 \end{align*}
 \caption{Inequations $<:^r$ on \textit{regions} and
-$<:$ on \textit{specs} (omitting reflexivity
-and transitivity). }
+$<:$ on \textit{specs} (omitting reflexivity, transitivity, and congruences). }
 \label{fig:inequations}
 \vspace{-0.8em}
 \end{figure}

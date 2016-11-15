@@ -2397,32 +2397,30 @@ language of contiguous regions}
 
 \citet{kamil2016verified} propose verified lifting to extract a mathematical
 representation of low-level, and potentially optimised, stencils in Fortran
-code. Problem domain wise their work is the closest to ours. However, since
-their aim is to use the extracted predicate to pipe to the high-performance
-compiler \textsf{Halide}~\citep{ragan2013halide}, they need to capture the full
-meaning of the stencil computation.
+code. Their aim is to use the extracted predicate to pipe to the \textsf{Halide}~\citep{ragan2013halide} high-performance
+compiler and so they need to capture the full meaning of the stencil computation.
 
-This led them to develop \textsf{STNG}, a loop invariant and postcondition
-finder through syntax-guided synthesis. Using this approach they restrict the
-search space of postconditions to predicates of a certain form, one that is
-compatible with \textsf{Halide}. They then look at concrete loop iterations and
-form an hypothesis about the invariant, which is later confirmed or put back
-into the system using a SMT solver.
+% ACR-I think we could skip this in the interests of space
+%This led them to develop \textsf{STNG}, a loop invariant and postcondition
+%finder through syntax-guided synthesis. Using this approach they restrict the
+%search space of postconditions to predicates of a certain form, one that is
+%compatible with \textsf{Halide}. They then look at concrete loop iterations and
+%form an hypothesis about the invariant, which is later confirmed or put back
+%into the system using a SMT solver.
 
-CamFort differs from this work significantly here. The aim of CamFort is not a
+CamFort differs from this significantly. The aim of CamFort is not a
 full representation of the stencil, but enough information to capture the access
-pattern. Hence, it does not require SMT solving or search of loop invariants. It
+pattern. Hence, we do not require SMT solving or search of loop invariants. It
 suffices to do comparatively simple data-flow analysis.
 
-Due to the sheer amount of analysis involved, Kamil et al. reports that some
+Due to the sheer amount of analysis involved, Kamil et al. report that some
 degenerate kernels take up to 17 hours to analyse and others require programmer
 intervention for correct invariants to be inferred. Since CamFort mostly does
-syntactic analysis, inference procedure always terminates quickly in all real
-world examples and never requires programmer intervention. Downside of our
-approach is that if optimisation causes stencil computation to be heavily
+syntactic analysis, the inference procedure terminates quickly and never requires programmer intervention. The downside of our
+approach is that if optimisation causes the stencil computation to be heavily
 obfuscated, \textsf{STNG} would capture the access behaviour better.
 
-More fundamentally, unlike CamFort, Kamil et al. does not provide a syntactic
+Most fundamentally, unlike CamFort, Kamil et al. does not provide a syntactic
 representation of their postcondition, so there is no way of future-proofing the
 code for future edits. Even if they were to provide a syntactic representation,
 for complex stencils such as Navier-Stokes from \S~\ref{sec:intro}, it would be

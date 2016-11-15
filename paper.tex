@@ -1650,12 +1650,13 @@ code from being consistent.
 
 \begin{figure}[t]
 \begin{align*}
+\hspace{-0.5em}
 \begin{array}{c}
 %%
-\trule{up}\dfrac{\forall u \in M, \, \exists v \in N .  \, u \preceq v}
+\trule{up}\dfrac{\forall u \in M, \exists v \in N .  \, u \preceq v}
       {\cons{M}{\textsf{upper}(N)}}
-\;\;
-\trule{low}\dfrac{\forall v \in Nm \, \exists u \in M . \, u \preceq v}
+\,
+\trule{low}\dfrac{\forall v \in N, \exists u \in M . \, u \preceq v}
       {\cons{M}{\textsf{lower}(N)}} \\[1.5em]
 %%
 \trule{exact}\dfrac{\cons{M}{\textsf{lower}(N)} \qquad \cons{M}{\textsf{upper}(N)}}
@@ -1674,7 +1675,7 @@ code from being consistent.
 \dfrac{\cons{M}{N}}{\consA{\textsf{once}(M)}{\textsf{mult}(N)}}
 \end{array}
 \end{align*}
-\caption{Consistency between models of code and specification}
+\caption{Consistency of models (code vs. specification)}
 \label{fig:consistency}
 \vspace{-0.9em}
 \end{figure}

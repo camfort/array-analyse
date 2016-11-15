@@ -166,74 +166,134 @@ xrightmargin=0.2cm,commandchars=\\\{\},baselinestretch=0.98,numbersep=0.9em}
 
 \begin{theorem}[Soundness of approximation]
 \begin{align*}
-\forall S, T, M . \quad S <: T \; \wedge \; \cons{M}{\interp{S}_n}  \;
-\Rightarrow \cons{M}{\interp{T}_n}
+\forall S, T, M . \quad S <: T \; \wedge \; \consA{M}{\interp{S}_n}  \;
+\Rightarrow \consA{M}{\interp{T}_n}
 \end{align*}
 \end{theorem}
 
 \begin{proof}
-By induction on the definition of $<:$
+By induction on the definition of $<:$.
+
+Some intermediate results on approximation of regions are useful:
+
+\begin{lemma}
+For all regions $R, S$ then $R <: S \Rightarrow \textit{constr}(\interp{R})
+= \textit{constr}(\interp{S})$
+\end{lemma}
+
+\begin{lemma}[Subregions imply submodels]
+For all regions $R, S$ then  $R <:^r S \; \Rightarrow \interp{R}_n
+\subseteq \interp{S}_n$.
+\label{lem:subr-to-subm}
+\end{lemma}
+\begin{proof}
 \begin{itemize}
-\item 
+\item \trule{\textsc{over}}  
+ \begin{itemize}
+   \item $\term{fwd} <: \term{fwd}$, $r \Rightarrow s$ and $m \leq n$,
+     then $\{\zeroEntry{d}{n} \mid r \} \cup
+ \{i\singleEntry{d}{n} \,|\, i \in \{1, ..., m\} \} \subseteq 
+\{\zeroEntry{d}{n} \mid s \} \cup
+ \{i\singleEntry{d}{n} \,|\, i \in \{1, ..., n\} \}$
+   \item The rest of the cases for OVER similarly follow the shape of
+     the model straightforwardly.
+ \end{itemize}
+\item \trule{\textsc{cong$\term{+}$}} Straightforward by monontonicity
+  of $\cup$ and the model of $\interp{R_1 + R_2} = \interp{R_1} \cup
+  \interp{R_2}$.
+\item \trule{\textsc{cong$\term{*}$}} By the inductive hypothesis
+$R_1 <: S_1$ and $\interp{R_1} \subseteq \interp{S_1}$ and
+$R_2 <: S_2$ and $\interp{R_2} \subseteq \interp{S_2}$. 
+
+Therefore, by the subset property in the inductive hypotheses then
+ $(u \bowtie v)_i \in \interp{R_1} \bowtie \interp{S_1} 
+\Rightarrow \interp{R_2} \bowtie \interp{S_2}$ by the properties of
+$\bowtie$ an the above lemma that $R <: S \Rightarrow \textit{constr}(\interp{R})
+= \textit{constr}(\interp{S})$. Therefore
+$\interp{R_1 \ast S_1} \subseteq \interp{R_2 \ast S_2}$.
 \end{itemize}
-\item \trule{shrink} $R <:^r S \; \Rightarrow \; R <: \term{atMost} \,
+\end{proof}
+
+\begin{itemize}
+\item \trule{\textsc{grow}} $R <:^r S \; \Rightarrow \; R <: \term{atMost} \,
   S$
+By the above Lemma~\ref{lem:subr-to-subm} then $\interp{R} \subseteq
+\interp{S}$. Given $\consA{M}{\interp{R}}$ then it follows
+that $\forall u \in M, \exists v \in \interp{R} . u \preceq v$ and
+thus $\forall u \in M, \exists v \in \interp{S} . u \preceq v$ which
+is equivalent to the consitency
+$\consA{M}{\interp{\term{atMost}{S}}}$ $\qed$.
 
+\item \trule{\textsc{shrink}} The dual of the above proof.
 
-
-\item \trule{Eq} trivial by soundness of $\equiv$.
-\item \trule{CongR} follows straightforwardly by the $(1 \leq *)$ 
-cause for consistency
-\item \trule{rep} follows by $(*)$.
-\end{proof}
-
-\begin{lemma}
-For a model, its indices never have an $\infty$ value in 
-the constrained dimensions.
-\begin{align*}
-\forall M, n . \;\; j \in \textit{constr}(M)_n \Rightarrow
-x \in M \, \wedge \, x_j \neq \infty
-\end{align*}
-\end{lemma}
-\begin{proof}
-By the definition of $\textit{constr}$.
-\end{proof}
-
-\begin{lemma}
-For all pairs of $n$-dimensional specifications $R,S$, the model or
-$R$ is a subset of the model of $R \term{*} S$:
-\begin{align*}
-\forall R, S, n . \;\; \interp{R} \subseteq (\interp{R} \otimes_n \interp{S})
-\end{align*}
-\end{lemma}
-
-\begin{proof}
-Given two $n$-vectors $u, v$ then 
-$u = (u \bowtie v)_0$ and $v \in (u \bowtie v)_0$.
-
-Forall $u_r \in \interp{R}$, then 
+\item \trule{\textsc{Gen$\ast$}} $\mathsf{dims}(R) \cap \mathsf{dims}(S) =
+  \emptyset \Rightarrow (R \ast S) <: R$  and (*) $\consA{M}{\interp{R\ast S}_n}$
 
 \begin{align*}
-      & \interp{R}_n \\
-\equiv \;\; & \{ x \mid (u, v) \in \interp{R}_n \times \interp{S}_n \;
-              \wedge \; x = (u \bowtie v)_0 \}  \\
-%
-\subseteq  \;\; &
-  \Bigg\{x \; \Bigg| \;
-    \parbox{5.2cm}{$(u, v) \in \interp{R}_n \times \interp{S}_n $ \\[0.1em]
+N = &   \Bigg\{x \; \Bigg| \;
+    \parbox{5.9cm}{$(u, v) \in \interp{R}_n \times \interp{S}_n $ \\[0.1em]
                  $\;\; \wedge \;\, j \in (\effdims{\interp{R}}{n} \cup
                    \effdims{\interp{S}}{n})$\\[0.1em]
                   $\;\; \wedge \;\, i \in \{1, \ldots, 2^n\} \, \wedge
                   \, x = (u \bowtie v)_i$ \\[0.1em]
                    $\;\; \wedge \;\, x_j \neq \infty$
                   } \Bigg\} \\
-\equiv \;\; & \interp{R} \otimes_n \interp{S} 
+\consA{M}{\interp{R\ast S}_n} & = (\forall ua \in M, \exists va \in N . ua
+  \preceq va) \; \wedge \; (\forall va' \in N, \exists ua' \in M . ua' \preceq
+    va')
 \end{align*}
+%
+[Goal $\consA{M}{\interp{R}_n} = (\forall u \in M, \exists v \in \interp{R}_n . u
+  \preceq v) \; \wedge \; (\forall v' \in \interp{R}_n, \exists u' \in M . u' \preceq
+    v')$]
 
+The defined dimensions of $R$ and $S$ are disjoint
+($\mathsf{dims}(R) \cap \mathsf{dims}(S) =
+  \emptyset$) that implies that:
+%
+\begin{align}
+& \forall d \in \mathsf{dims}(R) . \, \forall v \in \interp{S}_n . \,
+  vs_d = \infty \\
+& \forall d \in \mathsf{dims}(S) . \, \forall v \in \interp{R}_n . \, 
+  vr_d = \infty
+\label{eq:sepa}
+\end{align}
+
+\begin{itemize}
+\item \textbf{Left of conjunct}
+
+Assume $u \in M$ and instantiate the universal of the assumptions such
+that $ua = u$ and let $va \in N$ by existential elimination.
+
+By the definition of $N$ and the
+above property~\eqref{eq:sepa}, we know that for all $d \in \mathsf{dims}(R)$
+and $e \in \mathsf{dims}(S)$ that $va_d$ matches some $vr_d$
+and $va_e$ matches some $vs_e$. Therefore, there is an scheme
+$v' \in \interp{R}_n$ where all $v'_e = \infty$ and therefore
+$ua \preceq v'$. By existential introduction on $v'$ then we have
+the left conjunt of the goal. $\qed$
+
+\item \textbf{Right of conjunct}
+Assume $v' \in \interp{R}_n$. 
+
+Pick an arbitrary $vs \in \interp{S}_n$. 
+For all $d \in \mathsf{dims}(R)$
+and $e \in \mathsf{dims}(S)$
+let $va'_d = v'_d$ and let $va'_e = vs_e$.
+
+Instantiate the assumption then such that $\exists ua' \in M$
+where $ua' \preceq va'$.  Since $v'$ is more general than $va'$
+it also holds that $ua' \preceq v'$. By existential introduction,
+let $u' = ua'$ providing the right conjunct of the goal $\qed$.
+\end{itemize}
+
+\item \trule{\textsc{Eq}} trivial by soundness of $\equiv$.
+\item \trule{\textsc{Cong\texttt{R}}} follows straightforwardly by the $(1 \leq *)$ 
+cause for consistency
+\item \trule{\textsc{rep}} follows by $(*)$.
+
+\end{itemize}
 \end{proof}
-
-
-
 
 \end{document}
 

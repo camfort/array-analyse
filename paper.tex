@@ -1119,9 +1119,7 @@ akin to Disjunctive Normal Form (\S~\ref{sec:inf-step4}).
 on the same dimension, then some combinations of region constants
 can be coalesced into a single region constant $R_3$ if $R_1$ completely
 overlaps $R_2$. There are five possible instantiations of the
-following rule $R_1 + R_2 \equiv R_3$ which we denote: $\term{fwd + fwd} \equiv \term{fwd}$, $\term{bwd + bwd} \equiv \term{bwd}$, 
-$\term{cen + cen} \equiv \term{cen}$, $\term{cen + fwd} \equiv \term{cen}$ and
-$\term{cen + bwd} \equiv \term{cen}$
+following rule $R_1 + R_2 \equiv R_3$:
 %
 \newcommand{\stenGR}[4]{\small{\textit{#4}(\term{depth=}#1,
   \term{dim=}#2, #3)}}
@@ -1134,6 +1132,9 @@ $\term{cen + bwd} \equiv \term{cen}$
 where $n \geq m$ and $p$ and $q$ range
 over booleans representing the absence (true) or presence (false)
 of \irrefl{} which are combined via disjunction.
+We denote the possibilities as $\term{fwd + fwd} \equiv \term{fwd}$, $\term{bwd + bwd} \equiv \term{bwd}$, 
+$\term{cen + cen} \equiv \term{cen}$, $\term{cen + fwd} \equiv \term{cen}$ and
+$\term{cen + bwd} \equiv \term{cen}$.
 
 \item (\textit{overlapping pointed}) \term{pointed} regions coalesce with other regions of the
 same dimension:

@@ -310,10 +310,11 @@ first dimension and backward to a depth of $1$ in the second
 dimension. Note the relatively small size of the specification
 compared to the source code, and its high-level of abstraction.
 
-We provide a verification tool which can check the correctness of stencil code
-against its specification, infer such specifications from bare source, and
-synthese inferred specifications as comments and insert them into the source
-code. The main features and benefits of our approach are as follows:
+We provide a verification tool which can check the spatial correctness
+of stencil computations against a specification. Furthermore, the tool
+can automatically infer specifications and insert these as comments
+into the source code. The main features and benefits of our approach
+are as follows:
 %
 \begin{itemize}
 %\item The main use case is that a programmer writes a specification
@@ -324,8 +325,8 @@ code. The main features and benefits of our approach are as follows:
 %  opportunity for easy re-verification in the event of any refactoring
 %  of software maintenance activities.
 \item The primary use case is that a programmer writes a specification first,
-  then the corresponding source code and the tool checks conformance between
-  the two. This specify-and-check approach reduces the testing effort and
+  then writes the corresponding source code. Our tool then checks conformance between
+  the two. This specify-and-check approach reduces testing effort and
   future-proofs against bugs introduced during refactoring and maintanence.
 %
 %\item The specification provides a concise description which can be
@@ -338,10 +339,11 @@ code. The main features and benefits of our approach are as follows:
 
 % Emphasis here is on documentation generation, so it makes little sense to
 % compare this aspect of CamFort to ad hoc testing. Apples and oranges.
-\item A specification concisely captures the access pattern and turns it into
-  documentation. Inference algorithm efficiently produces specifications with
-  no programmer intervention, while synthesis mechanism inserts the
-  specifications at appropriate places in the source code automatically.
+\item A specification concisely captures the access pattern of a
+  stencil and turns it into documentation. The inference procedure
+  efficiently produces specifications with no programmer intervention,
+  automatically inserting specifications at appropriate places in the
+  source code.
 %
 \item Specifications are integrated into the code as comments for easy
   integration with existing tools, as well as documentation systems (\eg{}, we
@@ -497,7 +499,7 @@ $\bar{v}$ within that kernel.
   A stencil specification defines a \emph{region} associated to an
   array variable $a$ against which a stencil kernel should be
   \emph{consistent}. Informally, the region defined by a specification
-  is an $n$-dimensional shape crossing the origin with respect to the induction
+  is an $n$-dimensional rectilinear shape in a discrete space crossing the origin with respect to the induction
   variable. Consistency is then a two way requirement.
   On the one hand, all array subscripts on $a$ contributing to the kernel
   should be consistent with the region; on the other, all parts of the
@@ -754,8 +756,8 @@ which we call \emph{index schemes}.
   in $\mathbb{Z}$ represent the offsets of neighbourhood indices
   (\ie{}, the constant integer $c$ in an indexing expression of the
   form $i \pm c$, Def.~\ref{def:neighbour},
-  p.~\pageref{def:neighbour}) and $\infty$ represents any constant
-  index. Throughout $u, v, w$ range over
+  p.~\pageref{def:neighbour}) and $\infty$ is a wild-card
+  representing both constant indices and un-specified indices. Throughout $u, v, w$ range over
   index schemes and $u_i$ denotes the $i^{th}$ element of $u$. We
   write $(\domainVal)^n$ for the set of all $n$-dimensional schemes.
 \end{definition}
@@ -846,8 +848,6 @@ $(i, j+1)$, $(1, j+1)$, $(3, j)$ and $(i*2, j)$:
 \end{align*}
 There is one generalisation between these
 schemes, namely that $\vtwoh{0}{1} \preceq_2 \vtwoh{\infty}{1}$.
-At the level of syntax, this translates to saying
-$(i, j+1)$ can be instantiated to $(1, j+1)$.
 Note the last example is undefined as its first expression is a
 non-neighbour relative index.
 \end{example}
@@ -1616,8 +1616,8 @@ specialises it.  The (\textit{both}) rule is similar, decomposing
 a specification which has both a lower and upper bound into
 consistency of these bounds.
 
-Rules $(1)$ and $(*)$ extend the \consAName{}
-predicate to $\consAName{}_m \subseteq
+Rules $(1)$ and $(*)$ extend the \consName{}
+predicate to $\consAName{} \subseteq
 \textsf{Mult}(\mathcal{P}(\domainVal{}^n))
 \times \textsf{Mult}(\textsf{Approx}(\mathcal{P}(\domainVal{}^n)))$
 which inludes multiplicity information. Both rules

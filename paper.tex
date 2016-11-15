@@ -754,8 +754,7 @@ which we call \emph{index schemes}.
   values drawn from $\domainVal = \mathbb{Z} \cup \{\infty\}$.  Values
   in $\mathbb{Z}$ represent the offsets of neighbourhood indices
   (\ie{}, the constant integer $c$ in an indexing expression of the
-  form $i \pm c$, Def.~\ref{def:neighbour},
-  p.~\pageref{def:neighbour}) and $\infty$ is a wild-card
+  form $i \pm c$, Def.~\ref{def:neighbour}) and $\infty$ is a wild-card
   representing both constant indices and un-specified indices. Throughout $u, v, w$ range over
   index schemes and $u_i$ denotes the $i^{th}$ element of $u$. We
   write $(\domainVal)^n$ for the set of all $n$-dimensional schemes.
@@ -1359,8 +1358,7 @@ index $\overline{e_1}$ is a neighbourhood index.  For
 all array subscripts that flow to the right-hand side of this
 statement, a finite map is constructed, mapping each array variable
 to a \emph{multiset} of indexing schemes for its subscripts, computed
-with \textsf{schematic} (Defn.~\ref{def:schematic},
-p.~\pageref{def:schematic}).
+with \textsf{schematic} (Def.~\ref{def:schematic}).
 
 Note that \textsf{schematic} is undefined ($\bot$) if
 $\bar{e}$ contains relative indices which are not neighbourhood
@@ -1702,7 +1700,7 @@ a(i) = a(i) + a(i+1) + a(1)
 \label{subsec:inference}
 
 We illustrate each step of inference using the
- five-point stencil program from Example~\ref{exm:checking} (p.~\pageref{exm:checking}).
+ five-point stencil program from Example~\ref{exm:checking}.
 
 \subsubsection{Step 1: Data access analysis}
 \label{sec:inf-step1}
@@ -1935,7 +1933,7 @@ giving the sorting function $\textsf{sort}(M)$. For our example:
 \end{align*}
 \noindent
 \textbf{3)\,} Reduce each list pairwise by $\bullet$ operation
-(Defn.~\ref{def:span-coalesc}) to coalesce contiguous regions,
+(Def.~\ref{def:span-coalesc}) to coalesce contiguous regions,
 given by $\textsf{fold}\bullet$. For our example, this yields:
 %
 \begin{align*}
@@ -2002,8 +2000,7 @@ This conversion is defined in terms
 of an algebra on \textit{spec} syntax in disjunctive-normal form
 (which we denote \specDNF{}) and which is wrapped
 in the $\textsf{Approx}$ type (see
-Defn.~\ref{def:mult-and-approx},
-p.~\pageref{def:mult-and-approx}).  The algebra mirrors the shape
+Def.~\ref{def:mult-and-approx}).  The algebra mirrors the shape
 of the region combinators for sum and product,
 with operators $\oplus$ and $\odot$ and a constructor for \specDNF{}:
 %%
@@ -2032,7 +2029,7 @@ We unpack the definitions of this algebra.
 
 \begin{definition}[Specifications in DNF]
 Let $r_1, ..., r_n$ range over elements of the \textit{region}
-syntax (see Figure~\ref{fig:syntax}, p.~\pageref{fig:syntax}).
+syntax (see Figure~\ref{fig:syntax}).
 The set \specDNF{} is a subset of syntax trees \textit{spec},
 containing specifications in disjunctive normal form over regions
 where the disjunct is \term{+} (since its model is in terms of set
@@ -2153,7 +2150,7 @@ is the $\term{+}$ sum of all pairwise $\term{*}$ products for every
 pair of $\tyProd{spec}$ drawn from $S$ and $T$. The result
 is indeed in DNF-form, where $\hat{\odot}$ is essentially applying
  the (\trule{\textsc{dist}}) rule of our equational theory
- (Fig.~\ref{fig:equations},p.~\pageref{fig:equations}). The operation is
+ (Fig.~\ref{fig:equations}). The operation is
 commutative and associative, and sound with respect to our
 model (see Lemma~\ref{lem:alg-soundness} below).
 The $\hat{\odot}$ operation is then lifted to all combinations of

@@ -686,18 +686,17 @@ This reflects the symmetry under rotation of the five-point stencil.
 \paragraph{Region declarations and variables}
 
 Region specifications can be assigned to region variables via
-a region declaration, which can be used later in another
-specification. For example, the last specification
+region declarations. For example, the last specification
  example above can be restated as:
 %%
 \begin{minted}{fortran}
-!= region :: r1 = forward(depth=1, dim=1)
-!= region :: r2 = forward(depth=1, dim=2)
-!= region :: robertsCross = r1*r2
-!= stencil robertsCross :: a
+!= region :: r1 = centered(depth=1, dim=1) * pointed(dim=2)
+!= region :: r2 = centered(depth=1, dim=2) * pointed(dim=1)
+!= region :: fivePoint = r1 + r2
+!= stencil fivePoint :: a
 \end{minted}
-This is especially useful for common stencil patterns, such as Roberts cross,
-as the region can be defined once and reused.
+This is especially useful for common stencil patterns, such as five point
+stencil, as the region can be defined once and reused many times later.
 %%
 \paragraph{Modifiers}
 %%

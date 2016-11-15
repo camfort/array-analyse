@@ -200,8 +200,7 @@ xrightmargin=0.2cm,commandchars=\\\{\},baselinestretch=0.98,numbersep=0.9em}
 \newcommand{\consSub}[3]{#2 \,\, \consAName{}_{#1} \,\,#3}
 
 
-\title{Verification of Stencil Computations with Spatial
-  Specifications}
+\title{Specification and Verification of Stencil Computation Shape}
 %\titlebanner{DRAFT -- Do not distribute}
 \authorinfo{}{}{}
 %\preprintfooter{DO NOT DISTRIBUTE}
@@ -2328,6 +2327,37 @@ inference procedure. For our example, we infer and then synthesise the
 %%
 
 \section{Evaluation}
+
+\subsection{Core hypotheses}
+
+\paragraph{Hypothesis 1: Stencil computations
+(as in Definition~\ref{def:stencil}) are a common programming pattern
+in numerical code}
+
+% Number of stencils (tickAssign) / number of loops
+% Percentage of a code base that is taken up by stencils
+
+\paragraph{Hypothesis 2: Most stencil computations
+have a regular pattern which can be captured with a simple
+language of contiguous regions}
+
+% Number of stencils we give a spec to (where a spec declaration to n
+% variables is counted n times) as percentage of number of stencils
+
+%
+\subsection{Analysing the design of our specifications}
+
+% 1. How may are just reflexive and how many some reflexive
+
+% 2. Break down of "interesting specifications" (contain more than
+% just reflexive)
+%   - Single-action, histogram on depths
+%   - Single-action + irreflexives, histogram on depths
+%   - Bounded
+%   - Multi-action combined only by *
+%   - Multi-action combined also by +, histogram of tree depths
+
+% Present not just percentages but concrete numbers
 
 \bibliography{references}
 

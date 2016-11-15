@@ -1672,6 +1672,7 @@ code from being consistent.
 \dfrac{\cons{M}{N}}{\consA{\textsf{once}(M)}{\textsf{mult}(N)}}
 \end{array}
 \end{align*}
+\vspace{-0.5em}
 \caption{Consistency of models (code vs. specification)}
 \label{fig:consistency}
 \vspace{-0.9em}
@@ -1689,11 +1690,10 @@ code from being consistent.
 a(i,j) = b(i,j-1)+b(i,j)+b(i,j+1)+b(i-1,j)+b(i+1,j)
 \end{minted}
 %
-We refer to the assignment on line three as $l3$ for brevity.
-
-Verification of the code against the spec is then given by
-$check(({\textcolor{darkgreen}{\texttt{readOnce, fivepoint}}}),l3,\texttt{b})$.
-We explain the steps.
+We refer to line three as $l3$ for brevity,
+which is checked via 
+$check(({\textcolor{darkgreen}{\texttt{readOnce, fivepoint}}}),l3,\texttt{b})$
+with steps:
 \begin{enumerate}
 %
 \item Generate the model from the specification as in
@@ -1705,44 +1705,44 @@ We explain the steps.
           \vtwo{1}{\infty},
           \vtwo{\infty}{-1},
           \vtwo{\infty}{0},
-        \vtwo{\infty}{1} \}  \\[0.4em]
+        \vtwo{\infty}{1} \}  \\
 \interp{{\textcolor{darkgreen}{\texttt{readOnce, fivepoint}}}}_2 =
   \textsf{once}(\textsf{exact} (N_s))
 \end{align*}
 %
-\item Obtained the code model via $\textit{modelise}$, giving:
+\item Obtain the code model via $\textit{modelise}$, giving:
 %
 \begin{align*}
-M_c = \{
+M_c = & \{
     \vtwo{0}{-1},
     \vtwo{0}{0},
     \vtwo{0}{1},
     \vtwo{-1}{0},
     \vtwo{1}{0}
   \}
-\\[0.4em]
-\textit{modelise}(l3, \texttt{b}) = \textsf{once} (M_c)
+\\
+\textit{modelise}(l3, \texttt{b}) = & \textsf{once} (M_c)
 \end{align*}
 %
-\item Model $\textsf{once}(\textsf{exact}(N_s))$ is consistent with
-  $\textsf{once}(M_c)$ when
-  $\textsf{mult}(\textsf{exact}(N_s))$ is consistent with
-  $\textsf{mult}(M_c)$ (Fig.~\ref{fig:consistency})
-  which holds when:
+\item By the definition of consistency (Fig.~\ref{fig:consistency})
+ $\textsf{once}(\textsf{exact}(N_s))$ is consistent with
+  $\textsf{once}(M_c)$ when:
   \begin{align*}
-    & \consSub{2}{\textsf{mult}(\textsf{up}(N_s))}{\textsf{mult}(M_c)} \\
-    \wedge \; & \consSub{2}{\textsf{mult}(\textsf{low}(N_s)}{\textsf{mult}(M_c)}
+    & \consSub{2}{\textsf{up}(N_s)}{M_c} \; 
+    \wedge \; \consSub{2}{\textsf{low}(N_s)}{M_c}
   \end{align*}
 %
-\item This condition holds by the following sets of scheme
+\item This holds by the following sets of scheme
   generalisations: for the upper bound, $\forall u \in M_c,
   \exists v \in N_s . u \preceq_2 v$:
   \begin{align}
+    \hspace{-1em}
     \begin{array}{l}
+   \hspace{-1.5em}
      \vtwoh{0}{-1} \preceq_2 \vtwoh{0}{\infty} \quad
      \vtwoh{0}{0} \preceq_2 \vtwoh{0}{\infty} \quad
      \vtwoh{0}{1} \preceq_2 \vtwoh{0}{\infty} \\[0.5em]
-     \vtwoh{-1}{0} \preceq_2 \vtwoh{\infty}{0} \quad
+        \hspace{-1.5em}\vtwoh{-1}{0} \preceq_2 \vtwoh{\infty}{0} \quad
      \vtwoh{1}{0} \preceq_2 \vtwoh{\infty}{0}
      \end{array}
   \label{eq:check-example-upper}
@@ -1753,23 +1753,23 @@ M_c = \{
   \begin{align}
     \hspace{-1em}
     \begin{array}{l}
-     \vtwoh{-1}{0} \preceq_2 \vtwoh{-1}{\infty} \quad
+     \hspace{-1.3em}\vtwoh{-1}{0} \preceq_2 \vtwoh{-1}{\infty} \quad
      \vtwoh{0}{0} \preceq_2 \vtwoh{0}{\infty} \quad
      \vtwoh{1}{0} \preceq_2 \vtwoh{1}{\infty}  \\
-     \vtwoh{0}{-1}  \preceq_2 \vtwoh{\infty}{-1} \quad
+     \hspace{-1.3em}\vtwoh{0}{-1}  \preceq_2 \vtwoh{\infty}{-1} \quad
      \vtwoh{0}{0}  \preceq_2 \vtwoh{\infty}{0} \quad
      \vtwoh{0}{1}  \preceq_2 \vtwoh{\infty}{1}
      \end{array}
     \label{eq:check-example-lower}
   \end{align}
-  Since both the consistency predicate is satisfied, the array
+  Since the consistency predicate is satisfied, the array
   accesses flowing to line three in the stencil computation are valid
   with respect to the {\textcolor{darkgreen}{\texttt{fivepoint}}} specification.
 \end{enumerate}
 \vspace{-0.7em}
 \end{example}
 \begin{example}
-We consider now an erroneous user modification to $l3$ with an
+Consider an erroneous user modification to $l3$ with an
 additional term \texttt{b(i+2,j+2)} such that $l3'$ is:
 %
 \begin{minted}[firstnumber=3]{fortran}

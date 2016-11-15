@@ -2402,6 +2402,7 @@ reflexive on all dimensions.
 % 2. Break down of "interesting specifications" (contain more than
 % just reflexive)
 %   - Single-action, histogram on depths
+%   - Single-action + irreflexives, histogram on depths
 
 % singleAction: 4837
 % singleActionIrr: 1532
@@ -2411,7 +2412,18 @@ reflexive regions. We identified 4,837 single-action specifications,
 of which 1,532 were single-action with an \texttt{irreflexive}
 modifier.
 
-%   - Single-action + irreflexives, histogram on depths
+%   - Multi-action combined only by *
+%   - Multi-action combined also by +, histogram of tree depths
+
+    % multiAction: 156
+    % multiActionMulOnly: 146
+A multi-action specification consists of at least two uses of forward,
+backward, or centered regions, and can be combined with any number of
+reflexive regions. We identified 156 multi-action specifications out
+of which 146 had regions combined only with $\term{*}$.
+
+
+
 %   - Bounded specs (how many lower, upper, or both)
 
 Bounded specifications were fairly unusual, with only 157
@@ -2421,8 +2433,7 @@ always also bounded on both sides.
     % atMost: 157
     % boundedBoth: 36
 
-%   - Multi-action combined only by *
-%   - Multi-action combined also by +, histogram of tree depths
+
 
 % Present not just percentages but concrete numbers
 

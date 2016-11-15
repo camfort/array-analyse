@@ -108,7 +108,7 @@ to the model $\interp{-}_n$.
     \end{align*}
 %
 %
-  \item[\textsc{Case R \texttt{+} F}:]
+  \item[\textsc{Case P \texttt{+} F}:]
     \begin{align*}
       & \; \interp{\stenReflS{d} \; \texttt{+} \; \stenFwdSR{a}{d}{r}}_{n} \\
       \equiv & \; \interp{\stenReflS{d}}_{n} \cup \interp{\stenFwdSR{a}{d}{r}}_{n} \\
@@ -121,7 +121,7 @@ to the model $\interp{-}_n$.
     \end{align*}
 %
 %
-  \item[\textsc{Case R \texttt{+} B}:]
+  \item[\textsc{Case P \texttt{+} B}:]
     \begin{align*}
       & \; \interp{\stenReflS{d} \; \texttt{+} \; \stenBwdSR{a}{d}{r}}_{n} \\
       \equiv & \; \interp{\stenReflS{d}}_{n} \cup \interp{\stenBwdSR{a}{d}{r}}_{n} \\
@@ -134,7 +134,7 @@ to the model $\interp{-}_n$.
     \end{align*}
 
 %
-  \item[\textsc{Case R \texttt{+} C}:]
+  \item[\textsc{Case P \texttt{+} C}:]
     \begin{align*}
       & \; \interp{\stenReflS{d} \; \texttt{+} \; \stenCenSR{a}{d}{r}}_{n} \\
       \equiv & \; \interp{\stenReflS{d}}_{n} \cup \interp{\stenCenSR{a}{d}{r}}_{n} \\
@@ -147,7 +147,7 @@ to the model $\interp{-}_n$.
                \setminus 0 \} \\
       \equiv & \; \interp{\stenCenS{a}{d}}_n \qed
     \end{align*}
-  \item[\textsc{Case IRREFL}]
+  \item[\textsc{Case POINT}]
    let $R$ be a region constant of dimension $d$ and $S$ be a region
    constant of dimension $d'$. \\
 
@@ -231,6 +231,20 @@ D) \times B) = A \times B$ then:
                   \} \\
 \equiv \; & \interp{R}_n \otimes \interp{S}_n \\
 \equiv \; & \interp{R \term{*} S} \qed
+\end{align*}
+
+\item[\textsc{Case $*$dim}]
+
+Let $R$ and $S$ be region constants (i.e., dimensionality
+of 1) of the same dimension $d$, denoted in this equation $R^d$ and $S^d$.
+
+\textbf{Lemma}: If $n=1$, $[a] \bowtie_1 [b] = [a b]$
+
+\begin{align*}
+ & \interp{R^d \ast S^d} \\
+\equiv \; & \interp{R} \otimes_1 \interp{S} \\
+\equiv \; & \interp{R^d} \cup \interp{S^d} \;\; \textit{by the above lemma} \\
+\equiv \; & \interp{R^d \term{+} S^d}
 \end{align*}
 
   \item[\textsc{Case +IDEM, +COMM, +ASSOC}:]
@@ -374,12 +388,12 @@ D) \times B) = A \times B$ then:
     of equations is consistent.
 
     \begin{align}
-      b_l &= b_i \vee b_j & \mbox{, negating $(3)$ and applying De Morgan's law} \\
-      b_j &= b_k \wedge (b_i \vee b_j) & \mbox{, substituting $(4)$ into $(1)$} \\
-      b_i \wedge \neg b_j &= \neg b_k \wedge (b_i \vee b_j) & \mbox{, substituting $(4)$
+      b_l &= b_i \vee b_j & \mbox{negating $(3)$ and applying De Morgan's law} \\
+      b_j &= b_k \wedge (b_i \vee b_j) & \mbox{substituting $(4)$ into $(1)$} \\
+      b_i \wedge \neg b_j &= \neg b_k \wedge (b_i \vee b_j) & \mbox{substituting $(4)$
         into $(2)$} \\
-      b_j \vee b_i \wedge \neg b_j &= b_k \wedge (b_i \vee b_j) \vee \neg b_k \wedge (b_i \vee b_j) & \mbox{, disjunction of $(5)$ and $(6)$} \\
-      b_i \vee b_j &= b_i \vee b_j & \mbox{, algebraically simplifying (7)} \nonumber
+      b_j \vee b_i \wedge \neg b_j &= b_k \wedge (b_i \vee b_j) \vee \neg b_k \wedge (b_i \vee b_j) & \mbox{disjunction of $(5)$ and $(6)$} \\
+      b_i \vee b_j &= b_i \vee b_j & \mbox{algebraically simplifying (7)} \nonumber
     \end{align}
 
 

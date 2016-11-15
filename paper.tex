@@ -213,6 +213,29 @@ xrightmargin=0.2cm,commandchars=\\\{\},baselinestretch=0.98,numbersep=0.9em}
 
 \bibliographystyle{abbrvnat}
 
+\begin{abstract}
+Stencil computations are a common programming pattern in numerical
+  code and typically form the core of graphics and scientific
+  computing applications. However, they are often complex and
+  unwieldy, involving substantial fine-grained manipulation of array
+  indices across multiple arrays and dimensions. This requires careful
+  testing, which is almost always done manually and then discarded
+  during development. In this paper, we propose an alternate approach:
+  a specification language and automated tool for verifying the
+  spatial behaviour of stencils. The specification language is based
+  on the hypothesis that stencil computations read from arrays with a
+  regular, fixed pattern which can be captured abstractly by a simple
+  set of combinators in our specification language. These
+  specifications can be embedded as annotations in source code,
+  against which code can be checked for conformance. For legacy code,
+  spatial specifications can be inferred, providing documentation and
+  aiding future software maintenance. We evaluate our language against
+  a corpus of numerical Fortran code, and show that the vast majority
+  of stencil computations indeed have a simple, regular, static shape
+  validating the design of our language.  We introduce the
+  language, checking, and inference procedures, and its evaluation.
+\end{abstract}
+
 \section{Introduction}\label{sec:intro}
 
 \emph{Stencils} are a ubiquitous programming pattern, common in

@@ -149,5 +149,76 @@ xrightmargin=0.2cm,commandchars=\\\{\},baselinestretch=0.98,numbersep=0.9em}
 
 \input{proof.tex}
 
+\begin{theorem}[Soundness of approximation]
+\begin{align*}
+\forall S, T, M . \quad S <: T \; \wedge \; \cons{M}{\interp{S}_n}  \;
+\Rightarrow \cons{M}{\interp{T}_n}
+\end{align*}
+\end{theorem}
+
+\begin{proof}
+By induction on the definition of $<:$
+\begin{itemize}
+\item 
+\end{itemize}
+\item \trule{shrink} $R <:^r S \; \Rightarrow \; R <: \term{atMost} \,
+  S$
+
+
+
+\item \trule{Eq} trivial by soundness of $\equiv$.
+\item \trule{CongR} follows straightforwardly by the $(1 \leq *)$ 
+cause for consistency
+\itme \trule{rep} follows by $(*)$.
+\end{proof}
+
+\begin{lemma}
+For a model, its indices never have an $\infty$ value in 
+the constrained dimensions.
+\begin{align*}
+\forall M, n . \;\; j \in \textit{constr}(M)_n \Rightarrow
+x \in M \, \wedge \, x_j \neq \infty
+\end{align*}
+\end{lemma}
+\begin{proof}
+By the definition of $\textit{constr}$.
+\end{proof}
+
+\begin{lemma}
+For all pairs of $n$-dimensional specifications $R,S$, the model or
+$R$ is a subset of the model of $R \term{*} S$:
+\begin{align*}
+\forall R, S, n . \;\; \interp{R} \subseteq (\interp{R} \otimes_n \interp{S})
+\end{align*}
+\end{lemma}
+
+\begin{proof}
+Given two $n$-vectors $u, v$ then 
+$u = (u \bowtie v)_0$ and $v \in (u \bowtie v)_0$.
+
+Forall $u_r \in \interp{R}$, then 
+
+\begin{align*}
+      & \interp{R}_n \\
+\equiv \;\; & \{ x \mid (u, v) \in \interp{R}_n \times \interp{S}_n \;
+              \wedge \; x = (u \bowtie v)_0 \}  \\
+%
+\subseteq  \;\; &
+  \Bigg\{x \; \Bigg| \;
+    \parbox{5.2cm}{$(u, v) \in \interp{R}_n \times \interp{S}_n $ \\[0.1em]
+                 $\;\; \wedge \;\, j \in (\effdims{\interp{R}}{n} \cup
+                   \effdims{\interp{S}}{n})$\\[0.1em]
+                  $\;\; \wedge \;\, i \in \{1, \ldots, 2^n\} \, \wedge
+                  \, x = (u \bowtie v)_i$ \\[0.1em]
+                   $\;\; \wedge \;\, x_j \neq \infty$
+                  } \Bigg\} \\
+\equiv \;\; & \interp{R} \otimes_n \interp{S} 
+\end{align*}
+
+\end{proof}
+
+
+
+
 \end{document}
 

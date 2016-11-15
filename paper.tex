@@ -1132,9 +1132,10 @@ following rule $R_1 + R_2 \equiv R_3$:
 where $n \geq m$ and $p$ and $q$ range
 over booleans representing the absence (true) or presence (false)
 of \irrefl{} which are combined via disjunction.
-We denote the possibilities as $\term{fwd + fwd} \equiv \term{fwd}$, $\term{bwd + bwd} \equiv \term{bwd}$, 
-$\term{cen + cen} \equiv \term{cen}$, $\term{cen + fwd} \equiv \term{cen}$ and
-$\term{cen + bwd} \equiv \term{cen}$.
+We denote the possibilities as $\term{fwd+fwd} \equiv \term{fwd}$, $\term{bwd+bwd} \equiv \term{bwd}$, 
+$\term{cen+cen} \equiv \term{cen}$, $\term{cen+fwd} \equiv \term{cen}$ and
+$\term{cen+bwd} \equiv \term{cen}$. %Commutative of $\term{+}$
+%provides symmetric variants.
 
 \item (\textit{overlapping pointed}) \term{pointed} regions coalesce with other regions of the
 same dimension:
@@ -1207,15 +1208,15 @@ $\ast$ which have disjoint dimensions to the rest of the region
 product (where $\mathsf{dims}$ denotes the set of dimensions specified
 in a region).
 
-\begin{theorem}[Soundness of approximation]
-A piece of code consistent with a specification $S$
- is consistent with a generalisation $T$ of the specification.
-That is for all models $M$ of a piece of code:
+\begin{theorem}[Approximation soundness]
+Code consistent with a specification $S$
+ is consistent with a more general specification $T$, 
+\ie{}, for all models $M$ of a piece of code:
 \begin{equation*}
 S <: T \; \wedge (\consA{M}{\interp{S}_n}) \;
 \Rightarrow \; (\consA{M}{\interp{T}_n})
 \end{equation*}
-where $\consAName$ is the consistency predicate used in checking (\S~\ref{subsec:checking}).
+where $\consAName$ implements consistency in checking (\S~\ref{subsec:checking}).
 \end{theorem}
 
 

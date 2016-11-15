@@ -384,7 +384,7 @@ are as follows:
   indexing errors.
 \end{itemize}
 
-It should be noted that our verification tool does not deal in the
+It should be noted that our verification tool does not target the
 class of bugs that can be detected automatically (\emph{push-button
   verification}). Instead, stencil computation bugs must be
 identified relative to a specification of the intended behaviour.
@@ -415,7 +415,7 @@ In this paper, we make the following contributions:
   many core patterns.
 
 \item We give a detailed verification case study of two
-  particular stencil computation commonly used in scientifc computing,
+  particular stencil computations commonly used in scientifc computing,
   simulating programming errors. Our approach is able to detect all
   possible indexing errors for these computations.
 \end{itemize}
@@ -661,11 +661,11 @@ z = a(i, j+1) + a(i-1, j+1) + a(i+1, j+1)
 b(i, j) = (x + y + z) / 9.0
 \end{minted}
 %%
-This pattern is common in image convolution applicaitons (for example
+This pattern is common in image convolution applications (for example
 for edge detection). The specification ranges over the
 values that flow to the array subscript on the left-hand side,
 and so ranges over the intermediate assignments to \term{x},
-\term{y}, and \term{z}. Each index in the code is consitent
+\term{y}, and \term{z}. Each index in the code is consistent
 with both specifications simultaneously, \eg{}, \texttt{a(i-1, j+1)}
 is within the centered region in dimension $1$ and the centered region
 in dimension $2$.

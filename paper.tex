@@ -466,11 +466,11 @@ over its (imperative) variables. %By
   which reads from an array $a$ at an \emph{index} specified by a
   comma-separated sequence of integer expressions denoted $\bar{e}$ or
   in expanded form as $(e_1, \ldots, e_n)$. An index $\bar{e}$
-  is called \emph{relative} if each $e \in \bar{e}$ involves an induction variable.
+  is called \emph{relative} if each $e \in \bar{e}$ involves an induction
+  variable.
 
-  Relative indices contrast with absolute indices where each $e \in
-  \bar{e}$ is a constant integer expression relative to the containing
-  loop, \ie{}, $e$ is not defined in terms of an induction variable.
+  Absolute index is a constant integer expression relative to the enclosing
+  loop.
 \end{definition}
 
 \begin{definition}[Neighbourhood index]

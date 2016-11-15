@@ -469,8 +469,8 @@ over its (imperative) variables. %By
   is called \emph{relative} if each $e \in \bar{e}$ involves an induction
   variable.
 
-  Absolute index is a constant integer expression relative to the enclosing
-  loop.
+  \emph{Absolute index} is a constant integer expression relative to the
+  enclosing loop.
 \end{definition}
 
 \begin{definition}[Neighbourhood index]
@@ -486,17 +486,17 @@ over its (imperative) variables. %By
 \begin{definition}[Stencil computations]
 \label{def:stencil}
   Let $a$ be an array of dimensionality $n$ and $\overline{b}$ a
-  collection of arrays of arbitrary (possible differing)
+  collection of arrays of arbitrary (possibly differing)
   dimensionalities.
   A \emph{stencil computation} comprises an iteration by a set $I$ of at
   most $n$ induction variables
-  over a subset of the index space of $a$. Each step of the interation
-  determs the elements of $a$ by an
+  over a subset of the index space of $a$. Each iteration
+  determines the elements of $a$ by an
   assignment $a(\bar{e}) = e_r$ where each $e \in
   \bar{e}$ is either a neighbourhood or constant index.
-  For all arrays $b \in \bar{b}$ and array subscripts $b(\bar{e}')$ in
-  $e_r$ and that flow to $e_r$, then each $e' \in \bar{e}'$ is also
-  either a neighbourhood or constant index.
+  For all $b \in \bar{b}$ and array subscripts $b(\bar{e}')$
+  that flow to $e_r$, each $e' \in \bar{e}'$ is
+  either a neighbourhood or absolute index.
 
   We refer to the assignment $a(\bar{e}) = e_r$ and all the associated
   statements with dataflow to $e_r$ as the \emph{stencil kernel}.

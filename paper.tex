@@ -486,6 +486,7 @@ over its (imperative) variables. %By
 \end{definition}
 
 \begin{definition}[Stencil computations]
+\label{def:stencil}
   Let $a$ be an array of dimensionality $n$ and $\overline{b}$ a
   collection of arrays of arbitrary (possible differing)
   dimensionalities.
@@ -501,16 +502,12 @@ over its (imperative) variables. %By
 
   We refer to the assignment $a(\bar{e}) = e_r$ and all the associated
   statements with dataflow to $e_r$ as the \emph{stencil kernel}.
-\label{def:stencil}
-
 \end{definition}
-
-\noindent
-
+%
 % specifying the shape of indexing expressions for
 %arrays $\bar{v}$ that are simultaenously permitted and expected within
 %the code to which the specification is given.
-
+%
 %\marginpar{\dnote{Is it worth having this informal consistency here?}}
 \begin{definition}[Consistency, informal]
 Specifications are associated to a stencil kernel

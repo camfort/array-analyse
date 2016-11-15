@@ -213,7 +213,7 @@ xrightmargin=0.2cm,commandchars=\\\{\},baselinestretch=0.98,numbersep=0.9em}
 
 \bibliographystyle{abbrvnat}
 
-\section{Introduction}
+\section{Introduction}\label{sec:intro}
 
 \emph{Stencils} are a ubiquitous programming pattern, common in
 scientific and numerical computing applications. Informally, a stencil
@@ -2368,6 +2368,44 @@ language of contiguous regions}
 %   - Multi-action combined also by +, histogram of tree depths
 
 % Present not just percentages but concrete numbers
+
+\section{Related work}\label{sec:related-work}
+
+\citet{kamil2016verified} propose verified lifting to extract a mathematical
+representation of low-level, and potentially optimised, stencils in Fortran
+code. Problem domain wise their work is the closest to ours. However, since
+their aim is to use the extracted predicate to pipe to the high-performance
+compiler \textsf{Halide}~\citep{ragan2013halide}, they need to capture the full
+meaning of the stencil computation.
+
+This led them to develop \textsf{STNG}, a loop invariant and postcondition
+finder through syntax-guided synthesis. Using this approach they restrict the
+search space of postconditions to predicates of a certain form, one that is
+compatible with \textsf{Halide}. They then look at concrete loop iterations and
+form an hypothesis about the invariant, which is later confirmed or put back
+into the system using a SMT solver.
+
+CamFort differs from this work significantly here. The aim of CamFort is not a
+full representation of the stencil, but enough information to capture the access
+pattern. Hence, it does not require SMT solving or search of loop invariants. It
+suffices to do comparatively simple data-flow analysis.
+
+Due to the sheer amount of analysis involved, Kamil et al. reports that some
+degenerate kernels take up to 17 hours to analyse and others require programmer
+intervention for correct invariants to be inferred. Since CamFort mostly does
+syntactic analysis, inference procedure always terminates quickly in all real
+world examples and never requires programmer intervention. Downside of our
+approach is that if optimisation causes stencil computation to be heavily
+obfuscated, \textsf{STNG} would capture the access behaviour better.
+
+More fundamentally, unlike CamFort, Kamil et al. does not provide a syntactic
+representation of their postcondition, so there is no way of future-proofing the
+code for future edits. Even if they were to provide a syntactic representation,
+for complex stencils such as Navier-Stokes from \S~\ref{sec:intro}, it would be
+as verbose as the code itself making it difficult for programmer to understand
+the overall shape of the indexing behaviour.
+
+\section{Conclusion}\label{sec:conclusion}
 
 \bibliography{references}
 

@@ -507,19 +507,19 @@ over its (imperative) variables. %By
 %the code to which the specification is given.
 %
 %\marginpar{\dnote{Is it worth having this informal consistency here?}}
-\begin{definition}[Consistency, informal]
-Specifications are associated to a stencil kernel
-and are declared for one or more array variables
-$\bar{v}$ within that kernel.
-  A stencil specification defines a \emph{region} associated to an
-  array variable $a$ against which a stencil kernel should be
-  \emph{consistent}. Informally, the region defined by a specification
-  is an $n$-dimensional rectilinear shape in a discrete space crossing the origin with respect to the induction
-  variable. Consistency is then a two way requirement.
-  On the one hand, all array subscripts on $a$ contributing to the kernel
-  should be consistent with the region; on the other, all parts of the
-  region should have an index corresponding to that part.
-\end{definition}
+
+Now we informally describe what it means for a stencil kernel to be consistent
+with a specification. This will will be formalised in \S~\ref{sec:semantics} and
+algorithmically described in  and \S~\ref{sec:analysis}.
+Specifications are associated to a stencil kernel and are declared for one or
+more array variables $\bar{v}$ within that kernel.  A stencil specification
+defines a \emph{region} associated to an array variable $a$ against which a
+stencil kernel should be \emph{consistent}. The region defined by a
+specification is an $n$-dimensional rectilinear shape in a discrete space
+crossing the origin with respect to the induction variable. Consistency is then
+a two way requirement. All array subscripts on $a$
+contributing to the kernel should be consistent with the region. Conversely,
+all parts of the region should have an index corresponding to that part.
 
 \begin{figure}[t]
 \vspace{-0.9em}

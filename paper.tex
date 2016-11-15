@@ -638,7 +638,7 @@ The conjuction of two regions $r \term{*} s$ means that any indices
 in the specified code must be consistent with both $r$ and $s$
 simultaenously. Dually, for every pair of components in the regions
 $r$ and $s$ there must be an index consistent with both.
-For example, the following code (defining a \emph{nine-point stencil})
+For example, the following \emph{nine-point stencil}
 has a specification given by the product of two \texttt{centered}
 regions in each dimension:
 %%
@@ -650,8 +650,8 @@ z = a(i, j+1) + a(i-1, j+1) + a(i+1, j+1)
 b(i, j) = (x + y + z) / 9.0
 \end{minted}
 %%
-This pattern is common in image convolution applications (for example
-for edge detection). The specification ranges over the
+This pattern is common in image convolution applications.
+The specification ranges over the
 values that flow to the array subscript on the left-hand side,
 and so ranges over the intermediate assignments to \term{x},
 \term{y}, and \term{z}. Each index in the code is consistent
@@ -682,20 +682,6 @@ Here the left-hand side of \texttt{+} says that when the second dimension
 (induction variable $i$) accesses the immediate vicinity of the origin
 (to depth of one). The right hand side of \texttt{+} is similar but the dimensions are reversed.
 This reflects the symmetry under rotation of the five-point stencil.
-
-As another example, the following
-implements and specifies the \emph{Roberts cross}
-edge-detection convolution~\cite{davis1975survey}:
-%%
-\begin{minted}[breakindent=5.5em]{fortran}
-do j=0, jmax-1
-  do i=0, imax-1
-    x = a(i,j)-a(i+1,j+1); y = a(i+1,j)-a(i,j+1)
-    != stencil forward(depth=1,dim=1) * forward(depth=1,dim=2) :: a
-    b(i,j) = sqrt(x*x+y*y)
-  end do
-end do
-\end{minted}
 
 \paragraph{Region declarations and variables}
 

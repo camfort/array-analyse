@@ -253,7 +253,7 @@ of 1) of the same dimension $d$, denoted in this equation $R^d$ and $S^d$.
     \interp{r_1}_n \otimes \interp{r_2}_n$. Hence, $\texttt{$\ast$}$ is
     commutative iff $\otimes$ is commutative. Now let $\interp{r_1}_n$ and
     $\interp{r_2}_n$ be $S$ and $T$ respectively. Then from the definition of
-    $\otimes$, we have $S \otimes T = \{ x \;|\; (s,t) \in S \times T, 
+    $\otimes$, we have $S \otimes T = \{ x \;|\; (s,t) \in S \times T,
     h \in \effdims{S}{n} \cup \effdims{T}{n}, x = (s \bowtie t)_k,
     k \in \{ 1, \ldots, 2^n \}, x_h \neq \infty \}$. Then to show commutativity
     of $\otimes$, it is enough to show for any vectors $s$ and $t$, any row
@@ -290,7 +290,7 @@ of 1) of the same dimension $d$, denoted in this equation $R^d$ and $S^d$.
                              & \mbox{by definition of $\bowtie$} \\
                             =& \infty \times b_{i,j} + \infty \times \neg b_{i,j}
                              & \mbox{Using the assumption in the lemma} \\
-                            =& \infty 
+                            =& \infty
                              & \mbox{The value of $b_{i,j}$ no longer matters}
       \end{align*}
     \end{proof}
@@ -308,7 +308,7 @@ of 1) of the same dimension $d$, denoted in this equation $R^d$ and $S^d$.
         \effdims{U \otimes V}{n} = &
           \bigcup_{x \in U \otimes V} \{ i \;|\; x_i \neq \infty \} \\
         = & \effdims{U}{n} \cup \effdims{V}{n} \\
-          & \parbox{7cm}{By definition of $\otimes$, constrained dimensions of 
+          & \parbox{7cm}{By definition of $\otimes$, constrained dimensions of
                          $U$ and $V$ can be non-$\infty$ and by
                          Lemma~\ref{lem:bowinf} all other dimensions are
                          $\infty$.} \\
@@ -325,14 +325,14 @@ of 1) of the same dimension $d$, denoted in this equation $R^d$ and $S^d$.
 %
     \begin{align*}
         & \interp{r_1}_n \otimes (\interp{r_2}_n \otimes \interp{r_3}_n) \\
-      = & \bigg\{ x \; \bigg| \; 
+      = & \bigg\{ x \; \bigg| \;
             \parbox{10cm}{
               $(r,st) \in R \times (S \otimes T),
                h \in \effdims{R}{n} \cup \effdims{S \otimes T}{n},$ \\
               $j \in \{ 1, \ldots, 2^n \},
                  x = (r \bowtie st)_j, x_h \neq \infty$
             } \bigg\} \\
-      = & \bigg\{ x \; \bigg| \; 
+      = & \bigg\{ x \; \bigg| \;
             \parbox{10cm}{
               $(r,st) \in R \times (S \otimes T),
                h \in \effdims{R}{n} \cup \effdims{S}{n} \cup \effdims{T}{n},$ \\
@@ -340,7 +340,7 @@ of 1) of the same dimension $d$, denoted in this equation $R^d$ and $S^d$.
                  x = (r \bowtie st)_j, x_h \neq \infty$
             } \bigg\} \\
         & \mbox{using Lemma~\ref{lem:tensordims} and expanding} \\
-      = & \bigg\{ x \; \bigg| \; 
+      = & \bigg\{ x \; \bigg| \;
             \parbox{10cm}{
               $(r,s,t) \in R \times (S \times T),
                h \in \effdims{R}{n} \cup \effdims{S}{n} \cup \effdims{T}{n},$ \\
@@ -353,7 +353,7 @@ of 1) of the same dimension $d$, denoted in this equation $R^d$ and $S^d$.
 %
     If $\ast$ is associative, then an equivalent definition is:
     \begin{equation*}
-          \bigg\{ x \; \bigg| \; 
+          \bigg\{ x \; \bigg| \;
             \parbox{10cm}{
               $(r,s,t) \in R \times (S \times T),
                h \in \effdims{R}{n} \cup \effdims{S}{n} \cup \effdims{T}{n},$ \\
@@ -361,7 +361,7 @@ of 1) of the same dimension $d$, denoted in this equation $R^d$ and $S^d$.
                 y = (r \bowtie s)_k, x = (y \bowtie t)_l,
                 x_h \neq \infty, y_h \neq \infty$
             } \bigg\}
-    \end{equation*}
+    \end{equation*}d
 %
     For these two sets to be equivalent, it is enough to show that for any $r$,
     $s$, and $t$, for each $(i,j)$ pair there is a $(k,l)$ pair. When definition
@@ -421,9 +421,9 @@ of 1) of the same dimension $d$, denoted in this equation $R^d$ and $S^d$.
   \bigg\{x \; \bigg| \;
     \parbox{11cm}{$(u, v) \in \interp{r_1}_n \times (\interp{r_2}_n \cup \interp{r_3}_n),
                    j \in \effdims{\interp{r_1}_n}{n} \cup
-                         \effdims{\interp{r_2}_n \cup 
+                         \effdims{\interp{r_2}_n \cup
                          \interp{r_3}_n}{n},$ \\[0.1em]
-                  $i \in \{1, \ldots, 2^n\}, 
+                  $i \in \{1, \ldots, 2^n\},
                    x = (u \bowtie v)_i, x_j \neq \infty$
                   } \bigg\} \\
       \equiv &
@@ -442,12 +442,12 @@ of 1) of the same dimension $d$, denoted in this equation $R^d$ and $S^d$.
     \parbox{9cm}{$(u, v) \in \interp{r_1}_n \times \interp{r_2}_n,
                   j \in \effdims{\interp{r_1}_n}{n} \cup
                         \effdims{\interp{r_2}_n}{n},$ \\
-                 $i \in \{1, \ldots, 2^n\}, 
+                 $i \in \{1, \ldots, 2^n\},
                   x = (u \bowtie v)_i, x_j \neq \infty$
                   } \bigg\} \cup \\
   & \bigg\{x \; \bigg| \;
     \parbox{9cm}{$(u, v) \in \interp{r_1}_n \times \interp{r_3}_n,
-                  j \in \effdims{\interp{r_1}_n}{n} \cup 
+                  j \in \effdims{\interp{r_1}_n}{n} \cup
                         \effdims{\interp{r_3}_n}{n},$ \\
                  $i \in \{1, \ldots, 2^n\},
                   x = (u \bowtie v)_i, x_j \neq \infty$

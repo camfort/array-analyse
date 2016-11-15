@@ -1011,10 +1011,10 @@ models is defined:
 & M \otimes_n N =
   \Bigg\{x \; \Bigg| \;
     \parbox{5.2cm}{$(u, v) \in M \times N $ \\[0.1em]
-                 $\;\; \wedge \;\, j \in (\effdims{M}{n} \cup
-                   \effdims{N}{n})$\\[0.1em]
                   $\;\; \wedge \;\, i \in \{1, \ldots, 2^n\} \, \wedge
                   \, x = (u \bowtie v)_i$ \\[0.1em]
+                  $\;\; \wedge \;\, j \in (\effdims{M}{n} \cup
+                   \effdims{N}{n})$\\[0.1em]
                    $\;\; \wedge \;\, x_j \neq \infty$
                   } \Bigg\}
 \end{alignat*}
@@ -1158,7 +1158,7 @@ the equational theory and notion of approximation here.
 \equiv \; & \stenReflSR{d} \; \texttt{+} \; \stenCenSR{n}{d}{p} \\[0.6em]
 %
 %
-(\textsc{irrefl}) \;\; & (R \, \term{*} \, S^\irreflS) \, \term{+} \,
+(\textsc{npoint}) \;\; & (R \, \term{*} \, S^\irreflS) \, \term{+} \,
                          (R^\irreflS \, \term{*} \, S) \;
 \equiv \; R \, \term{*} \, S \\[0.4em]
 %
@@ -1251,7 +1251,7 @@ a zero-offset neighbourhood index (\eg{}, missing $\texttt{a(i)}$), but the addi
 the \term{bwd} has no non-pointed attribute and thus provides the
 missing zero offset index.
 
-The equation (\textsc{irrefl}) provides an annihilation of
+The equation (\textsc{point}) provides an annihilation of
 \irrefl{} using a further syntactic sugar.
 We write $R^{\irreflS}$ to denote a region constant with an
 non-pointed attribute, \eg{},
@@ -1261,7 +1261,7 @@ non-pointed attribute, \eg{},
 \stenFwdSR{n}{d}{\irrefl}
 \end{align*}
 %%
-The left-hand side of (\textsc{irrefl}) has a sum of
+The left-hand side of (\textsc{point}) has a sum of
 products of two regions $R$ and $S$,
 where in each component of the sum one of $R$
 or $S$ has the non-pointed attribute. These cancel to give
@@ -1305,12 +1305,12 @@ syntax and then $<:$ on \textit{spec} syntax inductively.
 Both relations are reflexive and transitive (we omit
 these equations) and congruent
 with respect to \term{+}, \term{*}, \term{atLeast}, \term{atMost},
-and \term{readOnce}. The (\trule{\textsc{eq}}) rule connects region
-equations with inequations. The (\trule{\textsc{over}}) rule explains
+and \term{readOnce}. The \trule{\textsc{eq}} rule connects region
+equations with inequations. The \trule{\textsc{over}} rule explains
 the notion of spatial over-approximation via overlapping regions.
-The (\trule{\textsc{rep}}) allows the modifier that
+The \trule{\textsc{rep}} allows the modifier that
 enforces that every index is read just once to be dropped
-as an approximation; (\trule{\textsc{bound}}) gives
+as an approximation; \trule{\textsc{bound}} gives
 a connection between the \term{atLeast} and \term{atMost}
 approximation modifiers.
 
@@ -1370,8 +1370,8 @@ S <: T \; \wedge (\consA{M}{\interp{S}_n})
 \;\;
 \dfrac{R <:^r S}{\term{atMost}  R <: \term{atMost}
   S}\trule{\texttt{M}} \\[1.5em]
-\dfrac{R <:^r S}{R <: \term{atMost} \, S}\trule{\textsc{shrink}} \quad
-\dfrac{R <:^r S}{S <: \term{atLeast} \, R}\trule{\textsc{grow}} \quad
+\dfrac{R <:^r S}{R <: \term{atMost} \, S}\trule{\textsc{grow}} \quad
+\dfrac{R <:^r S}{S <: \term{atLeast} \, R}\trule{\textsc{shrink}} \quad
  \\[1.5em]
 %%
 \dfrac{\mathsf{dims}(R) \cap \mathsf{dims}(S) = \emptyset}{R \ast S <: R}
@@ -2327,6 +2327,16 @@ inference procedure. For our example, we infer and then synthesise the
 %%
 
 \section{Evaluation}
+
+% Corpus details
+% specfem3d ``simulates acoustic (fluid), elastic (solid), coupled
+% acoustic/elastic, poroelastic or seismic wave propagation in any
+% type of conforming mesh of hexahedra (structured or not).''
+% https://github.com/geodynamics/specfem3d
+
+% arpack-ng - Fortran 77 routines designed to solve large scaled
+% eigenvalue problems - https://github.com/opencollab/arpack-ng
+
 
 \subsection{Core hypotheses}
 

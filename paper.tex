@@ -200,7 +200,7 @@ xrightmargin=0.2cm,commandchars=\\\{\},baselinestretch=0.98,numbersep=0.9em}
 \newcommand{\consSub}[3]{#2 \,\, \consAName{}_{#1} \,\,#3}
 
 
-\title{Verifying Spatial Properties of Stencil Computation}
+\title{Verifying Spatial Properties of Stencil Computations}
 %\titlebanner{DRAFT -- Do not distribute}
 \authorinfo{}{}{}
 %\preprintfooter{DO NOT DISTRIBUTE}
@@ -234,7 +234,7 @@ Stencil computations are a common programming pattern in numerical
   language, checking and inference procedures, and its evaluation.
 \end{abstract}
 
-\keywords{program verification, specification, stencils}
+%\keywords{program verification, specification, stencils}
 
 
 \section{Introduction}\label{sec:intro}
@@ -319,7 +319,7 @@ This describes that \texttt{a} is accessed with a symmetrical pattern
 dimension.  The shape of the Navier-Stokes example
 is specified as:
 %
-\begin{minted}[linenos=false,xleftmargin=0em,xrightmargin=1.1em,breakindent=1.9em]{fortran}
+\begin{minted}[linenos=false,xleftmargin=0em,xrightmargin=0.8em,breakindent=1.9em]{fortran}
 != stencil centered(depth=1,dim=1)*pointed(dim=2)     + centered(depth=1,dim=2)*pointed(dim=1) :: u
 
 != stencil forward(depth=1,dim=1)                          * backward(depth=1,dim=2) :: v
@@ -505,19 +505,20 @@ are ranged over by $i, j, k$ throughout.
   We refer to the assignment $a(\bar{e}) = e_r$ and all the associated
   statements with dataflow to $e_r$ as the \emph{stencil kernel}.
 \label{def:stencil}
+
 \end{definition}
 
 \noindent
-Specifications are associated to a stencil kernel
-and are declared for one or more array variables
-$\bar{v}$ within that kernel.
 
 % specifying the shape of indexing expressions for
 %arrays $\bar{v}$ that are simultaenously permitted and expected within
 %the code to which the specification is given.
 
-\marginpar{\dnote{Is it worth having this informal consistency here?}}
+%\marginpar{\dnote{Is it worth having this informal consistency here?}}
 \begin{definition}[Consistency, informal]
+Specifications are associated to a stencil kernel
+and are declared for one or more array variables
+$\bar{v}$ within that kernel.
   A stencil specification defines a \emph{region} associated to an
   array variable $a$ against which a stencil kernel should be
   \emph{consistent}. Informally, the region defined by a specification
@@ -529,9 +530,9 @@ $\bar{v}$ within that kernel.
 \end{definition}
 
 \begin{figure}[t]
-\vspace{-0.5em}
+\vspace{-0.9em}
 \begin{align*}
-\def\arraystretch{1.2}
+\def\arraystretch{1}
 \setlength{\arraycolsep}{0.2em}
 \newcommand{\dimTy}{\mathbb{N}_{>0}}
 \begin{array}{rl}
@@ -551,12 +552,12 @@ $\bar{v}$ within that kernel.
 \multicolumn{2}{l}{\qquad\qquad \mid \; \stenBwd{\mathbb{N}_{>0}}{\dimTy}{\;[, \texttt{nonpointed}]}} \\
 \multicolumn{2}{l}{\qquad\qquad \mid \; \stenCen{\mathbb{N}_{>0}}{\dimTy}{\;[, \texttt{nonpointed}]}} \\
 \multicolumn{2}{l}{\qquad\qquad \mid \; \nonterm{region} \, \term{+}
-  \, \nonterm{region} \; \mid \; \nonterm{region} \; \term{*} \; \nonterm{region}} \\[0.5em]
+  \, \nonterm{region} \; \mid \; \nonterm{region} \; \term{*} \; \nonterm{region}} \\[0.25em]
 %\multicolumn{2}{l}{\qquad\qquad \mid \; \nonterm{rvar}}
 %\\[0.5em]
 %\nonterm{temporal} ::= \; & \term{dependency} \; (v \; \{ , v \}) [, \texttt{mutual}]
 %  \\[0.5em]
-\nonterm{rvar} ::= \; & [\text{\term{a}-\term{z}$\,$\term{A}-\term{Z}$\,$\term{0}-\term{9}}]+\\[-0.5em]
+\nonterm{rvar} ::= \; & [\text{\term{a}-\term{z}$\,$\term{A}-\term{Z}$\,$\term{0}-\term{9}}]+\\[-1em]
 \end{array}
 \end{align*}
 \caption{Specification syntax (EBNF grammar)}
@@ -727,7 +728,7 @@ as the region can be defined once and reused.
 %%
 Region specifications can be modified
 by \emph{approximation} and \emph{multiplicity} information
-(in the \textit{spec} rule of Fig.~\ref{fig:syntax}).
+(in \textit{spec} in Fig.~\ref{fig:syntax}).
 
 The \texttt{readOnce} modifier enforces that no index appears more
 than once (that is, its multiplicity is one). For example, in all of

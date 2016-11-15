@@ -730,7 +730,7 @@ where there is a non-contiguous stencil pattern, which cannot be expressed
 precisely in our specification syntax. For example:
 %
 \begin{minted}{fortran}
-!= stencil atLeast, pointed(dim=1)       :: a
+!= stencil atLeast, pointed(dim=1)         :: a
 != stencil atMost, forward(depth=4, dim=1) :: a
 b(i) = a(i) + a(i+4)
 \end{minted}

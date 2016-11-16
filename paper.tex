@@ -1800,7 +1800,7 @@ Each set of unit spans is applied to the fixed point of the \spanOp{} function
  $(\mu \, \spanOp)$ on input $N(M)$, where \spanOp{} is defined by the steps:
 
 \begin{figure}[t]
-\vspace{-0.8em}
+\vspace{-1em}
 \hspace{-0.5em}
 \begin{minipage}{0.16\linewidth}
 \begin{align*}
@@ -2051,7 +2051,7 @@ of $\tyProd{\specDNF}$, \ie{} $\tyProd{s} = r^1_{1} \; \term{*}
 \vspace{-0.7em}
 \newcommand{\llower}{l}
 \newcommand{\lupper}{u}
-{\scalebox{0.97}{
+{\scalebox{0.95}{
 \begin{minipage}{1\linewidth}
 \begin{align*}
 &\mathsf{toSpec} \; d \; (\llower, \lupper) = \\
@@ -2065,8 +2065,8 @@ of $\tyProd{\specDNF}$, \ie{} $\tyProd{s} = r^1_{1} \; \term{*}
 \exact{\stenBwdS{|\llower|}{d}}  & \llower < 0 \, \wedge \, \lupper = 0 \\[0.02em]
 \exact{\stenBwdSR{|\llower|}{d}{\irreflS}}\!\!\!\! & \llower < 0 \, \wedge \, \lupper = -1 \\[0.02em]
 %% CEN
-\exact{\stenCenS{\lupper}{d}}& \llower < 0 \wedge \lupper > 0 \wedge |\llower| = \lupper \\[0.02em]
-\exactR(\stenBwdS{|\llower|}{d} & \llower < 0 \wedge \lupper > 0  \wedge |\llower| \neq \lupper \\
+\exact{\stenCenS{\lupper}{d}}& \!\!\!\llower < 0 \wedge \lupper > 0 \wedge |\llower| = \lupper \\[0.02em]
+\exactR(\stenBwdS{|\llower|}{d} & \!\!\!\llower < 0 \wedge \lupper > 0  \wedge |\llower| \neq \lupper \\
 \qquad\qquad \texttt{+} \, \stenFwdS{\lupper}{d}) & \\[0.02em]
 % BOUND
 \upperB{\stenFwdS{\lupper}{d}} & \llower > 1 \\[0.02em]
@@ -2085,7 +2085,7 @@ of $\tyProd{\specDNF}$, \ie{} $\tyProd{s} = r^1_{1} \; \term{*}
 
 \begin{definition} The $\mathsf{toSpec}$ constructor is defined
 in \Cref{fig:to-spec}, where the lower and upper bounds
-determine region constants; $\mathsf{toSpec} \, d \, (l, u)$ is always defined
+determine region constants; $\mathsf{toSpec} \, d \, (l, u)$ is defined
  if $l$ less than or equal to $u$.
 
 Positive lower and upper bound yield \term{forward} regions, and

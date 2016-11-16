@@ -753,14 +753,12 @@ which we call \emph{index schemes}.
   in $\mathbb{Z}$ represent the offsets of neighbourhood indices
   (\ie{}, the constant integer $c$ in an indexing expression of the
   form $i \pm c$, Def.~\ref{def:neighbour}) and $\infty$ is a wild-card
-  representing both constant indices and unspecified indices. Throughout, $u, v,
-  w$ range over
-  index schemes and $u_i$ denotes the $i^{th}$ element of $u$. We
+  representing both constant indices and unspecified indices.
+  For an index scheme $u$, $u_i$ denotes the $i^{th}$ element of $u$. We
   write $(\domainVal)^n$ for the set of all $n$-dimensional schemes.
 \end{definition}
 
-Indexing schemes give an abstract
-representation of array subscripts in the source language.
+Indexing schemes abstract array subscripts.
 Our model represents the meaning of stencil specifications
 as indexing schemes, which explain the range of possible
 indexing behaviours which are consistent with the specification.
@@ -784,16 +782,15 @@ $\domainVal$ values:
  & =  \begin{cases}
 c & e \equiv i + c \;\; \wedge \;\; i \in I \\
 -c & e \equiv i - c \;\; \wedge \;\; i \in I \\
-\infty & \textit{$I \not\subseteq \textit{FV}(e)$} \\
+\infty & \textit{$I \cap \textit{FreeVariables}(e) = \emptyset $} \\
 \bot   & \textit{otherwise}
 \end{cases}
 \end{align*}
-where $\textit{FV}(e)$ is the set of free variables in $e$. In the
+In the
 first two cases, expressions that are a constant offset of an
 induction variable (\ie{}, neighbourhood indices) are mapped to the
 offset $c$ or $-c$ $\in \domainVal$. In the third case, if the
-expression is not a neighbourhood index, but neither is it a relative
-index (\ie{}, it is not defined in terms of an induction variable) then it
+expression is not defined in terms of an induction variable, it
 is mapped to $\infty \in \domainVal{}$. Otherwise, $\schemeOne(e)$
 is undefined (returns $\bot$).
 
@@ -822,18 +819,15 @@ v \preceq_n w \;\; \Leftrightarrow  \;\;
   \forall i\!\in\!\{ 1, \ldots, n \} . \, (w_i = \infty \, \vee \, v_i = w_i)
 \]
 %%
-That is, two schemes are related by the (reflexive and transitive) binary relation
-$\preceq_n$ over $(\mathbb{Z}_{\infty})^n$ if in each dimension
-the two schemes are equal or $w_i = \infty$
-in place of some $\mathbb{Z}$ in $v_i$ for $v \preceq_n w$.
-Thus, the element $\infty$ generalises any index in the same dimension.
+Two schemes are related by the (reflexive and transitive) binary relation
+$\preceq_n$ over $(\mathbb{Z}_{\infty})^n \times (\mathbb{Z}_{\infty})^n$.
+The element $\infty$ generalises any index in the same dimension.
 %
 \end{definition}
 
 \begin{example}
-Consider the following indexing schemes
-corresponding to array indexing terms
-$(i, j+1)$, $(1, j+1)$, $(3, j)$ and $(i*2, j)$:
+Consider the following array subscript to indexing schemes
+conversions:
 %
 \begin{align*}
 \begin{array}{ll}
@@ -845,7 +839,7 @@ $(i, j+1)$, $(1, j+1)$, $(3, j)$ and $(i*2, j)$:
 \end{align*}
 There is one generalisation between these
 schemes, namely that $\vtwoh{0}{1} \preceq_2 \vtwoh{\infty}{1}$.
-Note the last example is undefined as its first expression is a
+The last example is undefined as its first expression is a
 non-neighbour relative index.
 \end{example}
 

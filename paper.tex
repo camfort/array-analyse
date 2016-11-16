@@ -227,21 +227,22 @@ Stencil computations are a common programming pattern in numerical
   computing applications. However, they are often complex and
   unwieldy, involving substantial fine-grained manipulation of array
   indices across multiple arrays and dimensions. This requires careful
-  testing, which is almost always done manually and then discarded
-  during development. In this paper, we propose an alternate approach:
+  testing, which is almost always done manually and then discarded.
+  In this paper, we propose an alternate approach:
   a specification language and automated tool for verifying the
   spatial behaviour of stencils. The specification language is based
   on the hypothesis that stencil computations read from arrays with a
-  regular, fixed pattern which can be captured abstractly by a simple
-  set of combinators in our specification language. These
+  regular, fixed pattern which can be captured by a simple
+  set of abstract combinators. These
   specifications can be embedded as annotations in source code,
   against which code can be checked for conformance. For legacy code,
   spatial specifications can be inferred, providing documentation and
-  aiding future software maintenance. We evaluate our language against
-  a corpus of numerical Fortran code, and show that the vast majority
-  of stencil computations indeed have a simple, regular, static shape
-  validating the design of our language.  We introduce the
-  language, checking and inference procedures, and its evaluation.
+  aiding future software maintenance. We evaluate our specification
+  language and verification tool against
+  a corpus of numerical Fortran code ($\sim$ 1 million lines) for
+  which we generate $\sim$60,000 specifications, showing the vast majority
+  of stencil computations indeed have a simple, regular, static shape. % We introduce the
+  %language, checking and inference procedures, and its evaluation.
 \end{abstract}
 
 %\keywords{program verification, specification, stencils}
@@ -325,10 +326,10 @@ Laplace example stencil is specifed in our language as:
 !=  stencil centered(depth=1, dim=1) :: a
 \end{minted}
 %
-This describes \texttt{a} is accessed with a symmetrical pattern
+That is, \texttt{a} is accessed with a symmetrical pattern
 (``centered'') to a depth of one in each direction in its first
-dimension.  The shape of the Navier-Stokes example
-is specified as:
+dimension.  The Navier-Stokes example has a shape
+specified as:
 %
 \begin{minted}[linenos=false,xleftmargin=0em,xrightmargin=0.8em,breakindent=1.9em]{fortran}
 != stencil centered(depth=1,dim=1)*pointed(dim=2)     + centered(depth=1,dim=2)*pointed(dim=1) :: u
@@ -341,8 +342,8 @@ is accessed with a centered pattern to depth of 1 in both dimensions
 (this is known as the \emph{five-point stencil}) and \texttt{v} is
 accessed in a neighbourhood bounded forwards to depth of $1$ in the
 first dimension and backward to a depth of $1$ in the second
-dimension. Note the relatively small size of the specification
-compared to the source code, and its high-level of abstraction.
+dimension. The specification is relatively small
+and much more abstract compared to the source code.
 
 We provide a verification tool which can check the spatial correctness
 of stencil computations against a specification. Furthermore, the tool
@@ -358,8 +359,8 @@ are as follows:
 %  removes the usually ad hoc testing effort, and provides the
 %  opportunity for easy re-verification in the event of any refactoring
 %  of software maintenance activities.
-\item The primary use case is that a programmer writes a specification first,
-  then writes the corresponding source code. Our tool then checks conformance between
+\item The primary use case is that a programmer writes a specification
+  first before the stencil code. Our tool then checks conformance between
   the two. This specify-and-check approach reduces testing effort and
   future-proofs against bugs introduced during refactoring and maintanence.
 %
@@ -385,12 +386,12 @@ are as follows:
 %
 \item Our specification format is deliberately abstract, with a small number of
   combinators that \emph{do not involve any indexing expressions}, \eg{}
-  \texttt{a(i+1,j-1)}. This contrasts with other specification approaches. If a
-  user specifies, say, the Naiver-Stokes stencil above, in a deductive
-  verification language such as ACSL, they must write a specification involving
-  textually dense array-indexing expressions. Therefore, any low-level mistakes
+  \texttt{a(i+1,j-1)}. This contrasts with other specification
+  approaches, \eg{}, deductive verification tools such as ACSL, where
+  specifications must also be in terms of array-indexing expressions. Therefore, any low-level mistakes
   that could be made whilst programming complex indexing code could also be
-  made when writing its specification. Our specifications are more lightweight
+  made when writing its specification. Our specifications are more
+  abstract and lightweight
   with the aim of aiding adoption by scientists and preventing indexing errors.
 \end{itemize}
 
@@ -417,17 +418,17 @@ In this paper, we make the following contributions:
 \item We report on a quantitative study of stencil computations on a
   corpus of numerical Fortran program
   (\cref{sec:evaluation}), totalling one million lines of code. Our tool
-  identifies and infers specifications for 35,000 stencil computations in the
-  corpus. Approximately 10\% of the stencils we found are non-trivial,
+  identifies and infers specifications for roughly 60,000 stencil computations in the
+  corpus. Approximately 5,000 of the stencils we found are non-trivial,
   corresponding to code which is a possible source of errors. This validates
   our hypothesis that the majority of stencil computations have a regular
   shape, and validates the design of our language in its capability to capture
   many core patterns.
 
-\item We give a detailed verification case study of two
-  stencil computations commonly used in scientifc computing,
-  simulating programming errors. Our approach detects all
-  possible indexing errors for these computations.
+\item We give a verification case study of a
+  stencil computation commonly used in scientifc computing,
+  simulating programming errors (\Cref{sec:jacobi}). Our approach detects all
+  possible simulated programming errors for this problem.
 \end{itemize}
 %
 
@@ -2223,7 +2224,7 @@ final 5-point specification:
 
 To study the effectiveness of our approach, 
 we built a corpus of around 1 million lines of Fortran code from a
-range of scientific computing packages: The Unified Model~\cite{um},
+range of scientific computing packages: The Unified Model (UM)~\cite{um},
 E3MG~\cite{RePEc:aen:journl:2006se-a12}, BLAS~\cite{blas},
 Hybrid4~\cite{GBC:GBC635}, GEOS-Chem~\cite{geos-chem}, Navier (based
 on \cite{griebel1997numerical}), Computational Physics
@@ -2236,19 +2237,22 @@ We first examined how frequently stencil computations occur. We parsed
 statements have a left-hand side as an array subscript on
 neighbourhood indices. This supports the idea that stencil-like
 computations are common in scientific code.
-
-To used the inference procedure of the previous section to identify
-stencils within the corpus. This assumes that the programs have been implemented
-correctly---normally one would use our approach in verification mode to
-check the correctness of new code.
+We then used the inference procedure of the previous section to
+generate specifications for stencils in the corpus to assess
+the design of the language. %  This assumes that the programs have been implemented
+%correctly---
+%Normally one would use our approach in verification mode to
+%check the correctness of new code.
 
 We would not expect to infer a stencil for each array statement we
-found because our specification restricts 
+found because our analysis restricts 
 the array-subscript-statements that we class as a
 stencil. In fact, we was able to infer a stencil from 30\% of
-these statements. A single statement can produce multiple stencils and
-we ended up with 60,525 stencils. This shows that we can still express
-a large number of stencil uses within our high-level abstraction.
+these statements. A single statement can involve multiple arrays and
+we ended up with 60,525 specifications. This shows that we can express
+a large number of stencil uses within our high-level abstraction and
+validates our initial hypothesis that many stencil computations have a
+regular shape.
 
 There were a variety of reasons why we did not infer a
 stencil from every potential statement: \\
@@ -2259,8 +2263,8 @@ cases are not stencils by our definition. The degenerate case of this
 is to have only constant indices on the LHS. We see lots of examples
 of this in loops as accumulators \eg{} computing the sum over an array; \\
 \noindent
-2) \textbf{Derived induction variables} where the
-indexing variable (\mintinline{fortran}{x}) is derived from an
+2) \textbf{Derived induction variables} where an
+index (\mintinline{fortran}{x}) is derived from an
 induction variable (\mintinline{fortran}{i}) as in
 \mintinline{fortran}{x = len - i};  \\
 \noindent
@@ -2303,26 +2307,26 @@ LU-decomposition with assignments such as
 % justReflexive: 55504
 % someReflexive: 15823
 
-The vast majority of stencils we found were relatively simple but we
+The majority of specifications generated were relatively simple but we
 found significant numbers of more complex shapes. We grouped common
-patterns in to categories which we describe below.
+patterns in to categories:
 
 \textbf{All pointed} 55,504 of the stencils we found involved 
 only pointed regions. 39,681 of these were pointed in all
 dimensions. Common examples of this were pointwise transformations on
 data (such as scaling).
 
-\textbf{Single-action} specifications consist of no more than one 
-forward, backward, or centered region and can be combined with any
-number of pointed regions. We identified 4,837 single-action
+\textbf{Single-action} specifications comprise one 
+forward, backward, or centered region contant combined via \term{+} 
+or \term{*} with any number of pointed regions. We identified 4,837 single-action
 specifications, of which 1,532 were single-action with a
 \texttt{nonpointed} modifier.
 
-\textbf{Multi-action} specifications consist of at least two uses 
-of forward, backward, or centered regions, and can be combined with
-any number of pointed regions. We identified 156 multi-action
-specifications out of which 146 had regions combined only with
-$\term{*}$.
+\textbf{Multi-action} specifications comprise at least two 
+ forward, backward, or centered regions, combined with
+any number of pointed regions. We identified 265 multi-action
+specifications out of which 207 had regions combined only with
+$\term{*}$ and 58 combined with a mix of $\term{*}$ and \term{+}.
 
 % multiActionRegionOps1: 31
 % multiActionRegionOps2: 115
@@ -2340,7 +2344,7 @@ $\term{*}$.
 
 \textbf{Bounded} specifications were fairly unusual, with only 157
 \texttt{atMost} and 36 \texttt{atLeast}, the latter of which were
-always also bounded on both sides.
+always also paired with an upper bound.
 
 \begin{figure}[t]\begin{minted}[fontsize=\scriptsize,breakindent=0em,linenos=false,xleftmargin=0em,breakafter=)]{fortran}
 !=stencil readOnce,(forward(depth=1,dim=3,nonpointed))*(backward(depth=1,dim=1))*(backward(depth=1,dim=2))+(forward(depth=1,dim=3))*(backward(depth=1,dim=1))*(pointed(dim=2))+(forward(depth=1,dim=3))*(backward(depth=1,dim=1,nonpointed))*(backward(depth=1,dim=2,nonpointed))+(forward(depth=1,dim=3))*(backward(depth=1,dim=2))*(pointed(dim=1))+(backward(depth=1,dim=1))*(backward(depth=1,dim=2,nonpointed))*(pointed(dim=3))+(backward(depth=1,dim=1,nonpointed))*(backward(depth=1,dim=2))*(pointed(dim=3))::x
@@ -2355,12 +2359,17 @@ with a real possibility for programmer error. For example, the Unified
 Model has an implementation of the Smagorinsky subgrid-scale model for
 calculating turbulence on which our inference yields 39 specs from 340
 lines of code. This is an impressive reduction given
-the complexity of the algorithm.  We show one example in~\cref{fig:smagorinsky}. This specifies the access pattern to
+the complexity of the algorithm.  We show one example in~\Cref{fig:smagorinsky}. This specifies the access pattern to
 a 3-dimensional array (which we have renamed to be called
-\texttt{x}). The array is accessed 8 times in the computation.
+\texttt{x}) arising from a kernel of 93 lines of code involving 142
+individual array subscripts. The specification was the most complex
+seen in our corpus, yet it still represents a significant abstraction
+to the spatial behaviour given size and complexity of the kernel it describes.
+
+
 
 \subsection{Detecting errors in the 2-D Jacobi iteration}
-
+\label{sec:jacobi}
 One common example of a stencil computation is two-dimensional
 Jacobi iteration that repeatedly goes through each cell in a matrix
 and computes the average value of the four adjacent cells. The kernel

@@ -583,7 +583,10 @@ combined via region operators \term{+} and \term{*}.
 
 Region constants specify a finite contiguous region in a
 single dimension relative to the origin and are either \term{pointed},
-\term{forward}, \term{backward}, or \term{centered}.  Each region
+\term{forward}, \term{backward}, or \term{centered}. The region names are
+inspired by the scientific terminology, \eg{} the standard explicit method for
+approximating PDEs is known as the \emph{Forward Time, Centered Space} (FTCS)
+scheme~\citep{dawson1991finite}. Each region
 constant has a dimension identifier $d$ given as a positive natural number.
 Each constant except \term{pointed} has a depth
 parameter $n$ given as a positive natural number; \term{pointed}

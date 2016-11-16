@@ -25,7 +25,7 @@
 
 \usepackage{tikz}
 \usepackage{xypic}
-%\usepackage{natbib}
+\usepackage{natbib}
 
 \usetikzlibrary{calc}
 
@@ -1151,6 +1151,8 @@ following rule $R_1 + R_2 \equiv R_3$:
   \term{dim=}#2, #3)}}
 \newcommand{\stenG}[3]{\small{\textit{#3}(\term{depth=}#1,
   \term{dim=}#2)}}
+%
+\vspace{-0.2em}
 \begin{align*}
 \hspace{-1em} & \stenGR{n}{d}{p \vee q}{$R_3$} \\[-0.4em]
 \hspace{-1em} \equiv \; & \stenGR{n}{d}{p}{$R_1$} \; \texttt{+} \; \stenGR{m}{d}{q}{$R_2$}
@@ -1163,23 +1165,28 @@ $\term{cen+cen} \equiv \term{cen}$, $\term{cen+fwd} \equiv \term{cen}$ and
 $\term{cen+bwd} \equiv \term{cen}$. %Commutative of $\term{+}$
 %provides symmetric variants.
 
-\item (\textit{overlapping pointed}) \term{pointed} regions coalesce with other regions of the
-same dimension:
+\item (\textit{overlapping pointed}) \term{pointed} regions coalesce
+  with other regions of the same dimension:
 %
+\vspace{-0.4em}
 \begin{align*}
 & \stenG{n}{d}{region} \\[-0.4em]
 \equiv \; & \stenGR{n}{d}{p}{region} \; \texttt{+} \;
                           \stenReflS{d}
 \end{align*}
-%
+\vspace{-1.5em}
+
 \item \textit{(centered)} a forward and backward region of the same
   depth and dimension coalseces into a centered region:
+%
+\vspace{-0.4em}
 \begin{align*}
 \hspace{-1em} & {\small{\stenCen{n}{d}{, p \vee q}}} \\[-0.4em]
 \hspace{-1em} \equiv \; & {\small{\stenFwdSR{n}{d}{p} \; \texttt{+} \;
                           \stenBwdSR{n}{d}{q}}}
 \end{align*}
-%%
+\vspace{-1.5em}
+
 \item $(\textsc{point}) \;\; (R \, \term{*} \, S^\irreflS) \, \term{+} \,
                          (R^\irreflS \, \term{*} \, S) \; \equiv \; R
                          \, \term{*} \, S$
@@ -1488,7 +1495,7 @@ the consistency predicate $\consAName$.
 
 
 \begin{figure}[t]
-\vspace{-1em}
+\vspace{-0.5em}
 \begin{align*}
 \hspace{-0.5em}
 \begin{array}{c}
@@ -2122,8 +2129,7 @@ That is, the $\hat{\odot}$ product of two specifications $S$ and $T$ in DNF form
 is the $\term{+}$ sum of all pairwise $\term{*}$ products for every
 pair of $\tyProd{spec}$ drawn from $S$ and $T$. The result
 is indeed in DNF-form, where $\hat{\odot}$ is essentially applying
- the \trule{\textsc{dist}} rule of the equational theory
- (\Cref{fig:equations}). The operation is
+ the \trule{\textsc{dist}} rule of the equational theory. The operation is
 commutative and associative, and sound with respect to our
 model (see \Cref{lem:alg-soundness} below).
 The $\hat{\odot}$ operation is then lifted to all combinations of

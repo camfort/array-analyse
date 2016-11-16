@@ -818,6 +818,7 @@ index, $\schemeN$ maps it to an indexing scheme.
 \end{definition}
 
 \begin{definition}[Generalisation]
+\label{def:generalisation}
 Given two schemes $v, w$ of dimensionality $n$,
 then $w$ is said to \emph{generalise} $v$
 (or conversely $v$ \emph{specialises} $w$),
@@ -1433,16 +1434,16 @@ end do; end do
 \end{minted}
 %
 The \textit{analyse} function matches on
-line 4, with the following set for $\textsf{flowsTo}(\texttt{a(i, j) + x +
-  y})$:
+line 4 with the following set for $\textsf{flowsTo}(\texttt{a(i, j) + x +
+  y}) = $
 %
-\begin{align*}
-{\small{
-\{\texttt{a(i-1, j)}, \texttt{a(i+1, j)}, \texttt{a(i, j-1)},
-  \texttt{a(i, j+1)}, \texttt{a(i, j)}\}}}
-\end{align*}
-The \emph{modelise} function then yields the following
-since all multiplicities in the model are one:
+%\begin{align*}
+{{ %{\small{
+$\{$\texttt{a(i-1, j)}, \texttt{a(i+1, j)}, \texttt{a(i, j-1)},
+  \texttt{a(i, j+1)}, \texttt{a(i, j)}$\}$}}. 
+%\end{align*}
+Thus, \emph{modelise} returns the following
+as all multiplicities are one:
 %%
 \begin{align*}
 \texttt{a} \mapsto \mathsf{only}(\{\vtwoh{-1}{0}, \vtwoh{1}{0},
@@ -1596,8 +1597,8 @@ with steps:
 \item Generate the model from the specification as in
   \cref{sec:semantics}.
 %
+\vspace{-0.4em}
 \begin{align*}
-\vspace{-0.3em}
  N_s= \{  \vtwo{-1}{\infty},
           \vtwo{0}{\infty},
           \vtwo{1}{\infty},
@@ -1606,14 +1607,14 @@ with steps:
         \vtwo{\infty}{1} \}  \\
 \interp{{\textcolor{darkgreen}{\texttt{readOnce, fivepoint}}}}_2 =
   \textsf{once}(\textsf{exact} (N_s))
-\vspace{-0.3em}
 \end{align*}
-%
+\vspace{-1.5em}
+
 \item Generate code model $\textit{modelise}(l3, \texttt{b}) =
   \textsf{once} (M_c)$ where:
 %
+\vspace{-0.7em}
 \begin{align*}
-\vspace{-0.3em}
 M_c = & \{
     \vtwo{0}{-1},
     \vtwo{0}{0},
@@ -1621,8 +1622,8 @@ M_c = & \{
     \vtwo{-1}{0},
     \vtwo{1}{0}
   \}
-\vspace{-0.3em}
 \end{align*}
+\vspace{-1em}
 %
 \item By the definition of consistency (\Cref{fig:consistency})
  $\textsf{once}(\textsf{exact}(N_s))$ is consistent with

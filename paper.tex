@@ -301,8 +301,9 @@ variable \eg{} \texttt{(i+1,j)} instead of \texttt{(i,j+1)}.
 
 In practice, the typical development procedure for complex
 stencil computations involves some ad hoc testing to ensure that no
-transcription mistakes have been made. This may involve visual
-inspection of the results, based on a rendered image. Typically such
+transcription mistakes have been made (\eg{}, by visual
+inspections, or comparison against an manufactured or 
+analytical solutionst~\cite{farrell2010automated}). Typically such
 testing is discarded once the code is seen to be correct.
 
 This is not the only information that is often discarded. The
@@ -393,7 +394,7 @@ are as follows:
   with the aim of aiding adoption by scientists and preventing indexing errors.
 \end{itemize}
 
-Our verification tool does not target the
+Our verification tool does not target a
 class of bugs that can be detected automatically (\emph{push-button
   verification}). Instead, stencil computation bugs must be
 identified relative to a specification of the intended access pattern.
@@ -517,18 +518,19 @@ over its (imperative) variables. %By
 %
 %\marginpar{\dnote{Is it worth having this informal consistency here?}}
 
-Now we informally describe what it means for a stencil kernel to be consistent
-with a specification. This will be formalised in \Cref{sec:semantics} and
-algorithmically described in  and \Cref{sec:analysis}.
-Specifications are associated to a stencil kernel and are declared for one or
-more array variables $\bar{v}$ within that kernel.  A stencil specification
-defines a \emph{region} associated to an array variable $a$ against which a
-stencil kernel should be \emph{consistent}. The region defined by a
-specification is an $n$-dimensional rectilinear shape in a discrete space
-crossing the origin with respect to the induction variable. Consistency is then
-a two way requirement. All array subscripts on $a$
-contributing to the kernel should be consistent with the region. Conversely,
-all parts of the region should have an index corresponding it.
+For now we informally describe what it means for a stencil kernel to
+be consistent with a specification. This will be formalised in
+\Cref{sec:semantics} and algorithmically described in and
+\Cref{sec:analysis}.  Specifications are associated to a stencil
+kernel and are declared for one or more array variables $\bar{v}$
+within that kernel.  A stencil specification defines a \emph{region}
+associated to an array variable $a$ against which a stencil kernel
+should be \emph{consistent}. The region defined by a specification is
+an $n$-dimensional rectilinear shape in a discrete space crossing the
+origin with respect to the induction variable. Consistency is then a
+two way requirement. All array subscripts on $a$ contributing to the
+kernel should be consistent with the region. Conversely, all parts of
+the region should have an index corresponding it.
 
 \begin{figure}[t]
 \vspace{-0.9em}
@@ -2290,12 +2292,29 @@ always also bounded on both sides.
 
 % Present not just percentages but concrete numbers
 
-\section{Related work}\label{sec:related-work}
+\section{Related work and conclusions}
+\label{sec:discussion}
 
-\citet{kamil2016verified} propose verified lifting to extract a mathematical
-representation of low-level, and potentially optimised, stencils in Fortran
-code. Their aim is to use the extracted predicate to pipe to the \textsf{Halide}~\citep{ragan2013halide} high-performance
-compiler and so they need to capture the full meaning of the stencil computation.
+Various deductive verification tools can express array indexing
+in their specifications, \eg{}, ACSL of \citet{baudin2008acsl}
+for C (see \eg{}~\citet[Example 3.4.1]{burghardt2010acsl}). Thus, a specification
+can be given for a stencil computation, 
+however, such a specification would exactly replicate the fine-grained
+indexing seen in the code and would simply be prone to low-level input
+errors. Our approach is much more abstract,
+capturing the shape of a specification in concise format different to
+the code. 
+
+\citet{kamil2016verified} propose \emph{verified lifting} to extract a
+functionally-complete mathematical representation of low-level, and
+potentially optimised, stencils in Fortran code. This extracted
+predicate representation of a stencil is used to generate code
+for the \textsf{Halide} high-performance
+compiler~\citep{ragan2013halide}. Thus their approach must capture the
+full meaning of a stencil computation which requires significant
+program analysis. For example, they report that some degenerate
+stencil kernels take up to 17 hours to analyse and others require
+programmer intervention for correct invariants to be inferred.
 
 % ACR-I think we could skip this in the interests of space
 %This led them to develop \textsf{STNG}, a loop invariant and postcondition
@@ -2305,24 +2324,104 @@ compiler and so they need to capture the full meaning of the stencil computation
 %form an hypothesis about the invariant, which is later confirmed or put back
 %into the system using a SMT solver.
 
-CamFort differs from this significantly. The aim of CamFort is not a
-full representation of the stencil, but enough information to capture the access
-pattern. Hence, we do not require SMT solving or search of loop invariants. It
-suffices to do comparatively simple data-flow analysis.
+Our approach differs significantly. Rather than 
+full representation of stencils, we focus on specifying
+in a lightweight way just the spatial behaviour: a partial correctness
+technique. Thus, it suffices for us to perform a comparatively
+simple data-flow analysis which is efficient, scales linearly with
+code size, and does not require any user intervention.
+Whilst we do not perform deep semantic analysis of stencils,
+ the analysis part of our
+approach can be made arbitrarily more sophisticated independent of the rest of
+the work.
+% Hence, we do not require SMT solving or search of loop invariants. It
+%suffices to do comparatively simple data-flow analysis.
+%Since CamFort mostly does
+%syntactic analysis, the inference procedure terminates quickly and
+%never requires programmer intervention. 
+%The downside of our
+%approach is that if optimisation causes the stencil computation to be heavily
+%obfuscated, \textsf{STNG} would capture the access behaviour better.
+%
+Furthermore, Kamil \emph{et al.} do not provide a user-visible
+syntactic representation of their specifications, and they do
+not use their specifications for verification, \eg{}, to future-proof
+the code against later changes. Even if they were to provide a
+syntactic representation, for complex stencils such as Navier-Stokes
+from \cref{sec:intro}, it would be as verbose as the code itself,
+making it difficult for programmer to understand the overall shape of
+the indexing behaviour.
 
-Due to the sheer amount of analysis involved, Kamil et al. report that some
-degenerate kernels take up to 17 hours to analyse and others require programmer
-intervention for correct invariants to be inferred. Since CamFort mostly does
-syntactic analysis, the inference procedure terminates quickly and never requires programmer intervention. The downside of our
-approach is that if optimisation causes the stencil computation to be heavily
-obfuscated, \textsf{STNG} would capture the access behaviour better.
+% GPGPU
+Our work has some similarities with efforts to verify kernels
+written for General-Purpose Graphics Processing Unit (GPGPU)
+programming, such as in \citet{Blom:2014:SoCP}. %Stencils are a form of
+%kernel, and GPGPU programming can be viewed as a massively parallel
+%method of transforming a large matrix. 
+However, their focus is
+mainly on the synchronisation of kernels and the avoidance of
+data races, while we are interested in correctness 
+embedded within a more typical general-purpose programming
+language. %Other work on GPGPU computation, such as
+%\citet{Zhang:2012:CGO}, has focused primarily on generating
+%optimised code based on relatively simple specifications: to
+%provide performance while keeping the programmer's effort within
+%reason.
 
-Most fundamentally, unlike CamFort, Kamil et al. does not provide a syntactic
-representation of their postcondition, so there is no way of future-proofing the
-code for future edits. Even if they were to provide a syntactic representation,
-for complex stencils such as Navier-Stokes from \cref{sec:intro}, it would be
-as verbose as the code itself making it difficult for programmer to understand
-the overall shape of the indexing behaviour.
+% Sketching Stencils
+\citet{Solar-Lezama:2007:PLDI} give specifications of stencils using
+unoptimised ``reference'' stencils, coupled with partial
+implementations which are then completed by a code
+generation tool. %These kinds of specifications are just simple
+%implementations, so this tool is useful for hand-written, optimised
+%stencils. 
+The primary purpose of this tool is optimisation rather than
+correctness, and the language of specification is much different and
+more elaborate than in our approach.
+
+% Pochoir
+\citet{Tang:2011:SPAA} define a specification language for writing
+stencils embedded in C++ (with Cilk extensions) that are then compiled
+into fast parallel programs based on trapezoidal decompositions with
+hyperspace cuts. The Pochoir specification language is used for
+describing the kernel, boundary conditions and shape of the
+stencil. Programs are first compiled in C++ with a template library
+that checks whether the annotations are used correctly, and then a
+Pochoir preprocessor may be applied to generate the high-performance
+parallel versions using Cilk.  Pochoir
+is aimed primarily at assisting programmers who may be reluctant to
+implement the high-performance tricky cache-oblivious
+``hypertrapezoidal'' algorithms for stencils. 
+%that are significantly faster than the typical looping implementations
+%of stencil computations.
+Like much of the related work, the main goal 
+is optimisation rather than verifying program correctness.
+
+By contrast, the work of \citet{Abe:2013:IPDPSW} has looked at the
+correctness problem explicitly by bringing a form of model-checking to
+verify certain stencil computations. This is in the context of
+decomposing stencils for parallel computation on multiple processors
+ in partitioned global address
+space languages. %These are scenarios where an array is divided into
+%subarrays on multiple processors but each has the ability to access
+%the others' memory. The authors avoid the state explosion dilemma of
+%model-checking by relying upon the fact that accesses to the
+%``boundary elements'' will require a different method by virtue of the
+%non-locality of that memory. Since this access is performed in a
+%different manner, those can be identified automatically by static
+%analysis. To achieve this, 
+Abe \emph{et al.} provide a new language to
+be used for writing stencil computations. Much of the specification
+effort goes towards describing the nuts and bolts of distributing the
+computation over multiple processors. The code for the stencil kernel
+is generated from a relatively high-level specification. 
+In contrast, we are interested in integrating directly
+into existing, legacy codebases and established languages, bringing
+the benefits of verification more easily to scientific computing.%such as
+%older versions of Fortran.% We infer stencil specifications from
+%Fortran code and check annotations on stencil computations within
+%Fortran code.
+
 
 \section{Conclusion}\label{sec:conclusion}
 

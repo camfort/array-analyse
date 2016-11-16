@@ -731,8 +731,7 @@ b(i+1) = a(i) + a(i-1) + a(i-2)
 This specification would be invalid if any of the
 array subscripts were repeated. This modifier provides a way to
 rule out any accidental repetition of array subscripts.
-The notion is similar to that of \emph{linearity} in linear type
-systems~\cite{wadler1990linear}, where a value must be used
+The notion is similar to that of linear types~\cite{wadler1990linear}, where a value must be used
 exactly once. We opt for the more informative and easily understood name
 \texttt{readOnce}. This modifier is optional, so it need not
 be present even if the stencil is linear.
@@ -855,11 +854,11 @@ The last example is undefined as its first expression is a
 non-neighbour relative index.
 \end{example}
 
-Our terminology of \emph{index schemes} and
-\emph{generalisation} is by analogy
-with the \emph{type schemes} and \emph{type generalisation} of
-polymorphic types in ML~\cite{milner1978theory}. Our notion is
-much more rigid however, as index schemes do not bind names.
+%Our terminology of \emph{index schemes} and
+%\emph{generalisation} is by analogy
+%with the \emph{type schemes} and \emph{type generalisation} of
+%polymorphic types in ML~\cite{milner1978theory}. Our notion is
+%much more rigid however, as index schemes do not bind names.
 
 \paragraph{Shorthand notation}
 
@@ -946,7 +945,7 @@ For a $2$-dimensional stencil computation, then
 & \qquad = \; \{\vtwoh{-2}{\infty}, \vtwoh{-1}{\infty}, \vtwoh{0}{\infty},
 \vtwoh{1}{\infty}, \vtwoh{2}{\infty}\}
 \end{align*}
-Note, $\infty$ for multiplication above, \eg{} $2
+Note, $\infty$ is absorbing for multiplication above \eg{} $2
  \infty = \infty$.
 \end{example}
 \noindent
@@ -982,7 +981,7 @@ more involved. We give some informal intuition first.
 \caption{%\textit{spec} model,
 $\interp{-}_n : \textit{spec} \rightarrow \textsf{Mult}(\textsf{Approx}(\mathcal{P}(\domainVal{}^n)))$}
 \label{fig:spatial-model}
-\vspace{-0.75em}
+\vspace{-1em}
 \end{figure}
 
 \paragraph{$\otimes$ of models}
@@ -1212,7 +1211,7 @@ their regions.
 S \equiv T \; \Rightarrow \;
 \interp{S}_n = \interp{T}_n
 \end{equation*}
-(See the supplement for the proof)
+See the supplement for the proof.
 \end{theorem}
 
 \Cref{fig:inequations} defines a notion of sub-specifications
@@ -1245,7 +1244,7 @@ S <: T \; \wedge (\consA{M}{\interp{S}_n}) \;
 \Rightarrow \; (\consA{M}{\interp{T}_n})
 \end{equation*}
 where $\consAName$ implements consistency in checking (\cref{subsec:checking}).
-(See the supplement for the proof)
+See the supplement for the proof.
 \end{theorem}
 
 
@@ -1422,28 +1421,24 @@ produces an analysis which is equivalent to the analysis of \texttt{a(i) = b(i-1
 \begin{example}
 \label{exm:checking}
 We demonstrate the analysis and modelise procedures over the
-following example program which computes the mean value
+following example kernel which computes the mean value
 of a five-point stencil:
 %%
 \begin{minted}{fortran}
-do i = 1, (n-1)
-  do j = 1, (m-1)
-    x = a(i-1, j)+a(i+1, j); y = a(i, j-1)+a(i, j+1)
-    b(i, j) = (a(i, j) + x + y) / 5.0
-end do; end do
+x = a(i-1, j)+a(i+1, j); y = a(i, j-1)+a(i, j+1)
+b(i, j) = (a(i, j) + x + y) / 5.0
 \end{minted}
 %
-The \textit{analyse} function matches on
-line 4 with the following set for $\textsf{flowsTo}(\texttt{a(i, j) + x +
-  y}) = $
+%The \textit{analyse} function matches on
+%line 4 with the following set for $\textsf{flowsTo}(\texttt{a(i, j) + x +
+%  y}) = $
 %
 %\begin{align*}
-{{ %{\small{
-$\{$\texttt{a(i-1, j)}, \texttt{a(i+1, j)}, \texttt{a(i, j-1)},
-  \texttt{a(i, j+1)}, \texttt{a(i, j)}$\}$}}. 
+%{{ %{\small{
+%$\{$\texttt{a(i-1, j)}, \texttt{a(i+1, j)}, \texttt{a(i, j-1)},
+%  \texttt{a(i, j+1)}, \texttt{a(i, j)}$\}$}}. 
 %\end{align*}
-Thus, \emph{modelise} returns the following
-as all multiplicities are one:
+The  multiplicities are all one, and so \emph{modelise} yields:
 %%
 \begin{align*}
 \texttt{a} \mapsto \mathsf{only}(\{\vtwoh{-1}{0}, \vtwoh{1}{0},
@@ -1608,12 +1603,12 @@ with steps:
 \interp{{\textcolor{darkgreen}{\texttt{readOnce, fivepoint}}}}_2 =
   \textsf{once}(\textsf{exact} (N_s))
 \end{align*}
-\vspace{-1.5em}
+%\vspace{-1.6em}
 
 \item Generate code model $\textit{modelise}(l3, \texttt{b}) =
   \textsf{once} (M_c)$ where:
 %
-\vspace{-0.7em}
+\vspace{-0.9em}
 \begin{align*}
 M_c = & \{
     \vtwo{0}{-1},
@@ -1623,18 +1618,18 @@ M_c = & \{
     \vtwo{1}{0}
   \}
 \end{align*}
-\vspace{-1em}
-%
+\vspace{-1.1em}
+
 \item By the definition of consistency (\Cref{fig:consistency})
  $\textsf{once}(\textsf{exact}(N_s))$ is consistent with
   $\textsf{once}(M_c)$ when:
+\vspace{-0.6em}
   \begin{align*}
-\vspace{-0.3em}
     & \consSub{2}{\textsf{up}(N_s)}{M_c} \;\,
     \wedge \;\, \consSub{2}{\textsf{low}(N_s)}{M_c}
-\vspace{-0.3em}
   \end{align*}
-%
+%\vspace{-1.6em}
+
 \item This holds by the following sets of scheme
   generalisations: for the upper bound, $\forall u \in M_c,
   \exists v \in N_s . u \preceq_2 v$:
@@ -2006,11 +2001,11 @@ values (one-dimensional) to a specification with a one-dimensional region.
 \mathsf{toSpec} & : \mathbb{N}_{>0} \rightarrow (\domainVal{} \times \domainVal{}) \rightarrow \mathsf{Approx}(\specDNF)
 \end{align*}
 %%
-An entire span is converted into an $n$-dimensional
+A span is converted into an $n$-dimensional
 specification by applying $\mathsf{toSpec}$ to each
 pair of lower and upper bounds in a span, per dimension, and multiplying these
-specifications by $\odot$. The resulting specifications for
-each span are then summed by $\oplus$:
+by $\odot$. The resulting specifications for
+each span are summed by $\oplus$:
 \begin{equation*}
 \textsf{spec}(M) =
 \oplusbig\limits_{\vect{x} \in \spanOp(M)} \,
@@ -2133,7 +2128,15 @@ is indeed in DNF-form, where $\hat{\odot}$ is essentially applying
 commutative and associative, and sound with respect to our
 model (see \Cref{lem:alg-soundness} below).
 The $\hat{\odot}$ operation is then lifted to all combinations of
-\textsf{Approx} for $\odot$:
+\textsf{Approx} for $\odot$ in \Cref{fig:odotlift} where
+in the last case $\textit{inj}$ corresponds to the unary
+injections of \textsf{Approx}. For brevity we omit the cases where the arguments above are flipped
+as $\odot$ is commutative.
+\end{definition}
+
+\begin{figure}[t]
+\vspace{-1em}
+{\small{
 \begin{align*}
 \textsf{lower}(S) \odot \textsf{exact}(T) = \; &
        %\textsf{exact}(T) \odot \textsf{lower}(S) = \;
@@ -2152,10 +2155,11 @@ The $\hat{\odot}$ operation is then lifted to all combinations of
 \textit{inj}(S) \odot \textit{inj}(T) = \; & \textit{inj}(S
                                               \hat{\odot} T)
 \end{align*}
-where in the last case $\textit{inj}$ corresponds to the unary
-injections of \textsf{Approx}. For brevity we omit the cases where the arguments above are flipped
-as $\odot$ is commutative.
-\end{definition}
+\vspace{-2em}
+}}
+\caption{Lifting $\hat{\odot}$ to approximations.}
+\label{fig:odotlift}
+\end{figure}
 
 \begin{definition}The $\oplus$ operation on $\textsf{Approx}(\specDNF)$
 is defined similarly to $\odot$, with the intermediate $\hat{\oplus}$ on
@@ -2169,8 +2173,7 @@ S \, \hat{\oplus} \, T = S \, \term{+} \, T
 %%
 Thus, if neither specification is empty, their $\hat{\oplus}$ is just
 the syntactic sum $\term{+}$. Then $\oplus$ is the lifting of
-$\hat{\oplus}$ to \textsf{Approx} with the shape as $\odot$ in the previous
-definition.
+$\hat{\oplus}$ to \textsf{Approx} with the shape as $\odot$ in Figure~\ref{fig:odotlift}.
 \end{definition}
 
 \begin{lemma}%[$\hat{\odot}$, $\hat{\oplus}$ soundness]
@@ -2192,11 +2195,10 @@ Thus, our model validates specification synthesis.
 The final step applies a simplification pass, orienting the
 equational theory $\equiv$ (\Cref{sec:eqs}) into rewrite rules
 based on some simple heuristics.
-
 For our example, we infer and then synthesise the
-5-point specification:
+final 5-point specification:
 %%
-\begin{minted}[linenos=false]{fortran}
+\begin{minted}[linenos=false,breakindent=2em]{fortran}
 != stencil centered(depth=1, dim=1)*pointed(dim=2) + centered(depth=1, dim=2)*pointed(dim=1):: a
 \end{minted}
 %%
@@ -2219,7 +2221,8 @@ For our example, we infer and then synthesise the
 % arpack-ng - Fortran 77 routines designed to solve large scaled
 % eigenvalue problems - https://github.com/opencollab/arpack-ng
 
-We built a corpus of around 1 million lines of Fortran code from a
+To study the effectiveness of our approach, 
+we built a corpus of around 1 million lines of Fortran code from a
 range of scientific computing packages: The Unified Model~\cite{um},
 E3MG~\cite{RePEc:aen:journl:2006se-a12}, BLAS~\cite{blas},
 Hybrid4~\cite{GBC:GBC635}, GEOS-Chem~\cite{geos-chem}, Navier (based
@@ -2230,19 +2233,19 @@ SPECFEM3D~\cite{specfem3d}.
 
 We first examined how frequently stencil computations occur. We parsed
 959,427 lines of Fortran code and found that 10\% (97,439) of
-statements have a left-hand side is an array subscript on
+statements have a left-hand side as an array subscript on
 neighbourhood indices. This supports the idea that stencil-like
 computations are common in scientific code.
 
-We used CamFort in inference mode to identify stencils within the
-corpus. This assumes that the programs have been implemented
-correctly---normally one would use CamFort in verification mode to
+To used the inference procedure of the previous section to identify
+stencils within the corpus. This assumes that the programs have been implemented
+correctly---normally one would use our approach in verification mode to
 check the correctness of new code.
 
 We would not expect to infer a stencil for each array statement we
-found because our stencil language places significant restrictions on
-the types of array-subscript-statements that we will class as a
-stencil. In fact, CamFort was able to infer a stencil from 30\% of
+found because our specification restricts 
+the array-subscript-statements that we class as a
+stencil. In fact, we was able to infer a stencil from 30\% of
 these statements. A single statement can produce multiple stencils and
 we ended up with 60,525 stencils. This shows that we can still express
 a large number of stencil uses within our high-level abstraction.
@@ -2424,10 +2427,9 @@ are correct, all of which are accepted by checking.
 
 Various deductive verification tools can express array indexing
 in their specifications, \eg{}, ACSL of \citet{baudin2008acsl}
-for C (see \eg{}~\citet[Example 3.4.1]{burghardt2010acsl}). A specification
-can be given for a stencil computation, 
-however, such specification would replicate the fine-grained
-indexing seen in the code and would be similarly prone to indexing
+for C (\eg{}~\citet[Example 3.4.1]{burghardt2010acsl}). A specification
+can be given for a stencil computation but replicating the fine-grained
+indexing seen in the code and therefore similarly prone to indexing
 errors. Our approach is much more abstract-- it does
 not aim to reify indexing in the specification, but
 provides simple spatial descriptions which capture a large number
@@ -2481,8 +2483,8 @@ making it difficult for programmer to understand the overall shape of
 the indexing behaviour.
 
 % GPGPU
-Our work has some similarities with efforts to verify kernels
-written for General-Purpose Graphics Processing Unit (GPGPU)
+Our work has similarities with efforts to verify kernels
+written for General-Purpose GPU
 programming, such as in \citet{Blom:2014:SoCP}. %Stencils are a form of
 %kernel, and GPGPU programming can be viewed as a massively parallel
 %method of transforming a large matrix. 
@@ -2495,11 +2497,11 @@ language. %Other work on GPGPU computation, such as
 %optimised code based on relatively simple specifications: to
 %provide performance while keeping the programmer's effort within
 %reason.
-
+%
 % Sketching Stencils
 \citet{Solar-Lezama:2007:PLDI} give specifications of stencils using
 unoptimised ``reference'' stencils, coupled with partial
-implementations which are then completed by a code
+implementations which are completed by a code
 generation tool. %These kinds of specifications are just simple
 %implementations, so this tool is useful for hand-written, optimised
 %stencils. 
@@ -2517,10 +2519,10 @@ reluctant to implement the high-performance cache-oblivious
 ``hypertrapezoidal'' algorithms for stencils.  Like much of the related work,
 the goal is optimisation rather than verifying program correctness.
 
-By contrast, the work of \citet{Abe:2013:IPDPSW} has looked at the
-correctness problem explicitly by bringing a form of model-checking to
-verify certain stencil computations. This is in the context of
-decomposing stencils for parallel computation on multiple processors
+By contrast, the work of \citet{Abe:2013:IPDPSW} studies
+correctness explicitly by bringing a form of model-checking to
+verify certain stencil computations in the context of
+parallel implementations 
  in partitioned global address
 space languages. %These are scenarios where an array is divided into
 %subarrays on multiple processors but each has the ability to access
@@ -2534,7 +2536,7 @@ Abe \emph{et al.} provide a new language for writing stencil computations. Much 
 effort goes towards describing the distribution of the
 computation over multiple processors. The code for the stencil kernel
 is generated from a relatively high-level specification. 
-In contrast, we are interested in integrating directly
+In contrast, we integrate directly
 into existing, legacy codebases and established languages, bringing
 the benefits of verification more easily to scientific computing.%such as
 %older versions of Fortran.% We infer stencil specifications from
@@ -2558,10 +2560,10 @@ of a million lines of Fortran code. We showed that our language is
 capable of capturing many real-world uses of stencils and showed in a
 case-study that it will detect (simulated) programmer errors.
 
-Our definition of a stencil computation meant that we generated no
-specification for a large number of iterated array accesses in the
-corpus, such as stencils that incorporates reductions. For
-future work, we will be looking into expanding the flexibility of 
+Our restrictive definition of stencils means we do note generate
+specifications for a large number of iterated array accesses in the
+corpus, \eg{} that incorporate reductions. For
+future work, we will look at expanding the flexibility of 
 our analysis to include these examples. 
 
 \bibliography{references}

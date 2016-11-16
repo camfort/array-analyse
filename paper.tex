@@ -2288,7 +2288,7 @@ regular shape.
 
 The majority of specifications generated were relatively simple but we
 found significant numbers of more complex shapes. We grouped common
-patterns in to categories:
+patterns into categories:
 
 \textbf{All pointed} 55,504 of the stencils we found involved 
 only pointed regions. 39,681 of these were pointed in all
@@ -2339,7 +2339,7 @@ The single- and multi-action classes represent more complex stencils
 with a real possibility for programmer error. As an extreme example, the Unified
 Model has an implementation of the Smagorinsky subgrid-scale model for
 calculating turbulence on which our inference yields 39 specs from 340
-lines of code. This is an large reduction given
+lines of code. This is a large reduction given
 the complexity of the algorithm.  We show one example
 in~\Cref{fig:smagorinsky} which specifies the access pattern to
 a 3-dimensional array (which we have renamed to 
@@ -2591,7 +2591,7 @@ of a million lines of Fortran code. We showed that our language is
 capable of capturing many real-world uses of stencils and showed in a
 case-study that it will detect (simulated) programmer errors.
 
-Our restrictive definition of stencils means we do note generate
+Our restrictive definition of stencils means we do not generate
 specifications for a large number of iterated array accesses in the
 corpus, \eg{} that incorporate reductions. For
 future work, we will look at expanding the flexibility of 

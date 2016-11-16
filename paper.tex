@@ -1811,6 +1811,7 @@ Each set of unit spans is applied to the fixed point of the \spanOp{} function
 \begin{figure}[t]
 \vspace{-1em}
 \hspace{-0.5em}
+{\scalebox{0.96}{
 \begin{minipage}{0.16\linewidth}
 \begin{align*}
 \setlength{\arraycolsep}{0em}
@@ -1862,7 +1863,7 @@ Each set of unit spans is applied to the fixed point of the \spanOp{} function
 \end{tikzpicture} \\[-0.5em] (c)
 \end{array}
 \end{align*}
-\end{minipage}
+\end{minipage}}}
 \caption{Illustration of grouping spans in
 inference}
 \label{fig:inference-steps-informal}
@@ -1963,7 +1964,7 @@ U(M) =
 %
 \textbf{5)\,} Filter by the region containment predicate
 $\containedin$; if any region is contained within another then remove the
-  smaller, defined:
+  smaller:
 %
 \begin{align*}
 & \vect{x} \containedin \vect{y} = \vect{y}^L_1 \leq \vect{x}^L_1 \wedge \vect{x}^U_1 \leq \vect{y}^U_1
@@ -2188,8 +2189,14 @@ $\forall S,
 \end{lemma}
 %
 \noindent
-Thus our model validates the specification synthesis process which concludes the
-inference procedure. For our example, we infer and then synthesise the
+Thus, our model validates specification synthesis.
+%
+\subsection{Step 5: Simplification}
+The final step applies a simplification pass, orienting the
+equational theory $\equiv$ (\Cref{sec:eqs}) into rewrite rules
+based on some simple heuristics.
+
+For our example, we infer and then synthesise the
 5-point specification:
 %%
 \begin{minted}[linenos=false]{fortran}

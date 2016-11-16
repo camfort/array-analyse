@@ -2197,6 +2197,28 @@ these statements. A single statement can produce multiple stencils and
 we ended up with 60,525 stencils. This shows that we can still express
 a large number of stencil uses within our high-level abstraction.
 
+There were a variety of reasons why we did not infer a
+stencil from every potential statement: \\
+\noindent 
+1) \textbf{Non-subset induction variables} occur when the
+induction variables on the RHS are not a subset of those in the LHS. These
+cases are not stencils by our definition. The degenerate case of this
+is to have only constant indices on the LHS. We see lots of examples
+of this in loops as accumulators \eg{} computing the sum over an array; \\
+\noindent
+2) \textbf{Derived induction variables} where the
+indexing variable (\mintinline{fortran}{x}) is derived from an
+induction variable (\mintinline{fortran}{i}) as in
+\mintinline{fortran}{x = len - i};  \\
+\noindent
+3) \textbf{Inconsistent induction dimensions} occur when
+an induction variable is used to specify more than one array dimension
+on the RHS or multiple induction variables are used for the same
+dimension on the RHS. These are common in matrix operations such as
+LU-decomposition with assignments such as
+\mintinline{fortran}{a(l) = a(l) - a(m) * b(l, m)}.
+
+
 %    numStencilSpecs: 60525
 % 4338 files, linesTotal: 1357377, linesParsed: 959427
 % Number of stencils (tickAssign) / number of loops
@@ -2267,7 +2289,7 @@ Model has an implementation of the Smagorinsky subgrid-scale model for
 calculating turbulence on which our inference yields 39 specs from 340
 lines of code. This is an impressive reduction given
 the complexity of the algorithm.  We show one example in
-Figure~\ref{fig:smagorinsky}. This specifies the access pattern to
+Figure~\cref{fig:smagorinsky}. This specifies the access pattern to
 a 3-dimensional array (which we have renamed to be called
 \texttt{x}). The array is accessed 8 times in the computation.
 
@@ -2368,6 +2390,23 @@ as verbose as the code itself making it difficult for programmer to understand
 the overall shape of the indexing behaviour.
 
 \section{Conclusion}\label{sec:conclusion}
+
+We have presented a high-level language for the specification of
+stencils in numerical code. As opposed to existing approaches our
+language takes inspiration from the numerical literature and provides
+a concise, abstract description of the stencil.
+
+We evaluated our approach on top of CamFort, an open-source analysis
+tool for Fortran programs, running the inference process over a corpus
+of a million lines of Fortran code. We showed that our language is
+capable of capturing many real-world uses of stencils and showed in a
+case-study that it will detect (simulated) programmer errors.
+
+Our definition of a stencil computation meant that we generated no
+specification for a large number of iterated array accesses in the
+corpus, such as stencils that incorporates reductions. For
+future work, we will be looking into expanding the flexibility of 
+our inference approach to more of these examples. 
 
 \bibliography{references}
 

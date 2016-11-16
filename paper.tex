@@ -2412,14 +2412,13 @@ are correct, all of which are accepted by checking.
 
 Various deductive verification tools can express array indexing
 in their specifications, \eg{}, ACSL of \citet{baudin2008acsl}
-for C (see \eg{}~\citet[Example 3.4.1]{burghardt2010acsl}). Thus, a specification
+for C (see \eg{}~\citet[Example 3.4.1]{burghardt2010acsl}). A specification
 can be given for a stencil computation, 
-however, such a specification would exactly replicate the fine-grained
-indexing seen in the code and would be similarly prone to low-level input
+however, such specification would replicate the fine-grained
+indexing seen in the code and would be similarly prone to indexing
 errors. Our approach is much more abstract-- it does
-not aim to reify indexing in the specification, but is novel
-in that it instead
-provides abstract spatial descriptions which capture a large number
+not aim to reify indexing in the specification, but
+provides simple spatial descriptions which capture a large number
 of common patterns.
 
 \citet{kamil2016verified} propose \emph{verified lifting} to extract a

@@ -408,7 +408,7 @@ In this paper, we make the following contributions:
 
 \item We detail checking and inference algorithms for our
   specifications (\cref{sec:analysis}), derived from a
-  denotational model for the specification language
+  denotational model for the specificaiton language
   (\cref{sec:semantics});
 
 \item We provide an implementation of our approach as an extension to
@@ -417,7 +417,7 @@ In this paper, we make the following contributions:
 \item We report on a quantitative study of stencil computations on a
   corpus of numerical Fortran program
   (\cref{sec:evaluation}), totalling one million lines of code. Our tool
-  identifies and infers specifications for 60,000 stencil computations in the
+  identifies and infers specifications for 35,000 stencil computations in the
   corpus. Approximately 10\% of the stencils we found are non-trivial,
   corresponding to code which is a possible source of errors. This validates
   our hypothesis that the majority of stencil computations have a regular
@@ -579,14 +579,16 @@ declaration}.
 Regions comprise \emph{region constants} which are
 combined via region operators \term{+} and \term{*}.
 
-\paragraph{Region constants}
+%\paragraph{Region constants}
 
 Region constants specify a finite contiguous region in a
 single dimension relative to the origin and are either \term{pointed},
 \term{forward}, \term{backward}, or \term{centered}. The region names are
 inspired by the scientific terminology, \eg{} the standard explicit method for
 approximating PDEs is known as the \emph{Forward Time, Centered Space} (FTCS)
-scheme~\citep{dawson1991finite}. Each region
+scheme~\citep{dawson1991finite}.
+
+Each region
 constant has a dimension identifier $d$ given as a positive natural number.
 Each constant except \term{pointed} has a depth
 parameter $n$ given as a positive natural number; \term{pointed}

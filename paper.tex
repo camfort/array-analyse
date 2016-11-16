@@ -2191,15 +2191,14 @@ $\forall S,
 %
 \noindent
 Thus, our model validates specification synthesis.
-%
-\subsection{Step 5: Simplification}
+
 The final step applies a simplification pass, orienting the
 equational theory $\equiv$ (\Cref{sec:eqs}) into rewrite rules
 based on some simple heuristics.
 For our example, we infer and then synthesise the
 final 5-point specification:
 %%
-\begin{minted}[linenos=false,breakindent=2em]{fortran}
+\begin{minted}[linenos=false,breakindent=2.4em,xleftmargin=0.2em]{fortran}
 != stencil centered(depth=1, dim=1)*pointed(dim=2) + centered(depth=1, dim=2)*pointed(dim=1):: a
 \end{minted}
 %%
@@ -2246,34 +2245,13 @@ the design of the language. %  This assumes that the programs have been implemen
 
 We would not expect to infer a stencil for each array statement we
 found because our analysis restricts 
-the array-subscript-statements that we class as a
-stencil. In fact, we was able to infer a stencil from 30\% of
+the array-subscript-statements that we classify as a
+stencil. In fact, we were able to infer a stencil from 30\% of
 these statements. A single statement can involve multiple arrays and
 we ended up with 60,525 specifications. This shows that we can express
-a large number of stencil uses within our high-level abstraction and
+a large number of stencil shapes within our high-level abstraction and
 validates our initial hypothesis that many stencil computations have a
 regular shape.
-
-There were a variety of reasons why we did not infer a
-stencil from every potential statement: \\
-\noindent 
-1) \textbf{Non-subset induction variables} occur when the
-induction variables on the RHS are not a subset of those in the LHS. These
-cases are not stencils by our definition. The degenerate case of this
-is to have only constant indices on the LHS. We see lots of examples
-of this in loops as accumulators \eg{} computing the sum over an array; \\
-\noindent
-2) \textbf{Derived induction variables} where an
-index (\mintinline{fortran}{x}) is derived from an
-induction variable (\mintinline{fortran}{i}) as in
-\mintinline{fortran}{x = len - i};  \\
-\noindent
-3) \textbf{Inconsistent induction dimensions} occur when
-an induction variable is used to specify more than one array dimension
-on the RHS or multiple induction variables are used for the same
-dimension on the RHS. These are common in matrix operations such as
-LU-decomposition with assignments such as
-\mintinline{fortran}{a(l) = a(l) - a(m) * b(l, m)}.
 
 
 %    numStencilSpecs: 60525
@@ -2342,9 +2320,11 @@ $\term{*}$ and 58 combined with a mix of $\term{*}$ and \term{+}.
 % were found in the atmospheric models of the UM.
 % %%%%
 
-\textbf{Bounded} specifications were fairly unusual, with only 157
-\texttt{atMost} and 36 \texttt{atLeast}, the latter of which were
+\textbf{Bounded} specifications occured with 157
+\texttt{atMost} bounds and 36 \texttt{atLeast}, the latter of which were
 always also paired with an upper bound.
+
+
 
 \begin{figure}[t]\begin{minted}[fontsize=\scriptsize,breakindent=0em,linenos=false,xleftmargin=0em,breakafter=)]{fortran}
 !=stencil readOnce,(forward(depth=1,dim=3,nonpointed))*(backward(depth=1,dim=1))*(backward(depth=1,dim=2))+(forward(depth=1,dim=3))*(backward(depth=1,dim=1))*(pointed(dim=2))+(forward(depth=1,dim=3))*(backward(depth=1,dim=1,nonpointed))*(backward(depth=1,dim=2,nonpointed))+(forward(depth=1,dim=3))*(backward(depth=1,dim=2))*(pointed(dim=1))+(backward(depth=1,dim=1))*(backward(depth=1,dim=2,nonpointed))*(pointed(dim=3))+(backward(depth=1,dim=1,nonpointed))*(backward(depth=1,dim=2))*(pointed(dim=3))::x
@@ -2355,29 +2335,70 @@ always also paired with an upper bound.
 \end{figure}
 
 The single- and multi-action classes represent more complex stencils
-with a real possibility for programmer error. For example, the Unified
+with a real possibility for programmer error. As an extreme example, the Unified
 Model has an implementation of the Smagorinsky subgrid-scale model for
 calculating turbulence on which our inference yields 39 specs from 340
-lines of code. This is an impressive reduction given
-the complexity of the algorithm.  We show one example in~\Cref{fig:smagorinsky}. This specifies the access pattern to
-a 3-dimensional array (which we have renamed to be called
+lines of code. This is an large reduction given
+the complexity of the algorithm.  We show one example
+in~\Cref{fig:smagorinsky} which specifies the access pattern to
+a 3-dimensional array (which we have renamed to 
 \texttt{x}) arising from a kernel of 93 lines of code involving 142
-individual array subscripts. The specification was the most complex
+array subscripts. The specification was the most complex
 seen in our corpus, yet it still represents a significant abstraction
-to the spatial behaviour given size and complexity of the kernel it describes.
+of the spatial behaviour given size and complexity of the kernel it describes.
 
+We measured the frequency at which individual specifications involved 
+multiple occurences of \term{+} and \term{*}:
+
+\vspace{0.25em}
+\setlength{\tabcolsep}{0.57em}
+{\small{
+\hspace{-1em}\begin{tabular}{c|cccccccc}
+& 0 & 1 & 2 & 3 & 4 & 5 & 6 & $> 7$ \\ \hline
+\term{+} & 60,265 & 220 & 15 & 12 & 5 & 4 & 4 & 0 \\
+\term{*} & 31,393 & 15,151 & 13,457 & 424 & 41 & 42 & 5 & 12
+\end{tabular}}}
+\vspace{0.2em}
+
+\noindent
+\eg{}, roughly half the specifications did not involve $\term{*}$, 
+a quarter use one $\term{*}$ and just under a quarter
+use two $\term{*}$ operators.
+
+\paragraph{Limitations}
+
+There were various reasons why we did not infer 
+specifications on every looped array computation: \\
+\noindent 
+1) \textbf{Non-subset induction variables} occur when the
+induction variables on the RHS are not a subset of those in the LHS. These
+cases are not stencils by our definition. The degenerate case of this
+is to have only constant indices on the LHS. We see lots of examples
+of this in loops as accumulators \eg{} computing the sum over an array; \\
+\noindent
+2) \textbf{Derived induction variables} where an
+index (\mintinline{fortran}{x}) is derived from an
+induction variable (\mintinline{fortran}{i}) as in
+\mintinline{fortran}{x = len - i};  \\
+\noindent
+3) \textbf{Inconsistent induction dimensions} occur when
+an induction variable is used to specify more than one array dimension
+on the RHS or multiple induction variables are used for the same
+dimension on the RHS. These are common in matrix operations such as
+LU-decomposition with assignments such as
+\mintinline{fortran}{a(l) = a(l) - a(m) * b(l, m)}.
 
 
 \subsection{Detecting errors in the 2-D Jacobi iteration}
 \label{sec:jacobi}
-One common example of a stencil computation is two-dimensional
+One common example of a stencil computation is the two-dimensional
 Jacobi iteration that repeatedly goes through each cell in a matrix
 and computes the average value of the four adjacent cells. The kernel
 is given by:
 \begin{minted}{fortran}
   a(i,j) = (a(i-1,j)+a(i+1,j)+a(i,j+1)+a(i,j-1))/4
 \end{minted}
-and we infer a precise specification for this, as:
+We infer a precise specification of its shape as:
 \begin{minted}[breakafter=+:,breakindent=-0.6em,breaksymbolsep=0.4em,linenos=false,xleftmargin=-0.5em]{fortran}
   != stencil pointed(dim=1)*centered(depth=1,dim=2,nonpointed)+pointed(dim=2)*centered(depth=1,dim=1,nonpointed)::a
 \end{minted}
@@ -2389,7 +2410,7 @@ verification algorithm. Our checking procedure correctly reported a verification
 failure in each of 6,537 permutations corresponding to an error.  
 The iteration computes the average of four adjacent
 cells so $24$ ($4$ factorial) of the possible array index perturbations
-are correct, all of which are accepted by checking.
+are correct, all of which are accepted by our checker.
 
 
 % /um/trunk/src/atmosphere/diffusion_and_filtering/turb_smagorinsky.F90
@@ -2437,8 +2458,8 @@ are correct, all of which are accepted by checking.
 Various deductive verification tools can express array indexing
 in their specifications, \eg{}, ACSL of \citet{baudin2008acsl}
 for C (\eg{}~\citet[Example 3.4.1]{burghardt2010acsl}). A specification
-can be given for a stencil computation but replicating the fine-grained
-indexing seen in the code and therefore similarly prone to indexing
+can be given for a stencil computation but must use fine-grained
+indexing as in code and therefore is similarly prone to indexing
 errors. Our approach is much more abstract-- it does
 not aim to reify indexing in the specification, but
 provides simple spatial descriptions which capture a large number
@@ -2499,9 +2520,9 @@ programming, such as in \citet{Blom:2014:SoCP}. %Stencils are a form of
 %method of transforming a large matrix. 
 However, their focus is
 mainly on the synchronisation of kernels and the avoidance of
-data races, while we are interested in correctness 
-embedded within a more typical general-purpose programming
-language. %Other work on GPGPU computation, such as
+data races., while we are interested in correctness 
+%embedded within a more typical general-purpose programming
+%language. %Other work on GPGPU computation, such as
 %\citet{Zhang:2012:CGO}, has focused primarily on generating
 %optimised code based on relatively simple specifications: to
 %provide performance while keeping the programmer's effort within
@@ -2515,23 +2536,23 @@ generation tool. %These kinds of specifications are just simple
 %implementations, so this tool is useful for hand-written, optimised
 %stencils. 
 The primary purpose of this tool is optimisation rather than
-correctness, and the language of specification is much different and
-more elaborate than in our approach.
+correctness, and the language of specification is 
+more elaborate than ours.
 
 % Pochoir
 \citet{Tang:2011:SPAA} define a specification language for writing stencils
 embedded in C++ (with Cilk~\citep{blumofe1996cilk} extensions) that are then
 compiled into parallel programs based on trapezoidal decompositions with
-hyperspace cuts. The Pochoir specifications are used for describing the kernel,
+hyperspace cuts. Pochoir specifications are used for describing the kernel,
 boundary conditions, and shape of the stencil. Pochoir is aimed at programmers
 reluctant to implement the high-performance cache-oblivious
-``hypertrapezoidal'' algorithms for stencils.  Like much of the related work,
+``hypertrapezoidal'' algorithms.  Like much of the related work,
 the goal is optimisation rather than verifying program correctness.
 
 By contrast, the work of \citet{Abe:2013:IPDPSW} studies
-correctness explicitly by bringing a form of model-checking to
+correctness bringing a form of model-checking to
 verify certain stencil computations in the context of
-parallel implementations 
+parallelism 
  in partitioned global address
 space languages. %These are scenarios where an array is divided into
 %subarrays on multiple processors but each has the ability to access

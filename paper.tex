@@ -413,7 +413,7 @@ In this paper, we make the following contributions:
   (\cref{sec:semantics});
 
 \item We provide an implementation of our approach as an extension to
-  CamFort, an open-source program analysis tool for Fortran;
+  CamFort~\cite{camfort}, an open-source program analysis tool for Fortran;
 
 \item We report on a quantitative study of stencil computations on a
   corpus of numerical Fortran program
@@ -2563,8 +2563,8 @@ As opposed to existing approaches our language takes inspiration from
 the numerical literature and provides a concise, abstract description
 of the stencil.
 
-We evaluated our approach on top of CamFort, an open-source analysis
-tool for Fortran programs, running the inference process over a corpus
+We evalauated our approach by extending CamFort, an open-source analysis
+tool for Fortran programs~\cite{camfort}, running the inference process over a corpus
 of a million lines of Fortran code. We showed that our language is
 capable of capturing many real-world uses of stencils and showed in a
 case-study that it will detect (simulated) programmer errors.

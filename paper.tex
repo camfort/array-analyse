@@ -2241,7 +2241,7 @@ only pointed regions. 39,681 of these were pointed in all
 dimensions. Common examples of this were pointwise transformations on
 data (such as scaling).
 
-\textbf{Single action} specifications consist of no more than one 
+\textbf{Single-action} specifications consist of no more than one 
 forward, backward, or centered region and can be combined with any
 number of pointed regions. We identified 4,837 single-action
 specifications, of which 1,532 were single-action with a
@@ -2256,6 +2256,53 @@ $\term{*}$.
 \textbf{Bounded} specifications were fairly unusual, with only 157
 \texttt{atMost} and 36 \texttt{atLeast}, the latter of which were
 always also bounded on both sides.
+
+\begin{figure}[t]\begin{minted}[fontsize=\scriptsize,breakindent=0em,linenos=false,xleftmargin=0em,breakafter=)]{fortran}
+!=stencil readOnce,(forward(depth=1,dim=3,nonpointed))*(backward(depth=1,dim=1))*(backward(depth=1,dim=2))+(forward(depth=1,dim=3))*(backward(depth=1,dim=1))*(pointed(dim=2))+(forward(depth=1,dim=3))*(backward(depth=1,dim=1,nonpointed))*(backward(depth=1,dim=2,nonpointed))+(forward(depth=1,dim=3))*(backward(depth=1,dim=2))*(pointed(dim=1))+(backward(depth=1,dim=1))*(backward(depth=1,dim=2,nonpointed))*(pointed(dim=3))+(backward(depth=1,dim=1,nonpointed))*(backward(depth=1,dim=2))*(pointed(dim=3))::x
+\end{minted}
+\caption{A complex specification inferred from
+  \textbf{Unified Model}\label{fig:smagorinsky}}
+\vspace{-1em}
+\end{figure}
+
+The single- and multi-action classes represent more complex stencils
+with a real possibility for programmer error. For example, the Unified
+Model has an implementation of the Smagorinsky subgrid-scale model for
+calculating turbulence on which our inference yields 39 specs from 340
+lines of code. This is an impressive reduction given
+the complexity of the algorithm.  We show one example in
+Figure~\ref{fig:smagorinsky}. This specifies the access pattern to
+a 3-dimensional array (which we have renamed to be called
+\texttt{x}). The array is accessed 8 times in the computation.
+
+\subsection{Detecting errors in the 2-D Jacobi iteration}
+
+One common example of a stencil computation is two-dimensional
+Jacobi iteration that repeatedly goes through each cell in a matrix
+and computes the average value of the four adjacent cells. The kernel
+can be expressed in a line of Fortran code:
+\begin{minted}{fortran}
+  a(i,j) = (a(i-1,j)+a(i+1,j)+a(i,j+1)+a(i,j-1))/4
+\end{minted}
+and CamFort is able to infer a precise specification for this:
+\begin{minted}[breakafter=+:,breakindent=-0.6em,breaksymbolsep=0.4em,linenos=false,xleftmargin=-0.5em]{fortran}
+  != stencil pointed(dim=1)*centered(depth=1,dim=2,nonpointed)+pointed(dim=2)*centered(depth=1,dim=1,nonpointed)::a
+\end{minted}
+
+We examined whether programmer errors would be detected by replacing
+the array index offsets with $-1$, $0$, or $1$ and running our
+verification algorithm. Camfort correctly reported a verification
+failure in each of 6,537 permutations corresponding to an error.  We
+note that the iteration is computing the average of four adjacent
+cells so $24$ ($4!$) of the possible array index pertubations do not
+correspond to a programming error.
+
+
+% /um/trunk/src/atmosphere/diffusion_and_filtering/turb_smagorinsky.F90
+% Tried introducing indexing errors replacing one of the indices of cx_rho_instance with -1,0,+1
+% 42 cases were caught
+% 6 cases were not caught
+
 
 % (/ 55504.0 60525) = 91.7%
 % (/ 15823.0 60525) = 26.1%

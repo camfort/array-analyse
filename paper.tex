@@ -828,8 +828,8 @@ v \preceq_n w \;\; \Leftrightarrow  \;\;
 \]
 %%
 where $\preceq_n$ is a reflexive, transitive relation on
-$(\mathbb{Z}_{\infty})^n \times (\mathbb{Z}_{\infty})^n$. Thus, the
-element $\infty$ generalises any index in the same dimension.
+index schemes $\domainVal^n$. Thus,
+ $\infty$ generalises any index in the same dimension.
 %
 \end{definition}
 
@@ -841,7 +841,6 @@ conversions:
 \begin{array}{ll}
 \schemeN{(i, j+1)} & =\vtwoh{0}{1} \\
 \schemeN{(1, j+1)} & = \vtwoh{\infty}{1} \\
-\schemeN{(3, j)} & = \vtwoh{\infty}{0} \\
 \schemeN{(i*2, j)} & = \bot
 \end{array}
 \end{align*}
@@ -1011,8 +1010,7 @@ an integer, then filter out vectors with $\infty$ at any coordinate, \eg{}
 where $\vtwoh{1}{\infty}$ and $\vtwoh{3}{\infty}$ have been filtered.
 
 The notion of which dimensions $i$ have \emph{any scheme in the model
-where $u_i \neq \infty$} is represented by the \emph{constrained
-dimensions} intermediate function:
+where $u_i \neq \infty$} is represented by following  function:
 \begin{definition}%[Constrained dimensions]
 For an $n$-dimensional model $M$, its \emph{constrained dimensions}
 are the set of dimension identifiers where at least one scheme $u \in M$ has
@@ -1333,9 +1331,9 @@ $<:$ on \textit{specs} (omitting reflexivity, transitivity, and congruences). }
 We outline here the procedures for checking conformance
 of source code against specifications (\Cref{subsec:checking})
 and for infering specifications from code (\Cref{subsec:inference}).
-Both rely on a program analysis that converts array indexing
-expressions into sets of index schemes. We outline this analysis
-first (\cref{subsec:analysis}). Note that the analysis procedure
+Both rely on a program analysis that converts array subscripts
+ into sets of index schemes. We outline this analysis
+first (\cref{subsec:analysis}). Note that the analysis 
 can be made arbitrarily more complex and wide-ranging independent
 of the checking and inference procedures. At the moment, the analysis
 is largely \emph{syntactic}, with only a small amount of
@@ -2196,6 +2194,7 @@ inference procedure. For our example, we infer and then synthesise the
 %%
 
 \section{Evaluation}
+\label{sec:evaluation}
 
 %We have processed nearly one million lines of Fortran code using our
 %CamFort tool and examined the output to determine how useful

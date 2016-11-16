@@ -2222,6 +2222,15 @@ For our example, we infer and then synthesise the
 % arpack-ng - Fortran 77 routines designed to solve large scaled
 % eigenvalue problems - https://github.com/opencollab/arpack-ng
 
+We built a corpus of around 1 million lines of Fortran code from a
+range of scientific computing packages: The Unified Model~\cite{um},
+E3MG~\cite{RePEc:aen:journl:2006se-a12}, BLAS~\cite{blas},
+Hybrid4~\cite{GBC:GBC635}, GEOS-Chem~\cite{geos-chem}, Navier (based
+on \cite{griebel1997numerical}), Computational Physics
+2~\cite{nicholas2006computational},
+ARPACK-NG\footnote{\url{https://github.com/opencollab/arpack-ng}},
+SPECFEM3D\footnote{\url{https://github.com/geodynamics/specfem3d}}.
+
 We first examined how frequently stencil computations occur in our
 corpus of Fortran code. This was carried out by running CamFort in
 whole-code-base inference mode. We parsed 959,427 lines of Fortran

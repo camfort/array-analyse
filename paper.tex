@@ -922,15 +922,15 @@ For a $2$-dimensional stencil computation, then
 & \qquad = \; \{\vtwoh{-2}{\infty}, \vtwoh{-1}{\infty}, \vtwoh{0}{\infty},
 \vtwoh{1}{\infty}, \vtwoh{2}{\infty}\}
 \end{align*}
-Note the absorbing behaviour of $\infty$ with respect to
-multiplication.
+Note the absorbing behaviour of $\infty$ under multiplication above, \eg{} $2
+\times \infty = \infty$
 \end{example}
 \noindent
 The final two equations of \Cref{fig:region-model} give the models
 of $\term{+}$ and $\term{*}$. For $\term{+}$ this is the
 straightforward union of the models of subterms. The model of
 $\term{*}$ takes the tensor $\otimes$ of subterm models. The tensor is
-more involved; we give some informal intuition first.
+more involved. We give some informal intuition first.
 
 % specifications correspond to a set of schemes
 
@@ -978,13 +978,9 @@ The tensor takes a Cartesian product of the two models,
 giving all pairs of schemes which are combined using the
 \emph{pairwise permutation} written $\bowtie$ (defined later).
 Pairwise permutation generates all possible interleavings of two
-vectors. Some care is then taken over
-how this interacts with $\infty$: pairwise permutation
-corresponds to non-deterministic choice, in each dimension $i$,
-between two values $u_i$ and $v_i$, but if either
-is $\infty$ then the resulting pairwise permutation is
-filtered out if the dimension $i$ has \emph{any other scheme
-in the model where $u_i \neq \infty$}, \eg{}:
+vectors. Some care is then taken over how this interacts with $\infty$.
+In the presence of $\infty$, generate all interlavings as if $\infty$ is
+an integer, then filter out vectors with $\infty$ at any coordinate, \eg{}
 \begin{align*}
 \{\vtwoh{1}{\infty}\} \otimes \{\vtwoh{3}{4}\} =
 \{\vtwoh{1}{4}, \vtwoh{3}{4}\}
@@ -1013,12 +1009,12 @@ models is defined:
 \begin{alignat*}{2}
 & M \otimes_n N =
   \Bigg\{x \; \Bigg| \;
-    \parbox{5.2cm}{$(u, v) \in M \times N $ \\[0.1em]
-                  $\;\; \wedge \;\, i \in \{1, \ldots, 2^n\} \, \wedge
-                  \, x = (u \bowtie v)_i$ \\[0.1em]
-                  $\;\; \wedge \;\, j \in (\effdims{M}{n} \cup
-                   \effdims{N}{n})$\\[0.1em]
-                   $\;\; \wedge \;\, x_j \neq \infty$
+    \parbox{5.2cm}{$(u, v) \in M \times N,$ \\[0.1em]
+                  $\;\; i \in \{1, \ldots, 2^n\}, \,
+                  x = (u \bowtie v)_i,$ \\[0.1em]
+                  $\;\; j \in (\effdims{M}{n} \cup
+                   \effdims{N}{n}),$\\[0.1em]
+                   $\;\; x_j \neq \infty$
                   } \Bigg\}
 \end{alignat*}
 The first guard takes the Cartesian product of
@@ -1058,21 +1054,21 @@ $i - 1$ as:
 \end{align*}
 %
 The permuted schemes $x = (u \bowtie v)_i$ added to the model
-$M \otimes N$ are only those which have do not have $\infty$ in
+$M \otimes N$ are only those without $\infty$ in
 the constrained dimensions given by each model ($x_j \neq
-\infty$). This filters out all permutations which have
+\infty$). This eliminates all permutations with
 $\infty$ in a constrained dimension position.
 \end{definition}
 
-\paragraph{Model of \textit{spec}}
+\paragraph{Model of spec}
 
 Regions are modelled as sets of index
 schemes, that is
-$\interp{\textit{region}}_n \in \mathcal{P}(\domainVal{}^n)$.
+$\interp{\textit{region}}_n \in \mathcal{P}((\domainVal{})^n)$.
 \Cref{fig:spatial-model} defines the top-level model of the
 \textit{spec} syntax, which includes the multiplicity and
 approximation modifiers. The domain of this interpretation
-is $\textsf{Mult}(\textsf{Approx}(\mathcal{P}(\domainVal{}^n)))$
+is $\textsf{Mult}(\textsf{Approx}(\mathcal{P}((\domainVal{})^n)))$
 where $\textsf{Mult}$ and $\textsf{Approx}$ are labelled variants
 labelling our set-based model with additional information.
 
@@ -2203,6 +2199,28 @@ these statements. A single statement can produce multiple stencils and
 we ended up with 60,525 stencils. This shows that we can still express
 a large number of stencil uses within our high-level abstraction.
 
+There were a variety of reasons why we did not infer a
+stencil from every potential statement: \\
+\noindent 
+1) \textbf{Non-subset induction variables} occur when the
+induction variables on the RHS are not a subset of those in the LHS. These
+cases are not stencils by our definition. The degenerate case of this
+is to have only constant indices on the LHS. We see lots of examples
+of this in loops as accumulators \eg{} computing the sum over an array; \\
+\noindent
+2) \textbf{Derived induction variables} where the
+indexing variable (\mintinline{fortran}{x}) is derived from an
+induction variable (\mintinline{fortran}{i}) as in
+\mintinline{fortran}{x = len - i};  \\
+\noindent
+3) \textbf{Inconsistent induction dimensions} occur when
+an induction variable is used to specify more than one array dimension
+on the RHS or multiple induction variables are used for the same
+dimension on the RHS. These are common in matrix operations such as
+LU-decomposition with assignments such as
+\mintinline{fortran}{a(l) = a(l) - a(m) * b(l, m)}.
+
+
 %    numStencilSpecs: 60525
 % 4338 files, linesTotal: 1357377, linesParsed: 959427
 % Number of stencils (tickAssign) / number of loops
@@ -2243,7 +2261,7 @@ only pointed regions. 39,681 of these were pointed in all
 dimensions. Common examples of this were pointwise transformations on
 data (such as scaling).
 
-\textbf{Single action} specifications consist of no more than one 
+\textbf{Single-action} specifications consist of no more than one 
 forward, backward, or centered region and can be combined with any
 number of pointed regions. We identified 4,837 single-action
 specifications, of which 1,532 were single-action with a
@@ -2258,6 +2276,53 @@ $\term{*}$.
 \textbf{Bounded} specifications were fairly unusual, with only 157
 \texttt{atMost} and 36 \texttt{atLeast}, the latter of which were
 always also bounded on both sides.
+
+\begin{figure}[t]\begin{minted}[fontsize=\scriptsize,breakindent=0em,linenos=false,xleftmargin=0em,breakafter=)]{fortran}
+!=stencil readOnce,(forward(depth=1,dim=3,nonpointed))*(backward(depth=1,dim=1))*(backward(depth=1,dim=2))+(forward(depth=1,dim=3))*(backward(depth=1,dim=1))*(pointed(dim=2))+(forward(depth=1,dim=3))*(backward(depth=1,dim=1,nonpointed))*(backward(depth=1,dim=2,nonpointed))+(forward(depth=1,dim=3))*(backward(depth=1,dim=2))*(pointed(dim=1))+(backward(depth=1,dim=1))*(backward(depth=1,dim=2,nonpointed))*(pointed(dim=3))+(backward(depth=1,dim=1,nonpointed))*(backward(depth=1,dim=2))*(pointed(dim=3))::x
+\end{minted}
+\caption{A complex specification inferred from
+  \textbf{Unified Model}\label{fig:smagorinsky}}
+\vspace{-1em}
+\end{figure}
+
+The single- and multi-action classes represent more complex stencils
+with a real possibility for programmer error. For example, the Unified
+Model has an implementation of the Smagorinsky subgrid-scale model for
+calculating turbulence on which our inference yields 39 specs from 340
+lines of code. This is an impressive reduction given
+the complexity of the algorithm.  We show one example in
+Figure~\cref{fig:smagorinsky}. This specifies the access pattern to
+a 3-dimensional array (which we have renamed to be called
+\texttt{x}). The array is accessed 8 times in the computation.
+
+\subsection{Detecting errors in the 2-D Jacobi iteration}
+
+One common example of a stencil computation is two-dimensional
+Jacobi iteration that repeatedly goes through each cell in a matrix
+and computes the average value of the four adjacent cells. The kernel
+can be expressed in a line of Fortran code:
+\begin{minted}{fortran}
+  a(i,j) = (a(i-1,j)+a(i+1,j)+a(i,j+1)+a(i,j-1))/4
+\end{minted}
+and CamFort is able to infer a precise specification for this:
+\begin{minted}[breakafter=+:,breakindent=-0.6em,breaksymbolsep=0.4em,linenos=false,xleftmargin=-0.5em]{fortran}
+  != stencil pointed(dim=1)*centered(depth=1,dim=2,nonpointed)+pointed(dim=2)*centered(depth=1,dim=1,nonpointed)::a
+\end{minted}
+
+We examined whether programmer errors would be detected by replacing
+the array index offsets with $-1$, $0$, or $1$ and running our
+verification algorithm. Camfort correctly reported a verification
+failure in each of 6,537 permutations corresponding to an error.  We
+note that the iteration is computing the average of four adjacent
+cells so $24$ ($4!$) of the possible array index pertubations do not
+correspond to a programming error.
+
+
+% /um/trunk/src/atmosphere/diffusion_and_filtering/turb_smagorinsky.F90
+% Tried introducing indexing errors replacing one of the indices of cx_rho_instance with -1,0,+1
+% 42 cases were caught
+% 6 cases were not caught
+
 
 % (/ 55504.0 60525) = 91.7%
 % (/ 15823.0 60525) = 26.1%
@@ -2424,6 +2489,23 @@ the benefits of verification more easily to scientific computing.%such as
 
 
 \section{Conclusion}\label{sec:conclusion}
+
+We have presented a high-level language for the specification of
+stencils in numerical code. As opposed to existing approaches our
+language takes inspiration from the numerical literature and provides
+a concise, abstract description of the stencil.
+
+We evaluated our approach on top of CamFort, an open-source analysis
+tool for Fortran programs, running the inference process over a corpus
+of a million lines of Fortran code. We showed that our language is
+capable of capturing many real-world uses of stencils and showed in a
+case-study that it will detect (simulated) programmer errors.
+
+Our definition of a stencil computation meant that we generated no
+specification for a large number of iterated array accesses in the
+corpus, such as stencils that incorporates reductions. For
+future work, we will be looking into expanding the flexibility of 
+our inference approach to more of these examples. 
 
 \bibliography{references}
 

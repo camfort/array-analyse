@@ -219,7 +219,7 @@ xrightmargin=0.2cm,commandchars=\\\{\},baselinestretch=0.98,numbersep=0.9em}
 \begin{document}
 \maketitle
 
-\bibliographystyle{plain}
+\bibliographystyle{plainnat}
 
 \begin{abstract}
 Stencil computations are a common programming pattern in numerical
@@ -2479,7 +2479,8 @@ more elaborate than in our approach.
 
 % Pochoir
 \citet{Tang:2011:SPAA} define a specification language for writing
-stencils embedded in C++ (with Cilk extensions) that are then compiled
+stencils embedded in C++ (with Cilk~\citep{blumofe1996cilk} extensions) that
+are then compiled
 into fast parallel programs based on trapezoidal decompositions with
 hyperspace cuts. The Pochoir specification language is used for
 describing the kernel, boundary conditions and shape of the

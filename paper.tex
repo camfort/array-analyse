@@ -2171,11 +2171,11 @@ inference procedure. For our example, we infer and then synthesise the
 
 \section{Evaluation}
 
-We have processed nearly one million lines of Fortran code using our
-CamFort tool and examined the output to try and determine how useful
-and applicable it may be. The body of Fortran code is collected from
-many computational science projects for which we believe our tool will
-be potentially helpful.
+%We have processed nearly one million lines of Fortran code using our
+%CamFort tool and examined the output to determine how useful
+%and applicable it may be. Our corpus of Fortran code is collected from
+%many computational science projects for which we believe our tool will
+%be potentially helpful.
 
 % Corpus details
 % specfem3d ``simulates acoustic (fluid), elastic (solid), coupled
@@ -2186,26 +2186,32 @@ be potentially helpful.
 % arpack-ng - Fortran 77 routines designed to solve large scaled
 % eigenvalue problems - https://github.com/opencollab/arpack-ng
 
+We first examined how frequently stencil computations occur in our
+corpus of Fortran code. This was carried out by running CamFort in
+whole-code-base inference mode. We parsed 959,427 lines of Fortran
+code and found that 10\% (97,439) of statements have a left-hand side
+is an array subscript on neighbourhood indices. This supports the idea
+that stencil-like computations are common in scientific code. 
 
-\subsection{Core hypotheses}
-
-\paragraph{Hypothesis 1: Stencil computations
-(as in \Cref{def:stencil}) are a common programming pattern
-in numerical code}
-
+We would not expect to infer a stencil for each of these statements
+because our stencil language places significant restrictions on the
+types of array-subscript-statements that we will class as a
+stencil. In fact, CamFort was able to infer a stencil from 30\% of
+these statements. A single statement can produce multiple stencils and
+we ended up with 60,525 stencils. This shows that we can still express
+a large number of stencil uses within our high-level abstraction.
 
 %    numStencilSpecs: 60525
 % 4338 files, linesTotal: 1357377, linesParsed: 959427
 % Number of stencils (tickAssign) / number of loops
 % Percentage of a code base that is taken up by stencils
+%Out of 1.35 million lines of code that we fed into our program, and
+%the 959,427 lines that we were able to parse, we identified 60,525
+%cases that fit our criteria for stencil specification.
 
-Out of 1.35 million lines of code that we fed into our program, and
-the 959,427 lines that we were able to parse, we identified 60,525
-cases that fit our criteria for stencil specification.
-
-\paragraph{Hypothesis 2: Most stencil computations
-have a regular pattern which can be captured with a simple
-language of contiguous regions}
+%\paragraph{Hypothesis 2: Most stencil computations
+%have a regular pattern which can be captured with a simple
+%language of contiguous regions}
 
 % Number of stencils we give a spec to (where a spec declaration to n
 % variables is counted n times) as percentage of number of stencils
@@ -2214,21 +2220,42 @@ language of contiguous regions}
     % tickAssignSuccess: 29402 % <- number of times tickAssign is accompanied by a successful stencil inference
                                % counts only by +1 each time that tickAssign finds a stencil
 
-In the analysed body of code we found that we were able to deduce
-some form of stencil specification from approximately 30\% of the
-potential stencils examined.
+%In the analysed body of code we found that we were able to deduce
+%some form of stencil specification from approximately 30\% of the
+%potential stencils examined.
 
 
 %
-\subsection{Analysing the design of our specifications}
+%\subsection{Analysing the design of our specifications}
 
 % 1. How may are just reflexive and how many some reflexive
 % justReflexive: 55504
 % someReflexive: 15823
 
-55,504 specifications involved only reflexive regions, of which 15,823
-only had specifications for some of the dimensions, while 39,681 were
-reflexive on all dimensions.
+The vast majority of stencils we found were relatively simple but we
+found significant numbers of more complex shapes. We grouped common
+patterns in to categories which we describe below.
+
+\textbf{All pointed} 55,504 of the stencils we found involved 
+only pointed regions. 39,681 of these were pointed in all
+dimensions. Common examples of this were pointwise transformations on
+data (such as scaling).
+
+\textbf{Single action} specifications consist of no more than one 
+forward, backward, or centered region and can be combined with any
+number of pointed regions. We identified 4,837 single-action
+specifications, of which 1,532 were single-action with a
+\texttt{nonpointed} modifier.
+
+\textbf{Multi-action} specifications consist of at least two uses 
+of forward, backward, or centered regions, and can be combined with
+any number of pointed regions. We identified 156 multi-action
+specifications out of which 146 had regions combined only with
+$\term{*}$.
+
+\textbf{Bounded} specifications were fairly unusual, with only 157
+\texttt{atMost} and 36 \texttt{atLeast}, the latter of which were
+always also bounded on both sides.
 
 % (/ 55504.0 60525) = 91.7%
 % (/ 15823.0 60525) = 26.1%
@@ -2242,29 +2269,19 @@ reflexive on all dimensions.
 
 % singleAction: 4837
 % singleActionIrr: 1532
-A single-action specification consists of no more than one forward,
-backward, or centered region and can be combined with any number of
-reflexive regions. We identified 4,837 single-action specifications,
-of which 1,532 were single-action with an \texttt{irreflexive}
-modifier.
 
 %   - Multi-action combined only by *
 %   - Multi-action combined also by +, histogram of tree depths
 
     % multiAction: 156
     % multiActionMulOnly: 146
-A multi-action specification consists of at least two uses of forward,
-backward, or centered regions, and can be combined with any number of
-reflexive regions. We identified 156 multi-action specifications out
-of which 146 had regions combined only with $\term{*}$.
+
 
 
 
 %   - Bounded specs (how many lower, upper, or both)
 
-Bounded specifications were fairly unusual, with only 157
-\texttt{atMost} and 36 \texttt{atLeast}, the latter of which were
-always also bounded on both sides.
+
     % atLeast: 36
     % atMost: 157
     % boundedBoth: 36

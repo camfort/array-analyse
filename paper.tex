@@ -1,4 +1,4 @@
-\documentclass[10pt,preprint]{sigplanconf}
+\documentclass[10pt,preprint,numbers]{sigplanconf}
 
 \usepackage{amssymb}
 \usepackage{amsmath}
@@ -25,7 +25,7 @@
 
 \usepackage{tikz}
 \usepackage{xypic}
-\usepackage{natbib}
+%\usepackage{natbib}
 
 \usetikzlibrary{calc}
 
@@ -81,8 +81,8 @@
 \usepackage{cleveref}
 \crefname{section}{\S}{\S\S}
 \Crefname{section}{\S}{\S\S}
-\crefname{subsection}{\S\S}{\S\S\S}
-\Crefname{subsection}{\S\S}{\S\S\S}
+\crefname{subsection}{\S}{\S\S\S}
+\Crefname{subsection}{\S}{\S\S\S}
 \crefname{figure}{fig.}{}
 \Crefname{figure}{Fig.}{}
 \crefname{definition}{def.}{}
@@ -219,7 +219,7 @@ xrightmargin=0.2cm,commandchars=\\\{\},baselinestretch=0.98,numbersep=0.9em}
 \begin{document}
 \maketitle
 
-\bibliographystyle{abbrvnat}
+\bibliographystyle{plain}
 
 \begin{abstract}
 Stencil computations are a common programming pattern in numerical
@@ -905,13 +905,13 @@ describing a neighbour offset of $1$.
 \end{definition}
 
 \begin{definition}
-A \emph{zeroed single-entry vector} of size $n$, denoted
-$\zeroEntry{r}{n}$, is a vector where the $r^{th}$ entry is $0$ and all others
-are $\infty$, \eg{}, $\zeroEntry{1}{2} = \vtwoh{0}{\infty}$.
-Similarly to single-entry vectors, zeroed single-entry vectors
+A \emph{zeroed single-entry vector} of size $n$ denoted
+$\zeroEntry{r}{n}$ is a vector where the $r^{th}$ entry is $0$ and all others
+are $\infty$ \eg{}, $\zeroEntry{1}{2} = \vtwoh{0}{\infty}$.
+Akin to single-entry vectors, zeroed single-entry vectors
 generalise all other schemes
-that have $0$ as their $r^{th}$, representing indices at
-the ``origin'' in dimension $r$.
+that have $0$ as their $r^{th}$ entry, representing indices at
+the ``origin'' in $r$.
 \end{definition}
 
 \begin{figure}[t]
@@ -1122,8 +1122,9 @@ here.% These are used for labelled models, and other components later in.
 
 Specifications have a theory of equality, $\equiv$, providing axiomatic
 semantics for the language. This enables users to rewrite their specification
-and helps the inference procedure (\Cref{subsec:inference}) simplify
-specifications. Additionally, specifications have a theory of approximation,
+and provides a way to automatically simplify
+specifications after inference (\Cref{subsec:inference}).
+Additionally, specifications have a theory of approximation,
 $<:$, that can be used by the users to weaken specifications for succintness in
 the source.
 

@@ -826,9 +826,8 @@ The element $\infty$ generalises any index in the same dimension.
 \end{definition}
 
 \begin{example}
-Consider the following indexing schemes
-corresponding to array indexing terms
-$(i, j+1)$, $(1, j+1)$, $(3, j)$ and $(i*2, j)$:
+Consider the following array subscript to indexing schemes
+conversions:
 %
 \begin{align*}
 \begin{array}{ll}
@@ -840,7 +839,7 @@ $(i, j+1)$, $(1, j+1)$, $(3, j)$ and $(i*2, j)$:
 \end{align*}
 There is one generalisation between these
 schemes, namely that $\vtwoh{0}{1} \preceq_2 \vtwoh{\infty}{1}$.
-Note the last example is undefined as its first expression is a
+The last example is undefined as its first expression is a
 non-neighbour relative index.
 \end{example}
 
@@ -1105,12 +1104,12 @@ syntax which gives the following axioms on regions:
 \item $\term{*}$ is commutative, associative, and distributes over
 $\term{+}$, \ie{},  $R \; \texttt{*} \; (S \; \texttt{+} \; T) \; \equiv \; (R \;
                        \texttt{*} \; S) \; \texttt{+} \; (R
-                       \; \texttt{*} \; T)$. 
-Distributivity is 
+                       \; \texttt{*} \; T)$.
+Distributivity is
 used later to give a normal form for specifications
 akin to Disjunctive Normal Form (\S~\ref{sec:inf-step4}).
 
-\item (\emph{overlapping}) Given two region constants $R_1$ and $R_2$ 
+\item (\emph{overlapping}) Given two region constants $R_1$ and $R_2$
 on the same dimension, then some combinations of region constants
 can be coalesced into a single region constant $R_3$ if $R_1$ completely
 overlaps $R_2$. There are five possible instantiations of the
@@ -1127,7 +1126,7 @@ following rule $R_1 + R_2 \equiv R_3$:
 where $n \geq m$ and $p$ and $q$ range
 over booleans representing the absence (true) or presence (false)
 of \irrefl{} which are combined via disjunction.
-We denote the possibilities as $\term{fwd+fwd} \equiv \term{fwd}$, $\term{bwd+bwd} \equiv \term{bwd}$, 
+We denote the possibilities as $\term{fwd+fwd} \equiv \term{fwd}$, $\term{bwd+bwd} \equiv \term{bwd}$,
 $\term{cen+cen} \equiv \term{cen}$, $\term{cen+fwd} \equiv \term{cen}$ and
 $\term{cen+bwd} \equiv \term{cen}$. %Commutative of $\term{+}$
 %provides symmetric variants.
@@ -1192,9 +1191,9 @@ with repect to \term{readOnce}, the equations of which we omit for brevity.
 
 The \trule{\textsc{eq}} rule connects region
 equations to approximation; \trule{\textsc{over}} explains
-the notion of spatial over-approximation via overlapping regions; 
+the notion of spatial over-approximation via overlapping regions;
 \trule{\textsc{rep}} allows the \term{readOnly} modifier that
-to be dropped. The \trule{\textsc{shrink}} 
+to be dropped. The \trule{\textsc{shrink}}
 and \trule{\textsc{grow}} rules turn the spatial approxiamation on
 regions into approximation on specifications via the \term{atLeast} and \term{atMost}
 modifiers. Finally, \trule{\textsc{Gen$\ast$}} shows
@@ -1205,7 +1204,7 @@ in a region).
 
 \begin{theorem}[Approximation soundness]
 Code consistent with a specification $S$
- is consistent with a more general specification $T$, 
+ is consistent with a more general specification $T$,
 \ie{}, for all models $M$ of a piece of code:
 \begin{equation*}
 S <: T \; \wedge (\consA{M}{\interp{S}_n}) \;
@@ -1566,7 +1565,7 @@ a(i,j) = b(i,j-1)+b(i,j)+b(i,j+1)+b(i-1,j)+b(i+1,j)
 \end{minted}
 %
 We refer to line three as $l3$ for brevity,
-which is checked via 
+which is checked via
 $check(({\textcolor{darkgreen}{\texttt{readOnce, fivepoint}}}),l3,\texttt{b})$
 with steps:
 \begin{enumerate}
@@ -1603,7 +1602,7 @@ M_c = & \{
  $\textsf{once}(\textsf{exact}(N_s))$ is consistent with
   $\textsf{once}(M_c)$ when:
   \begin{align*}
-    & \consSub{2}{\textsf{up}(N_s)}{M_c} \; 
+    & \consSub{2}{\textsf{up}(N_s)}{M_c} \;
     \wedge \; \consSub{2}{\textsf{low}(N_s)}{M_c}
   \end{align*}
 %

@@ -411,7 +411,7 @@ In this paper, we make the following contributions:
   denotational model for the specificaiton language
   (\cref{sec:semantics});
 
-\item we provide an implementation of our approach as an extension to
+\item We provide an implementation of our approach as an extension to
   CamFort, an open-source program analysis tool for Fortran;
 
 \item We report on a quantitative study of stencil computations on a
@@ -550,11 +550,11 @@ the region should have an index corresponding it.
 \nonterm{mult} ::= & \term{readOnce} \\
 \nonterm{approx} ::= & \term{atMost} \; \mid \; \term{atLeast} \\[0.1em]
 \nonterm{region} ::= & \nonterm{rvar} \; \\
-\multicolumn{2}{l}{\qquad\qquad \mid \; \stenRefl{\dimTy}} \\
-\multicolumn{2}{l}{\qquad\qquad \mid \;\stenFwd{\mathbb{N}_{>0}}{\dimTy}{\;[, \texttt{nonpointed}]}} \\
-\multicolumn{2}{l}{\qquad\qquad \mid \; \stenBwd{\mathbb{N}_{>0}}{\dimTy}{\;[, \texttt{nonpointed}]}} \\
-\multicolumn{2}{l}{\qquad\qquad \mid \; \stenCen{\mathbb{N}_{>0}}{\dimTy}{\;[, \texttt{nonpointed}]}} \\
-\multicolumn{2}{l}{\qquad\qquad \mid \; \nonterm{region} \, \term{+}
+\multicolumn{2}{l}{\qquad \mid \; \stenRefl{\dimTy}} \\
+\multicolumn{2}{l}{\qquad \mid \;\stenFwd{\mathbb{N}_{>0}}{\dimTy}{\;[, \texttt{nonpointed}]}} \\
+\multicolumn{2}{l}{\qquad \mid \; \stenBwd{\mathbb{N}_{>0}}{\dimTy}{\;[, \texttt{nonpointed}]}} \\
+\multicolumn{2}{l}{\qquad \mid \; \stenCen{\mathbb{N}_{>0}}{\dimTy}{\;[, \texttt{nonpointed}]}} \\
+\multicolumn{2}{l}{\qquad \mid \; \nonterm{region} \, \term{+}
   \, \nonterm{region} \; \mid \; \nonterm{region} \; \term{*} \; \nonterm{region}} \\[0.25em]
 %\multicolumn{2}{l}{\qquad\qquad \mid \; \nonterm{rvar}}
 %\\[0.5em]
@@ -576,7 +576,6 @@ the region should have an index corresponding it.
 detailed below. The entry point is the \nonterm{specification} production which
 splits into either a \emph{region declaration} or a \emph{specification
 declaration}.
-
 Regions comprise \emph{region constants} which are
 combined via region operators \term{+} and \term{*}.
 
@@ -599,7 +598,7 @@ from $i$ to $i - n$ and \term{centered}
 of depth $n$ from $i - n$ to $i + n$. A \term{pointed}
 stencil specifies a neighbour index $i$. For example, the
 following shows four specifications with four consistent stencil
-kernels reading from arrays \term{a}, \term{b}, \term{c} and \term{d} respectively:
+kernels reading from arrays \term{a}, \term{b}, \term{c} and \term{d}:
 %%
 \begin{minted}{fortran}
 != stencil forward(depth=2, dim=1) :: a
@@ -675,9 +674,8 @@ over the two regions $r$ and $s$.
 
 The disjunction of two regions $r \term{+} s$ means that any indices
 in the spcified code must be consistent with either of $r$ or $s$.
-Dually, for every component in the region $r$ there must be an index
-within it and every component in the region $s$ must have an index
-within it. For
+Dually, every part of region $r$ must have a
+corresponding index and similarly for $s$ independently. For
 example, the following gives the specification of a five-point
 stencil which is the sum of two compound \texttt{pointed} and
 \texttt{centered} regions in each dimension:
@@ -738,7 +736,7 @@ In some cases, it is useful to give a lower and/or upper bound for a
 stencil. This can be done using either the \term{atMost} or
 \term{atLeast} modifiers. This is particularly useful in situations
 where there is a non-contiguous stencil pattern, which cannot be expressed
-precisely in our specification syntax. For example:
+precisely in our syntax. For example:
 %
 \begin{minted}{fortran}
 != stencil atLeast, pointed(dim=1)         :: a
@@ -765,7 +763,7 @@ which we call \emph{index schemes}.
   (\ie{}, the constant integer $c$ in an indexing expression of the
   form $i \pm c$, \Cref{def:neighbour}) and $\infty$ is a wild-card
   representing both constant indices and unspecified indices.
-  For an index scheme $u$, $u_i$ denotes the $i^{th}$ element of $u$. We
+  For an index scheme $u$, the $i^{th}$ element is denoted $u_i$. We
   write $(\domainVal)^n$ for the set of all $n$-dimensional schemes.
 \end{definition}
 
@@ -774,7 +772,7 @@ Our model represents the meaning of stencil specifications
 as indexing schemes, which explain the range of possible
 indexing behaviours which are consistent with the specification.
 The relationship between source language
-terms and indexing terms
+terms and index schemes
  is given precisely by the following function \textsf{schematic},
  which forms part of checking and inference (\Cref{sec:analysis}).
 
@@ -785,7 +783,7 @@ terms and indexing terms
 \begin{definition}%[Schematic]
 \label{def:schematic}
 Let $\schemeOne$ be a partial function, parameterised by a set of
-induction variables $I$, mapping expression syntax to
+induction variables $I$, mapping source langauge expressions to
 $\domainVal$ values:
 %%
 \begin{align*}
@@ -793,8 +791,8 @@ $\domainVal$ values:
  & =  \begin{cases}
 c & e \equiv i + c \;\; \wedge \;\; i \in I \\
 -c & e \equiv i - c \;\; \wedge \;\; i \in I \\
-\infty & \textit{$I \cap \textit{FreeVariables}(e) = \emptyset $} \\
-\bot   & \textit{otherwise}
+\infty & \textit{$I \cap \textit{FreeVariables}(e) = \emptyset $} %\\
+%\bot   & \textit{otherwise}
 \end{cases}
 \end{align*}
 In the
@@ -803,36 +801,35 @@ induction variable (\ie{}, neighbourhood indices) are mapped to the
 offset $c$ or $-c$ $\in \domainVal$. In the third case, if the
 expression is not defined in terms of an induction variable, it
 is mapped to $\infty \in \domainVal{}$. Otherwise, $\schemeOne(e)$
-is undefined (returns $\bot$).
+is undefined ($\bot$).
 
 The partial function $\schemeN$, also parameterised by a set of
-induction variables $I$, uses the above operation $\schemeOne$ to
- map from the syntax of indices to index schemes, \ie{} values of
-$(\domainVal)^n$. It is defined on the syntax of indices $\bar{e} = (e_1, ..., e_n)$ as:
+induction variables $I$, uses $\schemeOne$ to
+ map from the syntax of indices to index schemes
+$\in (\domainVal)^n$. It is defined on the syntax of indices $\bar{e} = (e_1, ..., e_n)$ as:
 \begin{align*}
-\schemeN(e_1, ..., e_n) & =
+\schemeN(e_1, .., e_n) & =
 [\schemeOne(e_1) ... \schemeOne(e_n) ]
-\quad \textit{iff} \;\; \forall x . \schemeOne(e_x) \neq \bot
+\; \textit{iff} \; \forall x . \schemeOne(e_x) \neq \bot
 \end{align*}
 %
 Thus, if each expression in an index is a neighbourhood or constant
-index, then $\schemeN$ maps it to an indexing scheme.
+index, $\schemeN$ maps it to an indexing scheme.
 \end{definition}
 
 \begin{definition}[Generalisation]
 Given two schemes $v, w$ of dimensionality $n$,
 then $w$ is said to \emph{generalise} $v$
 (or conversely $v$ \emph{specialises} $w$),
-written $v \preceq_n w$, iff the following holds:
-%%
+written $v \preceq_n w$ defined:
 \[
 v \preceq_n w \;\; \Leftrightarrow  \;\;
   \forall i\!\in\!\{ 1, \ldots, n \} . \, (w_i = \infty \, \vee \, v_i = w_i)
 \]
 %%
-Two schemes are related by the (reflexive and transitive) binary relation
-$\preceq_n$ over $(\mathbb{Z}_{\infty})^n \times (\mathbb{Z}_{\infty})^n$.
-The element $\infty$ generalises any index in the same dimension.
+where $\preceq_n$ is a reflexive, transitive relation on
+$(\mathbb{Z}_{\infty})^n \times (\mathbb{Z}_{\infty})^n$. Thus, the
+element $\infty$ generalises any index in the same dimension.
 %
 \end{definition}
 
@@ -854,15 +851,39 @@ The last example is undefined as its first expression is a
 non-neighbour relative index.
 \end{example}
 
-Our terminology of \emph{indexing schemes} and
+Our terminology of \emph{index schemes} and
 \emph{generalisation} is by analogy
 with the \emph{type schemes} and \emph{type generalisation} of
 polymorphic types in ML~\cite{milner1978theory}. Our notion is
-much more rigid however, as our schemes do not bind names.
+much more rigid however, as index schemes do not bind names.
+
+\paragraph{Shorthand notation}
+
+We use abbreviations
+ \term{fwd}, \term{bwd}, \term{cen}, and \irreflS{}
+for \term{forward}, \term{backward},
+\term{centered}, and \irrefl{} respectively. Furthermore, 
+we quantify over the absence or presence of the \irrefl{}
+attribute on region constants as a boolean. For example,
+\term{fwd} is syntactic sugar defined:
+%%
+\begin{align*}
+\hspace{-0.5em}
+& \stenFwdSR{n}{d}{p}
+\; := \; \\[-0.4em]
+& \quad \begin{cases}
+\stenFwd{n}{d}{, \irrefl} & \textit{if} \;\, \neg \, p \\[-0.1em]
+\stenFwd{n}{d}{}  & \textit{if} \;\,  p
+\end{cases}
+\end{align*}
+%
+$\textit{or} \;\; \stenFwdS{n}{d} := \stenFwd{n}{d}{}$
+and similarly for \term{bwd} and \term{cen}.
+
 
 \subsection{Denotational model}
 
-The model is defined by the interpretation function $\interp{-}_n$
+An interpretation function $\interp{-}_n$ provides the model 
 (where $n$ is the maximum dimensionality of the specification being
 modelled) mapping closed\footnote{That is, we assume there are no
   occurrences of \textit{rvar} in a specification being modelled.  Any
@@ -872,14 +893,13 @@ modelled) mapping closed\footnote{That is, we assume there are no
 $n$-dimensional indexing schemes. The interpretation is overloaded on
 \emph{regions} in \Cref{fig:region-model} and on the top-level
 of a specification \textit{spec} in \Cref{fig:spatial-model}.
-
-We first define some intermediate notations and definitions.
+Various intermediate notions are used.
 
 \begin{definition}A \emph{single-entry vector} of size $n$, denoted
 $\singleEntry{r}{n}$, is a vector where the $r^{th}$ entry is $1$
 and all others are $\infty$, \eg{}, $\singleEntry{1}{2} =
 \vtwoh{1}{\infty}$ and $\singleEntry{2}{3} = \vthreeh{\infty}{1}{\infty}$.
-Thus, a single-entry vector is an indexing scheme which generalises
+Thus, a single-entry vector is an index scheme generalising 
 all other schemes that have $1$ as their $r^{th}$ entry,
 describing a neighbour offset of $1$.
 \end{definition}
@@ -888,7 +908,7 @@ describing a neighbour offset of $1$.
 A \emph{zeroed single-entry vector} of size $n$, denoted
 $\zeroEntry{r}{n}$, is a vector where the $r^{th}$ entry is $0$ and all others
 are $\infty$, \eg{}, $\zeroEntry{1}{2} = \vtwoh{0}{\infty}$.
-Similarly to the single-entry vector, zeroed single-entry vectors
+Similarly to single-entry vectors, zeroed single-entry vectors
 generalise all other schemes
 that have $0$ as their $r^{th}$, representing indices at
 the ``origin'' in dimension $r$.
@@ -907,7 +927,7 @@ $\interp{-}_n : \textit{region} \rightarrow \mathcal{P}(\domainVal{}^n)$}
 
 \noindent
 The first four equations of \Cref{fig:region-model}
-give the model of the region constants as sets of indexing
+model region constants as sets of indexing
 schemes. We illustrate with an example.
 
 \begin{example}
@@ -1100,8 +1120,8 @@ here.% These are used for labelled models, and other components later in.
 
 Specifications have a theory of equality $\equiv$ as well
 as approximation $<:$ which we define here.
-For brevity here we use abbreviations $\term{fwd}$, $\term{bwd}$, and
-$\term{cen}$ for region constants.
+%For brevity here we use abbreviations $\term{fwd}$, $\term{bwd}$, and
+%$\term{cen}$ for region constants.
 
 The equality relation $\equiv$ is defined over \emph{region}
 syntax which gives the following axioms:

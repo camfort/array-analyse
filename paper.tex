@@ -304,7 +304,7 @@ In practice, the typical development procedure for complex
 stencil computations involves some ad hoc testing to ensure that no
 transcription mistakes have been made (\eg{}, by visual
 inspections, or comparison against an manufactured or 
-analytical solutionst~\cite{farrell2010automated}). Typically such
+analytical solutions~\cite{farrell2010automated}). Typically such
 testing is discarded once the code is seen to be correct.
 
 This is not the only information that is often discarded. The
@@ -320,7 +320,7 @@ numerical analysis literature \eg{}, ``\emph{centered in space, to a
 To support the development of correct stencil computations, we propose
 a simple, abstract specification language for the data access pattern
 of stencils. The shape of the
-Laplace example stencil is specifed in our language as:
+Laplace example stencil is specified in our language as:
 %
 \begin{minted}[linenos=false]{fortran}
 !=  stencil centered(depth=1, dim=1) :: a
@@ -362,7 +362,7 @@ are as follows:
 \item The primary use case is that a programmer writes a specification
   first before the stencil code. Our tool then checks conformance between
   the two. This specify-and-check approach reduces testing effort and
-  future-proofs against bugs introduced during refactoring and maintanence.
+  future-proofs against bugs introduced during refactoring and maintenance.
 %
 %\item The specification provides a concise description which can be
 %  preserved in the source code to provide documentation to future
@@ -409,7 +409,7 @@ In this paper, we make the following contributions:
 
 \item We detail checking and inference algorithms for our
   specifications (\cref{sec:analysis}), derived from a
-  denotational model for the specificaiton language
+  denotational model for the specification language
   (\cref{sec:semantics});
 
 \item We provide an implementation of our approach as an extension to
@@ -426,7 +426,7 @@ In this paper, we make the following contributions:
   many core patterns.
 
 \item We give a verification case study of a
-  stencil computation commonly used in scientifc computing,
+  stencil computation commonly used in scientific computing,
   simulating programming errors (\Cref{sec:jacobi}). Our approach detects all
   possible simulated programming errors for this problem.
 \end{itemize}
@@ -468,7 +468,7 @@ over its (imperative) variables. %By
   An integer variable is an \emph{induction variable} if it is the control
   variable of a ``\texttt{for}'' loop incremented by $1$ per iteration. A variable
   is interpreted as an induction variable only within the scope of the loop
-  body. Throuhgout, $i, j, k$ range over induction variables.
+  body. Throughout, $i, j, k$ range over induction variables.
 %TODO: consider mentioning derived, non-based induction variables
 % as we did before.
 \end{definition}
@@ -514,7 +514,7 @@ over its (imperative) variables. %By
 \end{definition}
 %
 % specifying the shape of indexing expressions for
-%arrays $\bar{v}$ that are simultaenously permitted and expected within
+%arrays $\bar{v}$ that are simultaneously permitted and expected within
 %the code to which the specification is given.
 %
 %\marginpar{\dnote{Is it worth having this informal consistency here?}}
@@ -595,7 +595,7 @@ Each constant except \term{pointed} has a depth
 parameter $n$ given as a positive natural number; \term{pointed}
 regions implicitly have a depth of $0$.
 
-A \term{forward} region of depth $n$ specifies a continguous
+A \term{forward} region of depth $n$ specifies a contiguous
 region in dimension $d$ starting at the origin. This corresponds
 to specifying neighbourhood indices in dimension $d$ ranging from $i$ to $i + n$
 for some induction variable $i$. Similarly, a
@@ -648,11 +648,11 @@ b(i) = a(i-1) + 10*a(i-2)
 %
 
 The region operators \term{+} and \term{*} respectively combine
-regions disjunctively and conjuctively.
+regions disjunctively and conjunctively.
 
-The conjuction of two regions $r \term{*} s$ means that any indices
+The conjunction of two regions $r \term{*} s$ means that any indices
 in the specified code must be consistent with both $r$ and $s$
-simultaenously. Dually, for every pair of components in the regions
+simultaneously. Dually, for every pair of components in the regions
 $r$ and $s$ there must be an index consistent with both.
 For example, the following \emph{nine-point stencil}
 has a specification given by the product of two \texttt{centered}
@@ -679,7 +679,7 @@ The product $r \term{*} s$ can also be thought of as a bounding box
 over the two regions $r$ and $s$.
 
 The disjunction of two regions $r \term{+} s$ means that any indices
-in the spcified code must be consistent with either of $r$ or $s$.
+in the specified code must be consistent with either of $r$ or $s$.
 Dually, every part of region $r$ must have a
 corresponding index and similarly for $s$ independently. For
 example, the following gives the specification of a five-point
@@ -787,7 +787,7 @@ and index schemes
 \begin{definition}%[Schematic]
 \label{def:schematic}
 Let $\schemeOne$ be a partial function, parameterised by a set of
-induction variables $I$, mapping source langauge expressions to
+induction variables $I$, mapping source language expressions to
 $\domainVal$ values:
 %%
 \begin{align*}
@@ -972,7 +972,7 @@ more involved. We give some informal intuition first.
 % (there are indices which are consistent with every part of r or s)
 % (every part of r and s independently have an index which is generalised by it)
 
-% r*s means indices must be consistent simultaenously with both r and s
+% r*s means indices must be consistent simultaneously with both r and s
 %           and there are indices which are generalised
 %
 
@@ -1124,7 +1124,7 @@ semantics for the language. This enables users to rewrite their specification
 and provides a way to automatically simplify
 specifications after inference (\Cref{subsec:inference}).
 Additionally, specifications have a theory of approximation,
-$<:$, that can be used by the users to weaken specifications for succintness in
+$<:$, that can be used by the users to weaken specifications for succinctness in
 the source.
 
 The equality relation $\equiv$ is defined over \emph{region}
@@ -1176,7 +1176,7 @@ $\term{cen+bwd} \equiv \term{cen}$. %Commutative of $\term{+}$
 \vspace{-1.5em}
 
 \item \textit{(centered)} a forward and backward region of the same
-  depth and dimension coalseces into a centered region:
+  depth and dimension coalesces into a centered region:
 %
 \vspace{-0.4em}
 \begin{align*}
@@ -1221,14 +1221,14 @@ syntax and then $<:$ on \textit{spec} syntax inductively.
 Both relations are reflexive and transitive (we omit
 these equations). The $<:^r$ relation is congruent
 with respect to \term{+} and \term{*} and $<:$ is congruent
-with repect to \term{readOnce}, the equations of which we omit for brevity.
+with respect to \term{readOnce}, the equations of which we omit for brevity.
 
 The \trule{\textsc{eq}} rule connects region
 equations to approximation; \trule{\textsc{over}} explains
 the notion of spatial over-approximation via overlapping regions;
 \trule{\textsc{rep}} allows the \term{readOnly} modifier that
 to be dropped. The \trule{\textsc{shrink}}
-and \trule{\textsc{grow}} rules turn the spatial approxiamation on
+and \trule{\textsc{grow}} rules turn the spatial approximation on
 regions into approximation on specifications via the \term{atLeast} and \term{atMost}
 modifiers. Finally, \trule{\textsc{Gen$\ast$}} shows
 that specifications can be generalised by removing parts of a product
@@ -1331,7 +1331,7 @@ $<:$ on \textit{specs} (omitting reflexivity, transitivity, and congruences). }
 \noindent
 We outline here the procedures for checking conformance
 of source code against specifications (\Cref{subsec:checking})
-and for infering specifications from code (\Cref{subsec:inference}).
+and for inferring specifications from code (\Cref{subsec:inference}).
 Both rely on a program analysis that converts array subscripts
  into sets of index schemes. We outline this analysis
 first (\cref{subsec:analysis}). Note that the analysis 
@@ -1382,7 +1382,7 @@ or a constant index.\footnote{If all indices $e \in \bar{e}$ are constants, then
   considered a constant by our analysis, rather
 than an array subscript.}% contributing to a stencil.}
 Thus, we focus on assignments to an array subscript where the LHS
-indices $\overline{e_1}$ are neighbourhood indidces.  For
+indices $\overline{e_1}$ are neighbourhood indices.  For
 all array subscripts that flow to the right-hand side of this
 statement, a finite map is constructed, mapping each array variable
 to a multiset of indexing schemes for its subscripts, computed
@@ -1483,7 +1483,7 @@ defined:
 \end{align*}
 Thus, checking applies \textit{modelise}
 (\Cref{subsec:analysis}) to extract index schemes from source code,
-augmented with multiplicitly for the whole set of schemes.
+augmented with multiplicity for the whole set of schemes.
 This is compared with the model of the specification $\interp{S}_n$ by
 the consistency predicate $\consAName$.
 \end{definition}
@@ -1559,7 +1559,7 @@ specification (\textit{exact}) such that a specification's model
 provides both a consistent lower and consistent upper bound on
 the source code. Thus, for every scheme in the code model there
 is a scheme in the spec model that generalises it, and for every
-scheme in the specifcation there is a scheme in the source model that
+scheme in the specification there is a scheme in the source model that
 specialises it.  The (\textit{both}) rule is similar, decomposing
 a specification with both a lower and upper bound into
 consistency of these bounds.
@@ -2317,7 +2317,7 @@ dimensions. Common examples of this were pointwise transformations on
 data (such as scaling).
 
 \textbf{Single-action} specifications comprise one 
-forward, backward, or centered region contant combined via \term{+} 
+forward, backward, or centered region constant combined via \term{+} 
 or \term{*} with any number of pointed regions. We identified 4,837 single-action
 specifications, of which 1,532 were single-action with a
 \texttt{nonpointed} modifier.
@@ -2388,7 +2388,7 @@ the array index offsets with $-1$, $0$, or $1$ and running our
 verification algorithm. Our checking procedure correctly reported a verification
 failure in each of 6,537 permutations corresponding to an error.  
 The iteration computes the average of four adjacent
-cells so $24$ ($4$ factorial) of the possible array index pertubations
+cells so $24$ ($4$ factorial) of the possible array index perturbations
 are correct, all of which are accepted by checking.
 
 
@@ -2563,7 +2563,7 @@ As opposed to existing approaches our language takes inspiration from
 the numerical literature and provides a concise, abstract description
 of the stencil.
 
-We evalauated our approach by extending CamFort, an open-source analysis
+We evaluated our approach by extending CamFort, an open-source analysis
 tool for Fortran programs~\cite{camfort}, running the inference process over a corpus
 of a million lines of Fortran code. We showed that our language is
 capable of capturing many real-world uses of stencils and showed in a

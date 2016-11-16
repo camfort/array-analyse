@@ -2500,23 +2500,14 @@ correctness, and the language of specification is much different and
 more elaborate than in our approach.
 
 % Pochoir
-\citet{Tang:2011:SPAA} define a specification language for writing
-stencils embedded in C++ (with Cilk~\citep{blumofe1996cilk} extensions) that
-are then compiled
-into fast parallel programs based on trapezoidal decompositions with
-hyperspace cuts. The Pochoir specification language is used for
-describing the kernel, boundary conditions and shape of the
-stencil. Programs are first compiled in C++ with a template library
-that checks whether the annotations are used correctly, and then a
-Pochoir preprocessor may be applied to generate the high-performance
-parallel versions using Cilk.  Pochoir
-is aimed primarily at assisting programmers who may be reluctant to
-implement the high-performance tricky cache-oblivious
-``hypertrapezoidal'' algorithms for stencils. 
-%that are significantly faster than the typical looping implementations
-%of stencil computations.
-Like much of the related work, the main goal 
-is optimisation rather than verifying program correctness.
+\citet{Tang:2011:SPAA} define a specification language for writing stencils
+embedded in C++ (with Cilk~\citep{blumofe1996cilk} extensions) that are then
+compiled into parallel programs based on trapezoidal decompositions with
+hyperspace cuts. The Pochoir specifications are used for describing the kernel,
+boundary conditions, and shape of the stencil. Pochoir is aimed at programmers
+reluctant to implement the high-performance cache-oblivious
+``hypertrapezoidal'' algorithms for stencils.  Like much of the related work,
+the goal is optimisation rather than verifying program correctness.
 
 By contrast, the work of \citet{Abe:2013:IPDPSW} has looked at the
 correctness problem explicitly by bringing a form of model-checking to

@@ -759,8 +759,7 @@ which we call \emph{index schemes}.
   write $(\domainVal)^n$ for the set of all $n$-dimensional schemes.
 \end{definition}
 
-Indexing schemes give an abstract
-representation of array subscripts in the source language.
+Indexing schemes give an abstracts array subscripts.
 Our model represents the meaning of stencil specifications
 as indexing schemes, which explain the range of possible
 indexing behaviours which are consistent with the specification.
@@ -784,11 +783,11 @@ $\domainVal$ values:
  & =  \begin{cases}
 c & e \equiv i + c \;\; \wedge \;\; i \in I \\
 -c & e \equiv i - c \;\; \wedge \;\; i \in I \\
-\infty & \textit{$I \not\subseteq \textit{FV}(e)$} \\
+\infty & \textit{$I \cap \textit{FreeVariables}(e) = \emptyset $} \\
 \bot   & \textit{otherwise}
 \end{cases}
 \end{align*}
-where $\textit{FV}(e)$ is the set of free variables in $e$. In the
+In the
 first two cases, expressions that are a constant offset of an
 induction variable (\ie{}, neighbourhood indices) are mapped to the
 offset $c$ or $-c$ $\in \domainVal$. In the third case, if the

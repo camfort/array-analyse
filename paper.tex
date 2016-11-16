@@ -2030,20 +2030,20 @@ $
 (r^1_{1} \; \term{*} \ldots \term{*} \; r^1_n)\; \term{+} \; \ldots
 \term{+} \; (r^m_1 \, \term{*} \; \ldots \term{*} \; r^m_p)
 $.
-
-More formally, $\specDNF \subseteq (\textit{spec} \cup \{\epsilon\})$, defined:
-%%
-\begin{align*}
-\specDNF{} & ::= \tySum{\specDNF} \mid \epsilon \quad\;\;
-\tySum{\specDNF} ::= \tyProd{\specDNF} \; \term{+} \; \tySum{\specDNF} \mid
-  \tyProd{\specDNF} \\
-\tyProd{\specDNF} & ::= \textit{region} \; \term{*} \; \tyProd{\specDNF} \mid
-   \textit{region}
-\end{align*}
+%
+%More formally, $\specDNF \subseteq (\textit{spec} \cup \{\epsilon\})$, defined:
+%%%
+%\begin{align*}
+%\specDNF{} & ::= \tySum{\specDNF} \mid \epsilon \quad\;\;
+%\tySum{\specDNF} ::= \tyProd{\specDNF} \; \term{+} \; \tySum{\specDNF} \mid
+%  \tyProd{\specDNF} \\
+%\tyProd{\specDNF} & ::= \textit{region} \; \term{*} \; \tyProd{\specDNF} \mid
+%   \textit{region}
+%\end{align*}
 %%
 In the following, $S, T$ range over elements of
-\specDNF{} and $\tyProd{s}, \tyProd{t}$ range over elements
-of $\tyProd{\specDNF}$, \ie{} $\tyProd{s} = r^1_{1} \; \term{*}
+\specDNF{} and $\tyProd{s}, \tyProd{t}$ range over conjuncts
+ \eg{} $\tyProd{s} = r^1_{1} \; \term{*}
 \ldots \term{*} \; r^1_n$.
 \end{definition}
 

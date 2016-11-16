@@ -942,14 +942,14 @@ For a $2$-dimensional stencil computation, then
 & \qquad = \; \{\vtwoh{-2}{\infty}, \vtwoh{-1}{\infty}, \vtwoh{0}{\infty},
 \vtwoh{1}{\infty}, \vtwoh{2}{\infty}\}
 \end{align*}
-Note the absorbing behaviour of $\infty$ under multiplication above, \eg{} $2
-\times \infty = \infty$
+Note, $\infty$ for multiplication above, \eg{} $2
+ \infty = \infty$.
 \end{example}
 \noindent
 The final two equations of \Cref{fig:region-model} give the models
 of $\term{+}$ and $\term{*}$. For $\term{+}$ this is the
-straightforward union of the models of subterms. The model of
-$\term{*}$ takes the tensor $\otimes$ of subterm models. The tensor is
+ union of the models of subterms. The model of
+$\term{*}$ takes a ``tensor'' $\otimes$ of subterm models. The tensor is
 more involved. We give some informal intuition first.
 
 % specifications correspond to a set of schemes
@@ -973,8 +973,9 @@ more involved. We give some informal intuition first.
 %
 
 \begin{figure}
+\vspace{-1em}
 \input{spatial-model.tex}
-\caption{\textit{spec} model,
+\caption{%\textit{spec} model,
 $\interp{-}_n : \textit{spec} \rightarrow \textsf{Mult}(\textsf{Approx}(\mathcal{P}(\domainVal{}^n)))$}
 \label{fig:spatial-model}
 \vspace{-0.75em}
@@ -983,15 +984,16 @@ $\interp{-}_n : \textit{spec} \rightarrow \textsf{Mult}(\textsf{Approx}(\mathcal
 \paragraph{$\otimes$ of models}
 
 The intuition behind $\otimes$ is that it takes all possible pairs of
-indexing schemes, and treats each pair as lower and upper bounds of an
-$n$-dimensional rectangle. From these lower and upper bounds,
+index schemes, and treats each pair as lower and upper bounds of an
+$n$-dimensional rectangle. From these bounds,
 the remaining vertices of the $n$-dimensional rectangle are
 generated (like a bounding box) \eg{}:
 %%
 \begin{align*}
-\{\vtwohs{1}{2}, \vtwohs{5}{6}\,\} \otimes \{\vtwohs{3}{4}\} =
-\{\vtwohs{1}{2}, \vtwohs{3}{2}, \vtwohs{1}{4}, \vtwohs{3}{4},
-   \vtwohs{3}{6}, \vtwohs{5}{4}, \vtwohs{5}{6}\,\}
+{\small{
+\{\vtwohs{1}{2},\vtwohs{5}{6}\,\}\!\otimes\!\{\vtwohs{3}{4}\}\!=\!\{\vtwohs{1}{2},\vtwohs{3}{2},\vtwohs{1}{4},\vtwohs{3}{4},
+   \vtwohs{3}{6},\vtwohs{5}{4},\vtwohs{5}{6}\,\}
+}}
 \end{align*}
 %%
 The tensor takes a Cartesian product of the two models,
@@ -999,7 +1001,7 @@ giving all pairs of schemes which are combined using the
 \emph{pairwise permutation} written $\bowtie$ (defined later).
 Pairwise permutation generates all possible interleavings of two
 vectors. Some care is then taken over how this interacts with $\infty$.
-In the presence of $\infty$, generate all interlavings as if $\infty$ is
+In the presence of $\infty$, generate all interleavings as if $\infty$ is
 an integer, then filter out vectors with $\infty$ at any coordinate, \eg{}
 \begin{align*}
 \{\vtwoh{1}{\infty}\} \otimes \{\vtwoh{3}{4}\} =
@@ -1013,8 +1015,8 @@ where $u_i \neq \infty$} is represented by the \emph{constrained
 dimensions} intermediate function:
 \begin{definition}%[Constrained dimensions]
 For an $n$-dimensional model $M$, its \emph{constrained dimensions}
-is the set of dimension identifiers for which at least one scheme $u \in M$ has
-a non-$\infty$ value in that dimension. That is:
+are the set of dimension identifiers where at least one scheme $u \in M$ has
+a non-$\infty$ value in that dimension:
 %
 \begin{align*}
 \effdims{M}{n} =
@@ -1025,7 +1027,7 @@ For example, $\effdims{\{\vtwoh{0}{\infty},\vtwoh{\infty}{\infty}\}}{2}
  = \{1\}$.
 \end{definition}
 \begin{definition}The tensor $\otimes_n$ of $n$-dimensional
-models is defined:
+models is:
 \begin{alignat*}{2}
 & M \otimes_n N =
   \Bigg\{x \; \Bigg| \;
@@ -1063,7 +1065,7 @@ $u_j$ or $v_j$ \eg{}
 \end{equation*}
 %
 The $2^n$ unique choices for $\bowtie$ on $n$-vectors
-corresponds to taking all bit-strings of length $n$ and
+correspond to taking all bit-strings of length $n$ and
 selecting from $u$ for $1$ and $v$ for $0$. The pairwise permutation
 matrix is thus defined in terms of the logical
 matrix $b$ where $b_{i,j}$ is the $j$-th bit of the integer
@@ -1094,7 +1096,7 @@ labelling our set-based model with additional information.
 
 \begin{definition} \textsf{Mult}
 and \textsf{Approx} are parametric labelled variant types
-with injection function given by their definition:
+with injections given by their definition:
 %
 \begin{align*}
 \textsf{Mult} \, a & = \textsf{mult} \, a \,\mid\, \textsf{only} \, a \\

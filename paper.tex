@@ -791,8 +791,7 @@ In the
 first two cases, expressions that are a constant offset of an
 induction variable (\ie{}, neighbourhood indices) are mapped to the
 offset $c$ or $-c$ $\in \domainVal$. In the third case, if the
-expression is not a neighbourhood index, but neither is it a relative
-index (\ie{}, it is not defined in terms of an induction variable) then it
+expression is not defined in terms of an induction variable, it
 is mapped to $\infty \in \domainVal{}$. Otherwise, $\schemeOne(e)$
 is undefined (returns $\bot$).
 

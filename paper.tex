@@ -2394,9 +2394,11 @@ for C (see \eg{}~\citet[Example 3.4.1]{burghardt2010acsl}). Thus, a specificatio
 can be given for a stencil computation, 
 however, such a specification would exactly replicate the fine-grained
 indexing seen in the code and would simply be prone to low-level input
-errors. Our approach is much more abstract,
-capturing the shape of a specification in concise format different to
-the code. 
+errors. Our approach is much more abstract-- it does
+not aim to reify indexing in the specification, but is novel
+in that it instead
+provides abstract spatial descriptions which capture a large number
+of common patterns.
 
 \citet{kamil2016verified} propose \emph{verified lifting} to extract a
 functionally-complete mathematical representation of low-level, and
@@ -2515,13 +2517,16 @@ the benefits of verification more easily to scientific computing.%such as
 %Fortran code and check annotations on stencil computations within
 %Fortran code.
 
+\paragraph{Concluding remarks}
 
-\section{Conclusion}\label{sec:conclusion}
-
-We have presented a high-level language for the specification of
-stencils in numerical code. As opposed to existing approaches our
-language takes inspiration from the numerical literature and provides
-a concise, abstract description of the stencil.
+There is an increasing awareness of the need for verification
+techniques in
+science~\cite{post2005computational,oberkampf2010verification,orchard2014computational}.
+Our specification language is an approach in this direction, providing
+a system of lightweight, high-level specification for numerical code.
+As opposed to existing approaches our language takes inspiration from
+the numerical literature and provides a concise, abstract description
+of the stencil.
 
 We evaluated our approach on top of CamFort, an open-source analysis
 tool for Fortran programs, running the inference process over a corpus
@@ -2533,7 +2538,7 @@ Our definition of a stencil computation meant that we generated no
 specification for a large number of iterated array accesses in the
 corpus, such as stencils that incorporates reductions. For
 future work, we will be looking into expanding the flexibility of 
-our inference approach to more of these examples. 
+our analysis to include these examples. 
 
 \bibliography{references}
 

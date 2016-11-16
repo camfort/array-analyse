@@ -920,15 +920,15 @@ For a $2$-dimensional stencil computation, then
 & \qquad = \; \{\vtwoh{-2}{\infty}, \vtwoh{-1}{\infty}, \vtwoh{0}{\infty},
 \vtwoh{1}{\infty}, \vtwoh{2}{\infty}\}
 \end{align*}
-Note the absorbing behaviour of $\infty$ with respect to
-multiplication.
+Note the absorbing behaviour of $\infty$ under multiplication above, \eg{} $2
+\times \infty = \infty$
 \end{example}
 \noindent
 The final two equations of \Cref{fig:region-model} give the models
 of $\term{+}$ and $\term{*}$. For $\term{+}$ this is the
 straightforward union of the models of subterms. The model of
 $\term{*}$ takes the tensor $\otimes$ of subterm models. The tensor is
-more involved; we give some informal intuition first.
+more involved. We give some informal intuition first.
 
 % specifications correspond to a set of schemes
 
@@ -976,13 +976,9 @@ The tensor takes a Cartesian product of the two models,
 giving all pairs of schemes which are combined using the
 \emph{pairwise permutation} written $\bowtie$ (defined later).
 Pairwise permutation generates all possible interleavings of two
-vectors. Some care is then taken over
-how this interacts with $\infty$: pairwise permutation
-corresponds to non-deterministic choice, in each dimension $i$,
-between two values $u_i$ and $v_i$, but if either
-is $\infty$ then the resulting pairwise permutation is
-filtered out if the dimension $i$ has \emph{any other scheme
-in the model where $u_i \neq \infty$}, \eg{}:
+vectors. Some care is then taken over how this interacts with $\infty$.
+In the presence of $\infty$, generate all interlavings as if $\infty$ is
+an integer, then filter out vectors with $\infty$ at any coordinate, \eg{}
 \begin{align*}
 \{\vtwoh{1}{\infty}\} \otimes \{\vtwoh{3}{4}\} =
 \{\vtwoh{1}{4}, \vtwoh{3}{4}\}
@@ -1011,12 +1007,12 @@ models is defined:
 \begin{alignat*}{2}
 & M \otimes_n N =
   \Bigg\{x \; \Bigg| \;
-    \parbox{5.2cm}{$(u, v) \in M \times N $ \\[0.1em]
-                  $\;\; \wedge \;\, i \in \{1, \ldots, 2^n\} \, \wedge
-                  \, x = (u \bowtie v)_i$ \\[0.1em]
-                  $\;\; \wedge \;\, j \in (\effdims{M}{n} \cup
-                   \effdims{N}{n})$\\[0.1em]
-                   $\;\; \wedge \;\, x_j \neq \infty$
+    \parbox{5.2cm}{$(u, v) \in M \times N,$ \\[0.1em]
+                  $\;\; i \in \{1, \ldots, 2^n\}, \,
+                  x = (u \bowtie v)_i,$ \\[0.1em]
+                  $\;\; j \in (\effdims{M}{n} \cup
+                   \effdims{N}{n}),$\\[0.1em]
+                   $\;\; x_j \neq \infty$
                   } \Bigg\}
 \end{alignat*}
 The first guard takes the Cartesian product of

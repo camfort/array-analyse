@@ -78,6 +78,15 @@
     urlcolor=blue,          % color of external links
 }
 
+\usepackage{cleveref}
+\crefname{section}{\S}{\S\S}
+\Crefname{section}{\S}{\S\S}
+\crefname{subsection}{\S\S}{\S\S\S}
+\Crefname{subsection}{\S\S}{\S\S\S}
+\crefname{figure}{fig.}{}
+\Crefname{figure}{Fig.}{}
+\crefname{definition}{def.}{}
+\Crefname{definition}{Def.}{}
 
 \CustomVerbatimEnvironment{SpecVerbatim}{Verbatim}{fontsize=\footnotesize,xleftmargin=0.5cm,
 xrightmargin=0.2cm,commandchars=\\\{\},baselinestretch=0.98,numbersep=0.9em}
@@ -394,19 +403,19 @@ In this paper, we make the following contributions:
 \begin{itemize}
 \item We introduce a specification language for stencils
   that captures common forms of data access patterns
-  (\S~\ref{sec:lang});
+  (\cref{sec:lang});
 
 \item We detail checking and inference algorithms for our
-  specifications (\S~\ref{sec:analysis}), derived from a
+  specifications (\cref{sec:analysis}), derived from a
   denotational model for the specificaiton language
-  (\S~\ref{sec:semantics});
+  (\cref{sec:semantics});
 
 \item we provide an implementation of our approach as an extension to
   CamFort, an open-source program analysis tool for Fortran;
 
 \item We report on a quantitative study of stencil computations on a
   corpus of numerical Fortran program
-  (\S~\ref{sec:evaluation}), totalling one million lines of code. Our tool
+  (\cref{sec:evaluation}), totalling one million lines of code. Our tool
   identifies and infers specifications for 35,000 stencil computations in the
   corpus. Approximately 10\% of the stencils we found are non-trivial,
   corresponding to code which is a possible source of errors. This validates
@@ -422,7 +431,7 @@ In this paper, we make the following contributions:
 %
 
 \newcommand{\domainVal}{\mathbb{Z}_\infty}
-\section{Stencil specifications}
+\section{Stencil specifications}\label{sec:lang}
 
 Our specification language is based on the hypothesis
 that most forms of array access in numerical code have
@@ -431,14 +440,14 @@ a fixed, statically-determined access pattern. For example, the
 indices $(i, j)$, $(i-1, j)$, $(i+1, j)$, $(i, j-1)$, and $(i, j+1)$
 for all $i, j$ within the inner boundary of the array (to avoid
 out-of-bounds access at the edges). We revisit this hypothesis
-in \S~\ref{sec:evaluation} with the inference of
+in \cref{sec:evaluation} with the inference of
 such regular stencil patterns on our corpus of numerical programs.
 
 We give various definitions used in the paper then
-\S~\ref{sec:syntax} outlines the syntax of stencil specifications
-with an informal introduction. \S~\ref{sec:semantics}
+\cref{subsec:syntax} outlines the syntax of stencil specifications
+with an informal introduction. \cref{sec:semantics}
 gives a semantic model via a set-based interpretation which makes
-concrete the meaning of specifications. \S~\ref{sec:eqs} then provides
+concrete the meaning of specifications. \cref{sec:eqs} then provides
 a syntactic equational theory for specifications which is
 sound with respect to the model.
 %sub-specification for which the
@@ -509,8 +518,8 @@ over its (imperative) variables. %By
 %\marginpar{\dnote{Is it worth having this informal consistency here?}}
 
 Now we informally describe what it means for a stencil kernel to be consistent
-with a specification. This will be formalised in \S~\ref{sec:semantics} and
-algorithmically described in  and \S~\ref{sec:analysis}.
+with a specification. This will be formalised in \Cref{sec:semantics} and
+algorithmically described in  and \Cref{sec:analysis}.
 Specifications are associated to a stencil kernel and are declared for one or
 more array variables $\bar{v}$ within that kernel.  A stencil specification
 defines a \emph{region} associated to an array variable $a$ against which a
@@ -559,9 +568,9 @@ all parts of the region should have an index corresponding it.
 
 
 \subsection{Specification syntax}
-\label{sec:syntax}
+\label{subsec:syntax}
 
-Figure~\ref{fig:syntax} gives the syntax of stencil specifications, which is
+\Cref{fig:syntax} gives the syntax of stencil specifications, which is
 detailed below. The entry point is the \nonterm{specification} production which
 splits into either a \emph{region declaration} or a \emph{specification
 declaration}.
@@ -703,7 +712,7 @@ pattern, as the region can be defined once and reused.
 %%
 Region specifications can be modified
 by \emph{approximation} and \emph{multiplicity} information
-(in \textit{spec} in Fig.~\ref{fig:syntax}).
+(in \textit{spec} in \Cref{fig:syntax}).
 
 The \texttt{readOnce} modifier enforces that no index appears more
 than once (that is, its multiplicity is one). For example, all of
@@ -742,7 +751,7 @@ We define a simple set-theoretic denotational model of the semantics
 of our specification language. This has a number of purposes:
 (1) it serves to explain the meaning of our specifications
 (2) it is used in the inference and checking algorithms
-(Section~\ref{sec:analysis}); (3) justifies an equational theory for
+(\Cref{sec:analysis}); (3) justifies an equational theory for
 specifications in the next section; and (4) can be used to guide
 correct implementations. The model domain is over sets of vectors
 which we call \emph{index schemes}.
@@ -752,7 +761,7 @@ which we call \emph{index schemes}.
   values drawn from $\domainVal = \mathbb{Z} \cup \{\infty\}$.  Values
   in $\mathbb{Z}$ represent the offsets of neighbourhood indices
   (\ie{}, the constant integer $c$ in an indexing expression of the
-  form $i \pm c$, Def.~\ref{def:neighbour}) and $\infty$ is a wild-card
+  form $i \pm c$, \Cref{def:neighbour}) and $\infty$ is a wild-card
   representing both constant indices and unspecified indices.
   For an index scheme $u$, $u_i$ denotes the $i^{th}$ element of $u$. We
   write $(\domainVal)^n$ for the set of all $n$-dimensional schemes.
@@ -765,7 +774,7 @@ indexing behaviours which are consistent with the specification.
 The relationship between source language
 terms and indexing terms
  is given precisely by the following function \textsf{schematic},
- which forms part of checking and inference (\S\ref{sec:analysis}).
+ which forms part of checking and inference (\Cref{sec:analysis}).
 
 \newcommand{\schemeOne}{\textsf{s}_I}
 %\newcommand{\schemeOne}{\textsf{schema$^1_I$}}
@@ -859,8 +868,8 @@ modelled) mapping closed\footnote{That is, we assume there are no
   closed by straightforward syntactic substitution with a (closed)
   \textit{region}.} specifications to sets of
 $n$-dimensional indexing schemes. The interpretation is overloaded on
-\emph{regions} in Figure~\ref{fig:region-model} and on the top-level
-of a specification \textit{spec} in Figure~\ref{fig:spatial-model}.
+\emph{regions} in \Cref{fig:region-model} and on the top-level
+of a specification \textit{spec} in \Cref{fig:spatial-model}.
 
 We first define some intermediate notations and definitions.
 
@@ -895,7 +904,7 @@ $\interp{-}_n : \textit{region} \rightarrow \mathcal{P}(\domainVal{}^n)$}
 \end{figure}
 
 \noindent
-The first four equations of Fig.~\ref{fig:region-model}
+The first four equations of \Cref{fig:region-model}
 give the model of the region constants as sets of indexing
 schemes. We illustrate with an example.
 
@@ -915,7 +924,7 @@ Note the absorbing behaviour of $\infty$ with respect to
 multiplication.
 \end{example}
 \noindent
-The final two equations of Fig.~\ref{fig:region-model} give the models
+The final two equations of \Cref{fig:region-model} give the models
 of $\term{+}$ and $\term{*}$. For $\term{+}$ this is the
 straightforward union of the models of subterms. The model of
 $\term{*}$ takes the tensor $\otimes$ of subterm models. The tensor is
@@ -1058,7 +1067,7 @@ $\infty$ in a constrained dimension position.
 Regions are modelled as sets of index
 schemes, that is
 $\interp{\textit{region}}_n \in \mathcal{P}(\domainVal{}^n)$.
-Figure~\ref{fig:spatial-model} defines the top-level model of the
+\Cref{fig:spatial-model} defines the top-level model of the
 \textit{spec} syntax, which includes the multiplicity and
 approximation modifiers. The domain of this interpretation
 is $\textsf{Mult}(\textsf{Approx}(\mathcal{P}(\domainVal{}^n)))$
@@ -1077,7 +1086,7 @@ with injection function given by their definition:
 \eg{}, $\mathsf{lower}$ is an injection
 $\mathsf{lower} : a \rightarrow \mathsf{Approx} \, a$ etc. The
 $\textsf{Mult}$ type corresponds to the presence or absence of the
-\term{readOnce} modifier as shown in Figure~\ref{fig:spatial-model}.
+\term{readOnce} modifier as shown in \Cref{fig:spatial-model}.
 The $\textsf{Approx}$ type corresponds to the presence or absence of
 the spatial approximation modifier, with \textsf{exact} when there is
 no such modifier and \textsf{lower} and \textsf{upper} for
@@ -1107,7 +1116,7 @@ $\term{+}$, \ie{},  $R \; \texttt{*} \; (S \; \texttt{+} \; T) \; \equiv \; (R \
                        \; \texttt{*} \; T)$.
 Distributivity is
 used later to give a normal form for specifications
-akin to Disjunctive Normal Form (\S~\ref{sec:inf-step4}).
+akin to Disjunctive Normal Form (\cref{sec:inf-step4}).
 
 \item (\emph{overlapping}) Given two region constants $R_1$ and $R_2$
 on the same dimension, then some combinations of region constants
@@ -1171,7 +1180,7 @@ their regions.
 The equational theory provides not only an axiomatic semantics
 for the language, which the user can use to rewrite their
 specification, but it is also used extensively in the inference
-procedure (\S~\ref{subsec:inference}) to simplify specifications.
+procedure (\cref{subsec:inference}) to simplify specifications.
 
 \begin{theorem}[Soundness of equational theory]
 \begin{equation*}
@@ -1181,7 +1190,7 @@ S \equiv T \; \Rightarrow \;
 \end{equation*}
 \end{theorem}
 
-Figure~\ref{fig:inequations} defines a notion of sub-specifications
+\Cref{fig:inequations} defines a notion of sub-specifications
 via the relation $<:^r$ on \textit{region}
 syntax and then $<:$ on \textit{spec} syntax inductively.
 Both relations are reflexive and transitive (we omit
@@ -1210,7 +1219,7 @@ Code consistent with a specification $S$
 S <: T \; \wedge (\consA{M}{\interp{S}_n}) \;
 \Rightarrow \; (\consA{M}{\interp{T}_n})
 \end{equation*}
-where $\consAName$ implements consistency in checking (\S~\ref{subsec:checking}).
+where $\consAName$ implements consistency in checking (\cref{subsec:checking}).
 \end{theorem}
 
 
@@ -1295,11 +1304,11 @@ $<:$ on \textit{specs} (omitting reflexivity, transitivity, and congruences). }
 
 \noindent
 We outline here the procedures for checking conformance
-of source code against specifications (\S~\ref{subsec:checking})
-and for infering specifications from code (\S~\ref{subsec:inference}).
+of source code against specifications (\Cref{subsec:checking})
+and for infering specifications from code (\Cref{subsec:inference}).
 Both rely on a program analysis that converts array indexing
 expressions into sets of index schemes. We outline this analysis
-first (\S~\ref{subsec:analysis}). Note that the analysis procedure
+first (\cref{subsec:analysis}). Note that the analysis procedure
 can be made arbitrarily more complex and wide-ranging independent
 of the checking and inference procedures. At the moment, the analysis
 is largely \emph{syntactic}, with only a small amount of
@@ -1351,7 +1360,7 @@ indices $\overline{e_1}$ are neighbourhood indidces.  For
 all array subscripts that flow to the right-hand side of this
 statement, a finite map is constructed, mapping each array variable
 to a multiset of indexing schemes for its subscripts, computed
-with \textsf{schematic} (Def.~\ref{def:schematic}).
+with \textsf{schematic} (\Cref{def:schematic}).
 Note \textsf{schematic} is undefined ($\bot$) if
 $\bar{e}$ contains relative indices which are not neighbourhood
 indices. The \textit{analysis} function is used by the
@@ -1430,11 +1439,11 @@ since all multiplicities in the model are one:
 
 Checking verifies the access pattern of a stencil computation in the
 source language against its associated specifications. The model of
-(\S~\ref{sec:semantics}) guides this process.  Checking
+(\Cref{sec:semantics}) guides this process.  Checking
 proceeds by generating a model from a specification and generating
 a model from the source code, comparing them for
 \emph{consistency} base on index scheme
-\emph{generalisation} (Def.~\ref{def:generalisation}).
+\emph{generalisation} (\Cref{def:generalisation}).
 
 \begin{definition}[Checking]
 Let $a$ be an array variable and
@@ -1451,7 +1460,7 @@ defined:
 &
 \end{align*}
 Thus, checking applies \textit{modelise}
-(\S~\ref{subsec:analysis}) to extract index schemes from source code,
+(\Cref{subsec:analysis}) to extract index schemes from source code,
 augmented with multiplicitly for the whole set of schemes.
 This is compared with the model of the specification $\interp{S}_n$ by
 the consistency predicate $\consAName$.
@@ -1503,7 +1512,7 @@ of specifications (which are bounded) via predicates:
 \end{align*}
 %
 where $\consName$ relates models without multiplicity.
-Figure~\ref{fig:consistency} defines the two predicates, where for
+\Cref{fig:consistency} defines the two predicates, where for
 brevity we make implicit the subscript $n$ defining the
 dimensionality.  We denote sets of indexing schemes
 $\mathcal{P}((\domainVal{})^n)$
@@ -1560,7 +1569,7 @@ with steps:
 \begin{enumerate}
 %
 \item Generate the model from the specification as in
-  \S~\ref{sec:semantics}.
+  \cref{sec:semantics}.
 %
 \begin{align*}
 \vspace{-0.3em}
@@ -1590,7 +1599,7 @@ M_c = & \{
 \vspace{-0.3em}
 \end{align*}
 %
-\item By the definition of consistency (Fig.~\ref{fig:consistency})
+\item By the definition of consistency (\Cref{fig:consistency})
  $\textsf{once}(\textsf{exact}(N_s))$ is consistent with
   $\textsf{once}(M_c)$ when:
   \begin{align*}
@@ -1664,13 +1673,13 @@ an inference procedure for generating specifications from code, which
 are inserted automatically as comments.
 We illustrate inference using the
  five-point stencil of
- Example~\ref{exm:checking}.
+ \Cref{exm:checking}.
 
 \subsubsection{Step 1: Data access analysis}
 \label{sec:inf-step1}
 
 The first step performs the
-analysis of \S~\ref{subsec:analysis} to produce a
+analysis of \cref{subsec:analysis} to produce a
 model of the code in terms of indexing schemes.
 The \emph{analyse} and \emph{modelise} procedures before yielded the finite map:
 %
@@ -1709,7 +1718,7 @@ Each indexing scheme $u \in U(a)$ is converted to a \emph{unit} span
 $u \mapsto [u \; u]$, defining the lower and upper bound of an
 $n$-dimensional cube of side length $1$. For the five-point stencil
 example there are five unit spans, illustrated in
-Figure~\ref{fig:inference-steps-informal}(a).
+\Cref{fig:inference-steps-informal}(a).
 
 The next step repeatedly coalesces any contiguous spans until a fixed
 point is reached, resulting in a set of (possibly overlapping) spans
@@ -1742,16 +1751,16 @@ other than the first, we generate all rotations of the spans in
 $n$-dimensional space by permutation on spans, and fold together contiguous
 regions using $\bullet$ (above). This
 generates all possible ways of coalescing regions. For our example,
-the unit spans in Figure~\ref{fig:inference-steps-informal}(a)
+the unit spans in \Cref{fig:inference-steps-informal}(a)
 are coalesced into the contiguous spans in
-Figure~\ref{fig:inference-steps-informal}(b).
+\Cref{fig:inference-steps-informal}(b).
 This procedure is iterated until a fixed point is reached (in one step
 in this example).
  Then any spans that are completely contained by any other span are deleted,
 leaving a minimal set of spans (which may overlap, but none of which
-fully contains another), Figure~\ref{fig:inference-steps-informal}(c).
+fully contains another), \Cref{fig:inference-steps-informal}(c).
 The final spans are used to synthesise concrete stencil specification
-syntax (\S~\ref{sec:inf-step4}), where
+syntax (\cref{sec:inf-step4}), where
 each span becomes a product \texttt{*} of regions which are
 combined by the sum \texttt{+}.
 
@@ -1894,7 +1903,7 @@ giving the sorting function $\textsf{sort}(M)$, \eg{}, $\textsf{sort}(P(M_0))$:
 \end{align*}
 \noindent
 \textbf{3)\,} Reduce each list pairwise by $\bullet$
-(Def.~\ref{def:span-coalesc}) to coalesce contiguous regions,
+(\Cref{def:span-coalesc}) to coalesce contiguous regions,
 given by $\textsf{fold}\bullet$. For our example:
 %
 \begin{align*}
@@ -1958,7 +1967,7 @@ This conversion is defined in terms
 of an algebra on \textit{spec} syntax in disjunctive-normal form
 (which we denote \specDNF{}) and which is wrapped
 in the $\textsf{Approx}$ type (see
-Def.~\ref{def:mult-and-approx}).  The algebra mirrors the shape
+\Cref{def:mult-and-approx}).  The algebra mirrors the shape
 of the region operators $\term{+}$ and $\term{*}$ 
 with binary operators $\oplus$ and $\odot$ on
 $\mathsf{Approx}(\specDNF)$.
@@ -1984,7 +1993,7 @@ We unpack the definitions of this algebra.
 
 \begin{definition}[Specifications in DNF]
 Let $r_1, ..., r_n$ range over elements of the \textit{region}
-syntax (see Fig.~\ref{fig:syntax}).
+syntax (see \Cref{fig:syntax}).
 The set \specDNF{} is a subset of syntax trees \textit{spec},
 containing specifications in disjunctive normal form over regions
 where the disjunct is \term{+} and the conjunct is \term{*}; 
@@ -2055,7 +2064,7 @@ of $\tyProd{\specDNF}$, \ie{} $\tyProd{s} = r^1_{1} \; \term{*}
 \end{figure}
 
 \begin{definition} The $\mathsf{toSpec}$ constructor is defined
-in Figure~\ref{fig:to-spec}, where the lower and upper bounds
+in \Cref{fig:to-spec}, where the lower and upper bounds
 determine region constants; $\mathsf{toSpec} \, d \, (l, u)$ is always defined
  if $l$ less than or equal to $u$.
 
@@ -2094,9 +2103,9 @@ is the $\term{+}$ sum of all pairwise $\term{*}$ products for every
 pair of $\tyProd{spec}$ drawn from $S$ and $T$. The result
 is indeed in DNF-form, where $\hat{\odot}$ is essentially applying
  the \trule{\textsc{dist}} rule of the equational theory
- (Fig.~\ref{fig:equations}). The operation is
+ (\Cref{fig:equations}). The operation is
 commutative and associative, and sound with respect to our
-model (see Lemma~\ref{lem:alg-soundness} below).
+model (see \Cref{lem:alg-soundness} below).
 The $\hat{\odot}$ operation is then lifted to all combinations of
 \textsf{Approx} for $\odot$:
 \begin{align*}
@@ -2181,7 +2190,7 @@ be potentially helpful.
 \subsection{Core hypotheses}
 
 \paragraph{Hypothesis 1: Stencil computations
-(as in Definition~\ref{def:stencil}) are a common programming pattern
+(as in \Cref{def:stencil}) are a common programming pattern
 in numerical code}
 
 
@@ -2294,7 +2303,7 @@ obfuscated, \textsf{STNG} would capture the access behaviour better.
 Most fundamentally, unlike CamFort, Kamil et al. does not provide a syntactic
 representation of their postcondition, so there is no way of future-proofing the
 code for future edits. Even if they were to provide a syntactic representation,
-for complex stencils such as Navier-Stokes from \S~\ref{sec:intro}, it would be
+for complex stencils such as Navier-Stokes from \cref{sec:intro}, it would be
 as verbose as the code itself making it difficult for programmer to understand
 the overall shape of the indexing behaviour.
 

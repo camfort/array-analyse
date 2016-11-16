@@ -976,13 +976,9 @@ The tensor takes a Cartesian product of the two models,
 giving all pairs of schemes which are combined using the
 \emph{pairwise permutation} written $\bowtie$ (defined later).
 Pairwise permutation generates all possible interleavings of two
-vectors. Some care is then taken over
-how this interacts with $\infty$: pairwise permutation
-corresponds to non-deterministic choice, in each dimension $i$,
-between two values $u_i$ and $v_i$, but if either
-is $\infty$ then the resulting pairwise permutation is
-filtered out if the dimension $i$ has \emph{any other scheme
-in the model where $u_i \neq \infty$}, \eg{}:
+vectors. Some care is then taken over how this interacts with $\infty$.
+In the presence of $\infty$, generate all interlavings as if $\infty$ is
+an integer, then filter out vectors with $\infty$ at any coordinate, \eg{}
 \begin{align*}
 \{\vtwoh{1}{\infty}\} \otimes \{\vtwoh{3}{4}\} =
 \{\vtwoh{1}{4}, \vtwoh{3}{4}\}

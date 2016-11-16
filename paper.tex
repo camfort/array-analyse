@@ -528,7 +528,8 @@ within that kernel.  A stencil specification defines a \emph{region}
 associated to an array variable $a$ against which a stencil kernel
 should be \emph{consistent}. The region defined by a specification is
 an $n$-dimensional rectilinear shape in a discrete space crossing the
-origin with respect to the induction variable. Consistency is then a
+origin (which represents a collection of indices which are just 
+induction variables). Consistency is then a
 two way requirement. All array subscripts on $a$ contributing to the
 kernel should be consistent with the region. Conversely, all parts of
 the region should have an index corresponding it.
@@ -772,8 +773,8 @@ which we call \emph{index schemes}.
   write $(\domainVal)^n$ for the set of all $n$-dimensional schemes.
 \end{definition}
 
-Indexing schemes abstract array subscripts.
-Our model, consisting index schemes, explain the range of possible
+Index schemes abstract array subscripts.
+Our model consists of index schemes explaining the range of possible
 indexing behaviours which are consistent with the specification.
 The relationship between source language
 and index schemes
@@ -818,7 +819,7 @@ $\in (\domainVal)^n$. It is defined on the syntax of indices $\bar{e} = (e_1, ..
 \end{align*}
 %
 Thus, if each expression in an index is a neighbourhood or constant
-index, $\schemeN$ maps it to an indexing scheme.
+index, $\schemeN$ maps it to an index scheme.
 \end{definition}
 
 \begin{definition}[Generalisation]
@@ -839,7 +840,7 @@ index schemes $\domainVal^n$. Thus,
 \end{definition}
 
 \begin{example}
-Consider the following array subscript to indexing schemes
+Consider the following array subscript to index schemes
 conversions:
 %
 \begin{align*}
@@ -894,7 +895,7 @@ modelled) mapping closed\footnote{That is, we assume there are no
   \emph{open} specification containing region variables can be made
   closed by straightforward syntactic substitution with a (closed)
   \textit{region}.} specifications to sets of
-$n$-dimensional indexing schemes. The interpretation is overloaded on
+$n$-dimensional index schemes. The interpretation is overloaded on
 \emph{regions} in \Cref{fig:region-model} and on the top-level
 of a specification \textit{spec} in \Cref{fig:spatial-model}.
 Various intermediate notions are used.
@@ -1361,7 +1362,7 @@ The analysis builds on standard program analyses:
 The core analysis, captured by the function $\textit{analyse}$ below, then proceeds as follows.
 For each assignment statement \textit{assg} within a loop whose left-hand side is an array
 subscript on neighbourhood indices, a finite map is computed mapping
-array variables to \emph{multisets} of indexing schemes:
+array variables to \emph{multisets} of index schemes:
 %
 \begin{align*}
 \hspace{-0.5em}
@@ -1385,13 +1386,13 @@ Thus, we focus on assignments to an array subscript where the LHS
 indices $\overline{e_1}$ are neighbourhood indices.  For
 all array subscripts that flow to the right-hand side of this
 statement, a finite map is constructed, mapping each array variable
-to a multiset of indexing schemes for its subscripts, computed
+to a multiset of index schemes for its subscripts, computed
 with \textsf{schematic} (\Cref{def:schematic}).
 Note \textsf{schematic} is undefined ($\bot$) if
 $\bar{e}$ contains relative indices which are not neighbourhood
 indices. The \textit{analysis} function is used by the
 \textit{modelise} function which filters out those arrays
-which contain undefined indexing schemes and adds multiplicity
+which contain undefined index schemes and adds multiplicity
 information:
 %
 \begin{align*}
@@ -1536,7 +1537,7 @@ of specifications (which are bounded) via predicates:
 where $\consName$ relates models without multiplicity.
 \Cref{fig:consistency} defines the two predicates, where for
 brevity we make implicit the subscript $n$ defining the
-dimensionality.  We denote sets of indexing schemes
+dimensionality.  We denote sets of index schemes
 $\mathcal{P}((\domainVal{})^n)$
 from source code model by $M$ and from a specification model by $M$.
 
@@ -1702,7 +1703,7 @@ We illustrate inference using the
 
 The first step performs the
 analysis of \cref{subsec:analysis} to produce a
-model of the code in terms of indexing schemes.
+model of the code in terms of index schemes.
 The \emph{analyse} and \emph{modelise} procedures before yielded the finite map:
 %
 \begin{align*}
@@ -1736,7 +1737,7 @@ in $U(a)$.
 \end{definition}
 
 \noindent
-Each indexing scheme $u \in U(a)$ is converted to a \emph{unit} span
+Each index scheme $u \in U(a)$ is converted to a \emph{unit} span
 $u \mapsto [u \; u]$, defining the lower and upper bound of an
 $n$-dimensional cube of side length $1$. For the five-point stencil
 example there are five unit spans, illustrated in

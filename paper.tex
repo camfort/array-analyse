@@ -2318,8 +2318,8 @@ always also bounded on both sides.
 \begin{figure}[t]\begin{minted}[fontsize=\scriptsize,breakindent=0em,linenos=false,xleftmargin=0em,breakafter=)]{fortran}
 !=stencil readOnce,(forward(depth=1,dim=3,nonpointed))*(backward(depth=1,dim=1))*(backward(depth=1,dim=2))+(forward(depth=1,dim=3))*(backward(depth=1,dim=1))*(pointed(dim=2))+(forward(depth=1,dim=3))*(backward(depth=1,dim=1,nonpointed))*(backward(depth=1,dim=2,nonpointed))+(forward(depth=1,dim=3))*(backward(depth=1,dim=2))*(pointed(dim=1))+(backward(depth=1,dim=1))*(backward(depth=1,dim=2,nonpointed))*(pointed(dim=3))+(backward(depth=1,dim=1,nonpointed))*(backward(depth=1,dim=2))*(pointed(dim=3))::x
 \end{minted}
-\caption{A complex specification inferred from
-  \textbf{Unified Model}\label{fig:smagorinsky}}
+\caption{Complex specification inferred from
+  \textbf{UM}\label{fig:smagorinsky}}
 \vspace{-1em}
 \end{figure}
 
@@ -2328,8 +2328,7 @@ with a real possibility for programmer error. For example, the Unified
 Model has an implementation of the Smagorinsky subgrid-scale model for
 calculating turbulence on which our inference yields 39 specs from 340
 lines of code. This is an impressive reduction given
-the complexity of the algorithm.  We show one example in
-Figure~\cref{fig:smagorinsky}. This specifies the access pattern to
+the complexity of the algorithm.  We show one example in~\cref{fig:smagorinsky}. This specifies the access pattern to
 a 3-dimensional array (which we have renamed to be called
 \texttt{x}). The array is accessed 8 times in the computation.
 
@@ -2338,22 +2337,23 @@ a 3-dimensional array (which we have renamed to be called
 One common example of a stencil computation is two-dimensional
 Jacobi iteration that repeatedly goes through each cell in a matrix
 and computes the average value of the four adjacent cells. The kernel
-can be expressed in a line of Fortran code:
+is given by:
 \begin{minted}{fortran}
   a(i,j) = (a(i-1,j)+a(i+1,j)+a(i,j+1)+a(i,j-1))/4
 \end{minted}
-and CamFort is able to infer a precise specification for this:
+and we infer a precise specification for this, as:
 \begin{minted}[breakafter=+:,breakindent=-0.6em,breaksymbolsep=0.4em,linenos=false,xleftmargin=-0.5em]{fortran}
   != stencil pointed(dim=1)*centered(depth=1,dim=2,nonpointed)+pointed(dim=2)*centered(depth=1,dim=1,nonpointed)::a
 \end{minted}
-
-We examined whether programmer errors would be detected by replacing
+%
+To test our implementation, 
+we examined whether programmer errors would be detected by replacing
 the array index offsets with $-1$, $0$, or $1$ and running our
-verification algorithm. Camfort correctly reported a verification
-failure in each of 6,537 permutations corresponding to an error.  We
-note that the iteration is computing the average of four adjacent
-cells so $24$ ($4!$) of the possible array index pertubations do not
-correspond to a programming error.
+verification algorithm. Our checking procedure correctly reported a verification
+failure in each of 6,537 permutations corresponding to an error.  
+The iteration computes the average of four adjacent
+cells so $24$ ($4$ factorial) of the possible array index pertubations
+are correct, all of which are accepted by checking.
 
 
 % /um/trunk/src/atmosphere/diffusion_and_filtering/turb_smagorinsky.F90

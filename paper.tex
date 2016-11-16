@@ -1684,7 +1684,7 @@ The \emph{analyse} and \emph{modelise} procedures before yielded the finite map:
 \label{sec:inf-step3}
 
 Let $U$ range over the finite maps computed by \textit{modelise}.  For
-each array variable $a \in \mathsf{dom}(U)$, the algorithm constructs next a set of
+each array variable $a \in \mathsf{dom}(U)$, the algorithm constructs a set of
 $n$-dimensional rectangles covering all contiguous groups of schemes
 in $U(a)$.
 
@@ -1694,8 +1694,8 @@ in $U(a)$.
   A \emph{span} represents an $n$-dimensional rectangle
   as a pair of $n$-dimensional vectors (or
   represented as a $2 \times n$ matrix) with values drawn from
-  $\domainVal{}$. This gives the co-ordinates of a lower-bound vertex
-  (first component) and the upper-bound (second component). We write
+  $\domainVal{}$. This gives the co-ordinates of lower-bound 
+  and upper-bound vertices. We write
   spans as $\vect{x} = [\vect{x}^L \; \vect{x}^U]$, where $\vect{x}^L$
   and $\vect{x}^U$ give the lower and upper bounds.  In
   the following, $\vect{x}, \vect{y}$ range over spans.  For a span
@@ -1707,32 +1707,30 @@ in $U(a)$.
 \noindent
 Each indexing scheme $u \in U(a)$ is converted to a \emph{unit} span
 $u \mapsto [u \; u]$, defining the lower and upper bound of an
-$n$-dimensional cube of side length $1$.  For the five-point stencil
-example there are five unit spans.
-Figure~\ref{fig:inference-steps-informal}(a) illustrates these.
+$n$-dimensional cube of side length $1$. For the five-point stencil
+example there are five unit spans, illustrated in
+Figure~\ref{fig:inference-steps-informal}(a).
 
 The next step repeatedly coalesces any contiguous spans until a fixed
 point is reached, resulting in a set of (possibly overlapping) spans
 covering the original space of schemes. Two $n$-dimensional spans
 $\vect{x}$ and $\vect{y}$ are contiguous if for all but one
 $j \in \{1, \ldots, n\}$ then $\vect{x}_j = \vect{y}_j$ and for one
-$j$ then $\vect{x}^U_1 + 1 = \vect{y}^U$. For example, spans
+$j$ then $\vect{x}^U_1 + 1 = \vect{y}^L$. For example, spans
 $\left[\vtwoh{-1}{0}\; \vtwoh{-1}{0}\right]$ and
 $[\vtwoh{0}{0} \; \vtwoh{1}{0}]$ are contiguous in the first dimension
 and can be coalesced into the span $[\vtwoh{-1}{0} \; \vtwoh{1}{0}]$.
 
 \begin{definition}\label{def:span-coalesc}
-  Span coalescing $\bullet$ is defined for spans contiguous in the
+  Span coalescing $\bullet$ is partial, defined for spans contiguous in the
   first dimension:
 %%
 \begin{align*}
 \vect{x} \bullet \vect{y}
-= &
-\begin{cases}
-(\vect{x}^L, \vect{y}^U) & \vect{x}^U_1 + 1 = \vect{y}^L_1 \; \wedge \;
-\vect{x}_{2:n} = \vect{y}_{2:n}) \\
-\bot  & \textit{otherwise}
-\end{cases}
+= (\vect{x}^L, \vect{y}^U) \;\;\;\, \textit{if} \;\;\; \vect{x}^U_1 + 1 = \vect{y}^L_1 \; \wedge \;
+\vect{x}_{2:n} = \vect{y}_{2:n} %\\
+%\bot  & \textit{otherwise}
+%\end{cases}
 % $m$-dimensions into coalesced spans which vary in
 % $m+1$-dimensions.
 \end{align*}
@@ -1747,8 +1745,8 @@ generates all possible ways of coalescing regions. For our example,
 the unit spans in Figure~\ref{fig:inference-steps-informal}(a)
 are coalesced into the contiguous spans in
 Figure~\ref{fig:inference-steps-informal}(b).
-This procedure is iterated until a fixed point is reached. In this
-example this is reached in the first step.
+This procedure is iterated until a fixed point is reached (in one step
+in this example).
  Then any spans that are completely contained by any other span are deleted,
 leaving a minimal set of spans (which may overlap, but none of which
 fully contains another), Figure~\ref{fig:inference-steps-informal}(c).
@@ -1760,7 +1758,7 @@ combined by the sum \texttt{+}.
 More formally the algorithm proceeds as follows.
 For all $a \in \mathsf{dom}(U)$, let $M = U(a)$. Every scheme in $M$
 is mapped to a unit span
-by $\textsf{unitSpans}(M) = \{[u \; u] \mid u\!\in\!M\}$. For our example:
+by $\textsf{unitSpans}(M) = \{[u \; u] \mid u\!\in\!M\}$, \eg{}:
 %%
 \begin{align*}
   N(U(\texttt{a})) = \stwo{0}{0}{0}{0} \stwo{1}{0}{1}{0} \stwo{-1}{0}{-1}{0} \stwo{0}{1}{0}{1} \stwo{0}{-1}{0}{-1}
@@ -1828,7 +1826,7 @@ Each set of unit spans is applied to the fixed point of the \spanOp{} function
 \end{align*}
 \end{minipage}
 \caption{Illustration of grouping spans in
-specification inference}
+inference}
 \label{fig:inference-steps-informal}
 \vspace{-0.8em}
 \end{figure}
@@ -1847,7 +1845,7 @@ P(M) = \bigcup_{i \in n!} (\pi^n_{i} , \; \{[\pi^n_i
 \leftarrow M\}
 \end{equation*}
 %
-This corresponds to all rotations of the space.  For our example:
+This corresponds to all rotations of the space, \eg{}:
 %
 \begin{align*}
 P(M_0) =
@@ -1866,21 +1864,20 @@ P(M_0) =
 \end{align*}
 %
 where $\pi^2_1$ is the identity permutation and $\pi^2_2$ is the
-permutation flips the order of the two elements in the
+permutation that flips the order of the two elements in the
 vectors.
 
 \noindent
-\textbf{2)\,} Sort each permutation set into an ordered list, by the ordering:
+\textbf{2)\,} Sort each permutation set into a list, by the ordering:
 \begin{equation*}
   \vect{x} \leq \vect{y} =
       \exists i \, . \; \vect{x}^L_{i} \leq \vect{y}^L_{i} \; \wedge \;
         (i = n \vee \vect{x}_{i+1:n} = \vect{y}_{i+1:n})
 \end{equation*}
 %
-giving the sorting function $\textsf{sort}(M)$. For our example:
+giving the sorting function $\textsf{sort}(M)$, \eg{}, $\textsf{sort}(P(M_0))$:
 %%
 \begin{align*}
-\textsf{sort}(P(M_0)) =
 \{&(\pi^2_1, [
 \stwo{0}{-1}{0}{-1},
 \stwo{-1}{0}{-1}{0},
@@ -1896,19 +1893,16 @@ giving the sorting function $\textsf{sort}(M)$. For our example:
 \stwo{0}{1}{0}{1}])\}
 \end{align*}
 \noindent
-\textbf{3)\,} Reduce each list pairwise by $\bullet$ operation
+\textbf{3)\,} Reduce each list pairwise by $\bullet$
 (Def.~\ref{def:span-coalesc}) to coalesce contiguous regions,
-given by $\textsf{fold}\bullet$. For our example, this yields:
+given by $\textsf{fold}\bullet$. For our example:
 %
 \begin{align*}
 \{&(\pi^2_1, [
 \stwo{0}{-1}{0}{-1},
 \stwo{-1}{0}{1}{0},
 \stwo{0}{1}{0}{1}
-]), (\pi^2_2, [
-\stwo{0}{-1}{0}{-1},
-\stwo{-1}{0}{1}{0},
-\stwo{0}{1}{0}{1}])\}
+]), (\pi^2_2, \textit{same as for $\pi_1$})\}
 \end{align*}
 %
 \textbf{4)\,} Un-permute and union together, \ie{},
@@ -1929,8 +1923,8 @@ U(M) =
 \stwo{1}{0}{1}{0}\}
 \end{align*}
 %
-\textbf{5)\,} Filter by the region containment predicate $\containedin$, that
-  is, if any region is contained within another then remove the
+\textbf{5)\,} Filter by the region containment predicate
+$\containedin$; if any region is contained within another then remove the
   smaller, defined:
 %
 \begin{align*}
@@ -1946,7 +1940,7 @@ For our example this then yields the final result of:
 since $\stwo{0}{1}{0}{1} \sqsubseteq \stwo{0}{-1}{0}{1}$
 and $\stwo{1}{0}{1}{0} \sqsubseteq \stwo{-1}{0}{1}{0}$.
 Applying \spanOp{} again yields the same
-result for our example; the fixed point is reached.
+result for our example.%; the fixed point is reached.
 
 \subsubsection{Step 4: Synthesise specifications from spans}
 \label{sec:inf-step4}
@@ -1965,20 +1959,17 @@ of an algebra on \textit{spec} syntax in disjunctive-normal form
 (which we denote \specDNF{}) and which is wrapped
 in the $\textsf{Approx}$ type (see
 Def.~\ref{def:mult-and-approx}).  The algebra mirrors the shape
-of the region combinators for sum and product,
-with operators $\oplus$ and $\odot$ and a constructor for \specDNF{}:
+of the region operators $\term{+}$ and $\term{*}$ 
+with binary operators $\oplus$ and $\odot$ on
+$\mathsf{Approx}(\specDNF)$.
+A function $\mathsf{toSpec}$ maps a dimension identifier
+and a pair of lower and upper bound
+values (one-dimensional) to a specification with a one-dimensional region.
 %%
 \begin{align*}
-\oplus & : \mathsf{Approx}(\specDNF) \rightarrow \mathsf{Approx}(\specDNF) \rightarrow
-  \mathsf{Approx}(\specDNF) \\
-\odot & : \mathsf{Approx}(\specDNF) \rightarrow \mathsf{Approx}(\specDNF) \rightarrow
-        \mathsf{Approx}(\specDNF) \\
 \mathsf{toSpec} & : \mathbb{N}_{>0} \rightarrow (\domainVal{} \times \domainVal{}) \rightarrow \mathsf{Approx}(\specDNF)
 \end{align*}
 %%
-The $\mathsf{toSpec}$ function maps a dimension identifier
-and a pair of lower and upper bound
-values (one-dimensional) to a specification with a one-dimensional region.
 An entire span is converted into an $n$-dimensional
 specification by applying $\mathsf{toSpec}$ to each
 pair of lower and upper bounds in a span, per dimension, and multiplying these
@@ -1993,12 +1984,11 @@ We unpack the definitions of this algebra.
 
 \begin{definition}[Specifications in DNF]
 Let $r_1, ..., r_n$ range over elements of the \textit{region}
-syntax (see Figure~\ref{fig:syntax}).
+syntax (see Fig.~\ref{fig:syntax}).
 The set \specDNF{} is a subset of syntax trees \textit{spec},
 containing specifications in disjunctive normal form over regions
-where the disjunct is \term{+} (since its model is in terms of set
-union) and the conjunct is \term{*} (since its model is a form of tensor).
-That is elements of \specDNF{} are of the form:
+where the disjunct is \term{+} and the conjunct is \term{*}; 
+ elements of \specDNF{} are of the form:
 %%
 $
 (r^1_{1} \; \term{*} \ldots \term{*} \; r^1_n)\; \term{+} \; \ldots
@@ -2008,19 +1998,17 @@ $.
 More formally, $\specDNF \subseteq (\textit{spec} \cup \{\epsilon\})$, defined:
 %%
 \begin{align*}
-\specDNF{} & ::= \tySum{\specDNF} \mid \epsilon \\
-\tySum{\specDNF} & ::= \tyProd{\specDNF} \; \term{+} \; \tySum{\specDNF} \mid
+\specDNF{} & ::= \tySum{\specDNF} \mid \epsilon \quad\;\;
+\tySum{\specDNF} ::= \tyProd{\specDNF} \; \term{+} \; \tySum{\specDNF} \mid
   \tyProd{\specDNF} \\
 \tyProd{\specDNF} & ::= \textit{region} \; \term{*} \; \tyProd{\specDNF} \mid
    \textit{region}
 \end{align*}
 %%
-We include the empty element $\epsilon$ which is not present in the
-syntax.
 In the following, $S, T$ range over elements of
 \specDNF{} and $\tyProd{s}, \tyProd{t}$ range over elements
-of $\tyProd{\specDNF}$ (for example, $\tyProd{s} = r^1_{1} \; \term{*}
-\ldots \term{*} \; r^1_n$).
+of $\tyProd{\specDNF}$, \ie{} $\tyProd{s} = r^1_{1} \; \term{*}
+\ldots \term{*} \; r^1_n$.
 \end{definition}
 
 \newcommand{\exactR}{\mathsf{exact}\;}
@@ -2040,21 +2028,21 @@ of $\tyProd{\specDNF}$ (for example, $\tyProd{s} = r^1_{1} \; \term{*}
 &\mathsf{toSpec} \; d \; (\llower, \lupper) = \\
 &\hspace{-0.4em}\begin{cases}
 %% POINT
-\exact{\stenReflS{d}} & \llower = 0 \, \wedge \, \lupper = 0\\[0.2em]
+\exact{\stenReflS{d}} & \llower = 0 \, \wedge \, \lupper = 0\\[0.02em]
 %% FWD
-\exact{\stenFwdS{\lupper}{d}}  & \llower = 0 \, \wedge \, \lupper > 0 \\[0.2em]
-\exact{\stenFwdSR{\lupper}{d}{\irreflS}}\!\!\!\! & \llower = 1 \, \wedge \, \lupper > 0 \\[0.2em]
+\exact{\stenFwdS{\lupper}{d}}  & \llower = 0 \, \wedge \, \lupper > 0 \\[0.02em]
+\exact{\stenFwdSR{\lupper}{d}{\irreflS}}\!\!\!\! & \llower = 1 \, \wedge \, \lupper > 0 \\[0.02em]
 %% BWD
-\exact{\stenBwdS{|\llower|}{d}}  & \llower < 0 \, \wedge \, \lupper = 0 \\[0.2em]
-\exact{\stenBwdSR{|\llower|}{d}{\irreflS}}\!\!\!\! & \llower < 0 \, \wedge \, \lupper = -1 \\[0.2em]
+\exact{\stenBwdS{|\llower|}{d}}  & \llower < 0 \, \wedge \, \lupper = 0 \\[0.02em]
+\exact{\stenBwdSR{|\llower|}{d}{\irreflS}}\!\!\!\! & \llower < 0 \, \wedge \, \lupper = -1 \\[0.02em]
 %% CEN
-\exact{\stenCenS{\lupper}{d}}& \llower < 0 \wedge \lupper > 0 \wedge |\llower| = \lupper \\[0.2em]
+\exact{\stenCenS{\lupper}{d}}& \llower < 0 \wedge \lupper > 0 \wedge |\llower| = \lupper \\[0.02em]
 \exactR(\stenBwdS{|\llower|}{d} & \llower < 0 \wedge \lupper > 0  \wedge |\llower| \neq \lupper \\
-\qquad\qquad \texttt{+} \, \stenFwdS{\lupper}{d}) & \\[0.2em]
+\qquad\qquad \texttt{+} \, \stenFwdS{\lupper}{d}) & \\[0.02em]
 % BOUND
-\upperB{\stenFwdS{\lupper}{d}} & \llower > 1 \\[0.2em]
+\upperB{\stenFwdS{\lupper}{d}} & \llower > 1 \\[0.02em]
 \upperB{\stenBwdS{|\llower|}{d}} \quad & \llower < (-1)
- \\[0.2em]
+ \\[0.02em]
 % ABSOLUTE REP
 \exact{\epsilon} & \llower = \infty \, \vee \, \lupper = \infty
   \end{cases}
@@ -2067,35 +2055,27 @@ of $\tyProd{\specDNF}$ (for example, $\tyProd{s} = r^1_{1} \; \term{*}
 \end{figure}
 
 \begin{definition} The $\mathsf{toSpec}$ constructor is defined
-in Figure~\ref{fig:to-spec}.
-The first two cases map to \texttt{forward} stencils since the lower
-bound is $0$ or $1$, with the depth determined by the upper bound of
-the span. If the lower bound is $1$, then the
-$0$-offset point is missing so the region is given a
-\texttt{nonpointed} attribute. The second two cases are similar for
-\texttt{backward} but now the depth of the region is determined by the
-absolute of the lower bound. In the fifth-case, where the lower bound
+in Figure~\ref{fig:to-spec}, where the lower and upper bounds
+determine region constants; $\mathsf{toSpec} \, d \, (l, u)$ is always defined
+ if $l$ less than or equal to $u$.
+
+Positive lower and upper bound yield \term{forward} regions, and
+negative lower and upper bounds yield \term{backward} regions.
+The \texttt{nonpointed} attribute (abbreviated \term{np})
+is present when the lower bound is at $1$ or $-1$. 
+In the sixth-case, where the lower bound
 is negative and the upper bound is positive and they have the same
 magnitude, then a \texttt{centered} region is constructed with
 the depth as the common magnitude. If the magnitudes are not the same
-(sixth case) then separated \texttt{forward} and \texttt{backward}
+(seventh case) then separated \texttt{forward} and \texttt{backward}
 regions are summed, with their corresponding depths.
-
 If the lower bound is greater than 1
 (which implies the upper bound is greater than 1 too) then
 this represents a region that is not at the origin (or next to) the
 origin and thus cannot be represented in the specification language.
-Thus, an upper bound is instead returned showing the maximum extent
+Thus, an upper bound is produced showing the maximum extent
 of the region. The penultimate case is the dual, when the lower bound is less
 than $-1$, giving an upper bound on a \texttt{backward} specification.
-
-Finally, if either bound is $\infty$, representing a non
-neighbourhood index, then an empty specification is given
- with no regions, indicating that there is not even a
-pointed 0-offset access in this dimension.
-
-Note, $\mathsf{toSpec} \, d \, (l, u)$ is always defined
- if $l$ less than or equal to $u$.
 \end{definition}
 
 \begin{definition} The $\odot$ operation on $\textsf{Approx}(\specDNF{})$
@@ -2113,7 +2093,7 @@ That is, the $\hat{\odot}$ product of two specifications $S$ and $T$ in DNF form
 is the $\term{+}$ sum of all pairwise $\term{*}$ products for every
 pair of $\tyProd{spec}$ drawn from $S$ and $T$. The result
 is indeed in DNF-form, where $\hat{\odot}$ is essentially applying
- the (\trule{\textsc{dist}}) rule of our equational theory
+ the \trule{\textsc{dist}} rule of the equational theory
  (Fig.~\ref{fig:equations}). The operation is
 commutative and associative, and sound with respect to our
 model (see Lemma~\ref{lem:alg-soundness} below).
@@ -2143,8 +2123,8 @@ as $\odot$ is commutative.
 \end{definition}
 
 \begin{definition}The $\oplus$ operation on $\textsf{Approx}(\specDNF)$
-is defined in a similar way to $\odot$, with the intermediate $\hat{\oplus}$ on
-$\specDNF$ given by:
+is defined similarly to $\odot$, with the intermediate $\hat{\oplus}$ on
+$\specDNF$:
 %%
 \begin{equation*}
 S \,\hat{\oplus}\, \epsilon = S \quad
@@ -2158,7 +2138,8 @@ $\hat{\oplus}$ to \textsf{Approx} with the shape as $\odot$ in the previous
 definition.
 \end{definition}
 
-\begin{lemma}[$\hat{\odot}$, $\hat{\oplus}$ soundness]$\forall S,
+\begin{lemma}%[$\hat{\odot}$, $\hat{\oplus}$ soundness]
+$\forall S,
   T \in \specDNF$ where $S\!\neq \epsilon \wedge T\!\neq \epsilon$:
 \begin{align*}
 \interp{S \; \hat{\odot} \; T}_n = \interp{S}_n \otimes \interp{T}_n

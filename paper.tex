@@ -2231,16 +2231,20 @@ on \cite{griebel1997numerical}), Computational Physics
 ARPACK-NG~\cite{arpackng}, and
 SPECFEM3D~\cite{specfem3d}.
 
-We first examined how frequently stencil computations occur in our
-corpus of Fortran code. This was carried out by running CamFort in
-whole-code-base inference mode. We parsed 959,427 lines of Fortran
-code and found that 10\% (97,439) of statements have a left-hand side
-is an array subscript on neighbourhood indices. This supports the idea
-that stencil-like computations are common in scientific code. 
+We first examined how frequently stencil computations occur. We parsed
+959,427 lines of Fortran code and found that 10\% (97,439) of
+statements have a left-hand side is an array subscript on
+neighbourhood indices. This supports the idea that stencil-like
+computations are common in scientific code.
 
-We would not expect to infer a stencil for each of these statements
-because our stencil language places significant restrictions on the
-types of array-subscript-statements that we will class as a
+We used CamFort in inference mode to identify stencils within the
+corpus. This assumes that the programs have been implemented
+correctly---normally one would use CamFort in verification mode to
+check the correctness of new code.
+
+We would not expect to infer a stencil for each array statement we
+found because our stencil language places significant restrictions on
+the types of array-subscript-statements that we will class as a
 stencil. In fact, CamFort was able to infer a stencil from 30\% of
 these statements. A single statement can produce multiple stencils and
 we ended up with 60,525 stencils. This shows that we can still express

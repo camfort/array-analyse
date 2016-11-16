@@ -219,7 +219,7 @@ xrightmargin=0.2cm,commandchars=\\\{\},baselinestretch=0.98,numbersep=0.9em}
 \begin{document}
 \maketitle
 
-\bibliographystyle{plain}
+\bibliographystyle{plainnat}
 
 \begin{abstract}
 Stencil computations are a common programming pattern in numerical
@@ -583,7 +583,10 @@ combined via region operators \term{+} and \term{*}.
 
 Region constants specify a finite contiguous region in a
 single dimension relative to the origin and are either \term{pointed},
-\term{forward}, \term{backward}, or \term{centered}.  Each region
+\term{forward}, \term{backward}, or \term{centered}. The region names are
+inspired by the scientific terminology, \eg{} the standard explicit method for
+approximating PDEs is known as the \emph{Forward Time, Centered Space} (FTCS)
+scheme~\citep{dawson1991finite}. Each region
 constant has a dimension identifier $d$ given as a positive natural number.
 Each constant except \term{pointed} has a depth
 parameter $n$ given as a positive natural number; \term{pointed}
@@ -818,6 +821,7 @@ index, $\schemeN$ maps it to an indexing scheme.
 \end{definition}
 
 \begin{definition}[Generalisation]
+\label{def:generalisation}
 Given two schemes $v, w$ of dimensionality $n$,
 then $w$ is said to \emph{generalise} $v$
 (or conversely $v$ \emph{specialises} $w$),
@@ -828,8 +832,8 @@ v \preceq_n w \;\; \Leftrightarrow  \;\;
 \]
 %%
 where $\preceq_n$ is a reflexive, transitive relation on
-$(\mathbb{Z}_{\infty})^n \times (\mathbb{Z}_{\infty})^n$. Thus, the
-element $\infty$ generalises any index in the same dimension.
+index schemes $\domainVal^n$. Thus,
+ $\infty$ generalises any index in the same dimension.
 %
 \end{definition}
 
@@ -841,7 +845,6 @@ conversions:
 \begin{array}{ll}
 \schemeN{(i, j+1)} & =\vtwoh{0}{1} \\
 \schemeN{(1, j+1)} & = \vtwoh{\infty}{1} \\
-\schemeN{(3, j)} & = \vtwoh{\infty}{0} \\
 \schemeN{(i*2, j)} & = \bot
 \end{array}
 \end{align*}
@@ -1011,8 +1014,7 @@ an integer, then filter out vectors with $\infty$ at any coordinate, \eg{}
 where $\vtwoh{1}{\infty}$ and $\vtwoh{3}{\infty}$ have been filtered.
 
 The notion of which dimensions $i$ have \emph{any scheme in the model
-where $u_i \neq \infty$} is represented by the \emph{constrained
-dimensions} intermediate function:
+where $u_i \neq \infty$} is represented by following  function:
 \begin{definition}%[Constrained dimensions]
 For an $n$-dimensional model $M$, its \emph{constrained dimensions}
 are the set of dimension identifiers where at least one scheme $u \in M$ has
@@ -1333,9 +1335,9 @@ $<:$ on \textit{specs} (omitting reflexivity, transitivity, and congruences). }
 We outline here the procedures for checking conformance
 of source code against specifications (\Cref{subsec:checking})
 and for infering specifications from code (\Cref{subsec:inference}).
-Both rely on a program analysis that converts array indexing
-expressions into sets of index schemes. We outline this analysis
-first (\cref{subsec:analysis}). Note that the analysis procedure
+Both rely on a program analysis that converts array subscripts
+ into sets of index schemes. We outline this analysis
+first (\cref{subsec:analysis}). Note that the analysis 
 can be made arbitrarily more complex and wide-ranging independent
 of the checking and inference procedures. At the moment, the analysis
 is largely \emph{syntactic}, with only a small amount of
@@ -1435,16 +1437,16 @@ end do; end do
 \end{minted}
 %
 The \textit{analyse} function matches on
-line 4, with the following set for $\textsf{flowsTo}(\texttt{a(i, j) + x +
-  y})$:
+line 4 with the following set for $\textsf{flowsTo}(\texttt{a(i, j) + x +
+  y}) = $
 %
-\begin{align*}
-{\small{
-\{\texttt{a(i-1, j)}, \texttt{a(i+1, j)}, \texttt{a(i, j-1)},
-  \texttt{a(i, j+1)}, \texttt{a(i, j)}\}}}
-\end{align*}
-The \emph{modelise} function then yields the following
-since all multiplicities in the model are one:
+%\begin{align*}
+{{ %{\small{
+$\{$\texttt{a(i-1, j)}, \texttt{a(i+1, j)}, \texttt{a(i, j-1)},
+  \texttt{a(i, j+1)}, \texttt{a(i, j)}$\}$}}. 
+%\end{align*}
+Thus, \emph{modelise} returns the following
+as all multiplicities are one:
 %%
 \begin{align*}
 \texttt{a} \mapsto \mathsf{only}(\{\vtwoh{-1}{0}, \vtwoh{1}{0},
@@ -1598,8 +1600,8 @@ with steps:
 \item Generate the model from the specification as in
   \cref{sec:semantics}.
 %
+\vspace{-0.4em}
 \begin{align*}
-\vspace{-0.3em}
  N_s= \{  \vtwo{-1}{\infty},
           \vtwo{0}{\infty},
           \vtwo{1}{\infty},
@@ -1608,14 +1610,14 @@ with steps:
         \vtwo{\infty}{1} \}  \\
 \interp{{\textcolor{darkgreen}{\texttt{readOnce, fivepoint}}}}_2 =
   \textsf{once}(\textsf{exact} (N_s))
-\vspace{-0.3em}
 \end{align*}
-%
+\vspace{-1.5em}
+
 \item Generate code model $\textit{modelise}(l3, \texttt{b}) =
   \textsf{once} (M_c)$ where:
 %
+\vspace{-0.7em}
 \begin{align*}
-\vspace{-0.3em}
 M_c = & \{
     \vtwo{0}{-1},
     \vtwo{0}{0},
@@ -1623,8 +1625,8 @@ M_c = & \{
     \vtwo{-1}{0},
     \vtwo{1}{0}
   \}
-\vspace{-0.3em}
 \end{align*}
+\vspace{-1em}
 %
 \item By the definition of consistency (\Cref{fig:consistency})
  $\textsf{once}(\textsf{exact}(N_s))$ is consistent with
@@ -1809,6 +1811,7 @@ Each set of unit spans is applied to the fixed point of the \spanOp{} function
 \begin{figure}[t]
 \vspace{-1em}
 \hspace{-0.5em}
+{\scalebox{0.96}{
 \begin{minipage}{0.16\linewidth}
 \begin{align*}
 \setlength{\arraycolsep}{0em}
@@ -1860,7 +1863,7 @@ Each set of unit spans is applied to the fixed point of the \spanOp{} function
 \end{tikzpicture} \\[-0.5em] (c)
 \end{array}
 \end{align*}
-\end{minipage}
+\end{minipage}}}
 \caption{Illustration of grouping spans in
 inference}
 \label{fig:inference-steps-informal}
@@ -1961,7 +1964,7 @@ U(M) =
 %
 \textbf{5)\,} Filter by the region containment predicate
 $\containedin$; if any region is contained within another then remove the
-  smaller, defined:
+  smaller:
 %
 \begin{align*}
 & \vect{x} \containedin \vect{y} = \vect{y}^L_1 \leq \vect{x}^L_1 \wedge \vect{x}^U_1 \leq \vect{y}^U_1
@@ -2186,8 +2189,14 @@ $\forall S,
 \end{lemma}
 %
 \noindent
-Thus our model validates the specification synthesis process which concludes the
-inference procedure. For our example, we infer and then synthesise the
+Thus, our model validates specification synthesis.
+%
+\subsection{Step 5: Simplification}
+The final step applies a simplification pass, orienting the
+equational theory $\equiv$ (\Cref{sec:eqs}) into rewrite rules
+based on some simple heuristics.
+
+For our example, we infer and then synthesise the
 5-point specification:
 %%
 \begin{minted}[linenos=false]{fortran}
@@ -2196,6 +2205,7 @@ inference procedure. For our example, we infer and then synthesise the
 %%
 
 \section{Evaluation}
+\label{sec:evaluation}
 
 %We have processed nearly one million lines of Fortran code using our
 %CamFort tool and examined the output to determine how useful
@@ -2403,15 +2413,17 @@ for C (see \eg{}~\citet[Example 3.4.1]{burghardt2010acsl}). Thus, a specificatio
 can be given for a stencil computation, 
 however, such a specification would exactly replicate the fine-grained
 indexing seen in the code and would simply be prone to low-level input
-errors. Our approach is much more abstract,
-capturing the shape of a specification in concise format different to
-the code. 
+errors. Our approach is much more abstract-- it does
+not aim to reify indexing in the specification, but is novel
+in that it instead
+provides abstract spatial descriptions which capture a large number
+of common patterns.
 
 \citet{kamil2016verified} propose \emph{verified lifting} to extract a
 functionally-complete mathematical representation of low-level, and
 potentially optimised, stencils in Fortran code. This extracted
 predicate representation of a stencil is used to generate code
-for the \textsf{Halide} high-performance
+for the \textsc{Halide} high-performance
 compiler~\citep{ragan2013halide}. Thus their approach must capture the
 full meaning of a stencil computation which requires significant
 program analysis. For example, they report that some degenerate
@@ -2483,7 +2495,8 @@ more elaborate than in our approach.
 
 % Pochoir
 \citet{Tang:2011:SPAA} define a specification language for writing
-stencils embedded in C++ (with Cilk extensions) that are then compiled
+stencils embedded in C++ (with Cilk~\citep{blumofe1996cilk} extensions) that
+are then compiled
 into fast parallel programs based on trapezoidal decompositions with
 hyperspace cuts. The Pochoir specification language is used for
 describing the kernel, boundary conditions and shape of the
@@ -2524,13 +2537,16 @@ the benefits of verification more easily to scientific computing.%such as
 %Fortran code and check annotations on stencil computations within
 %Fortran code.
 
+\paragraph{Concluding remarks}
 
-\section{Conclusion}\label{sec:conclusion}
-
-We have presented a high-level language for the specification of
-stencils in numerical code. As opposed to existing approaches our
-language takes inspiration from the numerical literature and provides
-a concise, abstract description of the stencil.
+There is an increasing awareness of the need for verification
+techniques in
+science~\cite{post2005computational,oberkampf2010verification,orchard2014computational}.
+Our specification language is an approach in this direction, providing
+a system of lightweight, high-level specification for numerical code.
+As opposed to existing approaches our language takes inspiration from
+the numerical literature and provides a concise, abstract description
+of the stencil.
 
 We evaluated our approach on top of CamFort, an open-source analysis
 tool for Fortran programs, running the inference process over a corpus
@@ -2542,7 +2558,7 @@ Our definition of a stencil computation meant that we generated no
 specification for a large number of iterated array accesses in the
 corpus, such as stencils that incorporates reductions. For
 future work, we will be looking into expanding the flexibility of 
-our inference approach to more of these examples. 
+our analysis to include these examples. 
 
 \bibliography{references}
 

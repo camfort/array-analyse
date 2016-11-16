@@ -2412,7 +2412,7 @@ in their specifications, \eg{}, ACSL of \citet{baudin2008acsl}
 for C (see \eg{}~\citet[Example 3.4.1]{burghardt2010acsl}). Thus, a specification
 can be given for a stencil computation, 
 however, such a specification would exactly replicate the fine-grained
-indexing seen in the code and would simply be prone to low-level input
+indexing seen in the code and would be similarly prone to low-level input
 errors. Our approach is much more abstract-- it does
 not aim to reify indexing in the specification, but is novel
 in that it instead
@@ -2424,7 +2424,7 @@ functionally-complete mathematical representation of low-level, and
 potentially optimised, stencils in Fortran code. This extracted
 predicate representation of a stencil is used to generate code
 for the \textsc{Halide} high-performance
-compiler~\citep{ragan2013halide}. Thus their approach must capture the
+compiler~\citep{ragan2013halide}. Thus they must capture the
 full meaning of a stencil computation which requires significant
 program analysis. For example, they report that some degenerate
 stencil kernels take up to 17 hours to analyse and others require
@@ -2458,8 +2458,8 @@ the work.
 %obfuscated, \textsf{STNG} would capture the access behaviour better.
 %
 Furthermore, Kamil \emph{et al.} do not provide a user-visible
-syntactic representation of their specifications, and they do
-not use their specifications for verification, \eg{}, to future-proof
+syntactic representation of their specifications, and nor do
+they provide verification from specifications \eg{}, to future-proof
 the code against later changes. Even if they were to provide a
 syntactic representation, for complex stencils such as Navier-Stokes
 from \cref{sec:intro}, it would be as verbose as the code itself,
@@ -2525,9 +2525,8 @@ space languages. %These are scenarios where an array is divided into
 %non-locality of that memory. Since this access is performed in a
 %different manner, those can be identified automatically by static
 %analysis. To achieve this, 
-Abe \emph{et al.} provide a new language to
-be used for writing stencil computations. Much of the specification
-effort goes towards describing the nuts and bolts of distributing the
+Abe \emph{et al.} provide a new language for writing stencil computations. Much of the specification
+effort goes towards describing the distribution of the
 computation over multiple processors. The code for the stencil kernel
 is generated from a relatively high-level specification. 
 In contrast, we are interested in integrating directly

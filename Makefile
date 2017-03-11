@@ -17,11 +17,11 @@ full: results.tex
 	pdflatex -shell-escape supplement
 	pdflatex -shell-escape paper
 
-bib:
-	pdflatex -shell-escape paper
-	bibtex paper
-	pdflatex -shell-escape paper
-	pdflatex -shell-escape paper
+array17.pdf: references.bib array17.tex results.tex
+	pdflatex -shell-escape array17
+	bibtex array17
+	pdflatex -shell-escape array17
+	pdflatex -shell-escape array17
 
 supplement:
 	pdflatex supplement

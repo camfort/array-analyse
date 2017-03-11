@@ -1,0 +1,1242 @@
+\documentclass[10pt,preprint,numbers]{sigplanconf}
+
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{stmaryrd}
+\usepackage{color}
+\usepackage{graphics}
+\usepackage{fancyvrb}
+\usepackage{subfigure}
+\usepackage{multirow}
+\usepackage{minted}
+\usepackage{breqn}
+\usepackage{enumitem}
+%\usepackage{subcaption}
+\usepackage{siunitx} % For pretty-printing numeric values and SI units
+                     % of measure. e.g., the tabular column type S is
+                     % used to print nice-looking tables of numbers.
+\sisetup{ % defaults
+  group-separator={,},
+  group-minimum-digits={3},
+  output-decimal-marker={.},
+  table-format = 6
+}
+
+\usepackage{tikz}
+\usepackage{xypic}
+\usepackage{natbib}
+
+\usetikzlibrary{calc}
+
+%% http://tex.stackexchange.com/questions/55068/is-there-a-tikz-equivalent-to-the-pstricks-ncbar-command
+\tikzset{
+    ncbar angle/.initial=90,
+    ncbar/.style={
+        to path=(\tikztostart)
+        -- ($(\tikztostart)!#1!\pgfkeysvalueof{/tikz/ncbar angle}:(\tikztotarget)$)
+        -- ($(\tikztotarget)!($(\tikztostart)!#1!\pgfkeysvalueof{/tikz/ncbar angle}:(\tikztotarget)$)!\pgfkeysvalueof{/tikz/ncbar angle}:(\tikztostart)$)
+        -- (\tikztotarget)
+    },
+    ncbar/.default=0.5cm,
+}
+
+\tikzset{round left paren/.style={ncbar=0.4cm,out=110,in=-110}}
+\tikzset{round right paren/.style={ncbar=0.4cm,out=70,in=-70}}
+
+
+\fvset{
+  linenos=true,
+  fontsize=\footnotesize,
+  breaklines=true,
+ breakafter=w),
+  xleftmargin=\parindent,
+  numbersep=1em
+}
+
+\usemintedstyle{vs}
+
+\definecolor{darkblue}{rgb}{0.0,0.0,0.5}
+\definecolor{darkgreen}{rgb}{0.0,0.4,0.0}
+\definecolor{darkdarkgreen}{rgb}{0.0,0.35,0.0}
+
+\usepackage{hyperref}
+\hypersetup{
+    unicode=false,          % non-Latin characters in Acrobat's bookmarks
+    pdftoolbar=true,        % show Acrobat toolbar?
+    pdfmenubar=true,        % show Acrobat menu?
+    pdffitwindow=false,      % page fit to window when opened
+    pdftitle={},    % title
+    pdfauthor={}
+    pdfsubject={},   % subject of the document
+    pdfnewwindow=true,      % links in new window
+    pdfkeywords={keywords}, % list of keywords
+    colorlinks=true,       % false: boxed links; true: colored links
+    linkcolor=darkblue,          % color of internal links
+    citecolor=darkblue,        % color of links to bibliography
+    filecolor=green,      % color of file links
+    urlcolor=blue,          % color of external links
+}
+
+\usepackage{cleveref}
+\crefname{section}{\S}{\S\S}
+\Crefname{section}{\S}{\S\S}
+\crefname{subsection}{\S}{\S\S\S}
+\Crefname{subsection}{\S}{\S\S\S}
+\crefname{figure}{fig.}{}
+\Crefname{figure}{Fig.}{}
+\crefname{definition}{def.}{}
+\Crefname{definition}{Def.}{}
+
+\CustomVerbatimEnvironment{SpecVerbatim}{Verbatim}{fontsize=\footnotesize,xleftmargin=0.5cm,
+xrightmargin=0.2cm,commandchars=\\\{\},baselinestretch=0.98,numbersep=0.9em}
+\CustomVerbatimEnvironment{ExmVerbatim}{Verbatim}{fontsize=\footnotesize,xleftmargin=0.5cm,
+xrightmargin=0.2cm,baselinestretch=0.98,numbers=left,numbersep=0.9em,commandchars=\\\{\}}
+\CustomVerbatimEnvironment{IVerbatim}{Verbatim}{fontsize=\relsize{-1},xleftmargin=0.5cm,
+xrightmargin=0.2cm,commandchars=\\\{\},baselinestretch=0.98,numbersep=0.9em}
+
+
+\definecolor{darkgreen}{rgb}{0.0,0.5,0.0}
+\definecolor{darkpurple}{rgb}{0.6,0.0,0.6}
+\definecolor{orange}{rgb}{0.8,0.4,0.0}
+\definecolor{darkorange}{rgb}{0.5,0.2,0.0}
+\definecolor{marco}{rgb}{0.0,0.3,0.5}
+\definecolor{gray}{rgb}{0.2,0.2,0.2}
+
+\newcommand\mdef{\stackrel{\mathclap{\normalfont\mbox{def}}}{=}}
+
+\newcommand{\bn}{\mathbb{N}}
+
+\newcommand{\todo}[1]{\textcolor{blue}{Dom: #1}}
+\newcommand{\dnote}[1]{\textcolor{darkpurple}{Dom: #1}}
+\newcommand{\mnote}[1]{\textcolor{darkgreen}{Mistral: #1}}
+\newcommand{\anote}[1]{\textcolor{red}{Andy: #1}}
+
+\newcounter{block}
+
+\newtheorem{lemma}[block]{Lemma}
+\newtheorem{proposition}[block]{Proposition}
+
+\theoremstyle{definition}
+
+\newtheorem{theorem}[block]{Theorem}
+\newtheorem{remark}[block]{Remark}
+\newtheorem{example}[block]{Example}
+\newtheorem{definition}[block]{Definition}
+
+% Writing macros
+\newcommand{\ie}{\emph{i.e.}}
+\newcommand{\eg}{\emph{e.g.}}
+
+\newcommand{\dimId}{\texttt{dim}}
+
+% Semantics related
+\newcommand{\interp}[1]{\llbracket{#1}\rrbracket}
+
+% Syntax macros
+\newcommand{\nonterm}[1]{\textit{#1}}
+\newcommand{\term}[1]{\texttt{#1}}
+
+\newcommand{\stenRefl}[1]{\term{pointed} \, (\term{dim=}#1)}
+\newcommand{\stenFwd}[3]{\term{forward} \, (\term{depth=}#1,
+  \term{dim=}#2{#3})}
+\newcommand{\stenBwd}[3]{\term{backward} \, (\term{depth=}#1,
+  \term{dim=}#2{#3})}
+\newcommand{\stenCen}[3]{\term{centered} \, (\term{depth=}#1,
+  \term{dim=}#2{#3})}
+\newcommand{\irrefl}{\texttt{nonpointed}}
+
+\newcommand{\stenReflS}[1]{\term{pointed} \, (\term{dim=}#1)}
+\newcommand{\stenFwdS}[2]{\term{fwd} \, (\term{depth=}#1,
+  \term{dim=}#2)}
+\newcommand{\stenBwdS}[2]{\term{bwd} \, (\term{depth=}#1,
+  \term{dim=}#2)}
+\newcommand{\stenCenS}[2]{\term{cen} \, (\term{depth=}#1,
+  \term{dim=}#2)}
+\newcommand{\irreflS}{\texttt{np}}
+
+\newcommand{\stenFwdSR}[3]{\term{fwd} (\term{depth=}#1,
+  \term{dim=}#2, #3)}
+\newcommand{\stenBwdSR}[3]{\term{bwd} (\term{depth=}#1,
+  \term{dim=}#2, #3)}
+\newcommand{\stenCenSR}[3]{\term{cen} (\term{depth=}#1,
+  \term{dim=}#2, #3)}
+\newcommand{\stenReflSR}[1]{\term{point} (\term{dim=}#1)}
+
+% SYNTAX OPERATIONS AND PREDICATES
+%\newcommand{\neigh}{\textsf{neigh}}
+\newcommand{\arrayTy}{\textsf{array}}
+\newcommand{\rhsExp}{\textsf{rhsExp}}
+\newcommand{\var}{\textsf{var}}
+
+%% VECTOR NOTATIONS
+\newcommand{\vect}[1]{\textbf{#1}}
+
+\newcommand{\vtwohs}[2]{\setlength{\arraycolsep}{0em}
+\left[\begin{array}{cc}#1 \, & \, #2\end{array}\right]\!}
+
+\newcommand{\vtwoh}[2]{\setlength{\arraycolsep}{0em}
+\left[\begin{array}{cc}#1 \; & \; #2\end{array}\right]}
+
+\newcommand{\vthreeh}[3]{\setlength{\arraycolsep}{0em}
+\left[\begin{array}{ccc}#1 \; & \; #2 \; & \; #3\end{array}\right]}
+\newcommand{\vtwo}[2]{\setlength{\arraycolsep}{0em}
+\left[\begin{array}{l}#1\\#2\end{array}\right]}
+\newcommand{\vthree}[3]{\setlength{\arraycolsep}{0em}
+\left[\begin{array}{l}$#1$\\$#2$\\$#3$\end{array}\right]}
+\newcommand{\stwo}[4]
+%{\vtwo{#1}{#2}\!\vtwo{#3}{#4}}
+{\setlength{\arraycolsep}{0.1em}
+\left[\begin{array}{rr}$#1$ & $#3$\\$#2$ & $#4$\end{array}\right]}
+
+\newcommand{\singleEntry}[2]{\textbf{J}_{#2}^{#1}}
+\newcommand{\zeroEntry}[2]{\textbf{K}_{#2}^{#1}}
+
+%% OPERATIONS ON SPANS and VECTORS
+\newcommand{\containedin}{\sqsubseteq}
+
+%% MODEL
+\newcommand{\effdims}[2]{\mathit{constr}(#1)_{#2}}
+
+\newcommand{\trule}[1]{{\footnotesize{(\text{#1})}}}
+%\include{results}
+
+
+%\newcommand{\cons}[3]{\mathbf{C}_{#3}(#1, #2)}
+\newcommand{\consName}{\textbf{agree\textprime}}
+\newcommand{\cons}[2]{#1 \,\, \consName{} \,\, #2}
+\newcommand{\consAName}{\textbf{agree}}
+\newcommand{\consA}[2]{#1 \,\, \consAName{} \,\, #2}
+\newcommand{\consSub}[3]{#2 \,\, \consAName{}_{#1} \,\,#3}
+
+
+\title{Verifying Spatial Properties of Stencil Computations using CamFort}
+%\titlebanner{DRAFT -- Do not distribute}
+\authorinfo{}{}{}
+%\preprintfooter{DO NOT DISTRIBUTE}
+
+
+\begin{document}
+\maketitle
+
+\bibliographystyle{plainnat}
+
+\begin{abstract}
+  Stencil computations are a common programming pattern in numerical code and
+  typically form the core of graphics and scientific computing applications.
+  However, they are often complex and unwieldy, involving substantial
+  fine-grained manipulation of array indices across multiple arrays and
+  dimensions. This requires careful testing, which is almost always done
+  manually and then discarded. In this paper, we propose an alternate approach:
+  a specification language and automated tool for verifying the spatial
+  behaviour of stencils. The specification language is based on the hypothesis
+  that stencil computations read from arrays with a regular, fixed pattern
+  which can be captured by a simple set of abstract combinators. These
+  specifications can be embedded as annotations in source code, against which
+  code can be checked for conformance. For legacy code, spatial specifications
+  can be inferred, providing documentation and aiding future software
+  maintenance.
+
+  We evaluate our specification language and verification tool
+  against a corpus of numerical Fortran code ($\sim$ 1 million lines) for which
+  we generate $\sim$ 60,000 specifications, showing the vast majority of stencil
+  computations indeed have a simple, regular, static shape.
+\end{abstract}
+
+%\keywords{program verification, specification, stencils}
+
+
+\section{Introduction}\label{sec:intro}
+
+\emph{Stencils} are a ubiquitous programming pattern, common in scientific and
+numerical computing applications. Informally, a stencil computation computes an
+array whose value at each index $i$ is calculated from a \emph{neighbourhood}
+of values around $i$ in some input array(s), \eg{}, the Game of Life,
+convolutions in image processing, approximations to differential equations. For
+example, the following computes the one-dimensional discrete Laplace transform
+(an approximation to a derivative) in Fortran:
+%
+\begin{minted}{fortran}
+do i = 1, (n-1)
+      b(i) = a(i-1) - 2*a(i) + a(i+1)
+end do
+\end{minted}
+%
+Values \texttt{b(i)} are calculated from a neighbourhood of elements around
+\texttt{i} in the input array \texttt{a}. In this example, the access pattern
+is simple and easily understood. More complex stencil computations are more
+prone to errors from simple lexical mistakes. For example, the following is a
+small snippet from a Navier-Stokes fluid simulator (based
+on~\citet{griebel1997numerical}) in which two arrays are read with different
+data access patterns, across two dimensions.
+%%
+\begin{minted}[firstnumber=20,xleftmargin=2em]{fortran}
+du2dx = ((u(i,j)+u(i+1,j))*(u(i,j)+u(i+1,j))+   &
+  gamma*abs(u(i,j)+u(i+1,j))*(u(i,j)-u(i+1,j))- &
+  (u(i-1,j)+u(i,j))*(u(i-1,j)+u(i,j))-          &
+  gamma*abs(u(i-1,j)+u(i,j))*(u(i-1,j)-u(i,j))) &
+  /(4.0*delx)
+
+duvdy = ((v(i,j)+v(i+1,j))*(u(i,j)+u(i,j+1))+   &
+  gamma*abs(v(i,j)+v(i+1,j))*(u(i,j)-u(i,j+1))- &
+  (v(i,j-1)+v(i+1,j-1))*(u(i,j-1)+u(i,j))-      &
+  gamma*abs(v(i,j-1)+v(i+1,j-1))*(u(i,j-1)-     &
+  u(i,j))) / (4.0*dely)
+
+laplu = (u(i+1,j)-2.0*u(i,j)+u(i-1,j))/delx/delx+ &
+  (u(i,j+1)-2.0*u(i,j)+u(i,j-1))/dely/dely
+
+f(i,j) = u(i,j)+del_t*(laplu/Re-du2dx-duvdy)
+\end{minted}
+%%
+The access pattern is much harder to understand than the one-dimensional
+Laplace. The miasma of indexing expressions of the form \texttt{var(i$\pm$a,
+j$\pm$b)} is not only hard to read, but is prone to simple textual input
+mistakes, \eg{}, swapping \texttt{-} and \texttt{+}, missing an indexing term,
+or transforming the wrong variable \eg{} \texttt{(i+1,j)} instead of
+\texttt{(i,j+1)}.
+
+In practice, the development process for complex stencil computations involves
+ad hoc testing to ensure that no transcription mistakes have been made (\eg{},
+by visual inspections, or comparison against an manufactured or analytical
+solutions~\cite{farrell2010automated}). Typically such testing is discarded
+once the code is seen to be correct.
+
+This is not the only information that is often discarded. The ``shape'' of the
+indexing pattern is usually the result of choices made in the
+numerical-analysis procedure to convert some continuous equations into a
+discrete approximation. Rarely are these decisions captured in the source code,
+yet the shape of access is usually uniform and is has a perspicuous and concise
+description in numerical analysis literature \eg{}, ``\emph{centered in space,
+to a depth of 1}'' referring to indexing terms \texttt{a(i)}, \texttt{a(i-1)}
+and \texttt{a(i+1)}.
+
+To support the development of correct stencil computations, we propose a
+simple, abstract specification language for the data access pattern of
+stencils. The shape of the Laplace example stencil is specified in our language
+as:
+%
+\begin{minted}[linenos=false]{fortran}
+!=  stencil centered(depth=1, dim=1) :: a
+\end{minted}
+%
+That is, \texttt{a} is accessed with a symmetrical pattern (``centered'') to a
+depth of one in each direction in its first dimension. The Navier-Stokes
+example has a shape specified as:
+%
+\begin{minted}[linenos=false,xleftmargin=0em,xrightmargin=0.8em,breakindent=1.9em]{fortran}
+!= stencil centered(depth=1,dim=1)*pointed(dim=2)     + centered(depth=1,dim=2)*pointed(dim=1) :: u
+
+!= stencil forward(depth=1,dim=1)                          * backward(depth=1,dim=2) :: v
+\end{minted}
+%
+The specification requires that, over the whole fragment, \texttt{u} is
+accessed with a centered pattern to depth of 1 in both dimensions (this is
+known as the \emph{five-point stencil}) and \texttt{v} is accessed in a
+neighbourhood bounded forwards to depth of $1$ in the first dimension and
+backward to a depth of $1$ in the second dimension. The specification is
+relatively small and much more abstract compared to the source code.
+
+We provide a verification tool which can check the spatial correctness of
+stencil computations against a specification. Furthermore, the tool can
+automatically infer specifications and insert these as comments into the source
+code. The main features and benefits of our approach are as follows:
+%
+\begin{itemize}
+\item The primary use case is that a programmer writes a specification first
+  before the stencil code. Our tool then checks conformance between the two.
+  This specify-and-check approach reduces testing effort and future-proofs
+  against bugs introduced during refactoring and maintenance.
+%
+\item A specification concisely captures the access pattern of a stencil and
+  turns it into documentation. The inference procedure efficiently produces
+  specifications with no programmer intervention, automatically inserting
+  specifications at appropriate places in the source code.
+%
+\item Our specification format is deliberately abstract, with a small number of
+  combinators that \emph{do not involve any indexing expressions}, \eg{}
+  \texttt{a(i+1,j-1)}. This contrasts with other specification approaches,
+  \eg{}, deductive verification tools such as ACSL, where specifications must
+  also be in terms of array-indexing expressions. Therefore, any low-level
+  mistakes that could be made whilst programming complex indexing code could
+  also be made when writing its specification. Our specifications are more
+  abstract and lightweight with the aim of aiding adoption by scientists and
+  preventing indexing errors.
+\end{itemize}
+
+Our verification tool does not target a class of bugs that can be detected
+automatically (\emph{push-button verification}). Instead, stencil computation
+bugs must be identified relative to a specification of the intended access
+pattern.
+
+In this paper, we solely focus on the definition and the usage of the language
+and the acoompanying verification tool and omit the underlying mathematical
+model and implementation details due to space considerations. We make the
+following contributions:
+%
+\begin{itemize}
+\item We introduce a specification language for stencils that captures common
+  forms of data access patterns (\cref{sec:lang});
+%
+\item We provide an implementation of our approach as an extension to
+  CamFort~\cite{camfort}, an open-source program analysis tool for Fortran;
+%
+\item We report on a quantitative study of stencil computations on a corpus of
+  numerical Fortran program (\cref{sec:evaluation}), totalling one million
+  lines of code. Our tool identifies and infers specifications for roughly
+  60,000 stencil computations in the corpus. Approximately 5,000 of the
+  stencils we found are non-trivial, corresponding to code which is a possible
+  source of errors.
+%
+\item We give a verification case study of a stencil computation commonly used
+  in scientific computing, simulating programming errors (\Cref{sec:jacobi}).
+  Our approach detects all possible simulated programming errors for this
+  problem.
+\end{itemize}
+%
+
+\newcommand{\domainVal}{\mathbb{Z}_\infty}
+\section{Stencil specifications}\label{sec:lang}
+
+Our specification language is based on the hypothesis that most forms of array
+access in numerical code have a fixed, statically-determined access pattern.
+For example, the \emph{five-point stencil} on a two-dimensional array reads
+from array indices $(i, j)$, $(i-1, j)$, $(i+1, j)$, $(i, j-1)$, and $(i, j+1)$
+for all $i, j$ within the inner boundary of the array (to avoid out-of-bounds
+access at the edges). We revisit this hypothesis in \cref{sec:evaluation} with
+the inference of such regular stencil patterns on our corpus of numerical
+programs.
+
+We give various definitions used in the paper then \cref{subsec:syntax}
+outlines the syntax of stencil specifications. \cref{sec:eqs} then provides a
+syntactic equational theory for specifications which is sound with respect to
+the underlying model.
+
+\paragraph{Notation}
+%\label{sec:notation}
+
+\renewcommand*{\arraystretch}{0.8}
+For the target language, $e$ ranges over expressions (may be impure) and $v$
+over its (imperative) variables. %By
+%``variable'', we mean in the imperative sense (named binders to memory cells).
+
+\begin{definition}[Induction variable]
+  An integer variable is an \emph{induction variable} if it is the control
+  variable of a ``\texttt{for}'' loop incremented by $1$ per iteration. A variable
+  is interpreted as an induction variable only within the scope of the loop
+  body. Throughout, $i, j, k$ range over induction variables.
+%TODO: consider mentioning derived, non-based induction variables
+% as we did before.
+\end{definition}
+
+\begin{definition}[Array subscripts and indices]
+  An \emph{array subscript}, denoted $a(\bar{e})$, is an expression
+  which reads from an array $a$ at an \emph{index} specified by a
+  comma-separated sequence of integer expressions denoted $\bar{e}$ or
+  in expanded form as $(e_1, \ldots, e_n)$. An index $e_i$
+  is called \emph{relative} if the expression involves an induction
+  variable.
+  An \emph{absolute index} is a constant integer expression relative to the
+  enclosing loop.
+\end{definition}
+
+\begin{definition}[Neighbourhood index]
+\label{def:neighbour}
+  For an array subscript $a(\bar{e})$ an index $e \in \bar{e}$ is a
+  \emph{neighbourhood index} if $e$ is of the form $e \equiv i$, $e \equiv i +
+  c$, or $e \equiv i - c$, where $c$ is an integer constant. That is, a
+  neighbourhood index is a constant translation of an induction variable. (The
+  relation $\equiv$ identifies terms up-to commutativity of $+$ and the inverse
+  relationship of $+$ and $-$ \eg{}, $(-b) + i \equiv i - b$).
+\end{definition}
+
+\texttt{BEGIN: NEEDS REWRITING}
+\begin{definition}[Stencil computations]
+\label{def:stencil}
+  Let $a$ be an array of dimensionality $n$ and $\overline{b}$ a collection of
+  arrays of arbitrary (possibly differing) dimensionalities.  A \emph{stencil
+  computation} comprises an iteration by a set $I$ of at most $n$ induction
+  variables over a subset of the index space of $a$. Each iteration determines
+  the elements of $a$ by an assignment $a(\bar{e}) = e_r$ where each $e \in
+  \bar{e}$ is either a neighbourhood or constant index.  For all $b \in
+  \bar{b}$ and array subscripts $b(\bar{e}')$ that flow to $e_r$, each $e' \in
+  \bar{e}'$ is either a neighbourhood or absolute index.
+
+  We refer to the assignment $a(\bar{e}) = e_r$ and all the associated
+  statements with dataflow to $e_r$ as the \emph{stencil kernel}.
+\end{definition}
+
+We informally describe what it means for a stencil kernel to be consistent with
+a specification. This will be algorithmically described in \Cref{sec:analysis}.
+Specifications are associated to a stencil kernel and are declared for one or
+more array variables $\bar{v}$ within that kernel.  A stencil specification
+defines a \emph{region} associated to an array variable $a$ against which a
+stencil kernel should be \emph{consistent}. The region defined by a
+specification is an $n$-dimensional rectilinear shape in a discrete space
+crossing the origin (which represents a collection of indices which are just
+induction variables). Consistency is then a two way requirement. All array
+subscripts on $a$ contributing to the kernel should be consistent with the
+region. Conversely, all parts of the region should have an index corresponding
+it.
+
+\texttt{END: NEEDS REWRITING}
+
+\begin{figure}[t]
+\vspace{-0.9em}
+\begin{align*}
+\def\arraystretch{1}
+\setlength{\arraycolsep}{0.2em}
+\newcommand{\dimTy}{\mathbb{N}_{>0}}
+\begin{array}{rl}
+\nonterm{specification} ::= & \nonterm{regionDec} \mid \nonterm{specDec} \\
+\nonterm{specDec} ::= & \term{stencil} \; \nonterm{spec} \;
+                        \texttt{::} \; v \\
+\nonterm{regionDec} ::= &  \texttt{region} \; \texttt{::} \; \nonterm{rvar} \; \texttt{=} \;
+                         \nonterm{region}\\[0.4em]
+%\nonterm{spec} ::= & \nonterm{spatial} \mid \nonterm{temporal}
+%\\[1em]
+\nonterm{spec} ::= & [\nonterm{mult},] \; [\nonterm{approx},] \; \nonterm{region} \\
+\nonterm{mult} ::= & \term{readOnce} \\
+\nonterm{approx} ::= & \term{atMost} \; \mid \; \term{atLeast} \\[0.1em]
+\nonterm{region} ::= & \nonterm{rvar} \; \\
+\multicolumn{2}{l}{\qquad \mid \; \stenRefl{\dimTy}} \\
+\multicolumn{2}{l}{\qquad \mid \;\stenFwd{\mathbb{N}_{>0}}{\dimTy}{\;[, \texttt{nonpointed}]}} \\
+\multicolumn{2}{l}{\qquad \mid \; \stenBwd{\mathbb{N}_{>0}}{\dimTy}{\;[, \texttt{nonpointed}]}} \\
+\multicolumn{2}{l}{\qquad \mid \; \stenCen{\mathbb{N}_{>0}}{\dimTy}{\;[, \texttt{nonpointed}]}} \\
+\multicolumn{2}{l}{\qquad \mid \; \nonterm{region} \, \term{+}
+  \, \nonterm{region} \; \mid \; \nonterm{region} \; \term{*} \; \nonterm{region}} \\[0.25em]
+%\multicolumn{2}{l}{\qquad\qquad \mid \; \nonterm{rvar}}
+%\\[0.5em]
+%\nonterm{temporal} ::= \; & \term{dependency} \; (v \; \{ , v \}) [, \texttt{mutual}]
+%  \\[0.5em]
+\nonterm{rvar} ::= \; & [\text{\term{a}-\term{z}$\,$\term{A}-\term{Z}$\,$\term{0}-\term{9}}]+\\[-1em]
+\end{array}
+\end{align*}
+\caption{Specification syntax (EBNF grammar)}
+\label{fig:syntax}
+\vspace{-0.8em}
+\end{figure}
+
+
+\subsection{Specification syntax}
+\label{subsec:syntax}
+
+\Cref{fig:syntax} gives the syntax of stencil specifications, which is detailed
+below. The entry point is the \nonterm{specification} production which splits
+into either a \emph{region declaration} or a \emph{specification declaration}.
+Regions comprise \emph{region constants} which are combined via region
+operators \term{+} and \term{*}.
+
+%\paragraph{Region constants}
+
+Region constants specify a finite contiguous region in a single dimension
+relative to the origin and are either \term{pointed}, \term{forward},
+\term{backward}, or \term{centered}. The region names are inspired by the
+scientific terminology, \eg{} the standard explicit method for approximating
+PDEs is known as the \emph{Forward Time, Centered Space} (FTCS)
+scheme~\citep{dawson1991finite}.
+
+Each region constant has a dimension identifier $d$ given as a positive natural
+number.  Each constant except \term{pointed} has a depth parameter $n$ given as
+a positive natural number; \term{pointed} regions implicitly have a depth of
+$0$.
+
+A \term{forward} region of depth $n$ specifies a contiguous region in dimension
+$d$ starting at the origin. This corresponds to specifying neighbourhood
+indices in dimension $d$ ranging from $i$ to $i + n$ for some induction
+variable $i$. Similarly, a \term{backward} region of depth $n$ corresponds to
+contiguous indices from $i$ to $i - n$ and \term{centered} of depth $n$ from $i
+- n$ to $i + n$. A \term{pointed} stencil specifies a neighbour index $i$. For
+example, the following shows four specifications with four consistent stencil
+kernels reading from arrays \term{a}, \term{b}, \term{c} and \term{d}:
+%%
+\begin{minted}{fortran}
+!= stencil backward(depth=2,dim=1) :: a
+e(i, 0) = a(i, 0) + a(i-1, 0) + a(i-2, 0)
+!= stencil forward(depth=2,dim=1)*pointed(dim=2) :: b
+e(i, j) = b(i, j) + b(i+1, j) + b(i+2, j)
+!= stencil centered(depth=1,dim=2) :: c
+e(i, j) = (c(j-1) + c(j) + c(j+1))/3.0
+!= stencil pointed(dim=3) :: d
+e(i, j) = d(0, 0, i)
+\end{minted}
+%%
+Every dimension with neighbourhood indices need to be specified. The remaining
+non-conforming indices are not included in the specification, \eg{},
+specifications on lines $1$ and $7$ leave some dimensions unspecified since they
+do not conform to definition neighbourhood indices.
+
+The \term{forward}, \term{backward}, and \term{centered} regions may all have
+an additional attribute \term{nonpointed} which marks absence of the origin.
+For example, the following is a \term{nonpointed} \term{backward} stencil
+%
+\begin{minted}{fortran}
+!= stencil backward(depth=2, dim=1, nonpointed) :: a
+b(i) = a(i-1) + 10*a(i-2)
+\end{minted}
+
+\paragraph{Combining regions}
+
+% r+s means that indices must be consistent with either r or s
+% r*s means that indices must be consistent with both r and s at the
+% same time
+
+% specifications correspond to a set of schemes
+
+% r+s means an index must be generalised by a scheme in either r or s
+%       and every scheme in r must have an index which specialises it
+%       and every scheme in s must have an index which specialises it
+
+% r*s means an index must be generalised by a scheme in r and a scheme in s
+%       and every pairs of schemes in r and s must have an index which
+%           specialises both
+%
+
+The region operators \term{+} and \term{*} respectively combine regions
+permissively and restrictively.
+
+The restrictive combination of two regions, $r \term{*} s$, means that any
+indices in the specified code must be consistent with both $r$ and $s$
+simultaneously. Dually, for every pair of components in the regions $r$ and $s$
+there must be an index consistent with both. For example, the following
+\emph{nine-point stencil} has a specification given by the product of two
+\texttt{centered} regions in each dimension:
+%%
+\begin{minted}[breakindent=2.9em]{fortran}
+x = a(i, j)   + a(i-1, j)   + a(i+1, j)
+y = a(i, j-1) + a(i-1, j-1) + a(i+1, j-1)
+z = a(i, j+1) + a(i-1, j+1) + a(i+1, j+1)
+!= stencil centered(depth=1, dim=1) * centered(depth=1, dim=2) :: a
+b(i, j) = (x + y + z) / 9.0
+\end{minted}
+%%
+This pattern is common in image convolution applications. The specification
+ranges over the values that flow to the array subscript on the left-hand side,
+and so ranges over the intermediate assignments to \term{x}, \term{y}, and
+\term{z}. Each index in the code is consistent with both specifications
+simultaneously, \eg{}, \texttt{a(i-1, j+1)} is within the centered region in
+dimension $1$ and the centered region in dimension $2$.
+
+The product $r \term{*} s$ can also be thought of as a bounding box over the
+two regions $r$ and $s$.
+
+The permissive combination of two regions $r \term{+} s$ means that any indices
+in the specified code must be consistent with either of $r$ or $s$. Dually,
+every part of region $r$ must have a corresponding index and similarly for $s$
+independently. For example, the following gives the specification of a
+five-point stencil which is the sum of two compound \texttt{pointed} and
+\texttt{centered} regions in each dimension:
+%
+\begin{minted}{fortran}
+!= stencil centered(depth=1, dim=1)*pointed(dim=2)    + centered(depth=1, dim=2)*pointed(dim=1) :: a
+b(i,j) = -4*a(i,j) + a(i-1,j) + a(i+1,j) &
+                   + a(i,j-1) + a(i,j+1)
+\end{minted}
+%%
+Here the left-hand side of \texttt{+} says that when the second dimension
+(induction variable $j$) is fixed at the origin, the first dimension (induction
+variable $i$) accesses the immediate vicinity of the origin (to depth of one).
+The right hand side of \texttt{+} is similar but the dimensions are reversed.
+This reflects the symmetry under rotation of the five-point stencil. As
+presented in \cref{sec:evaluation}, this symmetry is common to stencil
+computations used in practice, which makes it easier to write specifications.
+
+\paragraph{Region declarations and variables}
+
+Region specifications can be assigned to region variables via
+region declarations. For example, the shape of a
+``\emph{Roberts cross}'' edge-detection convolution~\cite{davis1975survey}
+can be stated:
+%%
+\begin{minted}{fortran}
+!= region :: r1 = forward(depth=1, dim=1)
+!= region :: r2 = forward(depth=1, dim=2)
+!= region :: robertsCross = r1*r2
+!= stencil robertsCross :: a
+\end{minted}
+This is useful for common stencil patterns, such as the five-point
+pattern, as the region can be defined once and reused.
+%%
+\paragraph{Modifiers}
+%%
+Region specifications can be modified
+by \emph{approximation} and \emph{multiplicity} information
+(in \textit{spec} in \Cref{fig:syntax}).
+
+The \texttt{readOnce} modifier enforces that no index appears more
+than once (that is, its multiplicity is one). For example, all of
+the previous examples could have \texttt{readOnce} added:
+%
+\begin{minted}{fortran}
+!= stencil readOnce, backward(depth=2, dim=1) :: a
+b(i+1) = a(i) + a(i-1) + a(i-2)
+\end{minted}
+%
+This specification would be invalid if any of the array subscripts were
+repeated. This modifier provides a way to rule out any accidental repetition of
+array subscripts.  The notion is similar to that of linear
+types~\cite{wadler1990linear}, where a value must be used exactly once. We opt
+for the more informative and easily understood name \texttt{readOnce}. This
+modifier is optional, so it need not be present even if the stencil is linear.
+
+In some cases, it is useful to give a lower and/or upper bound for a stencil.
+This can be done using either the \term{atMost} or \term{atLeast} modifiers.
+This is particularly useful in situations where there is a non-contiguous
+stencil pattern, which cannot be expressed precisely in our syntax. For example:
+%
+\begin{minted}{fortran}
+!= stencil atLeast, pointed(dim=1)         :: a
+!= stencil atMost, forward(depth=4, dim=1) :: a
+b(i) = a(i) + a(i+4)
+\end{minted}
+
+\section{Equational theory}
+\label{sec:eqs}
+
+Specifications have a theory of equality, $\equiv$, providing axiomatic
+semantics for the language. This enables users to rewrite their specification
+and provides a way to automatically simplify specifications after inference.
+Here we only focus on the former and omit mathematical implications of theory.
+Additionally, specifications have a theory of approximation, $<:$, that can be
+used by the users to weaken specifications for succinctness in the source.
+
+The equality relation $\equiv$ is defined over \emph{region} syntax which gives
+the following axioms:
+%
+\begin{itemize}
+\item $\term{+}$ is idempotent, commutative, and associative;
+\item $\term{*}$ is commutative, associative, and distributes over
+$\term{+}$, \ie{},  $R \; \texttt{*} \; (S \; \texttt{+} \; T) \; \equiv \; (R \;
+                       \texttt{*} \; S) \; \texttt{+} \; (R
+                       \; \texttt{*} \; T)$.
+
+\item (\emph{overlapping}) Given two region constants $R_1$ and $R_2$
+on the same dimension, then some combinations of region constants
+can be coalesced into a single region constant $R_3$ if $R_1$ completely
+overlaps $R_2$. There are five possible instantiations of the
+following rule $R_1 + R_2 \equiv R_3$:
+%
+\newcommand{\stenGR}[4]{\small{\textit{#4}(\term{depth=}#1,
+  \term{dim=}#2, #3)}}
+\newcommand{\stenG}[3]{\small{\textit{#3}(\term{depth=}#1,
+  \term{dim=}#2)}}
+%
+\vspace{-0.2em}
+\begin{align*}
+\hspace{-1em} & \stenGR{n}{d}{p \vee q}{$R_3$} \\[-0.4em]
+\hspace{-1em} \equiv \; & \stenGR{n}{d}{p}{$R_1$} \; \texttt{+} \; \stenGR{m}{d}{q}{$R_2$}
+\end{align*}
+where $n \geq m$ and $p$ and $q$ range
+over booleans representing the absence (true) or presence (false)
+of \irrefl{} which are combined via disjunction.
+We denote the possibilities as $\term{fwd+fwd} \equiv \term{fwd}$, $\term{bwd+bwd} \equiv \term{bwd}$,
+$\term{cen+cen} \equiv \term{cen}$, $\term{cen+fwd} \equiv \term{cen}$ and
+$\term{cen+bwd} \equiv \term{cen}$. %Commutative of $\term{+}$
+%provides symmetric variants.
+
+\item (\textit{overlapping pointed}) \term{pointed} regions coalesce
+  with other regions of the same dimension:
+%
+\vspace{-0.4em}
+\begin{align*}
+& \stenG{n}{d}{region} \\[-0.4em]
+\equiv \; & \stenGR{n}{d}{p}{region} \; \texttt{+} \;
+                          \stenReflS{d}
+\end{align*}
+\vspace{-1.5em}
+
+\item \textit{(centered)} a forward and backward region of the same
+  depth and dimension coalesces into a centered region:
+%
+\vspace{-0.4em}
+\begin{align*}
+\hspace{-1em} & {\small{\stenCen{n}{d}{, p \vee q}}} \\[-0.4em]
+\hspace{-1em} \equiv \; & {\small{\stenFwdSR{n}{d}{p} \; \texttt{+} \;
+                          \stenBwdSR{n}{d}{q}}}
+\end{align*}
+\vspace{-1.5em}
+
+\item $(\textsc{point}) \;\; (R \, \term{*} \, S^\irreflS) \, \term{+} \,
+                         (R^\irreflS \, \term{*} \, S) \; \equiv \; R
+                         \, \term{*} \, S$
+meaning that for the sum of products of two regions $R$ and $S$, where in each
+component one of $R$ or $S$ has the non-pointed attribute denoted by
+$R^{\term{np}}$ and $S^{\term{np}}$, the non-pointed attributes cancel to give
+$R \, \term{*} \, S$.
+\end{itemize}
+%
+Stencil specifications in \textit{spec} are considered equal when they have the
+same modifiers and $\equiv$ equates their regions.
+
+\Cref{fig:inequations} defines a notion of sub-specifications via the relation
+$<:^r$ on \textit{region} syntax and then $<:$ on \textit{spec} syntax
+inductively.  Both relations are reflexive and transitive (we omit these
+equations). The $<:^r$ relation is congruent with respect to \term{+} and
+\term{*} and $<:$ is congruent with respect to \term{readOnce}, the equations of
+which we omit for brevity.
+
+The \trule{\textsc{eq}} rule connects region equations to approximation;
+\trule{\textsc{over}} explains the notion of spatial over-approximation via
+overlapping regions; \trule{\textsc{rep}} allows the \term{readOnly} modifier
+that to be dropped. The \trule{\textsc{shrink}} and \trule{\textsc{grow}} rules
+turn the spatial approximation on regions into approximation on specifications
+via the \term{atLeast} and \term{atMost} modifiers. Finally,
+\trule{\textsc{Gen$\ast$}} shows that specifications can be generalised by
+removing parts of a product $\ast$ which have disjoint dimensions to the rest of
+the region product (where $\mathsf{dims}$ denotes the set of dimensions
+specified in a region).
+
+\begin{figure}[t]
+\vspace{-0.5em}
+\begin{align*}
+\hspace{-0.5em}
+{\small{
+\begin{array}{c}
+%%
+%% INEQUATIONS ON REGION
+%%
+%\framebox{$\textit{region} <: \textit{region}'$} \\[0.85em]
+%
+%\dfrac{}{R <:^r R}\trule{\textsc{refl}} \qquad \dfrac{P <:^r R \quad R <:^r Q}{P <:^r
+%  Q}\trule{\textsc{trans}}
+%\qquad
+%\\[1.5em]
+\vspace{-0.4em}
+\setlength{\arraycolsep}{0.1em}
+\dfrac{\hspace{3em} m \leq n \qquad\qquad r \implies s \hspace{3em}}
+{\begin{array}{rl}
+\stenFwdSR{m}{d}{r} & <:^r \stenFwdSR{n}{d}{s}
+%& \;\, ds \subseteq es \wedge n \leq m
+\\
+\wedge \; \stenBwdSR{m}{d}{r} & <:^r \stenBwdSR{n}{d}{s}
+%& \;\, ds \subseteq es \wedge n \leq m
+\\
+\wedge \; \stenCenSR{m}{d}{r} & <:^r \stenCenSR{n}{d}{s}
+%& \;\, ds \subseteq es \wedge n \leq m
+\\
+\wedge \; \stenBwdSR{m}{d}{r} & <:^r \stenCenSR{n}{d}{s} \\
+\wedge \; \stenFwdSR{m}{d}{r} & <:^r \stenCenSR{n}{d}{s} \\[1.2em]
+\end{array}}\trule{\textsc{over}} \\[-0.2em]
+%\hspace{-0.5em}
+%\dfrac{R_1 <:^r S_1 \quad R_2 <:^r S_2}
+%      {R_1 \, \texttt{+} \, R_2 <:^r S_1 \, \texttt{+} \, S_2}
+%\trule{\textsc{cong}\texttt{+}}
+%\dfrac{R_1 <:^r S_1 \quad R_2 <:^r S_2}
+%      {R_1 \, \texttt{*} \, R_2 <:^r S_1 \, \texttt{*} \, S_2}
+%\trule{\textsc{cong}\texttt{*}} \\[1.5em]
+%%
+%% INEQUATIONS ON SPEC
+%%
+%\framebox{$\textit{spec} <: \textit{spec}'$} \\[0.8em]
+%
+%
+\dfrac{R <:^r S}{\term{atLeast}  S <: \term{atLeast}
+  R}\trule{\texttt{L}}
+\;\;
+\dfrac{R <:^r S}{\term{atMost}  R <: \term{atMost}
+  S}\trule{\texttt{M}} \\[1.5em]
+\dfrac{R <:^r S}{R <: \term{atMost} \, S}\trule{\textsc{grow}} \,
+\dfrac{R <:^r S}{S <: \term{atLeast} \, R}\trule{\textsc{shrink}} \,
+\dfrac{R \equiv S}{R <:^r S}\trule{\textsc{eq}}
+ \\[1.5em]
+%%
+\dfrac{\mathsf{dims}(R) \cap \mathsf{dims}(S) = \emptyset}{R \ast S <: R}
+\trule{\textsc{Gen$\ast$}}
+\quad
+%%
+%\\[1.5em]
+%\dfrac{R <: S}{\term{readOnce} \, R <: \term{readOnce} \,
+%  S}\trule{\textsc{cong}\texttt{R}}
+%\;\;
+\;
+\dfrac{}{\term{readOnce} \, R <: R}\trule{\textsc{rep}}
+%\dfrac{}{R <: \term{atMost} R}
+%\quad
+%\dfrac{}{R <: \term{atLeast} R}\\[1.5em]
+\end{array}}}
+\end{align*}
+\vspace{-0.5em}
+\caption{Approximation $<:^r$ on \textit{regions} and
+$<:$ on \textit{specs} (omitting reflexivity, transitivity, and congruences). }
+\label{fig:inequations}
+\vspace{-0.5em}
+\end{figure}
+
+\section{Evaluation}
+\label{sec:evaluation}
+
+To study the effectiveness of our approach,
+we built a corpus of around 1 million lines of Fortran code from a
+range of scientific computing packages: The Unified Model (UM)~\cite{um},
+E3MG~\cite{RePEc:aen:journl:2006se-a12}, BLAS~\cite{blas},
+Hybrid4~\cite{GBC:GBC635}, GEOS-Chem~\cite{geos-chem}, Navier (based
+on \cite{griebel1997numerical}), Computational Physics
+2~\cite{nicholas2006computational},
+ARPACK-NG~\cite{arpackng}, and
+SPECFEM3D~\cite{specfem3d}.
+
+We first examined how frequently stencil computations occur. We parsed
+959,427 lines of Fortran code and found that 10\% (97,439) of
+statements have a left-hand side as an array subscript on
+neighbourhood indices. This supports the idea that stencil-like
+computations are common in scientific code.
+We then used the inference procedure of the previous section to
+generate specifications for stencils in the corpus to assess
+the design of the language. %  This assumes that the programs have been implemented
+%correctly---
+%Normally one would use our approach in verification mode to
+%check the correctness of new code.
+
+We would not expect to infer a stencil for each array statement we
+found because our analysis restricts
+the array-subscript-statements that we classify as a
+stencil. In fact, we were able to infer a stencil from 30\% of
+these statements. A single statement can involve multiple arrays and
+we ended up with 60,525 specifications. This shows that we can express
+a large number of stencil shapes within our high-level abstraction and
+validates our initial hypothesis that many stencil computations have a
+regular shape.
+
+
+%    numStencilSpecs: 60525
+% 4338 files, linesTotal: 1357377, linesParsed: 959427
+% Number of stencils (tickAssign) / number of loops
+% Percentage of a code base that is taken up by stencils
+%Out of 1.35 million lines of code that we fed into our program, and
+%the 959,427 lines that we were able to parse, we identified 60,525
+%cases that fit our criteria for stencil specification.
+
+%\paragraph{Hypothesis 2: Most stencil computations
+%have a regular pattern which can be captured with a simple
+%language of contiguous regions}
+
+% Number of stencils we give a spec to (where a spec declaration to n
+% variables is counted n times) as percentage of number of stencils
+
+    % tickAssign: 97439
+    % tickAssignSuccess: 29402 % <- number of times tickAssign is accompanied by a successful stencil inference
+                               % counts only by +1 each time that tickAssign finds a stencil
+
+%In the analysed body of code we found that we were able to deduce
+%some form of stencil specification from approximately 30\% of the
+%potential stencils examined.
+
+
+%
+%\subsection{Analysing the design of our specifications}
+
+% 1. How may are just reflexive and how many some reflexive
+% justReflexive: 55504
+% someReflexive: 15823
+
+The majority of specifications generated were relatively simple but we
+found significant numbers of more complex shapes. We grouped common
+patterns into categories:
+
+\textbf{All pointed} 55,504 of the stencils we found involved
+only pointed regions. 39,681 of these were pointed in all
+dimensions. Common examples of this were pointwise transformations on
+data (such as scaling).
+
+\textbf{Single-action} specifications comprise one
+forward, backward, or centered region constant combined via \term{+}
+or \term{*} with any number of pointed regions. We identified 4,837 single-action
+specifications, of which 1,532 were single-action with a
+\texttt{nonpointed} modifier.
+
+\textbf{Multi-action} specifications comprise at least two
+ forward, backward, or centered regions, combined with
+any number of pointed regions. We identified 265 multi-action
+specifications out of which 207 had regions combined only with
+$\term{*}$ and 58 combined with a mix of $\term{*}$ and \term{+}.
+
+% multiActionRegionOps1: 31
+% multiActionRegionOps2: 115
+% multiActionRegionOps8: 1
+% multiActionRegionOps14: 5
+% multiActionRegionOps17: 4
+
+% %%%%
+% Complexity-wise, out of these 156 multi-action specifications, 31 of
+% them used a single region operator, 115 used two region operators, 1
+% used eight region operators, 5 used fourteen region operators, and 4
+% used seventeen region operators. Some of these very complex stencils
+% were found in the atmospheric models of the UM.
+% %%%%
+
+\textbf{Bounded} specifications occured with 157
+\texttt{atMost} bounds and 36 \texttt{atLeast}, the latter of which were
+always also paired with an upper bound.
+
+
+
+\begin{figure}[t]\begin{minted}[fontsize=\scriptsize,breakindent=0em,linenos=false,xleftmargin=0em,breakafter=)]{fortran}
+!=stencil readOnce,(forward(depth=1,dim=3,nonpointed))*(backward(depth=1,dim=1))*(backward(depth=1,dim=2))+(forward(depth=1,dim=3))*(backward(depth=1,dim=1))*(pointed(dim=2))+(forward(depth=1,dim=3))*(backward(depth=1,dim=1,nonpointed))*(backward(depth=1,dim=2,nonpointed))+(forward(depth=1,dim=3))*(backward(depth=1,dim=2))*(pointed(dim=1))+(backward(depth=1,dim=1))*(backward(depth=1,dim=2,nonpointed))*(pointed(dim=3))+(backward(depth=1,dim=1,nonpointed))*(backward(depth=1,dim=2))*(pointed(dim=3))::x
+\end{minted}
+\caption{Complex specification inferred from
+  \textbf{UM}\label{fig:smagorinsky}}
+\vspace{-1em}
+\end{figure}
+
+The single- and multi-action classes represent more complex stencils
+with a real possibility for programmer error. As an extreme example, the Unified
+Model has an implementation of the Smagorinsky subgrid-scale model for
+calculating turbulence on which our inference yields 39 specs from 340
+lines of code. This is a large reduction given
+the complexity of the algorithm.  We show one example
+in~\Cref{fig:smagorinsky} which specifies the access pattern to
+a 3-dimensional array (which we have renamed to
+\texttt{x}) arising from a kernel of 93 lines of code involving 142
+array subscripts. The specification was the most complex
+seen in our corpus, yet it still represents a significant abstraction
+of the spatial behaviour given size and complexity of the kernel it describes.
+
+We measured the frequency at which individual specifications involved
+multiple occurences of \term{+} and \term{*}:
+
+\vspace{0.25em}
+\setlength{\tabcolsep}{0.57em}
+{\small{
+\hspace{-1em}\begin{tabular}{c|cccccccc}
+& 0 & 1 & 2 & 3 & 4 & 5 & 6 & $> 7$ \\ \hline
+\term{+} & 60,265 & 220 & 15 & 12 & 5 & 4 & 4 & 0 \\
+\term{*} & 31,393 & 15,151 & 13,457 & 424 & 41 & 42 & 5 & 12
+\end{tabular}}}
+\vspace{0.2em}
+
+\noindent
+\eg{}, roughly half the specifications did not involve $\term{*}$,
+a quarter use one $\term{*}$ and just under a quarter
+use two $\term{*}$ operators.
+
+\paragraph{Limitations}
+
+There were various reasons why we did not infer
+specifications on every looped array computation: \\
+\noindent
+1) \textbf{Non-subset induction variables} occur when the
+induction variables on the RHS are not a subset of those in the LHS. These
+cases are not stencils by our definition. \\
+\noindent
+2) \textbf{Derived induction variables} where an
+index (\mintinline{fortran}{x}) is derived from an
+induction variable (\mintinline{fortran}{i}) as in
+\mintinline{fortran}{x = len - i};  \\
+\noindent
+3) \textbf{Inconsistent induction dimensions} occur when
+an induction variable is used to specify more than one array dimension
+on the RHS or multiple induction variables are used for the same
+dimension on the RHS. These are common in matrix operations such as
+LU-decomposition with assignments such as
+\mintinline{fortran}{a(l) = a(l) - a(m) * b(l, m)}.
+
+
+\subsection{Detecting errors in the 2-D Jacobi iteration}
+\label{sec:jacobi}
+One common example of a stencil computation is the two-dimensional
+Jacobi iteration that repeatedly goes through each cell in a matrix
+and computes the average value of the four adjacent cells. The kernel
+is given by:
+\begin{minted}{fortran}
+  a(i,j) = (a(i-1,j)+a(i+1,j)+a(i,j+1)+a(i,j-1))/4
+\end{minted}
+We infer a precise specification of its shape as:
+\begin{minted}[breakafter=+:,breakindent=-0.6em,breaksymbolsep=0.4em,linenos=false,xleftmargin=-0.5em]{fortran}
+  != stencil pointed(dim=1)*centered(depth=1,dim=2,nonpointed)+pointed(dim=2)*centered(depth=1,dim=1,nonpointed)::a
+\end{minted}
+%
+To test our implementation,
+we examined whether programmer errors would be detected by replacing
+the array index offsets with $-1$, $0$, or $1$ and running our
+verification algorithm. Our checking procedure correctly reported a verification
+failure in each of 6,537 permutations corresponding to an error.
+The iteration computes the average of four adjacent
+cells so $24$ ($4$ factorial) of the possible array index perturbations
+are correct, all of which are accepted by our checker.
+
+
+% /um/trunk/src/atmosphere/diffusion_and_filtering/turb_smagorinsky.F90
+% Tried introducing indexing errors replacing one of the indices of cx_rho_instance with -1,0,+1
+% 42 cases were caught
+% 6 cases were not caught
+
+
+% (/ 55504.0 60525) = 91.7%
+% (/ 15823.0 60525) = 26.1%
+% 91.7\% of the specifications involved only reflexive regions. 26.1\%
+
+
+% 2. Break down of "interesting specifications" (contain more than
+% just reflexive)
+%   - Single-action, histogram on depths
+%   - Single-action + irreflexives, histogram on depths
+
+% singleAction: 4837
+% singleActionIrr: 1532
+
+%   - Multi-action combined only by *
+%   - Multi-action combined also by +, histogram of tree depths
+
+    % multiAction: 156
+    % multiActionMulOnly: 146
+
+
+
+
+%   - Bounded specs (how many lower, upper, or both)
+
+
+    % atLeast: 36
+    % atMost: 157
+    % boundedBoth: 36
+
+
+
+% Present not just percentages but concrete numbers
+
+\section{Related work and conclusions}
+\label{sec:discussion}
+
+Various deductive verification tools can express array indexing
+in their specifications, \eg{}, ACSL of \citet{baudin2008acsl}
+for C (\eg{}~\citet[Example 3.4.1]{burghardt2010acsl}). A specification
+can be given for a stencil computation but must use fine-grained
+indexing as in code and therefore is similarly prone to indexing
+errors. Our approach is much more abstract-- it does
+not aim to reify indexing in the specification, but
+provides simple spatial descriptions which capture a large number
+of common patterns.
+
+\citet{kamil2016verified} propose \emph{verified lifting} to extract a
+functionally-complete mathematical representation of low-level, and
+potentially optimised, stencils in Fortran code. This extracted
+predicate representation of a stencil is used to generate code
+for the \textsc{Halide} high-performance
+compiler~\citep{ragan2013halide}. Thus they must capture the
+full meaning of a stencil computation which requires significant
+program analysis. For example, they report that some degenerate
+stencil kernels take up to 17 hours to analyse and others require
+programmer intervention for correct invariants to be inferred.
+
+% ACR-I think we could skip this in the interests of space
+%This led them to develop \textsf{STNG}, a loop invariant and postcondition
+%finder through syntax-guided synthesis. Using this approach they restrict the
+%search space of postconditions to predicates of a certain form, one that is
+%compatible with \textsf{Halide}. They then look at concrete loop iterations and
+%form an hypothesis about the invariant, which is later confirmed or put back
+%into the system using a SMT solver.
+
+Our approach differs significantly. Rather than
+full representation of stencils, we focus on specifying
+just the spatial behaviour in a lightweight way.
+Thus, it suffices for us to perform a comparatively
+simple data-flow analysis which is efficient, scales linearly with
+code size, and does not require any user intervention.
+Whilst we do not perform deep semantic analysis of stencils,
+ the analysis part of our
+approach can be made arbitrarily more sophisticated independent of the rest of
+the work.
+% Hence, we do not require SMT solving or search of loop invariants. It
+%suffices to do comparatively simple data-flow analysis.
+%Since CamFort mostly does
+%syntactic analysis, the inference procedure terminates quickly and
+%never requires programmer intervention.
+%The downside of our
+%approach is that if optimisation causes the stencil computation to be heavily
+%obfuscated, \textsf{STNG} would capture the access behaviour better.
+%
+Furthermore, Kamil \emph{et al.} do not provide a user-visible
+syntactic representation of their specifications, and nor do
+they provide verification from specifications \eg{}, to future-proof
+the code against later changes. Even if they were to provide a
+syntactic representation, for complex stencils such as Navier-Stokes
+from \cref{sec:intro}, it would be as verbose as the code itself,
+making it difficult for programmer to understand the overall shape of
+the indexing behaviour.
+
+% GPGPU
+Our work has similarities with efforts to verify kernels
+written for General-Purpose GPU
+programming, such as in \citet{Blom:2014:SoCP}. %Stencils are a form of
+%kernel, and GPGPU programming can be viewed as a massively parallel
+%method of transforming a large matrix.
+However, their focus is
+mainly on the synchronisation of kernels and the avoidance of
+data races., while we are interested in correctness
+%embedded within a more typical general-purpose programming
+%language. %Other work on GPGPU computation, such as
+%\citet{Zhang:2012:CGO}, has focused primarily on generating
+%optimised code based on relatively simple specifications: to
+%provide performance while keeping the programmer's effort within
+%reason.
+%
+% Sketching Stencils
+\citet{Solar-Lezama:2007:PLDI} give specifications of stencils using
+unoptimised ``reference'' stencils, coupled with partial
+implementations which are completed by a code
+generation tool. %These kinds of specifications are just simple
+%implementations, so this tool is useful for hand-written, optimised
+%stencils.
+
+% Pochoir
+\citet{Tang:2011:SPAA} define a specification language for writing stencils
+embedded in C++ (with Cilk~\citep{blumofe1996cilk} extensions) that are then
+compiled into parallel programs based on trapezoidal decompositions with
+hyperspace cuts.
+
+By contrast, the work of \citet{Abe:2013:IPDPSW} studies
+correctness bringing a form of model-checking to
+verify certain stencil computations in the context of
+parallelism
+ in partitioned global address
+space languages. %These are scenarios where an array is divided into
+%subarrays on multiple processors but each has the ability to access
+%the others' memory. The authors avoid the state explosion dilemma of
+%model-checking by relying upon the fact that accesses to the
+%``boundary elements'' will require a different method by virtue of the
+%non-locality of that memory. Since this access is performed in a
+%different manner, those can be identified automatically by static
+%analysis. To achieve this,
+Abe \emph{et al.} provide a new language for writing stencil computations. Much of the specification
+effort goes towards describing the distribution of the
+computation over multiple processors. The code for the stencil kernel
+is generated from a relatively high-level specification.
+In contrast, we integrate directly
+into existing, legacy codebases and established languages, bringing
+the benefits of verification more easily to scientific computing.%such as
+%older versions of Fortran.% We infer stencil specifications from
+%Fortran code and check annotations on stencil computations within
+%Fortran code.
+
+\paragraph{Concluding remarks}
+
+There is an increasing awareness of the need for verification
+techniques in
+science~\cite{post2005computational,oberkampf2010verification,orchard2014computational}.
+Our specification language is an approach in this direction, providing
+a system of lightweight, high-level specification for numerical code.
+As opposed to existing approaches our language takes inspiration from
+the numerical literature and provides a concise, abstract description
+of the stencil.
+
+We evaluated our approach by extending CamFort, an open-source analysis
+tool for Fortran programs~\cite{camfort}, running the inference process over a corpus
+of a million lines of Fortran code. We showed that our language is
+capable of capturing many real-world uses of stencils and showed in a
+case-study that it will detect (simulated) programmer errors.
+
+Our restrictive definition of stencils means we do not generate
+specifications for a large number of iterated array accesses in the
+corpus, \eg{} that incorporate reductions. For
+future work, we will look at expanding the flexibility of
+our analysis to include these examples.
+
+\bibliography{references}
+
+\end{document}
+
+%%  LocalWords:  refactoring affine parameterised nonpointed atMost
+%%  LocalWords:  centered readOnce atLeast discretisation Equational
+%%  LocalWords:  equational disjunction denotational dimensionality
+%%  LocalWords:  interprocedural Fortran CamFort preprocessor
+%%  LocalWords:  committers

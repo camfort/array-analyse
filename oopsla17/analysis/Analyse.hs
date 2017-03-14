@@ -74,39 +74,58 @@ applyAnalysisToDir dir = do
     let (dbg, results) = mconcat debugsAndResults
     putStrLn $ dbg
     putStrLn $ show results
-    
+
 
 -- Result type
 data Result = Result {
-   numArrayWrites :: Int,             -- n  where n >= p + m
-   numIVArrayWrites :: Int,           -- p
+   numArrayWrites           :: Int,   -- n  where n >= p + m
+   numIVArrayWrites         :: Int,   -- p
    numRelativeIVArrayWrites :: Int,   -- m
    numIVOrConstArrayWrites :: Int,    -- p'
+   numIVButInconsistentIVRHS :: Int,
+   numIVButNonNeighbourRHS   :: Int,
    numContiguousStencils :: Int,      -- c  where c >= d and p >= c
    numLinearStencils     :: Int,      -- d
    dimensionalityHist    :: [Int],    -- h1 where sum(h1) == c
    depthHist             :: [Int],    -- h2 where sum(h2) == c
+   numArraysReadHist     :: [Int],
    indexExprsHist        :: [Int],    -- h3
-   patternHist           :: (M.Map Int Int, M.Map (Int, Int) Int, M.Map (Int, Int, Int) Int) -- only for 1, 2 and 3 dimensional specs
+   patternHist           :: (M.Map Int Int
+                            , M.Map (Int, Int) Int
+                            , M.Map (Int, Int, Int) Int)
+                            -- only for 1, 2 and 3 dimensional specs
    } deriving Show
 
 
 instance Monoid Result where
-  mempty = Result 0 0 0 0 0 0 [] [] [] (M.empty, M.empty, M.empty)
-      
+  mempty = Result 0 0 0 0 0 0 0 0 [] [] [] [] (M.empty, M.empty, M.empty)
+
   mappend r1 r2 = Result
      { numArrayWrites = numArrayWrites r1 + numArrayWrites r2
      , numIVArrayWrites = numIVArrayWrites r1 + numIVArrayWrites r2
-     , numRelativeIVArrayWrites = numRelativeIVArrayWrites r1 + numRelativeIVArrayWrites r2
-     , numIVOrConstArrayWrites = numIVOrConstArrayWrites r1 + numIVOrConstArrayWrites r2
-     , numContiguousStencils = numContiguousStencils r1 + numContiguousStencils r2
+     , numRelativeIVArrayWrites = numRelativeIVArrayWrites r1
+                                + numRelativeIVArrayWrites r2
+
+     , numIVOrConstArrayWrites = numIVOrConstArrayWrites r1
+                               + numIVOrConstArrayWrites r2
+
+     , numIVButInconsistentIVRHS = numIVButInconsistentIVRHS r1
+                                 + numIVButInconsistentIVRHS r2
+
+     , numIVButNonNeighbourRHS = numIVButNonNeighbourRHS r1
+                                 + numIVButNonNeighbourRHS r2
+
+     , numContiguousStencils = numContiguousStencils r1
+                             + numContiguousStencils r2
+
      , numLinearStencils = numLinearStencils r1 + numLinearStencils r2
      , dimensionalityHist = histZip (dimensionalityHist r1) (dimensionalityHist r2)
      , depthHist = histZip (depthHist r1) (depthHist r2)
+     , numArraysReadHist = histZip (numArraysReadHist r1) (numArraysReadHist r2)
      , indexExprsHist = histZip (indexExprsHist r1) (indexExprsHist r2)
      , patternHist = (M.unionWith (+) (fst3 $ patternHist r1) (fst3 $ patternHist r2)
-                     , M.unionWith (+) (snd3 $ patternHist r1) (snd3 $ patternHist r2)
-                     , M.unionWith (+) (thd3 $ patternHist r1) (thd3 $ patternHist r2))
+                , M.unionWith (+) (snd3 $ patternHist r1) (snd3 $ patternHist r2)
+                , M.unionWith (+) (thd3 $ patternHist r1) (thd3 $ patternHist r2))
      }
    where
     fst3 (a, b, c) = a
@@ -183,6 +202,51 @@ stencilAnalyse nameMap pf@(F.ProgramFile mi cm_pus blocks) =
     dm    = FAD.genDefMap bm
 
 
+-- Used to classify an index
+
+classify ixs | any ((==) NonNeighbour) ixs =
+    -- Any non-neighour indexing
+    mempty { numArrayWrites = 1 }
+
+classify ixs | any (\i -> neighbourToOffset i == Just o && o /= 0) ixs =
+    -- All neighbour with some relative
+    mempty { numArrayWrites = 1, numRelativeIVArrayWrites = 1 }
+
+classify ixs | any (\i -> case i of Constant _ -> True; _ -> False) ixs =
+    -- All induction variables apart from some constant
+    mempty { numArrayWrites = 1, numIVOrConstArrayWrites = 1 }
+
+classify ixs | all (\i -> case i of Neighbour _ 0 -> True; _ -> False) ixs =
+    -- All induction variables
+    mempty { numArrayWrites = 1, numIVArrayWrites = 1 }
+
+-- Predicate on whether an index is at the origin
+isOrigin :: [Neighbour] -> Bool
+isOrigin nixs = all (\i -> case i of Neighbour _ 0 -> True; _ -> False) nixs
+
+-- Given two indices, find out if they are (rectilinear) neighbours
+neighbouringIxs :: [Neighbour] -> [Neighbour] -> Bool
+neighbouringIxs [] [] = True
+neighbouringIxs (x : xs) (y : ys) | x == y = neighbouringIxs xs ys
+neighbouringIxs ((Neighbour v o) : xs) ((Neighbour v' o') : ys)
+  | v == v' && abs (o - o') == 1 && xs == ys = True
+neighbouringIxs _ _ = False
+
+-- Given an index 'ns' and a set of indices 'nss',
+-- find if 'ns' has a neighbour in 'nss'
+hasNeighbouringIx :: [Neighbour] -> [[Neighbour]] -> Bool
+hasNeighbouringIx ns [] = False
+hasNeighbouringIx ns (ns' : nss) =
+  neighbouringIxs ns ns' || hasNeighbourIx nss
+
+contiguity :: [[Neighbour]] -> Bool
+contiguity xs = contiguity' xs
+  where
+    contiguity' [] = True
+    contiguity' (y : ys) | isOrigin y = contiguity' ys
+    contiguity' (y : ys) | hasNeighbouringIx y xs = contiguity' ys
+    contiguity' _ = False
+
 -- Traverse Blocks in the AST and infer stencil specifications
 perBlock :: F.Block (FA.Analysis A) -> Analysis (F.Block (FA.Analysis A))
 
@@ -196,27 +260,18 @@ perBlock b@(F.BlStatement ann span@(FU.SrcSpan lp up) _ stmnt) = do
       (\lhs -> do
          case isArraySubscript lhs of
            Just subs -> do
-             let r = mempty { numArrayWrites = 1 }
              let indices = map (ixToNeighbour ivmap) subs
+             return ("", classify indices)
 
-             if (any ((==) NonNeighbour) indices) then
-                -- Any LHS indices is non neighbourhood
-                return $ ("", r)
-             else do
-               if (any (\i -> neighbourToOffset i == Just o && o /= 0) indices)
-                 -- Any relative offsets 
-               r <- return $ if (a
-                
-
-             case neighbourIndex ivmap subs of
+{- case neighbourIndex ivmap subs of
                Just lhs -> do
                     r <- return $ r { numIVArrayWrites = 1 }
                     -- genSpecsAndReport mode span lhs [b]
                     return ("", r)
                Nothing  ->
-                    return ("", r { numRelativeIVArrayWrites = 1})
+                    return ("", r { numRelativeIVArrayWrites = 1}) -}
            -- Not an assign we are interested in -}
-           _ -> return mempty) 
+           _ -> return mempty)
     tell (mconcat results)
     return b
 
@@ -232,14 +287,19 @@ perBlock b = do
     b' <- descendM (descendBiM perBlock) $ b
     return b'
 
-{-
-genSpecsAndReport ::
-     FU.SrcSpan -> [Neighbour]
-  -> [F.Block (FA.Analysis A)]
-  -> Inferer [([Variable], Specification)]
-genSpecsAndReport span lhs blocks = do
+analyseRHS :: [Neighbour]
+           -> [F.Block (FA.Analysis A)]
+           -> Analysis (String, Result)
+analyseRHS lhs blocks = do
     ivmap <- get
-    let (specs, evalInfos) = runWriter $ genSpecifications ivmap lhs blocks
+    let subscriptsPerArray =
+            M.mapWithKey (\v -> indicesToRelativisedOffsets ivs v lhs)
+          . M.unionsWith (++)
+          $ evalState (mapM (genSubscripts True) blocks) []
+    let numArraysRead = length $ fromList subscriptsPerArray
+    let r = mempty { numArraysReadHist = toHist numArraysRead }
+
+
     tell [ (span, Left specs) ]
     do tell [ (span, Right ("EVALMODE: assign to relative array subscript\
                               \ (tag: tickAssign)","")) ]

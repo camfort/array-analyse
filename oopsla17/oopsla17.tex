@@ -1,0 +1,77 @@
+\documentclass[acmlarge,review,anonymous]{acmart}\settopmatter{printfolios=true}
+
+%% Some recommended packages.
+\usepackage{booktabs}   %% For formal tables:
+                        %% http://ctan.org/pkg/booktabs
+\usepackage{subcaption} %% For complex figures with subfigures/subcaptions
+                        %% http://ctan.org/pkg/subcaption
+
+\usepackage{minted}
+\usepackage{hyperref}
+\usepackage{natbib}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{syntax}
+\usepackage{indentfirst}
+
+%% Bibliography style
+\bibliographystyle{ACM-Reference-Format}
+%% Citation style
+%% Note: author/year citations are required for papers published as an
+%% issue of PACMPL.
+\citestyle{acmauthoryear}   %% For author/year citations
+
+\fvset{fontsize=\scriptsize}
+
+\setlength{\grammarindent}{3em} % increase separation between LHS/RHS
+
+\newcommand{\eg}{\emph{e.g.}}
+\newcommand{\ie}{\emph{i.e.}}
+
+\newcommand{\inbar}{\ \ \textbar\ \ }
+
+\usepackage{cleveref}
+
+\usepackage{xcolor}
+\newcommand{\todo}[1]{\textcolor{blue}{#1}}
+
+\begin{document}
+\title{Understanding and Verifying the Shape of Stencil Computations}
+
+\author{Mistral Contrastin}
+\affiliation{
+  \department{Computer Laboratory}
+  \institution{University of Cambridge}
+}
+\email{Mistral.Contrastin@cl.cam.ac.uk}
+
+\author{Andrew Rice}
+\affiliation{
+  \department{Computer Laboratory}
+  \institution{University of Cambridge}
+}
+\email{Andrew.Rice@cl.cam.ac.uk}
+
+\maketitle
+
+\section{Introduction}
+
+\section{An Empirical Study of Stencils in Scientific Fortran code}
+
+\begin{enumerate}
+\item Stencils are ubiquitious;
+\item Most stencils read their data from source arrays with a static pattern
+base on constant offsets from the mid-point;
+\item Most stencils read their data from contiguous \emph{regions} in an array;
+\item Most stencils read each index at most once.
+\end{enumerate}
+
+\section{A Specification Language for Shape}
+
+\section{Analysis, Checking, and Inference}
+
+\section{Evaluation}
+
+\bibliography{references}
+
+\end{document}

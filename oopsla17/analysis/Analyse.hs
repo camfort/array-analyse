@@ -64,17 +64,23 @@ import Debug.Trace
 main :: IO ()
 main = do
     args <- getArgs
-    if (length args >= 1) then
-      applyAnalysisToDir (head args)
+    if (length args == 1) then
+      applyAnalysisToDir (head args) False []
+    else if (length args > 1) then
+      if (args !! 1 == "-d") then
+         applyAnalysisToDir (head args) True (tail (tail args))
+      else
+         applyAnalysisToDir (head args) False (tail args)
     else
-      putStrLn $ "Please specify a directory on which to apply the analysis"
+      putStrLn $ "Please specify a directory on which to apply the analysis\
+                 \ followed by any number of file names to be excluded "
 
-applyAnalysisToDir :: String -> IO ()
-applyAnalysisToDir dir = do
-    files <- readParseSrcDir dir []
+applyAnalysisToDir :: String -> Bool -> [String] -> IO ()
+applyAnalysisToDir dir debug excludes = do
+    files <- readParseSrcDir dir excludes
     let debugsAndResults = map applyAnalysisToFile files
     let (dbg, results)   = mconcat debugsAndResults
-    putStrLn $ dbg
+    if debug then putStrLn $ dbg else return ()
     putStrLn $ prettyResults results
 
 type ForContigAndNonContig a = (a, a)
@@ -92,7 +98,7 @@ data Result = Result {
   , numStencils                :: Int   -- b
   , numRelativisedRHS          :: Int   -- R (where R = M)
   , numContiguousStencils      :: Int    -- c  where p >= c
-  , numNoOrigin                :: Int    -- c' where c >= c' 
+  , numNoOrigin                :: Int    -- c' where c >= c'
   , numSingNonContigStencils   :: Int
   , numContigLinearStencils    :: Int    -- d  where c >= d
   , dimensionalityHist         :: ForContigAndNonContig [Int]
@@ -190,7 +196,7 @@ instance Monoid Result where
      , numSingNonContigStencils = numSingNonContigStencils r1 + numSingNonContigStencils r2
 
      , numContigLinearStencils = numContigLinearStencils r1 + numContigLinearStencils r2
-     
+
      , dimensionalityHist = histZip (dimensionalityHist r1) (dimensionalityHist r2)
      , maxDepthHist = histZip (maxDepthHist r1) (maxDepthHist r2)
      , numArraysReadHist = histZip (numArraysReadHist r1) (numArraysReadHist r2)
@@ -298,7 +304,7 @@ classify ixs | any (\i -> case i of Constant _ -> True; _ -> False) ixs =
     -- All relative or constant
     mempty { numArrayWrites = 1, numNeighbourArrayWrites = 1, numConstArrayWrites = 1 }
 
-classify ixs | isOrigin ixs = 
+classify ixs | isOrigin ixs =
     -- All induction variables
     mempty { numArrayWrites = 1, numNeighbourArrayWrites = 1, numIVArrayWrites = 1 }
 
@@ -320,7 +326,7 @@ perBlock b@(F.BlStatement ann span@(FU.SrcSpan lp up) _ stmnt) = do
              let r = classify lhsIndices
              if (numNeighbourArrayWrites r > 0) then do
                  -- If the LHS is a neighbourhood index
-                 (dbg, r') <- analyseRHS lhsIndices [b] 
+                 (dbg, r') <- analyseRHS lhsIndices [b]
                  return ("At: " ++ show span ++ "\n" ++ dbg, r `mappend` r')
              else return ("", r)
            _ -> return mempty)
@@ -339,7 +345,7 @@ analyseRHS :: [Neighbour]
 analyseRHS lhs blocks = do
     ivs <- get
     (flTo, nameMap) <- ask
-    let subscripts = let ?flowsGraph = flTo 
+    let subscripts = let ?flowsGraph = flTo
                          ?nameMap = nameMap
                      in M.unionsWith (++) $ evalState (mapM (genSubscripts True) blocks) []
     let subscripts' = filterOutFuns nameMap subscripts

@@ -79,9 +79,11 @@ applyAnalysisToDir :: String -> Bool -> [String] -> IO ()
 applyAnalysisToDir dir debug excludes = do
     files <- readParseSrcDir dir excludes
     let debugsAndResults = map applyAnalysisToFile files
-    let (dbg, results)   = mconcat debugsAndResults
+    let (dbg, result)   = mconcat debugsAndResults
     if debug then putStrLn $ dbg else return ()
-    putStrLn $ prettyResults results
+    putStrLn $ prettyResults result
+    valid <- resultValidation result
+    if valid then (putStrLn $ "Results were valid") else (putStrLn "Results were invalid")
 
 type ForContigAndNonContig a = (a, a)
 
@@ -115,13 +117,52 @@ data Result = Result {
                             -- only for 1, 2 and 3 dimensional specs
     } deriving Show
 
+resultValidation =
+      (\r -> (numArrayWrites r) `gte` (numNeighbourArrayWrites r))
+          `reason` "Array writes >= Neighbour Writes"
+
+ <**> (\r -> (numNeighbourArrayWrites r) `gte` ((numIVArrayWrites r) + (numConstArrayWrites r)))
+          `reason` "Neighour Writes >= (IV Writes + Neigh/Const Writes)"
+
+ <**> (\r -> (numNeighbourArrayWrites r) `gte` (numLHSButNonNeighbourRHS r))
+          `reason` "Neighbour Writes >= Non-neighour RHS"
+
+ <**> (\r -> (numNeighbourArrayWrites r) `gte` (numLHSButInconsistentIVRHS r))
+          `reason` "Neighbour Writes >= Inconsistent IV RHS"
+
+ <**> (\r -> ((numStencils r) + (numLHSButInconsistentIVRHS r) + (numLHSButNonNeighbourRHS r))
+           `eq` (numNeighbourArrayWrites r))
+          `reason` "Num stencils + RHS inconsistent IV + RHS non-neighbour = LHS Neighbour"
+
+ <**> (\r -> (numRelativisedRHS r)
+          `eq` ((numNeighbourArrayWrites r) - ((numConstArrayWrites r) + (numIVArrayWrites r))))
+          `reason` "Num relativised stencils = LHS Neighbour with some relative offset"
+
+ <**> (\r -> (numStencils r)
+            `gte` ((numContiguousStencils r) + (numSingNonContigStencils r)))
+           `reason` "Num stencils >= Num contiguous stencils + num non-contig single index"
+
+gte, eq :: Int -> Int -> (Bool, Int, Int)
+gte x y = (x >= y, x, y)
+eq x y  = (x == y, x, y)
+
+reason :: (Result -> (Bool, Int, Int)) -> String -> (Result -> IO Bool)
+reason f reason = \r -> do
+     let (validity, x, y) = f r
+     when (not validity) (putStrLn $ reason ++ ": " ++ (show validity) ++ " - " ++ show x ++ ", " ++ show y)
+     return validity
+
+infixr 5 <**>
+(<**>) :: (Result -> IO Bool) -> (Result -> IO Bool) -> (Result -> IO Bool)
+f <**> g = \r -> (f r) >>= (\x -> g r >>= (\y -> return (x && y)))
+
 prettyResults r =
     "Results: \n"
  ++ rline "Source lines parsed" (numLines r)
  ++ rline "Array writes" (numArrayWrites r)
- ++ rline "Array writes to I.V. indices" (numIVArrayWrites r)
  ++ rline "Array writes to neighbourhood indices"
           (numNeighbourArrayWrites r - numConstArrayWrites r)
+ ++ rline "Array writes to I.V. indices" (numIVArrayWrites r)
  ++ rline "Array writes to neighbourhood+constant IV indices" (numConstArrayWrites r)
  ++ rline "Neighbour LHS but RHS with non-neighbour indices" (numLHSButNonNeighbourRHS r)
  ++ rline "Neighbour LHS but RHS with inconsistent IV use" (numLHSButInconsistentIVRHS r)

@@ -368,7 +368,7 @@ perBlock b@(F.BlStatement ann span@(FU.SrcSpan lp up) _ stmnt) = do
              if (numNeighbourArrayWrites r > 0) then do
                  -- If the LHS is a neighbourhood index
                  (dbg, r') <- analyseRHS lhsIndices [b]
-                 return ("At: " ++ show span ++ "\n" ++ dbg, r `mappend` r')
+                 ("At: " ++ show span ++ "\n" ++ dbg) `trace` return ("At: " ++ show span ++ "\n" ++ dbg, r `mappend` r')
              else return ("", r)
            _ -> return mempty)
     tell (mconcat results)
@@ -443,7 +443,7 @@ classifyRHSsubscripts ivs rhses lhs =
     -- Num arrays read
     numArrays = toHist . length . M.keys $ rhses
     -- Index exprs
-    numIndexExprs = toHist . length . concat . M.elems $ rhses
+    numIndexExprs = toHist . Data.List.sum . map length . M.elems $ rhses
     -- Patterns
     patterns = mkPatterns . concat . M.elems $ rhsesO
     -- Work out if the stencil is linear or not
@@ -516,7 +516,6 @@ concatHist (x:y:xs) = (x `histZip` y) `histZip` (concatHist xs)
 contig, nonContig :: Monoid a => a -> (a, a)
 contig n = (n, mempty)
 nonContig n = (mempty, n)
-
 
 -- Predicate transformers on Maps
 anyMap p m = M.size (M.filter p m) > 0

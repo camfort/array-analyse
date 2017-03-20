@@ -1,0 +1,290 @@
+\documentclass{article}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{stmaryrd}
+\usepackage{indentfirst}
+\usepackage{cleveref}
+
+\theoremstyle{definition}
+\newtheorem{defn}{Definition}
+
+\theoremstyle{plain}
+\newtheorem{lem}{Lemma}
+\newtheorem{prop}{Proposition}
+
+\newcommand{\eg}{\emph{e.g.}}
+
+\newcommand{\zinf}{\textnormal{$\mathbb{Z}^\infty$}}
+\newcommand{\interp}[1]{\llbracket\texttt{#1}\rrbracket}
+\newcommand{\interv}[3]{\textnormal{$\lbrack#1,#2\rbrack^{#3}$}}
+\newcommand{\vecgen}[3]{\textnormal{$\textit{vec-gen}_{#1}(#2,#3)$}}
+
+\begin{document}
+
+\section{Giving specifications meaning}
+
+We construct a lattice and use this lattice to give meanings to regions. We
+then give full meaning to specifications by wrapping regions in variant types
+for multiplicity and approximation. Model defined in this section will later be
+used for two purposes. First, we show soundness of the equational theory of
+specifications with respect to the model. Second, we define inference and
+consistency checking procedures of specifications with respect to the
+interpretations of the stencils in the code and the specifications.
+
+\subsection{Constructing the lattice model of regions}
+
+\begin{defn}{(\zinf)}
+  We define the set \zinf{} as $\mathbb{Z}$ extended with $\infty$ and
+  $-\infty$. For any $n$ in \zinf{}, we have $-\infty \leq n \leq \infty$. The
+  resulting set is a total order with top and bottom elements.
+\end{defn}
+
+\begin{defn}{(\emph{Offset space})}
+  \emph{Offset space} is a subset of \zinf{} members. $\mathcal{P}(\zinf{})$
+  couple with $\supseteq$ is the power set distributive lattice.
+\end{defn}
+
+\begin{defn}{(\emph{Offsets vector})}
+  An \emph{offsets vector} is a $N$ dimensional vector of offset spaces denoted
+  by $(\textit{offs}_1, \dots, \textit{offs}_N)$.
+
+  The set of $N$ dimensional offsets vectors is $\mathcal{P}{(\zinf{})}^N$. We
+  define the partial order $\leq$ on $N$ dimensional offsets vectors
+  \textit{voffs} and \textit{voffs'} as follows:
+%
+  \begin{equation*}
+    \textit{voffs} \leq \textit{voffs'} \triangleq
+      \forall n. 1
+        \leq i \leq N \implies \textit{voffs}_i \supseteq \textit{voffs'}_i
+  \end{equation*}
+\end{defn}
+
+\begin{prop}{}
+  $(\mathcal{P}{(\zinf{})}^N, \leq)$ is a distributive lattice.
+\end{prop}
+%
+\begin{proof}
+  Product of two distributive lattices is itself a distributive lattice when the
+  partial order is defined as componentwise comparison in the underlying
+  lattice.
+\end{proof}
+
+\begin{defn}{(\emph{\zinf{} interval})}
+  A \emph{\zinf{} interval} is of the form \interv{a}{b}{c}, where $a$ and $b$
+  are drawn from \zinf{} with $a \leq 0 \leq b$ and $c$ is drawn from $\{
+  \textsf{p}, \textsf{np} \}$. We define it as follows:
+%
+  \begin{equation*}
+    \interv{a}{b}{c} \triangleq
+      \{ n \;|\; a \leq n \leq b \wedge (c = \textsf{np} \implies n \neq 0) \}
+  \end{equation*}
+
+  Set of all such intervals (sets) is $\textit{Interval}$.
+\end{defn}
+
+\begin{prop}{}
+  $(\textit{Interval}, \supseteq)$ is a sublattice of
+  $(\mathcal{P}(\zinf{}),\supseteq)$ with \interv{-\infty}{\infty}{\textsf{p}}
+  and \interv{0}{0}{\textsf{np}} as its top and bottom elements.
+\end{prop}
+%
+\begin{proof}
+  We know $\textit{Interval} \subseteq \mathcal{P}(\zinf{})$ since intervals
+  represents sets drawn from {\zinf{}}
+
+  Let \interv{a}{b}{c} and \interv{d}{e}{f} be two arbitrary \zinf{} intervals.
+  We need to show that their meet and join both lie in \textit{Interval}.
+%
+  \begin{align*}
+    \interv{a}{b}{c} \wedge \interv{d}{e}{f} = &
+      \{ n \;|\; a \leq n \leq b \wedge (c = \textsf{np} \implies n \neq 0) \}
+      \;\cup \\
+      & \{ n \;|\; d \leq n \leq e \wedge (f = \textsf{np} \implies n \neq 0) \}
+      \\
+    = & \{ n \;|\; \min{a,d} \leq n \leq \max{b,e} \wedge ((c =
+      \textsf{np} \wedge f = \textsf{np}) \implies n \neq 0) \} \\
+    = & \interv{\min{\{a,d\}}}{\max{\{b,e\}}}{k}
+  \end{align*}
+%
+  where $k$ is \textsf{np} if both $c$ and $d$ are \textsf{np} and \textsf{p}
+  otherwise. Minimum of lower bound is still negative or zero and maximum of
+  upper bounds is still positive or zero, hence the meet lies in
+  \textit{Interval}.
+%
+  \begin{align*}
+    \interv{a}{b}{c} \vee \interv{d}{e}{f} = &
+      \{ n \;|\; a \leq n \leq b \wedge (c = \textsf{np} \implies n \neq 0) \}
+      \;\cap \\
+      & \{ n \;|\; d \leq n \leq e \wedge (f = \textsf{np} \implies n \neq 0) \}
+      \\
+    = & \{ n \;|\; \max{a,d} \leq n \leq \min{b,e} \wedge ((c =
+      \textsf{np} \vee f = \textsf{np}) \implies n \neq 0) \} \\
+    = & \interv{\max{\{a,d\}}}{\min{\{b,e\}}}{k}
+  \end{align*}
+%
+  where $k$ is \textsf{np} if either $c$ or $d$ are \textsf{np} and \textsf{p}
+  otherwise. Maximum of lower bound is still negative or zero and minimum of
+  upper bounds is still positive or zero, hence the join lies in
+  \textit{Interval}.
+
+  \interv{-\infty}{\infty}{\textsf{p}} is then \zinf{} and
+  \interv{0}{0}{\textsf{np}} is $\emptyset$. Since these are in the sublattice
+  and they are the bottom and top elements in the parent lattice, they are
+  necessarily the bottom and top elements in the sublattice.
+\end{proof}
+
+\begin{prop}{}
+  $(\textit{Interval},\supseteq)$ is a distributive lattice.
+\end{prop}
+%
+\begin{proof}
+  It is enough to show for arbitrary $\interv{a}{b}{c}$, $\interv{d}{e}{f}$,
+  $\interv{g}{h}{i}$ in \textit{Interval}, $\interv{a}{b}{c} \vee
+  (\interv{d}{e}{f} \wedge \interv{g}{h}{i}) = (\interv{a}{b}{c} \vee
+  \interv{d}{e}{f}) \wedge (\interv{a}{b}{c} \vee \interv{g}{h}{i})$. When this
+  holds the dual law also holds. The property immediately follows from
+  definition due to distributivity of set intersection over union.
+\end{proof}
+%
+\begin{defn}{(\emph{Vector interval})}
+  A vector interval is an $N$ dimensional object which has \zinf{} intervals at
+  each dimension. It is denoted with $(\textit{int}_1, \dots, \textit{int}_n)$,
+  where $\textit{int}_i$ is a \zinf{} interval. If \textit{vint} is a vector
+  interval, $\textit{vint}_i$ denotes the \zinf{} interval at the $i^{th}$
+  dimension.
+
+  The set of $N$ dimensional vector intervals is $\textit{Interval}^N$. We
+  define a partial order $\leq$ on $N$ dimensional vector intervals
+  \textit{vint} and \textit{vint'} as follows:
+%
+  \begin{equation*}
+    \textit{vint} \leq \textit{vint}' \triangleq
+      \forall n. 1
+        \leq i \leq N \implies \textit{vint}_i \supseteq \textit{vint'}_i
+  \end{equation*}
+\end{defn}
+%
+\begin{prop}{}
+  $(\textit{Interval}^N, \leq)$ is a distributive lattice.
+\end{prop}
+%
+\begin{proof}
+  It is a standard result that product of two distributive lattices is a
+  distributive lattice itself when the partial order on the resulting lattice is
+  defined as the componentwise comparison. This generalises to $N$ dimensions by
+  induction.
+\end{proof}
+
+\begin{defn}{}
+  \textsf{Mult} and \textsf{Approx} are parametric labelled variant types with
+  injections given by their definition:
+%
+  \begin{align*}
+    \textsf{Mult} \; a &
+      \triangleq \textsf{mult} \; a \;\mid\; \textsf{only} \; a \\
+    \textsf{Approx} \; a &
+      \triangleq \textsf{exact} \; a \;\mid\; \textsf{lower} \; a \;\mid\;
+        \textsf{upper} \; a \;\mid\; \textsf{both} \; a \; a
+  \end{align*}
+%
+  \eg{}, \textsf{lower} is an injection $\mathsf{lower} : a \to \mathsf{Approx}
+  \; a$ etc.
+
+  These will be used in the following subsection to give meaning to the
+  specification modifiers for approximation and multiplicity.
+\end{defn}
+
+\subsection{Denotational semantics for specifications}
+
+We give some basic interpretations: $\interp{\texttt{n}} = n$ where $n$ is in
+$\mathbb{Z}$, $\interp{pointed} = \llbracket \epsilon \rrbracket = \textsf{p}$,
+$\interp{\texttt{nonpointed}} = \textsf{np}$. Typographically, cursive font is
+used within specifications to indicate a partial textual capture.
+
+Let $\textit{vec-gen}_N : \mathbb{N} \times \textit{Interval} \to
+\textit{Interval}^N$ be the function generating an $N$ dimensional vector
+interval such that \vecgen{N}{i}{\interv{a}{b}{c}} has
+$\interv{-\infty}{\infty}{\textsf{p}}$ in all dimensions except the $i^{th}$
+one. There, it has \interv{a}{b}{c}.
+
+First, we give meaning to region constants (introduced in \Cref{}).
+%
+\begin{align*}
+  \interp{\texttt{pointed(dim=\textit{i})}}_N & =
+    \vecgen{N}{\interp{\textit{i}}}{\interv{0}{0}{\textsf{p}}}\\
+%
+  \interp{\texttt{centered(dim=\textit{i}, depth=\textit{k}, \textit{p})}}_N & =
+    \vecgen{N}
+           {\interp{\textit{i}}}
+           {\interv{-\interp{\textit{k}}}
+                   {\interp{\textit{k}}}
+                   {\interp{\textit{p}}}
+           } \\
+%
+  \interp{\texttt{forward(dim=\textit{i}, depth=\textit{k}, \textit{p})}}_N & =
+    \vecgen{N}
+           {\interp{\textit{i}}}
+           {\interv{0}
+                   {\interp{\textit{k}}}
+                   {\interp{\textit{p}}}
+           } \\
+%
+  \interp{\texttt{backward(dim=\textit{i}, depth=\textit{k}, \textit{p})}}_N & =
+    \vecgen{N}
+           {\interp{\textit{i}}}
+           {\interv{-\interp{\textit{k}}}
+                   {0}
+                   {\interp{\textit{p}}}
+           }
+\end{align*}
+
+Second, we provide the semantics for the permissive region operator, \texttt{+},
+and the restrictive region operator, \texttt{*}, by associating them with meet
+and join respectively. Let \texttt{\textit{R}} and \texttt{\textit{S}} be
+regions.
+%
+\begin{align*}
+  \interp{\texttt{\textit{R} + \textit{S}}}_N & =
+    \interp{\texttt{\textit{R}}}_N \wedge \interp{\texttt{\textit{S}}}_N
+&
+  \interp{\texttt{\textit{R} * \textit{S}}}_N & =
+    \interp{\texttt{\textit{R}}}_N \vee \interp{\texttt{\textit{S}}}_N
+\end{align*}
+
+Third, we need to mark presence of modifiers such as \texttt{readOnce} and
+\texttt{atMost} as introduced in \Cref{}. In the context of
+multiplicity modifiers we have the following semantics:
+%
+\begin{align*}
+  \interp{readOnce} & = \textsf{mult} &
+  \llbracket\epsilon\rrbracket & = \textsf{once}
+\end{align*}
+
+In the context of approximation modifiers, we have
+%
+\begin{align*}
+  \interp{atLeast} & = \textsf{lower} &
+  \interp{atMost} & = \textsf{upper} &
+  \llbracket \epsilon \rrbracket = \textsf{exact}
+\end{align*}
+
+Finally, we can give full semantics of a stencil specification:
+%
+\begin{equation*}
+  \interp{stencil \textit{Mult}, \textit{Appr}, \textit{Region}} =
+    \interp{\textit{Mult}}{(\interp{\textit{Appr}}(\interp{\textit{Region}}))}
+\end{equation*}
+
+\section{Equational theory}
+
+\section{Analysis, Consistency, Inference}
+
+\subsection{Analysis}
+
+\subsection{Consisteny}
+
+\subsection{Inference}
+
+\end{document}

@@ -6,19 +6,20 @@
 \usepackage{stmaryrd}
 \usepackage{indentfirst}
 \usepackage{cleveref}
-\usepackage{fixltx2e}
 
 \theoremstyle{definition}
 \newtheorem{defn}{Definition}
 
 \theoremstyle{plain}
+\newtheorem{thm}{Theorem}
 \newtheorem{lem}{Lemma}
 \newtheorem{prop}{Proposition}
+\newtheorem{case}{Case}
 
 \newcommand{\eg}{\emph{e.g.}}
 
 \newcommand{\zinf}{\textnormal{$\mathbb{Z}_\infty$}}
-\newcommand{\interp}[1]{\llbracket\texttt{#1}\rrbracket}
+\newcommand{\interp}[1]{\llbracket#1\rrbracket}
 \newcommand{\interv}[3]{\textnormal{$\lbrack#1,#2\rbrack^{#3}$}}
 \newcommand{\vecgen}[3]{\textnormal{$\textit{vec-gen}_{#1}(#2,#3)$}}
 \newcommand{\textcap}[1]{\texttt{\textit{#1}}}
@@ -64,16 +65,19 @@ interpretations of the stencils in the code and the specifications.
   Set of all such intervals (sets) is $\textit{Interval}$.
 \end{defn}
 
-\begin{prop}{}
-  We have the following identity for \zinf{} intervals:
+\begin{lem}{}
+  We have the following dual identities for \zinf{} intervals:
 %
-  \begin{equation*}
-    \interv{a}{b}{c} \cap \interv{d}{e}{f} =
-      \interv{\max \{a,d\}}{\min \{b,e\}}{\neg c \vee \neg f}
-  \end{equation*}\label{def:zinf-intersect}
-\end{prop}
+  \begin{align*}
+    \interv{a}{b}{c} \cap \interv{d}{e}{f} & =
+      \interv{\max \{a,d\}}{\min \{b,e\}}{c \wedge f} \\
+    \interv{a}{b}{c} \cup \interv{d}{e}{f} & =
+      \interv{\min \{a,d\}}{\max \{b,e\}}{c \vee f}
+  \end{align*}\label{lem:zinf-identities}
+\end{lem}
 %
 \begin{proof}
+  We give the proof of the first identity and the second one is similar.
   \begin{align*}
     \interv{a}{b}{c} \cap \interv{d}{e}{f} = &
       \; \{ n \;|\; a \leq n \leq b \wedge (\neg c \implies n \neq 0) \}
@@ -86,70 +90,6 @@ interpretations of the stencils in the code and the specifications.
   \end{align*}
 \end{proof}
 
-%\begin{prop}{}
-%  $(\textit{Interval}, \supseteq)$ is a sublattice of
-%  $(\mathcal{P}(\zinf{}),\supseteq)$ with \interv{-\infty}{\infty}{\textsf{p}}
-%  and \interv{0}{0}{\textsf{np}} as its top and bottom elements.
-%\end{prop}
-%%
-%\begin{proof}
-%  We know $\textit{Interval} \subseteq \mathcal{P}(\zinf{})$ since intervals
-%  represents sets drawn from {\zinf{}}
-%
-%  Let \interv{a}{b}{c} and \interv{d}{e}{f} be two arbitrary \zinf{} intervals.
-%  We need to show that their meet and join both lie in \textit{Interval}.
-%%
-%  \begin{align*}
-%    \interv{a}{b}{c} \wedge \interv{d}{e}{f} = &
-%      \{ n \;|\; a \leq n \leq b \wedge (c = \textsf{np} \implies n \neq 0) \}
-%      \;\cup \\
-%      & \{ n \;|\; d \leq n \leq e \wedge (f = \textsf{np} \implies n \neq 0) \}
-%      \\
-%    = & \{ n \;|\; \min{a,d} \leq n \leq \max{b,e} \wedge ((c =
-%      \textsf{np} \wedge f = \textsf{np}) \implies n \neq 0) \} \\
-%    = & \interv{\min{\{a,d\}}}{\max{\{b,e\}}}{k}
-%  \end{align*}
-%%
-%  where $k$ is \textsf{np} if both $c$ and $d$ are \textsf{np} and \textsf{p}
-%  otherwise. Minimum of lower bound is still negative or zero and maximum of
-%  upper bounds is still positive or zero, hence the meet lies in
-%  \textit{Interval}.
-%%
-%  \begin{align*}
-%    \interv{a}{b}{c} \vee \interv{d}{e}{f} = &
-%      \{ n \;|\; a \leq n \leq b \wedge (c = \textsf{np} \implies n \neq 0) \}
-%      \;\cap \\
-%      & \{ n \;|\; d \leq n \leq e \wedge (f = \textsf{np} \implies n \neq 0) \}
-%      \\
-%    = & \{ n \;|\; \max{a,d} \leq n \leq \min{b,e} \wedge ((c =
-%      \textsf{np} \vee f = \textsf{np}) \implies n \neq 0) \} \\
-%    = & \interv{\max{\{a,d\}}}{\min{\{b,e\}}}{k}
-%  \end{align*}
-%%
-%  where $k$ is \textsf{np} if either $c$ or $d$ are \textsf{np} and \textsf{p}
-%  otherwise. Maximum of lower bound is still negative or zero and minimum of
-%  upper bounds is still positive or zero, hence the join lies in
-%  \textit{Interval}.
-%
-%  \interv{-\infty}{\infty}{\textsf{p}} is then \zinf{} and
-%  \interv{0}{0}{\textsf{np}} is $\emptyset$. Since these are in the sublattice
-%  and they are the bottom and top elements in the parent lattice, they are
-%  necessarily the bottom and top elements in the sublattice.
-%\end{proof}
-
-%\begin{prop}{}
-%  $(\textit{Interval},\supseteq)$ is a distributive lattice.
-%\end{prop}
-%%
-%\begin{proof}
-%  It is enough to show for arbitrary $\interv{a}{b}{c}$, $\interv{d}{e}{f}$,
-%  $\interv{g}{h}{i}$ in \textit{Interval}, $\interv{a}{b}{c} \vee
-%  (\interv{d}{e}{f} \wedge \interv{g}{h}{i}) = (\interv{a}{b}{c} \vee
-%  \interv{d}{e}{f}) \wedge (\interv{a}{b}{c} \vee \interv{g}{h}{i})$. When this
-%  holds the dual law also holds. The property immediately follows from
-%  definition due to distributivity of set intersection over union.
-%\end{proof}
-
 \begin{defn}{(\emph{Offsets vector})}
   An \emph{offsets vector} is a $N$ dimensional vector of offset spaces denoted
   by $(\textit{offs}_1, \dots, \textit{offs}_N)$ to mean $\textit{offs}_1 \times
@@ -160,18 +100,8 @@ interpretations of the stencils in the code and the specifications.
   distributive lattice under the superset relation.
 \end{defn}
 
-\begin{defn}{(\emph{Vector interval})}
-  A vector interval is an $N$ dimensional object which has \zinf{} intervals at
-  each dimension. It is denoted with $(\textit{int}_1, \dots, \textit{int}_n)$,
-  where $\textit{int}_i$ is a \zinf{} interval. If \textit{vint} is a vector
-  interval, $\textit{vint}_i$ denotes the \zinf{} interval at the $i^{th}$
-  dimension.
-
-  The set of $N$ dimensional vector intervals is $\textit{Interval}^N$.
-\end{defn}
-
 \begin{lem}{}
-  Intersection distributes over vector intervals.
+  Intersection distributes over offsets vectors.
 %
   \begin{equation*}
     (\textit{vint}_1, \dots, \textit{vint}_N) \;\cap\;
@@ -179,11 +109,56 @@ interpretations of the stencils in the code and the specifications.
       =
     (\textit{vint}_1 \;\cap\; \textit{vint'}_1, \dots,
      \textit{vint}_N \;\cap\; \textit{vint'}_N)
-  \end{equation*}\label{lem:vector-dist}
+  \end{equation*}\label{lem:vector-intersect}
+\end{lem}
+
+\begin{lem}{}
+  Let $v$ and $v'$ be two $N$ dimensional offsets vectors such that $v_i$ is
+  equal to $v'_i$ for all $1 \leq i \leq N$ except $k$, then we have the
+  following:
+%
+  \begin{equation*}
+    (v_1,\dotsc, v_k,\dotsc, v_N) \; \cup \; (v'_1,\dotsc, v'_k, \dotsc, v_N)
+    =
+    (v_1,\dotsc, v_k \cup v'_k,\dotsc, v_N)
+  \end{equation*}\label{lem:vector-union}
 \end{lem}
 %
-\begin{prop}{}
-  We have the following identity for $N$ dimensional vector intervals:
+\begin{proof}
+  \begin{align*}
+    v \; \cup \; v' &
+    = \{(x_1,\dotsc,x_n) \mid
+          \bigwedge_{1 \leq i \leq N } x_i \in v_i \}
+      \;\cup\;
+      \{(x_1,\dotsc,x_n) \mid
+          \bigwedge_{1 \leq i \leq N } x_i \in v'_i \} \\
+    & = \{(x_1,\dotsc,x_n) \mid
+          \bigwedge_{\substack{1 \leq i \leq N \\ i \neq k}} x_i \in v_i
+              \wedge x_k \in v_k \vee
+          \bigwedge_{\substack{1 \leq i \leq N \\ i \neq k}} x_i \in v'_i
+            \wedge x_k \in v'_k
+        \} \\
+    & = \{(x_1,\dotsc,x_n) \mid
+          \bigwedge_{\substack{1 \leq i \leq N \\ i \neq k}} x_i \in v_i
+          \wedge x_k \in v_k \cup v'_k
+        \} \\
+    & = (v_1,\dotsc, v_k \cup v'_k,\dotsc, v_N)
+  \end{align*}
+\end{proof}
+
+\begin{defn}{(\emph{Vector interval})}
+  A vector interval is an $N$ dimensional object which has \zinf{} intervals at
+  each dimension. It is denoted with $(\textit{int}_1, \dots, \textit{int}_n)$,
+  where $\textit{int}_i$ is a \zinf{} interval. If \textit{vint} is a vector
+  interval, $\textit{vint}_i$ denotes the \zinf{} interval at the $i^{th}$
+  dimension.
+
+  The set of $N$ dimensional vector intervals is $\textit{Interval}^N$. Every
+  vector interval is also an offsets vector.
+\end{defn}
+
+\begin{lem}{}
+  Intersection distributes $N$ dimensional vector intervals:
 %
   \begin{gather*}
     (\interv{a_1}{b_1}{c_1}, \dots, \interv{a_N}{b_N}{c_N}) \; \cap \;
@@ -192,11 +167,11 @@ interpretations of the stencils in the code and the specifications.
     (\interv{\max \{a_1,a'_1\}}{\min \{b_1,b'_1\}}{\neg c_1 \vee \neg c'_1},
       \dots, \interv{\max \{a_N,a'_N\}}{\min \{b_N,b'_N\}}{\neg c_N \vee \neg c'_N})
   \end{gather*}
-\end{prop}
+\end{lem}
 %
 \begin{proof}
-  This immediately follows from \Cref{lem:vector-dist} and
-  \Cref{def:zinf-intersect}.
+  This immediately follows from \Cref{lem:vector-intersect} and
+  \Cref{lem:zinf-identities}.
 \end{proof}
 
 \begin{defn}{(\emph{Region space})}
@@ -246,7 +221,7 @@ interpretations of the stencils in the code and the specifications.
 \subsection{Denotational semantics for specifications}
 
 We give some basic interpretations: $\interp{\texttt{n}} = n$ where $n$ is in
-$\mathbb{Z}$, $\interp{pointed} = \llbracket \epsilon \rrbracket =
+$\mathbb{Z}$, $\interp{\texttt{pointed}} = \llbracket \epsilon \rrbracket =
 \textsf{true}$, $\interp{\texttt{nonpointed}} = \textsf{false}$.
 Typographically, cursive font is used within specifications to indicate a
 partial textual capture.
@@ -260,31 +235,31 @@ one. There, it has \interv{a}{b}{c}.
 First, we give meaning to region constants (introduced in \Cref{}).
 %
 \begin{align*}
-  \interp{\texttt{pointed(dim=\textit{i})}}_N & =
-    \vecgen{N}{\interp{\textit{i}}}{\interv{0}{0}{\textsf{true}}}\\
+  \interp{\texttt{pointed(dim=\textcap{i})}}_N & =
+    \vecgen{N}{\interp{\textcap{i}}}{\interv{0}{0}{\textsf{true}}}\\
 %
-  \interp{\texttt{centered(dim=\textit{i}, depth=\textit{k}, \textit{p})}}_N & =
-    \vecgen{N}
-           {\interp{\textit{i}}}
-           {\interv{-\interp{\textit{k}}}
-                   {\interp{\textit{k}}}
-                   {\interp{\textit{p}}}
+  \interp{\texttt{centered(dim=\textcap{i}, depth=\textcap{k}, \textcap{p})}}_N
+    & = \vecgen{N}
+           {\interp{\textcap{i}}}
+           {\interv{-\interp{\textcap{k}}}
+                   {\interp{\textcap{k}}}
+                   {\interp{\textcap{p}}}
            } \\
 %
-  \interp{\texttt{forward(dim=\textit{i}, depth=\textit{k}, \textit{p})}}_N & =
-    \vecgen{N}
-           {\interp{\textit{i}}}
+  \interp{\texttt{forward(dim=\textcap{i}, depth=\textcap{k}, \textcap{p})}}_N
+    & = \vecgen{N}
+           {\interp{\textcap{i}}}
            {\interv{0}
-                   {\interp{\textit{k}}}
-                   {\interp{\textit{p}}}
+                   {\interp{\textcap{k}}}
+                   {\interp{\textcap{p}}}
            } \\
 %
-  \interp{\texttt{backward(dim=\textit{i}, depth=\textit{k}, \textit{p})}}_N & =
-    \vecgen{N}
-           {\interp{\textit{i}}}
-           {\interv{-\interp{\textit{k}}}
+  \interp{\texttt{backward(dim=\textcap{i}, depth=\textcap{k}, \textcap{p})}}_N
+    & = \vecgen{N}
+           {\interp{\textcap{i}}}
+           {\interv{-\interp{\textcap{k}}}
                    {0}
-                   {\interp{\textit{p}}}
+                   {\interp{\textcap{p}}}
            }
 \end{align*}
 
@@ -294,11 +269,11 @@ and join respectively. Let \texttt{\textit{R}} and \texttt{\textit{S}} be
 regions.
 %
 \begin{align*}
-  \interp{\texttt{\textit{R} + \textit{S}}}_N & =
-    \interp{\texttt{\textit{R}}}_N \wedge \interp{\texttt{\textit{S}}}_N
+  \interp{\texttt{\textcap{R} + \textcap{S}}}_N & =
+    \interp{\textcap{R}}_N \wedge \interp{\textcap{S}}_N
 &
-  \interp{\texttt{\textit{R} * \textit{S}}}_N & =
-    \interp{\texttt{\textit{R}}}_N \vee \interp{\texttt{\textit{S}}}_N
+  \interp{\texttt{\textcap{R} * \textcap{S}}}_N & =
+    \interp{\textcap{R}}_N \vee \interp{\textcap{S}}_N
 \end{align*}
 
 Third, we need to mark presence of modifiers such as \texttt{readOnce} and
@@ -306,29 +281,31 @@ Third, we need to mark presence of modifiers such as \texttt{readOnce} and
 multiplicity modifiers we have the following semantics:
 %
 \begin{align*}
-  \interp{readOnce} & = \textsf{mult} &
+  \interp{\texttt{readOnce}} & = \textsf{mult} &
   \llbracket\epsilon\rrbracket & = \textsf{once}
 \end{align*}
 
 In the context of approximation modifiers, we have
 %
 \begin{align*}
-  \interp{atLeast} & = \textsf{lower} &
-  \interp{atMost} & = \textsf{upper} &
+  \interp{\texttt{atLeast}} & = \textsf{lower} &
+  \interp{\texttt{atMost}} & = \textsf{upper} &
   \llbracket \epsilon \rrbracket = \textsf{exact}
 \end{align*}
 
 Finally, we can give full semantics of a stencil specification:
 %
 \begin{equation*}
-  \interp{stencil \textit{Mult}, \textit{Appr}, \textit{Region}} =
-    \interp{\textit{Mult}}{(\interp{\textit{Appr}}(\interp{\textit{Region}}))}
+  \interp{\texttt{stencil \textcap{Mult}, \textcap{Appr}, \textcap{Region}}} =
+    \interp{\textcap{Mult}}
+           {(\interp{\textcap{Appr}}
+                    {(\interp{\textcap{Region}})})}
 \end{equation*}
 
 \section{Equational \& approximation theories}
 
 We know introduce the equational and approximation theory of stencil
-specifications based on $\equiv$ and $<\:$.
+specifications based on $\equiv$ and $\prec$.
 
 \subsection{Equivalences}
 
@@ -363,9 +340,145 @@ specifications based on $\equiv$ and $<\:$.
         backward(depth=\textcap{k},dim=\textit{n},\textcap{p3})}
     \end{gather*}
 %
-    Here \textcap{p1} is \texttt{nonpointed} if both \textcap{p1} and
+    Here \textcap{p1} is \texttt{nonpointed} if both \textcap{p2} and
     \textcap{p3} are \texttt{nonpointed} and \texttt{pointed} otherwise.
+%
+  \item[Point] Let \textcap{R} and \textcap{S} be region constants with two
+    variants a superscript \textit{f} to mean nonpointed and \textit{t} to mean
+    pointed and \textcap{dr} \& \textcap{ds} be the dimensions \textcap{R} and
+    \textcap{S} acts on. Then we have the following dual equivalences:
+%
+    \begin{align*}
+      (\textcap{R}^{\textit{t}} \texttt{*} \textcap{S}^{\textit{f}})
+      \;\texttt{+}\;
+      (\textcap{R}^{\textit{f}} \texttt{*} \textcap{S}^{\textit{t}})
+      \;\texttt{+}\;
+      \texttt{p(dim=\textcap{dr})*p(dim=\textcap{ds})} & =
+        \textcap{R}^{\textit{t}} \texttt{*} \textcap{S}^{\textit{t}} \\
+%
+      (\textcap{R}^{\textit{t}} \texttt{+} \textcap{S}^{\textit{f}}) \texttt{*}
+      (\textcap{R}^{\textit{f}} \texttt{+} \textcap{S}^{\textit{t}}) & =
+        \textcap{R}^{\textit{f}} \texttt{+} \textcap{S}^{\textit{f}}
+        \;\texttt{+}\;
+        \texttt{p(dim=\textcap{dr})*p(dim=\textcap{ds})}
+    \end{align*}
 \end{description}
+
+\begin{thm}{(Soundness)}
+  Equational theory is sound with respect to the lattice model. Let $R$
+  and $S$ be $N$ dimensional regions, then we have
+%
+  \begin{equation*}
+    R \equiv S \implies \interp{R}_N \equiv \interp{S}_N
+  \end{equation*}
+\end{thm}
+
+\begin{proof}
+  We show soundness for each of the equivalences.
+  \begin{description}
+    \item[Basic] These follow from basic properties of lattices.
+%
+    \item[Dist] This is immediate from the definition of distributive
+      lattice which the model is one.
+%
+    \item[Overlapping pointed] Let $\interp{\textcap{n}}$ be $n$. Counterparts
+      of individual regions for some Boolean $p$ are given below:
+%
+      \begin{align*}
+        \interp{\texttt{\textcap{R}(depth=\textcap{k},dim=\textcap{n},\_)}}_N
+        & = \vecgen{N}{n}{\interv{-k}{k}{p}} \\
+%
+        \interp{\texttt{pointed(dim=\textcap{n})}}_N
+        &= \vecgen{N}{n}{\interv{0}{0}{\textsf{true}}} \\
+%
+        \interp{\texttt{\textcap{R}(depth=\textcap{k},dim=\textcap{n})}}_N
+        &= \vecgen{N}{n}{\interv{-k}{k}{\textsf{true}}}
+      \end{align*}
+
+      Using \Cref{lem:vector-union}, it is sufficient to show
+      $ \interv{-k}{k}{p} \;\cup\; \interv{0}{0}{\textsf{true}} =
+        \interv{-k}{k}{\textsf{true}} $ holds. This immediately follows from
+      \Cref{lem:zinf-identities}.
+%
+    \item[Centered] Let $\interp{\textcap{n}}$, $\interp{\textcap{k}}$,
+      $\interp{\textcap{p1}}$, $\interp{\textcap{p2}}$, and
+      $\interp{\textcap{p3}}$ be $n$, $k$, $p1$, $p2$, and $p3$ respectively. We
+      also know that $p1$ is $p2 \vee p3$ from \textbf{Centered} detinition.
+      Then we get the following interpretation for region constants involved in
+      the equivalence:
+%
+      \begin{align*}
+        \interp{\texttt{centered(depth=\textcap{k},dim=\textit{n},\textcap{p1})}}_N
+          &= \vecgen{N}{n}{\interv{-k}{k}{p2 \vee p3}} \\
+%
+        \interp{\texttt{forward(depth=\textcap{k},dim=\textit{n},\textcap{p2})}}_N
+          &= \vecgen{N}{n}{\interv{0}{k}{p2} }\\
+%
+        \interp{\texttt{backward(depth=\textcap{k},dim=\textit{n},\textcap{p3})}}_N
+          &= \vecgen{N}{n}{\interv{0}{k}{p3}}
+      \end{align*}
+%
+      Using \Cref{lem:vector-union}, it is sufficient to show $\interv{-k}{k}{p2
+      \vee p3} = \interv{0}{k}{p2} \cup \interv{-k}{0}{p3}$ holds. This
+      immediately follows from \Cref{lem:zinf-identities}.
+
+    \item[Point] Let $\interp{\textcap{R}^{\textnormal{\textit{p}}}}_N$ and
+      $\interp{\textcap{S}^{\textnormal{\textit{p'}}}}_N$ be
+      $\vecgen{N}{k}{\interv{a}{b}{p}}$ and $\vecgen{N}{l}{\interv{c}{d}{p'}}$
+      respectively for some $a$ and $c$ less than or equal to 0, for some $c$
+      and $d$ greater than or equal to 0, for some indices $k$ and $l$ be
+      $\interp{\textcap{dr}}$ and $\interp{\textcap{ds}}$, which are not
+      necessarily distinct and $p$ and $p'$ are \textsf{true} if pointed and
+      \textsf{false} otherwise.
+%
+      \begin{align*}
+        \hspace{2em&\hspace{-2em}}
+        \interp
+          {{(\textcap{R}^{\textit{t}} * \textcap{S}^{\textit{f}})}
+           \;\texttt{+}\;
+           {(\textcap{R}^{\textit{f}} * \textcap{S}^{\textit{t}})}
+           \;\texttt{+}\;
+           \texttt{pointed(dim=\textcap{dr})*pointed(dim=\textcap{ds})}}_N \\
+        & = {(\interp{\textcap{R}^{\textit{t}}}_N \cap
+              \interp{\textcap{S}^{\textit{f}}}_N)} \cup
+            {(\interp{\textcap{R}^{\textit{f}}}_N \cap
+              \interp{\textcap{S}^{\textit{t}}}_N)} \;\cup \\
+        & \quad\,\, {(\vecgen{N}{\interp{ds}}{\interv{0}{0}{\textsf{true}}}
+                      \;\cup\;
+                      \vecgen{N}{\interp{dr}}{\interv{0}{0}{\textsf{true}}})} \\
+        & = \{ x \mid
+            \bigwedge_{\substack{1 \leq i \leq N \\ i \neq k \neq l}} x_i \in
+              \interv{\infty}{\infty}{\textsf{true}}
+            \wedge a \leq x_k \leq b
+            \wedge {(c \leq x_l \leq d \wedge x_l \neq 0)} \} \;\cup \\
+        & \quad\,\, \{ x \mid
+            \bigwedge_{\substack{1 \leq i \leq N \\ i \neq k \neq l}} x_i \in
+              \interv{\infty}{\infty}{\textsf{true}}
+            \wedge {(a \leq x_k \leq b \wedge x_k \neq 0)}
+            \wedge c \leq x_l \leq d \} \;\cup \\
+        & \quad\,\, \{ x \mid
+            \bigwedge_{\substack{1 \leq i \leq N \\ i \neq k \neq l}} x_i \in
+              \interv{\infty}{\infty}{\textsf{true}}
+            \wedge (x_k = 0 \wedge x_l = 0) \} \\
+        & = \{ x \mid
+            \bigwedge_{\substack{1 \leq i \leq N \\ i \neq k \neq l}} x_i \in
+              \interv{\infty}{\infty}{\textsf{true}}
+            \wedge a \leq x_k \leq b
+          \wedge c \leq x_l \leq d \wedge {(x_k \neq 0 \vee x_l \neq 0)} \}
+          \;\cup \\
+        & \quad\,\, \{ x \mid
+            \bigwedge_{\substack{1 \leq i \leq N \\ i \neq k \neq l}} x_i \in
+              \interv{\infty}{\infty}{\textsf{true}}
+            \wedge (x_k = 0 \wedge x_l = 0) \} \\
+        & = \{ x \mid
+            \bigwedge_{\substack{1 \leq i \leq N \\ i \neq k \neq l}} x_i \in
+              \interv{\infty}{\infty}{\textsf{true}}
+            \wedge a \leq x_k \leq b
+            \wedge c \leq x_l \leq d \} \\
+        & = \textcap{R}^{\textit{t}} \texttt{*} \textcap{S}^{\textit{t}}
+      \end{align*}
+  \end{description}
+\end{proof}
 
 \subsection{Approximations}
 

@@ -65,7 +65,13 @@ main :: IO ()
 main = do
     args <- getArgs
     if (length args == 1) then
-      applyAnalysisToDir (head args) False []
+      if (head args == "PI") then
+        testLHSvars True
+      else 
+      if (head args == "PI2") then
+        testLHSvars False
+      else
+        applyAnalysisToDir (head args) False []
     else if (length args > 1) then
       if (args !! 1 == "-d") then
          applyAnalysisToDir (head args) True (tail (tail args))
@@ -75,13 +81,26 @@ main = do
       putStrLn $ "Please specify a directory on which to apply the analysis\
                  \ followed by any number of file names to be excluded "
 
+testLHSvars flag = do
+    files <- readParseSrcDir "experiment" []
+    putStrLn $ show $ map (applyLHSvars flag) files
+
+applyLHSvars :: Bool -> (Filename, SourceText, F.ProgramFile A) -> [F.Name]
+applyLHSvars flag (filename, source, pf) =
+    if flag then FA.allLhsVars pf' else FA.allLhsVarsRobust pf' 
+  where
+    pf' = FA.initAnalysis $ pf
+
+
 applyAnalysisToDir :: String -> Bool -> [String] -> IO ()
 applyAnalysisToDir dir debug excludes = do
     files <- readParseSrcDir dir excludes
     let debugsAndResults = map applyAnalysisToFile files
-    let (dbg, results)   = mconcat debugsAndResults
+    let (dbg, result)   = mconcat debugsAndResults
     if debug then putStrLn $ dbg else return ()
-    putStrLn $ prettyResults results
+    putStrLn $ prettyResults result
+    valid <- resultValidation result
+    if valid then (putStrLn $ "Results were valid") else (putStrLn "Results were invalid")
 
 type ForContigAndNonContig a = (a, a)
 
@@ -115,13 +134,52 @@ data Result = Result {
                             -- only for 1, 2 and 3 dimensional specs
     } deriving Show
 
+resultValidation =
+      (\r -> (numArrayWrites r) `gte` (numNeighbourArrayWrites r))
+          `reason` "Array writes >= Neighbour Writes"
+
+ <**> (\r -> (numNeighbourArrayWrites r) `gte` ((numIVArrayWrites r) + (numConstArrayWrites r)))
+          `reason` "Neighour Writes >= (IV Writes + Neigh/Const Writes)"
+
+ <**> (\r -> (numNeighbourArrayWrites r) `gte` (numLHSButNonNeighbourRHS r))
+          `reason` "Neighbour Writes >= Non-neighour RHS"
+
+ <**> (\r -> (numNeighbourArrayWrites r) `gte` (numLHSButInconsistentIVRHS r))
+          `reason` "Neighbour Writes >= Inconsistent IV RHS"
+
+ <**> (\r -> ((numStencils r) + (numLHSButInconsistentIVRHS r) + (numLHSButNonNeighbourRHS r))
+           `eq` (numNeighbourArrayWrites r))
+          `reason` "Num stencils + RHS inconsistent IV + RHS non-neighbour = LHS Neighbour"
+
+ <**> (\r -> (numRelativisedRHS r)
+          `eq` ((numNeighbourArrayWrites r) - ((numConstArrayWrites r) + (numIVArrayWrites r))))
+          `reason` "Num relativised stencils = LHS Neighbour with some relative offset"
+
+ <**> (\r -> (numStencils r)
+            `gte` ((numContiguousStencils r) + (numSingNonContigStencils r)))
+           `reason` "Num stencils >= Num contiguous stencils + num non-contig single index"
+
+gte, eq :: Int -> Int -> (Bool, Int, Int)
+gte x y = (x >= y, x, y)
+eq x y  = (x == y, x, y)
+
+reason :: (Result -> (Bool, Int, Int)) -> String -> (Result -> IO Bool)
+reason f reason = \r -> do
+     let (validity, x, y) = f r
+     when (not validity) (putStrLn $ reason ++ ": " ++ (show validity) ++ " - " ++ show x ++ ", " ++ show y)
+     return validity
+
+infixr 5 <**>
+(<**>) :: (Result -> IO Bool) -> (Result -> IO Bool) -> (Result -> IO Bool)
+f <**> g = \r -> (f r) >>= (\x -> g r >>= (\y -> return (x && y)))
+
 prettyResults r =
     "Results: \n"
  ++ rline "Source lines parsed" (numLines r)
  ++ rline "Array writes" (numArrayWrites r)
- ++ rline "Array writes to I.V. indices" (numIVArrayWrites r)
  ++ rline "Array writes to neighbourhood indices"
           (numNeighbourArrayWrites r - numConstArrayWrites r)
+ ++ rline "Array writes to I.V. indices" (numIVArrayWrites r)
  ++ rline "Array writes to neighbourhood+constant IV indices" (numConstArrayWrites r)
  ++ rline "Neighbour LHS but RHS with non-neighbour indices" (numLHSButNonNeighbourRHS r)
  ++ rline "Neighbour LHS but RHS with inconsistent IV use" (numLHSButInconsistentIVRHS r)
@@ -327,7 +385,7 @@ perBlock b@(F.BlStatement ann span@(FU.SrcSpan lp up) _ stmnt) = do
              if (numNeighbourArrayWrites r > 0) then do
                  -- If the LHS is a neighbourhood index
                  (dbg, r') <- analyseRHS lhsIndices [b]
-                 return ("At: " ++ show span ++ "\n" ++ dbg, r `mappend` r')
+                 ("At: " ++ show span ++ "\n" ++ dbg) `trace` return ("At: " ++ show span ++ "\n" ++ dbg, r `mappend` r')
              else return ("", r)
            _ -> return mempty)
     tell (mconcat results)
@@ -402,7 +460,7 @@ classifyRHSsubscripts ivs rhses lhs =
     -- Num arrays read
     numArrays = toHist . length . M.keys $ rhses
     -- Index exprs
-    numIndexExprs = toHist . length . concat . M.elems $ rhses
+    numIndexExprs = toHist . Data.List.sum . map length . M.elems $ rhses
     -- Patterns
     patterns = mkPatterns . concat . M.elems $ rhsesO
     -- Work out if the stencil is linear or not
@@ -475,7 +533,6 @@ concatHist (x:y:xs) = (x `histZip` y) `histZip` (concatHist xs)
 contig, nonContig :: Monoid a => a -> (a, a)
 contig n = (n, mempty)
 nonContig n = (mempty, n)
-
 
 -- Predicate transformers on Maps
 anyMap p m = M.size (M.filter p m) > 0

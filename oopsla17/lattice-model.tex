@@ -1,12 +1,18 @@
 \documentclass{article}
 
+% Essential packages
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{amsthm}
 \usepackage{stmaryrd}
 \usepackage{indentfirst}
 \usepackage{cleveref}
+\usepackage{xifthen}
 
+% Non-essential
+\usepackage[usenames,dvipsnames,svgnames,table]{xcolor}
+
+% Essential declarations
 \theoremstyle{definition}
 \newtheorem{defn}{Definition}
 
@@ -16,13 +22,67 @@
 \newtheorem{prop}{Proposition}
 \newtheorem{case}{Case}
 
+% Auxillary declaration
 \newcommand{\eg}{\emph{e.g.}}
 
+% Essential macros
 \newcommand{\zinf}{\textnormal{$\mathbb{Z}_\infty$}}
-\newcommand{\interp}[1]{\llbracket#1\rrbracket}
+\newcommand{\interp}[1]{\llbracket {#1} \rrbracket}
 \newcommand{\interv}[3]{\textnormal{$\lbrack#1,#2\rbrack^{#3}$}}
 \newcommand{\vecgen}[3]{\textnormal{$\textit{vec-gen}_{#1}(#2,#3)$}}
 \newcommand{\textcap}[1]{\texttt{\textit{#1}}}
+
+% Stencil macro
+%
+% Optional argument: s when we want the short form, empty otherwise.
+%
+% Mandatory arguments:
+% 1st: c/b/f/p for centered, backward, forward, pointed
+% 2st: dimension
+% 3st: depth
+% 4st: if pointed/nonpointed needs to be specified leave it blank if omitted.
+%
+% Example: \stencil[s]{f}{1}{2}{} = fwd(dim=1,depth=2)
+% Example: \stencil{b}{1}{2}{pointed} = backward(dim=1,depth=2,pointed)
+\newcommand{\stencil}[5][]{%
+  \ifthenelse{\equal{#2}{f}}{%
+    \ifthenelse{\equal{#1}{s}}{%
+      \texttt{fwd}%
+    }{\ifthenelse{\isempty{#1}}{%
+        \texttt{forward}%
+      }{INVALID OPTIONAL}%
+    }%
+  }{\ifthenelse{\equal{#2}{b}}{%
+      \ifthenelse{\equal{#1}{s}}{%
+          \texttt{bwd}%
+      }{\ifthenelse{\isempty{#1}}{%
+          \texttt{backward}%
+        }{INVALID OPTIONAL}%
+      }%
+  }{\ifthenelse{\equal{#2}{c}}{%
+      \ifthenelse{\equal{#1}{s}}{%
+          \texttt{ctd}%
+      }{\ifthenelse{\isempty{#1}}{%
+          \texttt{centered}%
+        }{INVALID OPTIONAL}%
+      }%
+  }{\ifthenelse{\equal{#2}{p}}{%
+      \ifthenelse{\equal{#1}{s}}{%
+          \texttt{ptd}%
+      }{\ifthenelse{\isempty{#1}}{%
+          \texttt{pointed}%
+        }{INVALID OPTIONAL}%
+      }%
+  }{}}}}%
+  \texttt{(dim=\textnormal{#3}%
+    \ifthenelse{\isempty{#4}}{}{,depth=\textnormal{#4}}%
+    \ifthenelse{\isempty{#5}}{}{,\textnormal{#5}}%
+  )}%
+}
+
+% Non-essential macro
+\definecolor{unused}{RGB}{211,167,192}
+\newcommand{\unused}[1]{{\color{unused} #1}}
 
 \begin{document}
 
@@ -65,7 +125,7 @@ interpretations of the stencils in the code and the specifications.
   Set of all such intervals (sets) is $\textit{Interval}$.
 \end{defn}
 
-\begin{lem}{}
+\begin{lem}{}\label{lem:zinf-identities}
   We have the following dual identities for \zinf{} intervals:
 %
   \begin{align*}
@@ -73,7 +133,7 @@ interpretations of the stencils in the code and the specifications.
       \interv{\max \{a,d\}}{\min \{b,e\}}{c \wedge f} \\
     \interv{a}{b}{c} \cup \interv{d}{e}{f} & =
       \interv{\min \{a,d\}}{\max \{b,e\}}{c \vee f}
-  \end{align*}\label{lem:zinf-identities}
+  \end{align*}
 \end{lem}
 %
 \begin{proof}
@@ -100,7 +160,8 @@ interpretations of the stencils in the code and the specifications.
   distributive lattice under the superset relation.
 \end{defn}
 
-\begin{lem}{}
+\unused{
+\begin{lem}{}\label{lem:vector-intersect}
   Intersection distributes over offsets vectors.
 %
   \begin{equation*}
@@ -109,10 +170,15 @@ interpretations of the stencils in the code and the specifications.
       =
     (\textit{vint}_1 \;\cap\; \textit{vint'}_1, \dots,
      \textit{vint}_N \;\cap\; \textit{vint'}_N)
-  \end{equation*}\label{lem:vector-intersect}
+  \end{equation*}
 \end{lem}
+%
+\begin{proof}
+  TODO. Trivial. Do if needed.
+\end{proof}
+}
 
-\begin{lem}{}
+\begin{lem}{}\label{lem:vector-union}
   Let $v$ and $v'$ be two $N$ dimensional offsets vectors such that $v_i$ is
   equal to $v'_i$ for all $1 \leq i \leq N$ except $k$, then we have the
   following:
@@ -121,7 +187,7 @@ interpretations of the stencils in the code and the specifications.
     (v_1,\dotsc, v_k,\dotsc, v_N) \; \cup \; (v'_1,\dotsc, v'_k, \dotsc, v_N)
     =
     (v_1,\dotsc, v_k \cup v'_k,\dotsc, v_N)
-  \end{equation*}\label{lem:vector-union}
+  \end{equation*}
 \end{lem}
 %
 \begin{proof}
@@ -157,22 +223,24 @@ interpretations of the stencils in the code and the specifications.
   vector interval is also an offsets vector.
 \end{defn}
 
-\begin{lem}{}
-  Intersection distributes $N$ dimensional vector intervals:
-%
-  \begin{gather*}
-    (\interv{a_1}{b_1}{c_1}, \dots, \interv{a_N}{b_N}{c_N}) \; \cap \;
-      (\interv{a'_1}{b'_1}{c'_1}, \dots, \interv{a'_N}{b'_N}{c'_N}) \\
-    = \\
-    (\interv{\max \{a_1,a'_1\}}{\min \{b_1,b'_1\}}{\neg c_1 \vee \neg c'_1},
-      \dots, \interv{\max \{a_N,a'_N\}}{\min \{b_N,b'_N\}}{\neg c_N \vee \neg c'_N})
-  \end{gather*}
-\end{lem}
-%
-\begin{proof}
-  This immediately follows from \Cref{lem:vector-intersect} and
-  \Cref{lem:zinf-identities}.
-\end{proof}
+\unused{
+  \begin{lem}{}
+    Intersection distributes $N$ dimensional vector intervals:
+  %
+    \begin{gather*}
+      (\interv{a_1}{b_1}{c_1}, \dots, \interv{a_N}{b_N}{c_N}) \; \cap \;
+        (\interv{a'_1}{b'_1}{c'_1}, \dots, \interv{a'_N}{b'_N}{c'_N}) \\
+      = \\
+      (\interv{\max \{a_1,a'_1\}}{\min \{b_1,b'_1\}}{\neg c_1 \vee \neg c'_1},
+        \dots, \interv{\max \{a_N,a'_N\}}{\min \{b_N,b'_N\}}{\neg c_N \vee \neg c'_N})
+    \end{gather*}
+  \end{lem}
+  %
+  \begin{proof}
+    This immediately follows from \Cref{lem:vector-intersect} and
+    \Cref{lem:zinf-identities}.
+  \end{proof}
+}
 
 \begin{defn}{(\emph{Region space})}
   Region space defines the set \textit{Region} in $N$ dimensions inductively as
@@ -224,7 +292,10 @@ We give some basic interpretations: $\interp{\texttt{n}} = n$ where $n$ is in
 $\mathbb{Z}$, $\interp{\texttt{pointed}} = \llbracket \epsilon \rrbracket =
 \textsf{true}$, $\interp{\texttt{nonpointed}} = \textsf{false}$.
 Typographically, cursive font is used within specifications to indicate a
-partial textual capture.
+partial textual capture. For convenience we use \textit{italic} serif font
+inside specifications rather than interpreting its textual capture.  These
+coalesces syntactic and semantic representation but avoids clutter in the
+presentation.
 
 Let $\textit{vec-gen}_N : \mathbb{N} \times \textit{Interval} \to
 \textit{Interval}^N$ be the function generating an $N$ dimensional vector
@@ -235,32 +306,17 @@ one. There, it has \interv{a}{b}{c}.
 First, we give meaning to region constants (introduced in \Cref{}).
 %
 \begin{align*}
-  \interp{\texttt{pointed(dim=\textcap{i})}}_N & =
-    \vecgen{N}{\interp{\textcap{i}}}{\interv{0}{0}{\textsf{true}}}\\
+  \interp{\stencil{p}{$n$}{}{}}_N & =
+    \vecgen{N}{\interp{i}}{\interv{0}{0}{\textsf{true}}}\\
 %
-  \interp{\texttt{centered(dim=\textcap{i}, depth=\textcap{k}, \textcap{p})}}_N
-    & = \vecgen{N}
-           {\interp{\textcap{i}}}
-           {\interv{-\interp{\textcap{k}}}
-                   {\interp{\textcap{k}}}
-                   {\interp{\textcap{p}}}
-           } \\
+  \interp{\stencil{c}{$i$}{$k$}{\textcap{p}}}_N & =
+    \vecgen{N}{i}{\interv{-k}{k}{\interp{\textcap{p}}}} \\
 %
-  \interp{\texttt{forward(dim=\textcap{i}, depth=\textcap{k}, \textcap{p})}}_N
-    & = \vecgen{N}
-           {\interp{\textcap{i}}}
-           {\interv{0}
-                   {\interp{\textcap{k}}}
-                   {\interp{\textcap{p}}}
-           } \\
+  \interp{\stencil{f}{$i$}{$k$}{\textcap{p}}}_N & =
+    \vecgen{N}{\textcap{i}}{\interv{0}{k}{\interp{\textcap{p}}}} \\
 %
-  \interp{\texttt{backward(dim=\textcap{i}, depth=\textcap{k}, \textcap{p})}}_N
-    & = \vecgen{N}
-           {\interp{\textcap{i}}}
-           {\interv{-\interp{\textcap{k}}}
-                   {0}
-                   {\interp{\textcap{p}}}
-           }
+  \interp{\stencil{b}{$i$}{$k$}{\textcap{p}}}_N & =
+  \vecgen{N}{\textcap{i}}{\interv{-k}{0}{\interp{\textcap{p}}}}
 \end{align*}
 
 Second, we provide the semantics for the permissive region operator, \texttt{+},
@@ -305,7 +361,7 @@ Finally, we can give full semantics of a stencil specification:
 \section{Equational \& approximation theories}
 
 We know introduce the equational and approximation theory of stencil
-specifications based on $\equiv$ and $\prec$.
+specifications based on $\equiv$ and $\preceq$.
 
 \subsection{Equivalences}
 
@@ -328,19 +384,17 @@ We define an equivalence relation, $\equiv$, on regions as follows:
 %
   \item[Overlapping pointed] If \textcap{R} is one of \texttt{forward},
     \texttt{backward}, or \texttt{centered}, then we have
-    $\texttt{\textcap{R}(depth=\textcap{k},dim=\textcap{n},\_) +
-    pointed(dim=\textcap{n})} \equiv
-    \texttt{\textcap{R}(depth=\textcap{k},dim=\textcap{n})}$.
+    $\texttt{\textcap{R}(depth=$k$,dim=$n$,\_) + \stencil[s]{p}{$n$}{}{}} \equiv
+    \texttt{\textcap{R}(depth=$k$,dim=$n$)}$.
 %
   \item[Centered] The region constants \texttt{forward} and \texttt{backward}
     are two halves of \texttt{centered} specifications:
 %
-    \begin{gather*}
-      \texttt{centered(depth=\textcap{k},dim=\textit{n},\textcap{p1})} \\
-      \equiv \\
-      \texttt{forward(depth=\textcap{k},dim=\textit{n},\textcap{p2}) +
-        backward(depth=\textcap{k},dim=\textit{n},\textcap{p3})}
-    \end{gather*}
+    \begin{equation*}
+      \stencil[s]{c}{$n$}{$k$}{\textcap{p1}} \equiv
+        \stencil[s]{f}{$n$}{$k$}{\textcap{p2}} \texttt{+}
+        \stencil[s]{f}{$n$}{$k$}{\textcap{p3}}
+    \end{equation*}
 %
     Here \textcap{p1} is \texttt{nonpointed} if both \textcap{p2} and
     \textcap{p3} are \texttt{nonpointed} and \texttt{pointed} otherwise.
@@ -489,10 +543,10 @@ We define an equivalence relation, $\equiv$, on regions as follows:
       Now we prove the second equivalence:
       \begin{align*}
         \hspace{2em}&\hspace{-2em} \interp{
-          (\textcap{R}^{\textit{t}} \texttt{+} \textcap{S}^{\textit{f}})
-          \texttt{*}
-          (\textcap{R}^{\textit{f}} \texttt{+} \textcap{S}^{\textit{t}})
-        }_N \\
+            (\textcap{R}^{\textit{t}} \texttt{+} \textcap{S}^{\textit{f}})
+            \texttt{*}
+            (\textcap{R}^{\textit{f}} \texttt{+} \textcap{S}^{\textit{t}})
+          }_N \\
         &= \interp{
              (\textcap{R}^{\textit{t}} \texttt{*} \textcap{R}^{\textit{f}})
              \texttt{+}
@@ -527,6 +581,15 @@ We define an equivalence relation, $\equiv$, on regions as follows:
 \end{proof}
 
 \subsection{Approximations}
+We define a partial of order of approximations, $\preceq$. This relation
+provides us with the following:
+
+\begin{description}
+  \item[Centered]
+  \item[Point] Let \textcap{R} be a region constant with two variants: a
+    superscript $f$ to mean nonpointed and $t$ to mean pointed. Then we have
+    $\textcap{R}^t \preceq \textcap{R}^f$.
+\end{description}
 
 \section{Analysis, Consistency, Inference}
 
@@ -535,5 +598,32 @@ We define an equivalence relation, $\equiv$, on regions as follows:
 \subsection{Consisteny}
 
 \subsection{Inference}
+
+\begin{thm}{(Completeness of inference)}
+  Inference procedure can infer a specification for every stencil computation.
+\end{thm}
+%
+\begin{proof}
+  Would be nice to have.
+\end{proof}
+
+\begin{thm}{(Completeness of exact inference)}
+  Inference procedure can infer a specification for every stencil computation
+  with array indexing behaviour forms a superposition of hyperrectangles removed
+  at most one unit from the origin in any of its dimension.
+\end{thm}
+%
+\begin{proof}
+  Would be nice to have.
+\end{proof}
+
+\begin{thm}{(Optimality of inference)}
+  For exact inference, inference procedure always infers specifications with
+  fewest number of region constants.
+\end{thm}
+%
+\begin{proof}
+  Would be nice to have.
+\end{proof}
 
 \end{document}

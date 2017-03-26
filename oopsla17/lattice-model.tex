@@ -22,6 +22,9 @@
 \newtheorem{prop}{Proposition}
 \newtheorem{case}{Case}
 
+\theoremstyle{remark}
+\newtheorem{remark}{Remark}
+
 % Auxillary declaration
 \newcommand{\eg}{\emph{e.g.}}
 
@@ -599,7 +602,7 @@ provides us with the following:
 
 \subsection{Inference}
 
-\begin{thm}{(Completeness of inference)}
+\begin{thm}{(Completeness of inference)}\label{thm:inf-completeness}
   Inference procedure can infer a specification for every stencil computation.
 \end{thm}
 %
@@ -617,7 +620,7 @@ provides us with the following:
   Would be nice to have.
 \end{proof}
 
-\begin{thm}{(Optimality of inference)}
+\begin{thm}{(Optimality of inference)}\label{thm:inf-optimality}
   For exact inference, inference procedure always infers specifications with
   fewest number of region constants.
 \end{thm}
@@ -625,5 +628,11 @@ provides us with the following:
 \begin{proof}
   Would be nice to have.
 \end{proof}
+
+\begin{remark}{}
+  Optimality of general inference is trivial. We only need a single region
+  constant covering accesses in any one of the stencil's dimensions and that
+  would provide an upper bound for the stencil.
+\end{remark}
 
 \end{document}

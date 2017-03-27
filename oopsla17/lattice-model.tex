@@ -249,17 +249,18 @@ interpretations of the stencils in the code and the specifications.
 \end{defn}
 
 \begin{prop}{}
-  $(\textit{Region},\supseteq)$ is a distributive lattice.
+  $(\textit{Region},\subseteq)$ is a distributive lattice.
 \end{prop}
 %
 \begin{proof}
   Any sublattice of a distributive lattice is a distributive lattice. Power sets
-  coupled with partially ordered with superset or equals relation are
-  distributive lattices. \textit{Region} is a subset of
-  $\mathcal{P}{(\zinf{}^{\mkern-19mu{N}})}$ since all vector intervals are
-  subsets of this power set and union and intersection cannot add an element
-  that is not already in the powerset. Therefore, \textit{Region} is a
-  distributive sublattice of $\mathcal{P}{(\zinf{}^{\mkern-19mu{N}})}$.
+  partially ordered with subset or equal to relation are distributive lattices.
+  \textit{Region} is a subset of $\mathcal{P}{(\zinf{}^{\mkern-19mu{N}})}$ since
+  all vector intervals are subsets of this power set and union and intersection
+  cannot add an element that is not already in the powerset. Inductive
+  definition also ensures that \textit{Region} is closed under these operations.
+  Therefore, \textit{Region} is a distributive sublattice of
+  $(\mathcal{P}{(\zinf{}^{\mkern-19mu{N}})}, \subseteq)$.
 \end{proof}
 
 \begin{defn}{}
@@ -284,47 +285,46 @@ interpretations of the stencils in the code and the specifications.
 \subsection{Denotational semantics for specifications}
 
 We give some basic interpretations: $\interp{\texttt{n}} = n$ where $n$ is in
-$\mathbb{Z}$, $\interp{\texttt{pointed}} = \llbracket \epsilon \rrbracket =
+$\mathbb{Z}^+$, $\interp{\texttt{pointed}} = \llbracket \epsilon \rrbracket =
 \textsf{true}$, $\interp{\texttt{nonpointed}} = \textsf{false}$.
-Typographically, cursive font is used within specifications to indicate a
-partial textual capture. For convenience we use \textit{italic} serif font
-inside specifications rather than interpreting its textual capture.  These
+Typographically, cursive monotype font is used within specifications to indicate
+a partial textual capture. For convenience we use \textit{italic} serif font
+inside specifications rather than interpreting its textual capture. This
 coalesces syntactic and semantic representation but avoids clutter in the
 presentation.
 
-Let $\textit{vec-gen}_N : \mathbb{N} \times \textit{Interval} \to
+Let $\textit{vec-gen}_N : \mathbb{N}^+ \times \textit{Interval} \to
 \textit{Interval}^N$ be the function generating an $N$ dimensional vector
 interval such that \vecgen{N}{i}{\interv{a}{b}{c}} has
-$\interv{-\infty}{\infty}{\textsf{p}}$ in all dimensions except the $i^{th}$
+$\interv{-\infty}{\infty}{\textsf{true}}$ in all dimensions except the $i^{th}$
 one. There, it has \interv{a}{b}{c}.
 
 First, we give meaning to region constants (introduced in \Cref{}).
 %
 \begin{align*}
-  \interp{\stencil{p}{$n$}{}{}}_N & =
-    \vecgen{N}{\interp{i}}{\interv{0}{0}{\textsf{true}}}\\
+  \interp{\stencil{p}{$i$}{}{}}_N & =
+    \vecgen{N}{i}{\interv{0}{0}{\textsf{true}}}\\
 %
   \interp{\stencil{c}{$i$}{$k$}{\textcap{p}}}_N & =
     \vecgen{N}{i}{\interv{-k}{k}{\interp{\textcap{p}}}} \\
 %
   \interp{\stencil{f}{$i$}{$k$}{\textcap{p}}}_N & =
-    \vecgen{N}{\textcap{i}}{\interv{0}{k}{\interp{\textcap{p}}}} \\
+    \vecgen{N}{i}{\interv{0}{k}{\interp{\textcap{p}}}} \\
 %
   \interp{\stencil{b}{$i$}{$k$}{\textcap{p}}}_N & =
-  \vecgen{N}{\textcap{i}}{\interv{-k}{0}{\interp{\textcap{p}}}}
+  \vecgen{N}{i}{\interv{-k}{0}{\interp{\textcap{p}}}}
 \end{align*}
 
 Second, we provide the semantics for the permissive region operator, \texttt{+},
-and the restrictive region operator, \texttt{*}, by associating them with meet
-and join respectively. Let \texttt{\textit{R}} and \texttt{\textit{S}} be
-regions.
+and the restrictive region operator, \texttt{*}, by associating them with join
+and meet respectively. Let \textcap{R} and \textcap{S} be regions.
 %
 \begin{align*}
   \interp{\texttt{\textcap{R} + \textcap{S}}}_N & =
-    \interp{\textcap{R}}_N \wedge \interp{\textcap{S}}_N
+    \interp{\textcap{R}}_N \vee \interp{\textcap{S}}_N
 &
   \interp{\texttt{\textcap{R} * \textcap{S}}}_N & =
-    \interp{\textcap{R}}_N \vee \interp{\textcap{S}}_N
+    \interp{\textcap{R}}_N \wedge \interp{\textcap{S}}_N
 \end{align*}
 
 Third, we need to mark presence of modifiers such as \texttt{readOnce} and
@@ -356,7 +356,7 @@ Finally, we can give full semantics of a stencil specification:
 \section{Equational \& approximation theories}
 
 We know introduce the equational and approximation theory of stencil
-specifications based on $\equiv$ and $\preceq$.
+specifications based on $\equiv$ and $\preceq$ in the following two subsections.
 
 \subsection{Equivalences}
 
@@ -367,11 +367,11 @@ We define an equivalence relation, $\equiv$, on regions as follows:
     associative;
 %
   \item[Subsumption] If $S$ and $R$ are regions with $S \preceq R$, then
-    $S \texttt{+} R \equiv S$ and $S \texttt{*} R \equiv R$.
+    $S \texttt{+} R \equiv R$ and $S \texttt{*} R \equiv S$.
 %
   \item[Dist] \texttt{*} distributed over \texttt{+} and dually
     \texttt{+} distributes over \texttt{*}, meaning if \textcap{R}, \textcap{S},
-    and \textcap{T} are regions, then we have the following equivalences:
+    and \textcap{T} are regions, then we have the following dual equivalences:
 %
     \begin{align*}
       \texttt{\textcap{R}*(\textcap{S}+\textcap{T})} & \equiv
@@ -424,7 +424,7 @@ We define an equivalence relation, $\equiv$, on regions as follows:
   and $S$ be $N$ dimensional regions, then we have
 %
   \begin{equation*}
-    R \equiv S \implies \interp{R}_N \equiv \interp{S}_N
+    R \equiv S \implies \interp{R}_N = \interp{S}_N
   \end{equation*}
 \end{thm}
 
@@ -460,9 +460,9 @@ We define an equivalence relation, $\equiv$, on regions as follows:
 %
     \item[Centered] Let $\interp{\textcap{p1}}$, $\interp{\textcap{p2}}$, and
       $\interp{\textcap{p3}}$ be $p1$, $p2$, and $p3$ respectively. We
-      also know that $p1$ is $p2 \vee p3$ from \textbf{Centered} detinition.
-      Then we get the following interpretation for region constants involved in
-      the equivalence:
+      know that $p1$ is $p2 \vee p3$ from (\textbf{Centered}) detinition. Then
+      we get the following interpretation for region constants involved in the
+      equivalence:
 %
       \begin{align*}
         \interp{\stencil{c}{$k$}{$n$}{$p1$}}_N
@@ -587,15 +587,15 @@ provides us with the following:
     $S \preceq R$.
 %
   \item[Combined] If $S$ and $R$ are regions, then we have
-    $S \texttt{+} R \preceq S$ and $S \preceq S \texttt{*} R$.
+    $S \preceq S \texttt{+} R$ and $S \texttt{*} R \preceq S$.
 %
   \item[Depth] Let $k$ and $l$ be in positive integers and $k \leq l$, $n$ some
     fixed dimension, and \textcap{p} either \texttt{pointed} or
-    \texttt{nonpointed}. Further let \textcap{R} be one of \texttt{centered},
+    \texttt{nonpointed}. Further, let \textcap{R} be one of \texttt{centered},
     \texttt{forward}, and \texttt{backward}. We then have
 %
     \begin{equation*}
-      \stencil{R}{$n$}{$l$}{\textcap{p}} \preceq \stencil{R}{$n$}{$k$}{\textcap{p}}
+      \stencil{R}{$n$}{$k$}{\textcap{p}} \preceq \stencil{R}{$n$}{$l$}{\textcap{p}}
     \end{equation*}
 %
 \end{description}
@@ -605,22 +605,22 @@ provides us with the following:
   and $S$ be $N$ dimensional regions, then we have
 %
   \begin{equation*}
-    R \preceq S \implies \interp{R}_N \supseteq \interp{S}_N
+    R \preceq S \implies \interp{R}_N \subseteq \interp{S}_N
   \end{equation*}
 \end{thm}
 %
 \begin{proof}
-  Both $\preceq$ and $\supseteq$ are partial orders on sets. We only need to
+  Both $\preceq$ and $\subseteq$ are partial orders on sets. We only need to
   show that each inequality holds in the model.
 %
   \begin{description}
     \item[Equivalence] Region equavilance is modeled with set equality and the
-      partial order on regions is modeled with superset relation. Partial orders
+      partial order on regions is modeled with subset relation. Partial orders
       are reflexive and the model of eqivalence agrees with that of the partial
       order, so this rule holds.
 %
-    \item[Combined] \texttt{*} and \texttt{+} maps to join and meet operations
-      in the lattice. All joins and meets in a lattice satisfy these
+    \item[Combined] \texttt{*} and \texttt{+} maps to meet and join operations
+      in the lattice. All meets and joins in a lattice satisfy these
       inequalities.
 
     \item[Depth] When $m$ is $k$ and $l$ in
@@ -628,20 +628,21 @@ provides us with the following:
       interpretations $\vecgen{N}{n}{\textit{int}_k}$ and
       $\vecgen{N}{n}{\textit{int}_l}$ for some $N$ as interpretations of
       regions. Call these \textit{ks} and \textit{ls} respectively. One way to
-      show $\textit{ls} \supseteq \textit{ks}$ is to show that the intersection
-      of \textit{ls} and \textit{ks} is \textit{ks}.
+      show $\textit{ks} \subseteq \textit{ls}$ is to show that the intersection
+      of \textit{ks} and \textit{ls} is \textit{ks}.
 
       To show that the intersection is \textit{ks}, we use
       \Cref{lem:vector-intersect} which reduces the problem to showing that the
       intersection of $\textit{int}_k$ and $\textit{int}_l$ is the former since
       at every point except $n$ the intervals agree, hence the intersection
-      remains the same. Then we use \Cref{lem:zinf-identities} to calculate the
-      intersection. By assumption we have $k \leq l$, so the maximum of the
-      lower bounds is $-k$ and the minimum of lower bounds is $k$ this is same
-      as interval $\textit{int}_k$. Note that pointedness is the same for both
-      intervals and depths are positive integers, so the pointedness is
-      preserved under intersection. This shows the intersection of \textit{ls}
-      and \textit{ks} is indeed \textit{ks} and concludes the proof.
+      remains the same at these dimensions. Then we use
+      \Cref{lem:zinf-identities} to calculate the intersection. By assumption we
+      have $k \leq l$, so the maximum of the lower bounds is $-k$ and the
+      minimum of lower bounds is $k$ this is same as interval $\textit{int}_k$.
+      Note that pointedness is the same for both intervals and depths are
+      positive integers, so the pointedness is preserved under intersection.
+      This shows the intersection of \textit{ls} and \textit{ks} is indeed
+      \textit{ks} and concludes the proof.
   \end{description}
 \end{proof}
 
@@ -653,41 +654,42 @@ when writing specifications without inference:
   we have
 %
   \begin{align*}
-    \stencil{c}{$n$}{$k$}{\textcap{p}} & \preceq
-      \stencil{f}{$n$}{$k$}{\textcap{p}} \\
+    \stencil{f}{$n$}{$k$}{\textcap{p}} & \preceq
+      \stencil{c}{$n$}{$k$}{\textcap{p}} \\
 %
-    \stencil{c}{$n$}{$k$}{\textcap{p}} & \preceq
-      \stencil{b}{$n$}{$k$}{\textcap{p}}
+    \stencil{b}{$n$}{$k$}{\textcap{p}} & \preceq
+      \stencil{c}{$n$}{$k$}{\textcap{p}}
   \end{align*}
 \end{prop}
 %
 \begin{proof}
   \shortv{%
-    Both inequalities are proved by breaking \texttt{centered} using
-    (\textbf{Centered}) followed by the inequality (\textbf{Combined}).
+    Both inequalities are proved by combining the missing half of centered by
+    using the inequality (\textbf{Combined}) and then merging them into a single
+    region constant using (\textbf{Centered}).
   }
 
   \longv{%
     Proof of the first inequality:
     \begin{align*}
-      \stencil[s]{c}{$n$}{$k$}{\textcap{p}}
-        & \equiv \stencil[s]{f}{$n$}{$k$}{\textcap{p}}
-                 \;\texttt{+}\;
-                 \stencil[s]{b}{$n$}{$k$}{\textcap{p}}
-          & (\textbf{Centered}) \\
-        & \preceq \stencil[s]{f}{$n$}{$k$}{\textcap{p}}
-          & (\textbf{Combined})
+      \stencil[s]{f}{$n$}{$k$}{\textcap{p}}
+        & \preceq
+          \stencil[s]{f}{$n$}{$k$}{\textcap{p}}
+          \;\texttt{+}\;
+          \stencil[s]{b}{$n$}{$k$}{\textcap{p}}
+        & (\textbf{Combined}) \\
+      & \equiv \stencil[s]{c}{$n$}{$k$}{\textcap{p}} & (\textbf{Centered})
     \end{align*}
 
     Proof of the second inequality:
     \begin{align*}
-      \stencil[s]{c}{$n$}{$k$}{\textcap{p}}
-        & \equiv \stencil[s]{f}{$n$}{$k$}{\textcap{p}}
-                 \;\texttt{+}\;
-                 \stencil[s]{b}{$n$}{$k$}{\textcap{p}}
-          & (\textbf{Centered}) \\
-        & \preceq \stencil[s]{b}{$n$}{$k$}{\textcap{p}}
-          & (\textbf{Combined})
+      \stencil[s]{b}{$n$}{$k$}{\textcap{p}}
+        & \preceq
+          \stencil[s]{f}{$n$}{$k$}{\textcap{p}}
+          \;\texttt{+}\;
+          \stencil[s]{b}{$n$}{$k$}{\textcap{p}}
+        & (\textbf{Combined}) \\
+      & \equiv \stencil[s]{c}{$n$}{$k$}{\textcap{p}} & (\textbf{Centered})
     \end{align*}
   }
 \end{proof}
@@ -697,10 +699,10 @@ when writing specifications without inference:
   \texttt{centered}, $n$ a fixed dimension, and $k$ a fixed depth, then we have
 %
   \begin{align*}
-    \stencil{R}{$n$}{$k$}{} & \preceq \stencil{p}{$n$}{}{} \\
+    \stencil{p}{$n$}{}{} & \preceq \stencil{R}{$n$}{$k$}{} \\
 %
-    \stencil{R}{$n$}{$k$}{} & \preceq
-      \stencil{R}{$n$}{$k$}{\texttt{nonpointed}}
+    \stencil{R}{$n$}{$k$}{\texttt{nonpointed}} & \preceq
+      \stencil{R}{$n$}{$k$}{}
   \end{align*}
 \end{prop}
 %
@@ -714,23 +716,22 @@ when writing specifications without inference:
   \longv{%
     Proof of the first inequality:
     \begin{align*}
-      \stencil{R}{$n$}{$k$}{}
-        & \equiv \stencil{R}{$n$}{$k$}{\texttt{nonpointed}}
-                 \;\texttt{+}\;
-                 \stencil[s]{p}{$n$}{}{}
-        & (\textbf{Overlapping pointed}) \\
-      & \preceq \stencil[s]{p}{$n$}{}{} & (\textbf{Combined})
+      \stencil[s]{p}{$n$}{}{}
+        & \preceq \stencil{R}{$n$}{$k$}{\texttt{nonpointed}}
+                  \;\texttt{+}\;
+                  \stencil[s]{p}{$n$}{}{}
+        & (\textbf{Combined}) \\
+      & \equiv \stencil{R}{$n$}{$k$}{} & (\textbf{Overlapping pointed})
     \end{align*}
 
     Proof of the second inequality:
     \begin{align*}
       \stencil{R}{$n$}{$k$}{}
-        & \equiv \stencil{R}{$n$}{$k$}{\texttt{nonpointed}}
-                 \;\texttt{+}\;
-                 \stencil[s]{p}{$n$}{}{}
-        & (\textbf{Overlapping pointed}) \\
-      & \preceq \stencil{R}{$n$}{$k$}{\texttt{nonpointed}}
-        & (\textbf{Combined})
+        & \preceq \stencil{R}{$n$}{$k$}{\texttt{nonpointed}}
+                  \;\texttt{+}\;
+                  \stencil[s]{p}{$n$}{}{}
+        & (\textbf{Combined}) \\
+      & \equiv \stencil{R}{$n$}{$k$}{} & (\textbf{Overlapping pointed})
     \end{align*}
   }
 \end{proof}

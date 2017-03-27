@@ -30,7 +30,7 @@
 
 % Essential macros
 \newcommand{\zinf}{\textnormal{$\mathbb{Z}_\infty$}}
-\newcommand{\interp}[1]{\llbracket {#1} \rrbracket}
+\newcommand{\interp}[1]{\llbracket{} {#1} \rrbracket{}}
 \newcommand{\interv}[3]{\textnormal{$\lbrack#1,#2\rbrack^{#3}$}}
 \newcommand{\vecgen}[3]{\textnormal{$\textit{vec-gen}_{#1}(#2,#3)$}}
 \newcommand{\textcap}[1]{\texttt{\textit{#1}}}
@@ -82,8 +82,7 @@
   }}}}%
   \texttt{(dim=\textnormal{#3}%
     \ifthenelse{\isempty{#4}}{}{,depth=\textnormal{#4}}%
-    \ifthenelse{\isempty{#5}}{}{,\textnormal{#5}}%
-  )}%
+    \ifthenelse{\isempty{#5}}{}{,\textnormal{#5}})}%
 }
 
 % Non-essential macro
@@ -170,7 +169,6 @@ interpretations of the stencils in the code and the specifications.
   distributive lattice under the superset relation.
 \end{defn}
 
-\unused{
 \begin{lem}{}\label{lem:vector-intersect}
   Intersection distributes over offsets vectors.
 %
@@ -184,9 +182,15 @@ interpretations of the stencils in the code and the specifications.
 \end{lem}
 %
 \begin{proof}
-  TODO. Trivial. Do if needed.
+  \begin{align*}
+    v \; \cap \; v' &
+    = \{x \mid \bigwedge_{1 \leq i \leq N } x_i \in v_i \}
+      \;\cap\;
+      \{x \mid \bigwedge_{1 \leq i \leq N } x_i \in v'_i \} \\
+    & = \{x \mid \bigwedge_{1 \leq i \leq N } (x_i \in v_i \wedge x_i \in v'_i) \} \\
+    & = (v_1 \cap v'_1,\dotsc,v_N \cap v'_N)
+  \end{align*}
 \end{proof}
-}
 
 \begin{lem}{}\label{lem:vector-union}
   Let $v$ and $v'$ be two $N$ dimensional offsets vectors such that $v_i$ is
@@ -203,18 +207,18 @@ interpretations of the stencils in the code and the specifications.
 \begin{proof}
   \begin{align*}
     v \; \cup \; v' &
-    = \{(x_1,\dotsc,x_n) \mid
+    = \{x \mid
           \bigwedge_{1 \leq i \leq N } x_i \in v_i \}
       \;\cup\;
-      \{(x_1,\dotsc,x_n) \mid
+      \{x \mid
           \bigwedge_{1 \leq i \leq N } x_i \in v'_i \} \\
-    & = \{(x_1,\dotsc,x_n) \mid
+    & = \{x \mid
           \bigwedge_{\substack{1 \leq i \leq N \\ i \neq k}} x_i \in v_i
               \wedge x_k \in v_k \vee
           \bigwedge_{\substack{1 \leq i \leq N \\ i \neq k}} x_i \in v'_i
             \wedge x_k \in v'_k
         \} \\
-    & = \{(x_1,\dotsc,x_n) \mid
+    & = \{x \mid
           \bigwedge_{\substack{1 \leq i \leq N \\ i \neq k}} x_i \in v_i
           \wedge x_k \in v_k \cup v'_k
         \} \\
@@ -232,25 +236,6 @@ interpretations of the stencils in the code and the specifications.
   The set of $N$ dimensional vector intervals is $\textit{Interval}^N$. Every
   vector interval is also an offsets vector.
 \end{defn}
-
-\unused{
-  \begin{lem}{}
-    Intersection distributes $N$ dimensional vector intervals:
-  %
-    \begin{gather*}
-      (\interv{a_1}{b_1}{c_1}, \dots, \interv{a_N}{b_N}{c_N}) \; \cap \;
-        (\interv{a'_1}{b'_1}{c'_1}, \dots, \interv{a'_N}{b'_N}{c'_N}) \\
-      = \\
-      (\interv{\max \{a_1,a'_1\}}{\min \{b_1,b'_1\}}{\neg c_1 \vee \neg c'_1},
-        \dots, \interv{\max \{a_N,a'_N\}}{\min \{b_N,b'_N\}}{\neg c_N \vee \neg c'_N})
-    \end{gather*}
-  \end{lem}
-  %
-  \begin{proof}
-    This immediately follows from \Cref{lem:vector-intersect} and
-    \Cref{lem:zinf-identities}.
-  \end{proof}
-}
 
 \begin{defn}{(\emph{Region space})}
   Region space defines the set \textit{Region} in $N$ dimensions inductively as
@@ -555,12 +540,12 @@ We define an equivalence relation, $\equiv$, on regions as follows:
 %
       Now we prove the second equivalence:
       \begin{align*}
-        \hspace{2em}&\hspace{-2em} \interp{
+        \hspace{2em}&\hspace{-2em} \interp{%
             (\textcap{R}^{\textit{t}} \texttt{+} \textcap{S}^{\textit{f}})
             \texttt{*}
             (\textcap{R}^{\textit{f}} \texttt{+} \textcap{S}^{\textit{t}})
           }_N \\
-        &= \interp{
+        &= \interp{%
              (\textcap{R}^{\textit{t}} \texttt{*} \textcap{R}^{\textit{f}})
              \texttt{+}
              (\textcap{S}^{\textit{t}} \texttt{*} \textcap{S}^{\textit{f}})
@@ -569,7 +554,7 @@ We define an equivalence relation, $\equiv$, on regions as follows:
              \texttt{+}
              (\textcap{R}^{\textit{f}} \texttt{*} \textcap{S}^{\textit{f}})
            }_N \\
-        &= \interp{
+        &= \interp{%
              \textcap{R}^{\textit{f}}
              \texttt{+}
              \textcap{S}^{\textit{f}}
@@ -650,7 +635,8 @@ provides us with the following:
       \Cref{lem:vector-intersect} which reduces the problem to showing that the
       intersection of $\textit{int}_k$ and $\textit{int}_l$ is the former since
       at every point except $n$ the intervals agree, hence the intersection
-      remains the same. By assumption we have $k \leq l$, so the maximum of the
+      remains the same. Then we use \Cref{lem:zinf-identities} to calculate the
+      intersection. By assumption we have $k \leq l$, so the maximum of the
       lower bounds is $-k$ and the minimum of lower bounds is $k$ this is same
       as interval $\textit{int}_k$. Note that pointedness is the same for both
       intervals and depths are positive integers, so the pointedness is

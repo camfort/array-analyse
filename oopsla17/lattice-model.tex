@@ -740,7 +740,39 @@ when writing specifications without inference:
 
 \subsection{Analysis}
 
-\subsection{Consisteny}
+\subsection{Consistency}
+
+Once the specification is synthesised into objects in the model and stencil
+under examination is analysed, consistency checking itself is remarkably simple.
+Two stage checking is outlined below.
+
+\begin{enumerate}
+  \item Multiplicity of the model is checked against the stencil. The only way
+    this fails is if the original specification involved \texttt{readOnce}, but
+    some indexing occur multiple times in the stencil.  Note that absence of
+    \texttt{readOnce} is interpreted liberally, and if the stencil indices
+    happen to occur uniquely, this does not constitute a failure.
+  \item Definition of vector intervals is completely unwinded into sets of
+    offset tuples and depending the approximation modifier (or lack thereof)
+    we compare these tuples to offsets of the stencil computation. Lower and
+    upper bounds are checked with subset and superset relations respectively,
+    while absence of \texttt{atMost} and \texttt{atLeast} results in exact
+    checking with set equality.
+\end{enumerate}
+
+Here is the mathematical definition of consistency checking:
+\begin{align*}
+  \textit{consistent}(\textit{ix}, \textit{model}) & = \begin{cases}
+    \textsf{false} & \textit{model} = \textsf{once}(x) \wedge ix = \textsf{mult}(y) \\
+    \textit{consistent'}(\textit{peel}(ix), \textit{peel}(model)) & \textit{otherwise}
+  \end{cases} \\
+%
+  \textit{consistent'}(\textit{ix}, \textit{model}) & = \begin{cases}
+    m = ix & \textit{model} = \textsf{exact}(m) \\
+    m \supseteq ix & \textit{model} = \textsf{upper}(m) \\
+    m \subseteq ix & \textit{model} = \textsf{lower}(m)
+  \end{cases}
+\end{align*}
 
 \subsection{Inference}
 

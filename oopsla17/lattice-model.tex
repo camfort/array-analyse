@@ -76,7 +76,10 @@
           \texttt{pointed}%
         }{INVALID OPTIONAL}%
       }%
-  }{}}}}%
+  }{\ifthenelse{\isempty{#1}}{%
+      \textcap{#2}%
+    }{NO OPTIONAL FOR CUSTOM}%
+  }}}}%
   \texttt{(dim=\textnormal{#3}%
     \ifthenelse{\isempty{#4}}{}{,depth=\textnormal{#4}}%
     \ifthenelse{\isempty{#5}}{}{,\textnormal{#5}}%
@@ -86,6 +89,10 @@
 % Non-essential macro
 \definecolor{unused}{RGB}{211,167,192}
 \newcommand{\unused}[1]{{\color{unused} #1}}
+
+\definecolor{version}{RGB}{163,193,173}
+\newcommand{\longv}[1]{{\color{version} Long version:} #1}
+\newcommand{\shortv}[1]{{\color{version} Short version:} #1}
 
 \begin{document}
 
@@ -374,6 +381,9 @@ We define an equivalence relation, $\equiv$, on regions as follows:
   \item[Basic] \texttt{*} and \texttt{+} are both idempotent, commutative, and
     associative;
 %
+  \item[Subsumption] If $S$ and $R$ are regions with $S \preceq R$, then
+    $S \texttt{+} R \equiv S$ and $S \texttt{*} R \equiv R$.
+%
   \item[Dist] \texttt{*} distributed over \texttt{+} and dually
     \texttt{+} distributes over \texttt{*}, meaning if \textcap{R}, \textcap{S},
     and \textcap{T} are regions, then we have the following equivalences:
@@ -387,8 +397,9 @@ We define an equivalence relation, $\equiv$, on regions as follows:
 %
   \item[Overlapping pointed] If \textcap{R} is one of \texttt{forward},
     \texttt{backward}, or \texttt{centered}, then we have
-    $\texttt{\textcap{R}(depth=$k$,dim=$n$,\_) + \stencil[s]{p}{$n$}{}{}} \equiv
-    \texttt{\textcap{R}(depth=$k$,dim=$n$)}$.
+    $\stencil{\textcap{R}}{$n$}{$k$}{\texttt{nonpointed}} \;\texttt{+}\;
+     \stencil[s]{p}{$n$}{}{} \equiv
+     \stencil{\textcap{R}}{$n$}{$k$}{}$.
 %
   \item[Centered] The region constants \texttt{forward} and \texttt{backward}
     are two halves of \texttt{centered} specifications:
@@ -396,7 +407,7 @@ We define an equivalence relation, $\equiv$, on regions as follows:
     \begin{equation*}
       \stencil[s]{c}{$n$}{$k$}{\textcap{p1}} \equiv
         \stencil[s]{f}{$n$}{$k$}{\textcap{p2}} \texttt{+}
-        \stencil[s]{f}{$n$}{$k$}{\textcap{p3}}
+        \stencil[s]{b}{$n$}{$k$}{\textcap{p3}}
     \end{equation*}
 %
     Here \textcap{p1} is \texttt{nonpointed} if both \textcap{p2} and
@@ -412,18 +423,18 @@ We define an equivalence relation, $\equiv$, on regions as follows:
       \;\texttt{+}\;
       (\textcap{R}^{\textit{f}} \texttt{*} \textcap{S}^{\textit{t}})
       \;\texttt{+}\;
-      \texttt{p(dim=\textcap{dr})*p(dim=\textcap{ds})} & =
+      \stencil[s]{p}{\textit{dr}}{}{}*\stencil[s]{p}{\textit{ds}}{}{} & =
         \textcap{R}^{\textit{t}} \texttt{*} \textcap{S}^{\textit{t}} \\
 %
       (\textcap{R}^{\textit{t}} \texttt{+} \textcap{S}^{\textit{f}}) \texttt{*}
       (\textcap{R}^{\textit{f}} \texttt{+} \textcap{S}^{\textit{t}}) & =
         \textcap{R}^{\textit{f}} \texttt{+} \textcap{S}^{\textit{f}}
         \;\texttt{+}\;
-        \texttt{p(dim=\textcap{dr})*p(dim=\textcap{ds})}
+        \stencil[s]{p}{\textit{dr}}{}{}*\stencil[s]{p}{\textit{ds}}{}{}
     \end{align*}
 \end{description}
 
-\begin{thm}{(Soundness)}
+\begin{thm}{(Equational soundness)}
   Equational theory is sound with respect to the lattice model. Let $R$
   and $S$ be $N$ dimensional regions, then we have
 %
@@ -438,22 +449,22 @@ We define an equivalence relation, $\equiv$, on regions as follows:
   in the model.
 %
   \begin{description}
-    \item[Basic] These follow from basic properties of lattices.
+    \item[Basic \& Subsumption] These follow from basic properties of lattices.
 %
     \item[Dist] This is immediate from the definition of distributive
       lattice which the model is one.
 %
-    \item[Overlapping pointed] Let $\interp{\textcap{n}}$ be $n$. Counterparts
-      of individual regions for some Boolean $p$ are given below:
+    \item[Overlapping pointed] Counterparts of individual regions for some
+      Boolean $p$ are given below:
 %
       \begin{align*}
-        \interp{\texttt{\textcap{R}(depth=\textcap{k},dim=\textcap{n},\_)}}_N
-        & = \vecgen{N}{n}{\interv{-k}{k}{p}} \\
+        \interp{\stencil{\textcap{R}}{$n$}{$k$}{\texttt{nonpointed}}}_N
+        & = \vecgen{N}{n}{\interv{-k}{k}{\textsf{false}}} \\
 %
-        \interp{\texttt{pointed(dim=\textcap{n})}}_N
+        \interp{\stencil{p}{$n$}{}{}}_N
         &= \vecgen{N}{n}{\interv{0}{0}{\textsf{true}}} \\
 %
-        \interp{\texttt{\textcap{R}(depth=\textcap{k},dim=\textcap{n})}}_N
+        \interp{\stencil{\textcap{R}}{$n$}{$k$}{}}_N
         &= \vecgen{N}{n}{\interv{-k}{k}{\textsf{true}}}
       \end{align*}
 
@@ -462,21 +473,20 @@ We define an equivalence relation, $\equiv$, on regions as follows:
         \interv{-k}{k}{\textsf{true}} $ holds. This immediately follows from
       \Cref{lem:zinf-identities}.
 %
-    \item[Centered] Let $\interp{\textcap{n}}$, $\interp{\textcap{k}}$,
-      $\interp{\textcap{p1}}$, $\interp{\textcap{p2}}$, and
-      $\interp{\textcap{p3}}$ be $n$, $k$, $p1$, $p2$, and $p3$ respectively. We
+    \item[Centered] Let $\interp{\textcap{p1}}$, $\interp{\textcap{p2}}$, and
+      $\interp{\textcap{p3}}$ be $p1$, $p2$, and $p3$ respectively. We
       also know that $p1$ is $p2 \vee p3$ from \textbf{Centered} detinition.
       Then we get the following interpretation for region constants involved in
       the equivalence:
 %
       \begin{align*}
-        \interp{\texttt{centered(depth=\textcap{k},dim=\textit{n},\textcap{p1})}}_N
+        \interp{\stencil{c}{$k$}{$n$}{$p1$}}_N
           &= \vecgen{N}{n}{\interv{-k}{k}{p2 \vee p3}} \\
 %
-        \interp{\texttt{forward(depth=\textcap{k},dim=\textit{n},\textcap{p2})}}_N
+        \interp{\stencil{f}{$k$}{$n$}{$p2$}}_N
           &= \vecgen{N}{n}{\interv{0}{k}{p2} }\\
 %
-        \interp{\texttt{backward(depth=\textcap{k},dim=\textit{n},\textcap{p3})}}_N
+        \interp{\stencil{b}{$k$}{$n$}{$p3$}}_N
           &= \vecgen{N}{n}{\interv{0}{k}{p3}}
       \end{align*}
 %
@@ -588,11 +598,156 @@ We define a partial of order of approximations, $\preceq$. This relation
 provides us with the following:
 
 \begin{description}
-  \item[Centered]
-  \item[Point] Let \textcap{R} be a region constant with two variants: a
-    superscript $f$ to mean nonpointed and $t$ to mean pointed. Then we have
-    $\textcap{R}^t \preceq \textcap{R}^f$.
+  \item[Equivalence] If $S$ and $R$ are regions and $S \equiv R$, then we have
+    $S \preceq R$.
+%
+  \item[Combined] If $S$ and $R$ are regions, then we have
+    $S \texttt{+} R \preceq S$ and $S \preceq S \texttt{*} R$.
+%
+  \item[Depth] Let $k$ and $l$ be in positive integers and $k \leq l$, $n$ some
+    fixed dimension, and \textcap{p} either \texttt{pointed} or
+    \texttt{nonpointed}. Further let \textcap{R} be one of \texttt{centered},
+    \texttt{forward}, and \texttt{backward}. We then have
+%
+    \begin{equation*}
+      \stencil{R}{$n$}{$l$}{\textcap{p}} \preceq \stencil{R}{$n$}{$k$}{\textcap{p}}
+    \end{equation*}
+%
 \end{description}
+
+\begin{thm}{(Approximation soundness)}
+  Theory of approximation is sound with respect to the lattice model. Let $R$
+  and $S$ be $N$ dimensional regions, then we have
+%
+  \begin{equation*}
+    R \preceq S \implies \interp{R}_N \supseteq \interp{S}_N
+  \end{equation*}
+\end{thm}
+%
+\begin{proof}
+  Both $\preceq$ and $\supseteq$ are partial orders on sets. We only need to
+  show that each inequality holds in the model.
+%
+  \begin{description}
+    \item[Equivalence] Region equavilance is modeled with set equality and the
+      partial order on regions is modeled with superset relation. Partial orders
+      are reflexive and the model of eqivalence agrees with that of the partial
+      order, so this rule holds.
+%
+    \item[Combined] \texttt{*} and \texttt{+} maps to join and meet operations
+      in the lattice. All joins and meets in a lattice satisfy these
+      inequalities.
+
+    \item[Depth] When $m$ is $k$ and $l$ in
+      $\stencil{\textcap{R}}{$n$}{$m$}{\textcap{p}}$, we obtain the
+      interpretations $\vecgen{N}{n}{\textit{int}_k}$ and
+      $\vecgen{N}{n}{\textit{int}_l}$ for some $N$ as interpretations of
+      regions. Call these \textit{ks} and \textit{ls} respectively. One way to
+      show $\textit{ls} \supseteq \textit{ks}$ is to show that the intersection
+      of \textit{ls} and \textit{ks} is \textit{ks}.
+
+      To show that the intersection is \textit{ks}, we use
+      \Cref{lem:vector-intersect} which reduces the problem to showing that the
+      intersection of $\textit{int}_k$ and $\textit{int}_l$ is the former since
+      at every point except $n$ the intervals agree, hence the intersection
+      remains the same. By assumption we have $k \leq l$, so the maximum of the
+      lower bounds is $-k$ and the minimum of lower bounds is $k$ this is same
+      as interval $\textit{int}_k$. Note that pointedness is the same for both
+      intervals and depths are positive integers, so the pointedness is
+      preserved under intersection. This shows the intersection of \textit{ls}
+      and \textit{ks} is indeed \textit{ks} and concludes the proof.
+  \end{description}
+\end{proof}
+
+We present few inequalities that can be derived from the axioms and are useful
+when writing specifications without inference:
+
+\begin{prop}{(Centered approximation)}
+  For any dimension $n$, depth $k$, and pointed attribute $p$,
+  we have
+%
+  \begin{align*}
+    \stencil{c}{$n$}{$k$}{\textcap{p}} & \preceq
+      \stencil{f}{$n$}{$k$}{\textcap{p}} \\
+%
+    \stencil{c}{$n$}{$k$}{\textcap{p}} & \preceq
+      \stencil{b}{$n$}{$k$}{\textcap{p}}
+  \end{align*}
+\end{prop}
+%
+\begin{proof}
+  \shortv{%
+    Both inequalities are proved by breaking \texttt{centered} using
+    (\textbf{Centered}) followed by the inequality (\textbf{Combined}).
+  }
+
+  \longv{%
+    Proof of the first inequality:
+    \begin{align*}
+      \stencil[s]{c}{$n$}{$k$}{\textcap{p}}
+        & \equiv \stencil[s]{f}{$n$}{$k$}{\textcap{p}}
+                 \;\texttt{+}\;
+                 \stencil[s]{b}{$n$}{$k$}{\textcap{p}}
+          & (\textbf{Centered}) \\
+        & \preceq \stencil[s]{f}{$n$}{$k$}{\textcap{p}}
+          & (\textbf{Combined})
+    \end{align*}
+
+    Proof of the second inequality:
+    \begin{align*}
+      \stencil[s]{c}{$n$}{$k$}{\textcap{p}}
+        & \equiv \stencil[s]{f}{$n$}{$k$}{\textcap{p}}
+                 \;\texttt{+}\;
+                 \stencil[s]{b}{$n$}{$k$}{\textcap{p}}
+          & (\textbf{Centered}) \\
+        & \preceq \stencil[s]{b}{$n$}{$k$}{\textcap{p}}
+          & (\textbf{Combined})
+    \end{align*}
+  }
+\end{proof}
+
+\begin{prop}{(Point approximation)}
+  Let \textcap{R} be one of \texttt{forward}, \texttt{backward}, and
+  \texttt{centered}, $n$ a fixed dimension, and $k$ a fixed depth, then we have
+%
+  \begin{align*}
+    \stencil{R}{$n$}{$k$}{} & \preceq \stencil{p}{$n$}{}{} \\
+%
+    \stencil{R}{$n$}{$k$}{} & \preceq
+      \stencil{R}{$n$}{$k$}{\texttt{nonpointed}}
+  \end{align*}
+\end{prop}
+%
+\begin{proof}
+  \shortv{%
+    Both inequalities are proved by breaking \textcap{R} using
+    (\textbf{Overlapping pointed}) followed by the inequality
+    (\textbf{Combined}).
+  }
+
+  \longv{%
+    Proof of the first inequality:
+    \begin{align*}
+      \stencil{R}{$n$}{$k$}{}
+        & \equiv \stencil{R}{$n$}{$k$}{\texttt{nonpointed}}
+                 \;\texttt{+}\;
+                 \stencil[s]{p}{$n$}{}{}
+        & (\textbf{Overlapping pointed}) \\
+      & \preceq \stencil[s]{p}{$n$}{}{} & (\textbf{Combined})
+    \end{align*}
+
+    Proof of the second inequality:
+    \begin{align*}
+      \stencil{R}{$n$}{$k$}{}
+        & \equiv \stencil{R}{$n$}{$k$}{\texttt{nonpointed}}
+                 \;\texttt{+}\;
+                 \stencil[s]{p}{$n$}{}{}
+        & (\textbf{Overlapping pointed}) \\
+      & \preceq \stencil{R}{$n$}{$k$}{\texttt{nonpointed}}
+        & (\textbf{Combined})
+    \end{align*}
+  }
+\end{proof}
 
 \section{Analysis, Consistency, Inference}
 

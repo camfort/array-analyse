@@ -397,26 +397,6 @@ We define an equivalence relation, $\equiv$, on regions as follows:
 %
     Here \textcap{p1} is \texttt{nonpointed} if both \textcap{p2} and
     \textcap{p3} are \texttt{nonpointed} and \texttt{pointed} otherwise.
-%
-  \item[Point] Let \textcap{R} and \textcap{S} be region constants with two
-    variants a superscript \textit{f} to mean nonpointed and \textit{t} to mean
-    pointed and \textcap{dr} \& \textcap{ds} be the dimensions \textcap{R} and
-    \textcap{S} acts on. Then we have the following dual equivalences:
-%
-    \begin{align*}
-      (\textcap{R}^{\textit{t}} \texttt{*} \textcap{S}^{\textit{f}})
-      \;\texttt{+}\;
-      (\textcap{R}^{\textit{f}} \texttt{*} \textcap{S}^{\textit{t}})
-      \;\texttt{+}\;
-      \stencil[s]{p}{\textit{dr}}{}{}*\stencil[s]{p}{\textit{ds}}{}{} & =
-        \textcap{R}^{\textit{t}} \texttt{*} \textcap{S}^{\textit{t}} \\
-%
-      (\textcap{R}^{\textit{t}} \texttt{+} \textcap{S}^{\textit{f}}) \texttt{*}
-      (\textcap{R}^{\textit{f}} \texttt{+} \textcap{S}^{\textit{t}}) & =
-        \textcap{R}^{\textit{f}} \texttt{+} \textcap{S}^{\textit{f}}
-        \;\texttt{+}\;
-        \stencil[s]{p}{\textit{dr}}{}{}*\stencil[s]{p}{\textit{ds}}{}{}
-    \end{align*}
 \end{description}
 
 \begin{thm}{(Equational soundness)}
@@ -478,103 +458,6 @@ We define an equivalence relation, $\equiv$, on regions as follows:
       Using \Cref{lem:vector-union}, it is sufficient to show $\interv{-k}{k}{p2
       \vee p3} = \interv{0}{k}{p2} \cup \interv{-k}{0}{p3}$ holds. This
       immediately follows from \Cref{lem:zinf-identities}.
-
-    \item[Point] We will prove the first equivalence and then use that to prove
-      the second.
-%
-      Let $\interp{\textcap{R}^{\textnormal{\textit{p}}}}_N$ and
-      $\interp{\textcap{S}^{\textnormal{\textit{p'}}}}_N$ be
-      $\vecgen{N}{k}{\interv{a}{b}{p}}$ and $\vecgen{N}{l}{\interv{c}{d}{p'}}$
-      respectively for some $a$ and $c$ less than or equal to 0, for some $c$
-      and $d$ greater than or equal to 0, for some indices $k$ and $l$ be
-      $\interp{\textcap{dr}}$ and $\interp{\textcap{ds}}$, which are not
-      necessarily distinct and $p$ and $p'$ are \textsf{true} if pointed and
-      \textsf{false} otherwise.
-%
-      \begin{align*}
-        \hspace{2em&\hspace{-2em}}
-        \interp
-          {{(\textcap{R}^{\textit{t}} * \textcap{S}^{\textit{f}})}
-           \;\texttt{+}\;
-           {(\textcap{R}^{\textit{f}} * \textcap{S}^{\textit{t}})}
-           \;\texttt{+}\;
-           \texttt{pointed(dim=\textcap{dr})*pointed(dim=\textcap{ds})}}_N \\
-        & = {(\interp{\textcap{R}^{\textit{t}}}_N \cap
-              \interp{\textcap{S}^{\textit{f}}}_N)} \cup
-            {(\interp{\textcap{R}^{\textit{f}}}_N \cap
-              \interp{\textcap{S}^{\textit{t}}}_N)} \;\cup \\
-        & \quad\,\, {(\vecgen{N}{\interp{ds}}{\interv{0}{0}{\textsf{true}}}
-                      \;\cup\;
-                      \vecgen{N}{\interp{dr}}{\interv{0}{0}{\textsf{true}}})} \\
-        & = \{ x \mid
-            \bigwedge_{\substack{1 \leq i \leq N \\ i \neq k \neq l}} x_i \in
-              \interv{\infty}{\infty}{\textsf{true}}
-            \wedge a \leq x_k \leq b
-            \wedge {(c \leq x_l \leq d \wedge x_l \neq 0)} \} \;\cup \\
-        & \quad\,\, \{ x \mid
-            \bigwedge_{\substack{1 \leq i \leq N \\ i \neq k \neq l}} x_i \in
-              \interv{\infty}{\infty}{\textsf{true}}
-            \wedge {(a \leq x_k \leq b \wedge x_k \neq 0)}
-            \wedge c \leq x_l \leq d \} \;\cup \\
-        & \quad\,\, \{ x \mid
-            \bigwedge_{\substack{1 \leq i \leq N \\ i \neq k \neq l}} x_i \in
-              \interv{\infty}{\infty}{\textsf{true}}
-            \wedge (x_k = 0 \wedge x_l = 0) \} \\
-        & = \{ x \mid
-            \bigwedge_{\substack{1 \leq i \leq N \\ i \neq k \neq l}} x_i \in
-              \interv{\infty}{\infty}{\textsf{true}}
-            \wedge a \leq x_k \leq b
-          \wedge c \leq x_l \leq d \wedge {(x_k \neq 0 \vee x_l \neq 0)} \}
-          \;\cup \\
-        & \quad\,\, \{ x \mid
-            \bigwedge_{\substack{1 \leq i \leq N \\ i \neq k \neq l}} x_i \in
-              \interv{\infty}{\infty}{\textsf{true}}
-            \wedge (x_k = 0 \wedge x_l = 0) \} \\
-        & = \{ x \mid
-            \bigwedge_{\substack{1 \leq i \leq N \\ i \neq k \neq l}} x_i \in
-              \interv{\infty}{\infty}{\textsf{true}}
-            \wedge a \leq x_k \leq b
-            \wedge c \leq x_l \leq d \} \\
-        & = \interp{\textcap{R}^{\textit{t}} \texttt{*} \textcap{S}^{\textit{t}}}_N
-      \end{align*}
-%
-      Now we prove the second equivalence:
-      \begin{align*}
-        \hspace{2em}&\hspace{-2em} \interp{%
-            (\textcap{R}^{\textit{t}} \texttt{+} \textcap{S}^{\textit{f}})
-            \texttt{*}
-            (\textcap{R}^{\textit{f}} \texttt{+} \textcap{S}^{\textit{t}})
-          }_N \\
-        &= \interp{%
-             (\textcap{R}^{\textit{t}} \texttt{*} \textcap{R}^{\textit{f}})
-             \texttt{+}
-             (\textcap{S}^{\textit{t}} \texttt{*} \textcap{S}^{\textit{f}})
-             \texttt{+}
-             (\textcap{R}^{\textit{t}} \texttt{*} \textcap{S}^{\textit{t}})
-             \texttt{+}
-             (\textcap{R}^{\textit{f}} \texttt{*} \textcap{S}^{\textit{f}})
-           }_N \\
-        &= \interp{%
-             \textcap{R}^{\textit{f}}
-             \texttt{+}
-             \textcap{S}^{\textit{f}}
-             \texttt{+}
-             (\textcap{R}^{\textit{t}} \texttt{*} \textcap{S}^{\textit{t}})
-           }_N \\
-        &= \interp
-             {\textcap{R}^{\textit{f}}
-              \texttt{+}
-              \textcap{S}^{\textit{f}}
-              \texttt{+}
-              {(\textcap{R}^{\textit{t}} \texttt{*} \textcap{S}^{\textit{f}})}
-               \;\texttt{+}\;
-               {(\textcap{R}^{\textit{f}} \texttt{*} \textcap{S}^{\textit{t}})}
-               \;\texttt{+}\;
-               \texttt{pointed(dim=\textcap{dr})*pointed(dim=\textcap{ds})}}_N \\
-        &= \interp{\textcap{R}^{\textit{f}} \texttt{+} \textcap{S}^{\textit{f}}
-                   \;\texttt{+}\;
-                   \texttt{pointed(dim=\textcap{dr})*pointed(dim=\textcap{ds})}}_N
-      \end{align*}
   \end{description}
 \end{proof}
 

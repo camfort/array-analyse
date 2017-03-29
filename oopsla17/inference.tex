@@ -14,7 +14,7 @@
 
 \begin{definition}[Hyperrectangle and $n$-dimensional closed intervals]
 A hyperrectangle is an $n$-dimensional rectangular polygon (also
-called rectilinear polygon). 
+called rectilinear polygon).
 \end{definition}
 
 \noindent
@@ -23,8 +23,8 @@ a set of induction variables $I$, which maps
 from an array subscript into a $n$-dimensional (closed) interval:
 %
 \begin{align*}
-\textit{schematic}_I(\bar{e}) & = 
-\prod_{i \in |\bar{e}|} \textit{interval}(e_i) 
+\textit{schematic}_I(\bar{e}) & =
+\prod_{i \in |\bar{e}|} \textit{interval}(e_i)
 \qquad
 \textit{interval}_I(e) = \begin{cases}
 [c, c] & e = i \pm c \, \wedge \, i \in I \\
@@ -58,17 +58,17 @@ stencil code:
 %
 
 
-\item \textbf{Coalesce intervals} 
+\item \textbf{Coalesce intervals}
 Intervals which are \emph{contiguous} in one dimension are then
 repeatedly coalesced.
 
 \begin{definition}[Contiguous intervals]
-Two $n$-dimensional intervals $\vect{x}$ and $\vect{y}$ are 
+Two $n$-dimensional intervals $\vect{x}$ and $\vect{y}$ are
 \emph{contiguous} if each component is equal:
 %
 \begin{equation*}
 \exists j \in \{1, \ldots, n\} . \pi_j \vect{x} = \pi_j \vect{y}
-\wedge \forall i \in \{1 
+\wedge \forall i \in \{1
 \end{equation*}
 %
 \end{definition}

@@ -1,4 +1,4 @@
-all: oopsla17.pdf lattice-model.pdf
+all: oopsla17.pdf lattice-model.pdf inference.pdf
 
 oopsla17.pdf: references.bib oopsla17.tex
 	pdflatex -shell-escape oopsla17
@@ -8,3 +8,6 @@ oopsla17.pdf: references.bib oopsla17.tex
 
 lattice-model.pdf: lattice-model.tex stencilmacros.sty
 	pdflatex lattice-model
+
+inference.pdf: inference.tex stencilmacros.sty
+	pdflatex inference

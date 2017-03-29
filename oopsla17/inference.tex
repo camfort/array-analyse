@@ -81,8 +81,11 @@ Two $n$-dimensional intervals $\vect{x}$ and $\vect{y}$ are
 \emph{contiguous} if each component is equal:
 %
 \begin{equation*}
-\exists j \in \{1, \ldots, n\} . \pi_j \vect{x} = \pi_j \vect{y}
-\wedge \forall i \in \{1
+\exists j \in \{1, \ldots, n\} . \pi_j \vect{x} = [x_l, x_u] 
+\wedge \pi_j \vect{y} = [y_l, y_u] 
+\wedge x_u + 1 = y_l 
+\wedge (\forall i \in \{1, \ldots, n\}, i \neq j . \; \pi_i \vect{x} =
+\pi_i \vect{y})
 \end{equation*}
 %
 \end{definition}

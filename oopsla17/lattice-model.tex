@@ -273,10 +273,10 @@ In the context of approximation modifiers, we have
 Finally, we can give full semantics of a stencil specification:
 %
 \begin{equation*}
-  \interp{\texttt{stencil \textcap{Mult}, \textcap{Appr}, \textcap{Region}}} =
+  \interp{\texttt{stencil \textcap{Mult}, \textcap{Appr}, \textcap{Region}}}_N =
     \interp{\textcap{Mult}}
            {(\interp{\textcap{Appr}}
-                    {(\interp{\textcap{Region}})})}
+                    {(\interp{\textcap{Region}}_N)})}
 \end{equation*}
 
 \section{Equational \& approximation theories}

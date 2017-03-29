@@ -1,4 +1,4 @@
-\documentclass{article}
+\documentclass[acmlarge,review]{acmart}
 
 % Essential packages
 \usepackage{amsmath}
@@ -22,6 +22,9 @@
 \newtheorem{remark}{Remark}
 
 \begin{document}
+
+\title{Lattice model}
+\author{Mistral Contrastin}
 
 \section{Giving specifications meaning}
 
@@ -312,11 +315,11 @@ We define an equivalence relation, $\equiv$, on regions as follows:
   \item[Centered] The region constants \texttt{forward} and \texttt{backward}
     are two halves of \texttt{centered} specifications:
 %
-    \begin{equation*}
+    \begin{align*}
       \stencil[s]{c}{$n$}{$k$}{\textcap{p1}} \equiv
         \stencil[s]{f}{$n$}{$k$}{\textcap{p2}} \texttt{+}
         \stencil[s]{b}{$n$}{$k$}{\textcap{p3}}
-    \end{equation*}
+    \end{align*}
 %
     Here \textcap{p1} is \texttt{nonpointed} if both \textcap{p2} and
     \textcap{p3} are \texttt{nonpointed} and \texttt{pointed} otherwise.

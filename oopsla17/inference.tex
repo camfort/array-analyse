@@ -1,21 +1,35 @@
 \documentclass[acmlarge,review]{acmart}
 
 \usepackage{enumitem}
+\usepackage{amsthm}
 
 \usepackage{stencilmacros}
 
 \newcommand{\vect}[1]{\textbf{#1}}
 %\renewcommand\ttdefault{cmtt}
 
+% Essential declarations
+\theoremstyle{definition}
+\newtheorem{defn}{Definition}
+
+\theoremstyle{plain}
+\newtheorem{thm}{Theorem}
+\newtheorem{lem}{Lemma}
+\newtheorem{prop}{Proposition}
+\newtheorem{case}{Case}
+
+\theoremstyle{remark}
+\newtheorem{remark}{Remark}
+
 \title{Stencil specification inference}
 
 \begin{document}
 \maketitle
 
-\begin{definition}[Hyperrectangle and $n$-dimensional closed intervals]
+\begin{defn}{Hyperrectangle and $n$-dimensional closed intervals}
 A hyperrectangle is an $n$-dimensional rectangular polygon (also
 called rectilinear polygon).
-\end{definition}
+\end{defn}
 
 \noindent
 Recall the function $\textit{schematic}_I$ parameterised by

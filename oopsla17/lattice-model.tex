@@ -308,9 +308,12 @@ We define an equivalence relation, $\equiv$, on regions as follows:
 %
   \item[Overlapping pointed] If \textcap{R} is one of \texttt{forward},
     \texttt{backward}, or \texttt{centered}, then we have
-    $\stencil{\textcap{R}}{$n$}{$k$}{\texttt{nonpointed}} \;\texttt{+}\;
-     \stencil[s]{p}{$n$}{}{} \equiv
-     \stencil{\textcap{R}}{$n$}{$k$}{}$.
+%
+    \begin{equation*}
+      \stencil{\textcap{R}}{$n$}{$k$}{\texttt{nonpointed}} \;\texttt{+}\;
+      \stencil[s]{p}{$n$}{}{} \equiv
+      \stencil{\textcap{R}}{$n$}{$k$}{}
+    \end{equation*}
 %
   \item[Centered] The region constants \texttt{forward} and \texttt{backward}
     are two halves of \texttt{centered} specifications:

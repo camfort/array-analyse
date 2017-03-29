@@ -3,9 +3,23 @@
 % Essential packages
 \usepackage{amsmath}
 \usepackage{amssymb}
+\usepackage{amsthm}
 \usepackage{indentfirst}
 \usepackage{cleveref}
 \usepackage{stencilmacros}
+
+% Essential declarations
+\theoremstyle{definition}
+\newtheorem{defn}{Definition}
+
+\theoremstyle{plain}
+\newtheorem{thm}{Theorem}
+\newtheorem{lem}{Lemma}
+\newtheorem{prop}{Proposition}
+\newtheorem{case}{Case}
+
+\theoremstyle{remark}
+\newtheorem{remark}{Remark}
 
 \begin{document}
 
@@ -71,9 +85,10 @@ interpretations of the stencils in the code and the specifications.
 \end{proof}
 
 \begin{defn}{(\emph{Offsets vector})}
-  An \emph{offsets vector} is a $N$ dimensional vector of offset spaces denoted
-  by $(\textit{offs}_1, \dots, \textit{offs}_N)$ to mean $\textit{offs}_1 \times
-  \dots \times \textit{offs}_N$.
+  An $N$ dimensional \emph{offsets vector} is a Cartesian product of offset
+  spaces denoted with $\textit{offs}_1 \times \dots \times \textit{offs}_N$.
+  The function $\pi_i : \zinf{}^{\mkern-19mu{N}} \to \zinf{}$ retrieves the
+  $i^{th}$ set of offsets.
 
   The set of $N$ dimensional offsets vectors is
   $\mathcal{P}{(\zinf{}^{\mkern-19mu{N}})}$ and they trivially form a
@@ -81,14 +96,11 @@ interpretations of the stencils in the code and the specifications.
 \end{defn}
 
 \begin{lem}{}\label{lem:vector-intersect}
-  Intersection distributes over offsets vectors.
+  Intersection distributes over offsets vectors. If $v$ and $v'$ are $N$
+  dimensional ofssets vectors, then
 %
   \begin{equation*}
-    (\textit{vint}_1, \dots, \textit{vint}_N) \;\cap\;
-      (\textit{vint'}_1, \dots, \textit{vint'}_N)
-      =
-    (\textit{vint}_1 \;\cap\; \textit{vint'}_1, \dots,
-     \textit{vint}_N \;\cap\; \textit{vint'}_N)
+    v \cap v' = \prod_{i = 1}^{N} \pi_i(v) \cap \pi_i(v')
   \end{equation*}
 \end{lem}
 %
@@ -99,19 +111,21 @@ interpretations of the stencils in the code and the specifications.
       \;\cap\;
       \{x \mid \bigwedge_{1 \leq i \leq N } x_i \in v'_i \} \\
     & = \{x \mid \bigwedge_{1 \leq i \leq N } (x_i \in v_i \wedge x_i \in v'_i) \} \\
-    & = (v_1 \cap v'_1,\dotsc,v_N \cap v'_N)
+    & = \prod_{i = 1}^{N} \pi_i(v) \cap \pi_i(v')
   \end{align*}
 \end{proof}
 
 \begin{lem}{}\label{lem:vector-union}
-  Let $v$ and $v'$ be two $N$ dimensional offsets vectors such that $v_i$ is
-  equal to $v'_i$ for all $1 \leq i \leq N$ except $k$, then we have the
+  Let $v$ and $v'$ be two $N$ dimensional offsets vectors such that $\pi_i(v)$
+  is equal to $\pi_i(v')$ for all $1 \leq i \leq N$ except $k$, then we have the
   following:
 %
   \begin{equation*}
-    (v_1,\dotsc, v_k,\dotsc, v_N) \; \cup \; (v'_1,\dotsc, v'_k, \dotsc, v_N)
+    v \; \cup \; v'
     =
-    (v_1,\dotsc, v_k \cup v'_k,\dotsc, v_N)
+    \pi_1(v) \times \cdots \times
+    (\pi_k(v) \cup \pi_k(v')) \times \cdots \times
+    \pi_N(v)
   \end{equation*}
 \end{lem}
 %
@@ -133,19 +147,17 @@ interpretations of the stencils in the code and the specifications.
           \bigwedge_{\substack{1 \leq i \leq N \\ i \neq k}} x_i \in v_i
           \wedge x_k \in v_k \cup v'_k
         \} \\
-    & = (v_1,\dotsc, v_k \cup v'_k,\dotsc, v_N)
+    & = \pi_1(v) \times \cdots \times
+        (\pi_k(v) \cup \pi_k(v')) \times \cdots \times
+        \pi_N(v)
   \end{align*}
 \end{proof}
 
 \begin{defn}{(\emph{Vector interval})}
   A vector interval is an $N$ dimensional object which has \zinf{} intervals at
-  each dimension. It is denoted with $(\textit{int}_1, \dots, \textit{int}_n)$,
-  where $\textit{int}_i$ is a \zinf{} interval. If \textit{vint} is a vector
-  interval, $\textit{vint}_i$ denotes the \zinf{} interval at the $i^{th}$
-  dimension.
+  each dimension. A vector interval is also an ofssets vector.
 
-  The set of $N$ dimensional vector intervals is $\textit{Interval}^N$. Every
-  vector interval is also an offsets vector.
+  The set of all $N$ dimensional vector intervals is $\textit{Interval}^N$.
 \end{defn}
 
 \begin{defn}{(\emph{Region})}
@@ -198,10 +210,10 @@ interpretations of the stencils in the code and the specifications.
 We give some basic interpretations: $\interp{\texttt{n}} = n$ where $n$ is in
 $\mathbb{Z}^+$, $\interp{\texttt{pointed}} = \llbracket \epsilon \rrbracket =
 \textsf{true}$, $\interp{\texttt{nonpointed}} = \textsf{false}$.
-Typographically, cursive monotype font is used within specifications to indicate
-a partial textual capture. For convenience we use \textit{italic} serif font
-inside specifications rather than interpreting its textual capture. This
-coalesces syntactic and semantic representation but avoids clutter in the
+Typographically, \textcap{italic monotype font} is used within specifications
+to indicate a partial textual capture. For convenience, we use \textit{italic
+serif font} inside specifications rather than interpreting its textual capture.
+This coalesces syntactic and semantic representation but avoids clutter in the
 presentation.
 
 Let $\textit{vec-gen}_N : \mathbb{N}^+ \times \textit{Interval} \to

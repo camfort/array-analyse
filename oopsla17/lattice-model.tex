@@ -1,29 +1,30 @@
-\documentclass{article}
+\documentclass[acmlarge,review]{acmart}
 
+% Essential packages
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{amsthm}
-\usepackage{stmaryrd}
 \usepackage{indentfirst}
 \usepackage{cleveref}
-\usepackage{fixltx2e}
+\usepackage{stencilmacros}
 
+% Essential declarations
 \theoremstyle{definition}
 \newtheorem{defn}{Definition}
 
 \theoremstyle{plain}
+\newtheorem{thm}{Theorem}
 \newtheorem{lem}{Lemma}
 \newtheorem{prop}{Proposition}
+\newtheorem{case}{Case}
 
-\newcommand{\eg}{\emph{e.g.}}
-
-\newcommand{\zinf}{\textnormal{$\mathbb{Z}_\infty$}}
-\newcommand{\interp}[1]{\llbracket\texttt{#1}\rrbracket}
-\newcommand{\interv}[3]{\textnormal{$\lbrack#1,#2\rbrack^{#3}$}}
-\newcommand{\vecgen}[3]{\textnormal{$\textit{vec-gen}_{#1}(#2,#3)$}}
-\newcommand{\textcap}[1]{\texttt{\textit{#1}}}
+\theoremstyle{remark}
+\newtheorem{remark}{Remark}
 
 \begin{document}
+
+\title{Lattice model}
+\author{Mistral Contrastin}
 
 \section{Giving specifications meaning}
 
@@ -46,9 +47,6 @@ interpretations of the stencils in the code and the specifications.
 \begin{defn}{(\emph{Offset space})}
   \emph{Offset space} is a subset of \zinf{} members. It is used to capture
   offsets from induction variables.
-
-%  $\mathcal{P}(\zinf{})$ couple with $\supseteq$ is the power set distributive
-%  lattice.
 \end{defn}
 
 \begin{defn}{(\emph{\zinf{} interval})}
@@ -64,16 +62,19 @@ interpretations of the stencils in the code and the specifications.
   Set of all such intervals (sets) is $\textit{Interval}$.
 \end{defn}
 
-\begin{prop}{}
-  We have the following identity for \zinf{} intervals:
+\begin{lem}{}\label{lem:zinf-identities}
+  We have the following dual identities for \zinf{} intervals:
 %
-  \begin{equation*}
-    \interv{a}{b}{c} \cap \interv{d}{e}{f} =
-      \interv{\max \{a,d\}}{\min \{b,e\}}{\neg c \vee \neg f}
-  \end{equation*}\label{def:zinf-intersect}
-\end{prop}
+  \begin{align*}
+    \interv{a}{b}{c} \cap \interv{d}{e}{f} & =
+      \interv{\max \{a,d\}}{\min \{b,e\}}{c \wedge f} \\
+    \interv{a}{b}{c} \cup \interv{d}{e}{f} & =
+      \interv{\min \{a,d\}}{\max \{b,e\}}{c \vee f}
+  \end{align*}
+\end{lem}
 %
 \begin{proof}
+  We give the proof of the first identity and the second one is similar.
   \begin{align*}
     \interv{a}{b}{c} \cap \interv{d}{e}{f} = &
       \; \{ n \;|\; a \leq n \leq b \wedge (\neg c \implies n \neq 0) \}
@@ -86,142 +87,106 @@ interpretations of the stencils in the code and the specifications.
   \end{align*}
 \end{proof}
 
-%\begin{prop}{}
-%  $(\textit{Interval}, \supseteq)$ is a sublattice of
-%  $(\mathcal{P}(\zinf{}),\supseteq)$ with \interv{-\infty}{\infty}{\textsf{p}}
-%  and \interv{0}{0}{\textsf{np}} as its top and bottom elements.
-%\end{prop}
-%%
-%\begin{proof}
-%  We know $\textit{Interval} \subseteq \mathcal{P}(\zinf{})$ since intervals
-%  represents sets drawn from {\zinf{}}
-%
-%  Let \interv{a}{b}{c} and \interv{d}{e}{f} be two arbitrary \zinf{} intervals.
-%  We need to show that their meet and join both lie in \textit{Interval}.
-%%
-%  \begin{align*}
-%    \interv{a}{b}{c} \wedge \interv{d}{e}{f} = &
-%      \{ n \;|\; a \leq n \leq b \wedge (c = \textsf{np} \implies n \neq 0) \}
-%      \;\cup \\
-%      & \{ n \;|\; d \leq n \leq e \wedge (f = \textsf{np} \implies n \neq 0) \}
-%      \\
-%    = & \{ n \;|\; \min{a,d} \leq n \leq \max{b,e} \wedge ((c =
-%      \textsf{np} \wedge f = \textsf{np}) \implies n \neq 0) \} \\
-%    = & \interv{\min{\{a,d\}}}{\max{\{b,e\}}}{k}
-%  \end{align*}
-%%
-%  where $k$ is \textsf{np} if both $c$ and $d$ are \textsf{np} and \textsf{p}
-%  otherwise. Minimum of lower bound is still negative or zero and maximum of
-%  upper bounds is still positive or zero, hence the meet lies in
-%  \textit{Interval}.
-%%
-%  \begin{align*}
-%    \interv{a}{b}{c} \vee \interv{d}{e}{f} = &
-%      \{ n \;|\; a \leq n \leq b \wedge (c = \textsf{np} \implies n \neq 0) \}
-%      \;\cap \\
-%      & \{ n \;|\; d \leq n \leq e \wedge (f = \textsf{np} \implies n \neq 0) \}
-%      \\
-%    = & \{ n \;|\; \max{a,d} \leq n \leq \min{b,e} \wedge ((c =
-%      \textsf{np} \vee f = \textsf{np}) \implies n \neq 0) \} \\
-%    = & \interv{\max{\{a,d\}}}{\min{\{b,e\}}}{k}
-%  \end{align*}
-%%
-%  where $k$ is \textsf{np} if either $c$ or $d$ are \textsf{np} and \textsf{p}
-%  otherwise. Maximum of lower bound is still negative or zero and minimum of
-%  upper bounds is still positive or zero, hence the join lies in
-%  \textit{Interval}.
-%
-%  \interv{-\infty}{\infty}{\textsf{p}} is then \zinf{} and
-%  \interv{0}{0}{\textsf{np}} is $\emptyset$. Since these are in the sublattice
-%  and they are the bottom and top elements in the parent lattice, they are
-%  necessarily the bottom and top elements in the sublattice.
-%\end{proof}
-
-%\begin{prop}{}
-%  $(\textit{Interval},\supseteq)$ is a distributive lattice.
-%\end{prop}
-%%
-%\begin{proof}
-%  It is enough to show for arbitrary $\interv{a}{b}{c}$, $\interv{d}{e}{f}$,
-%  $\interv{g}{h}{i}$ in \textit{Interval}, $\interv{a}{b}{c} \vee
-%  (\interv{d}{e}{f} \wedge \interv{g}{h}{i}) = (\interv{a}{b}{c} \vee
-%  \interv{d}{e}{f}) \wedge (\interv{a}{b}{c} \vee \interv{g}{h}{i})$. When this
-%  holds the dual law also holds. The property immediately follows from
-%  definition due to distributivity of set intersection over union.
-%\end{proof}
-
 \begin{defn}{(\emph{Offsets vector})}
-  An \emph{offsets vector} is a $N$ dimensional vector of offset spaces denoted
-  by $(\textit{offs}_1, \dots, \textit{offs}_N)$ to mean $\textit{offs}_1 \times
-  \dots \times \textit{offs}_N$.
+  An $N$ dimensional \emph{offsets vector} is a Cartesian product of offset
+  spaces denoted with $\textit{offs}_1 \times \cdots \times \textit{offs}_N$.
+  The function $\pi_i : \zinf{}^{\mkern-19mu{N}} \to \zinf{}$ retrieves the
+  $i^{th}$ set of offsets.
 
   The set of $N$ dimensional offsets vectors is
   $\mathcal{P}{(\zinf{}^{\mkern-19mu{N}})}$ and they trivially form a
   distributive lattice under the superset relation.
 \end{defn}
 
-\begin{defn}{(\emph{Vector interval})}
-  A vector interval is an $N$ dimensional object which has \zinf{} intervals at
-  each dimension. It is denoted with $(\textit{int}_1, \dots, \textit{int}_n)$,
-  where $\textit{int}_i$ is a \zinf{} interval. If \textit{vint} is a vector
-  interval, $\textit{vint}_i$ denotes the \zinf{} interval at the $i^{th}$
-  dimension.
-
-  The set of $N$ dimensional vector intervals is $\textit{Interval}^N$.
-\end{defn}
-
-\begin{lem}{}
-  Intersection distributes over vector intervals.
+\begin{lem}{}\label{lem:vector-intersect}
+  Intersection distributes over offsets vectors. If $v$ and $v'$ are $N$
+  dimensional ofssets vectors, then
 %
   \begin{equation*}
-    (\textit{vint}_1, \dots, \textit{vint}_N) \;\cap\;
-      (\textit{vint'}_1, \dots, \textit{vint'}_N)
-      =
-    (\textit{vint}_1 \;\cap\; \textit{vint'}_1, \dots,
-     \textit{vint}_N \;\cap\; \textit{vint'}_N)
-  \end{equation*}\label{lem:vector-dist}
+    v \cap v' = \prod_{i = 1}^{N} \pi_i(v) \cap \pi_i(v')
+  \end{equation*}
 \end{lem}
 %
-\begin{prop}{}
-  We have the following identity for $N$ dimensional vector intervals:
-%
-  \begin{gather*}
-    (\interv{a_1}{b_1}{c_1}, \dots, \interv{a_N}{b_N}{c_N}) \; \cap \;
-      (\interv{a'_1}{b'_1}{c'_1}, \dots, \interv{a'_N}{b'_N}{c'_N}) \\
-    = \\
-    (\interv{\max \{a_1,a'_1\}}{\min \{b_1,b'_1\}}{\neg c_1 \vee \neg c'_1},
-      \dots, \interv{\max \{a_N,a'_N\}}{\min \{b_N,b'_N\}}{\neg c_N \vee \neg c'_N})
-  \end{gather*}
-\end{prop}
-%
 \begin{proof}
-  This immediately follows from \Cref{lem:vector-dist} and
-  \Cref{def:zinf-intersect}.
+  \begin{align*}
+    v \; \cap \; v' &
+    = \{x \mid \bigwedge_{1 \leq i \leq N } x_i \in v_i \}
+      \;\cap\;
+      \{x \mid \bigwedge_{1 \leq i \leq N } x_i \in v'_i \} \\
+    & = \{x \mid \bigwedge_{1 \leq i \leq N } (x_i \in v_i \wedge x_i \in v'_i) \} \\
+    & = \prod_{i = 1}^{N} \pi_i(v) \cap \pi_i(v')
+  \end{align*}
 \end{proof}
 
-\begin{defn}{(\emph{Region space})}
-  Region space defines the set \textit{Region} in $N$ dimensions inductively as
-  follows:
+\begin{lem}{}\label{lem:vector-union}
+  Let $v$ and $v'$ be two $N$ dimensional offsets vectors such that $\pi_i(v)$
+  is equal to $\pi_i(v')$ for all $1 \leq i \leq N$ except $k$, then we have the
+  following:
+%
+  \begin{equation*}
+    v \; \cup \; v'
+    =
+    \pi_1(v) \times \cdots \times
+    (\pi_k(v) \cup \pi_k(v')) \times \cdots \times
+    \pi_N(v)
+  \end{equation*}
+\end{lem}
+%
+\begin{proof}
+  \begin{align*}
+    v \; \cup \; v' &
+    = \{x \mid
+          \bigwedge_{1 \leq i \leq N } x_i \in v_i \}
+      \;\cup\;
+      \{x \mid
+          \bigwedge_{1 \leq i \leq N } x_i \in v'_i \} \\
+    & = \{x \mid
+          \bigwedge_{\substack{1 \leq i \leq N \\ i \neq k}} x_i \in v_i
+              \wedge x_k \in v_k \vee
+          \bigwedge_{\substack{1 \leq i \leq N \\ i \neq k}} x_i \in v'_i
+            \wedge x_k \in v'_k
+        \} \\
+    & = \{x \mid
+          \bigwedge_{\substack{1 \leq i \leq N \\ i \neq k}} x_i \in v_i
+          \wedge x_k \in v_k \cup v'_k
+        \} \\
+    & = \pi_1(v) \times \cdots \times
+        (\pi_k(v) \cup \pi_k(v')) \times \cdots \times
+        \pi_N(v)
+  \end{align*}
+\end{proof}
+
+\begin{defn}{(\emph{Vector interval})}
+  A vector interval is an $N$ dimensional object which has \zinf{} intervals at
+  each dimension. A vector interval is also an ofssets vector.
+
+  The set of all $N$ dimensional vector intervals is $\textit{Interval}^N$.
+\end{defn}
+
+\begin{defn}{(\emph{Region})}
+  \region{N} is the set of $N$ dimensional vector intervals defined as
+  the smallest set satisfying the following:
 %
   \begin{enumerate}
-    \item If $R$ is in $\textit{Interval}^N$, then $R$ is in \textit{Region}.
-    \item If $R$ and $S$ are in \textit{Region}, then so are $R \cap S$ and $R
-      \cup S$.
+    \item If $R$ is in $\textit{Interval}^N$, then $R$ is in \region{N}.
+    \item If $R$ and $S$ are in \region{N}, then so are $R \cap S$ and
+      $R \cup S$.
   \end{enumerate}
 \end{defn}
 
 \begin{prop}{}
-  $(\textit{Region},\supseteq)$ is a distributive lattice.
+  $(\region{N},\subseteq)$ is a distributive lattice.
 \end{prop}
 %
 \begin{proof}
   Any sublattice of a distributive lattice is a distributive lattice. Power sets
-  coupled with partially ordered with superset or equals relation are
-  distributive lattices. \textit{Region} is a subset of
-  $\mathcal{P}{(\zinf{}^{\mkern-19mu{N}})}$ since all vector intervals are
-  subsets of this power set and union and intersection cannot add an element
-  that is not already in the powerset. Therefore, \textit{Region} is a
-  distributive sublattice of $\mathcal{P}{(\zinf{}^{\mkern-19mu{N}})}$.
+  partially ordered with subset or equal to relation are distributive lattices.
+  \region{N} is a subset of $\mathcal{P}{(\zinf{}^{\mkern-19mu{N}})}$ since all
+  vector intervals are subsets of this power set and union and intersection
+  cannot add an element that is not already in the powerset.  Inductive
+  definition also ensures that \region{N} is closed under these operations.
+  Therefore, \region{N} is a distributive sublattice of
+  $(\mathcal{P}{(\zinf{}^{\mkern-19mu{N}})}, \subseteq)$.
 \end{proof}
 
 \begin{defn}{}
@@ -246,59 +211,46 @@ interpretations of the stencils in the code and the specifications.
 \subsection{Denotational semantics for specifications}
 
 We give some basic interpretations: $\interp{\texttt{n}} = n$ where $n$ is in
-$\mathbb{Z}$, $\interp{pointed} = \llbracket \epsilon \rrbracket =
+$\mathbb{Z}^+$, $\interp{\texttt{pointed}} = \llbracket \epsilon \rrbracket =
 \textsf{true}$, $\interp{\texttt{nonpointed}} = \textsf{false}$.
-Typographically, cursive font is used within specifications to indicate a
-partial textual capture.
+Typographically, \textcap{italic monotype font} is used within specifications
+to indicate a partial textual capture. For convenience, we use \textit{italic
+serif font} inside specifications rather than interpreting its textual capture.
+This coalesces syntactic and semantic representation but avoids clutter in the
+presentation.
 
-Let $\textit{vec-gen}_N : \mathbb{N} \times \textit{Interval} \to
+Let $\textit{vec-gen}_N : \mathbb{N}^+ \times \textit{Interval} \to
 \textit{Interval}^N$ be the function generating an $N$ dimensional vector
 interval such that \vecgen{N}{i}{\interv{a}{b}{c}} has
-$\interv{-\infty}{\infty}{\textsf{p}}$ in all dimensions except the $i^{th}$
+$\interv{-\infty}{\infty}{\textsf{true}}$ in all dimensions except the $i^{th}$
 one. There, it has \interv{a}{b}{c}.
 
 First, we give meaning to region constants (introduced in \Cref{}).
 %
 \begin{align*}
-  \interp{\texttt{pointed(dim=\textit{i})}}_N & =
-    \vecgen{N}{\interp{\textit{i}}}{\interv{0}{0}{\textsf{true}}}\\
+  \interp{\stencil{p}{$i$}{}{}}_N & =
+    \vecgen{N}{i}{\interv{0}{0}{\textsf{true}}}\\
 %
-  \interp{\texttt{centered(dim=\textit{i}, depth=\textit{k}, \textit{p})}}_N & =
-    \vecgen{N}
-           {\interp{\textit{i}}}
-           {\interv{-\interp{\textit{k}}}
-                   {\interp{\textit{k}}}
-                   {\interp{\textit{p}}}
-           } \\
+  \interp{\stencil{c}{$i$}{$k$}{\textcap{p}}}_N & =
+    \vecgen{N}{i}{\interv{-k}{k}{\interp{\textcap{p}}}} \\
 %
-  \interp{\texttt{forward(dim=\textit{i}, depth=\textit{k}, \textit{p})}}_N & =
-    \vecgen{N}
-           {\interp{\textit{i}}}
-           {\interv{0}
-                   {\interp{\textit{k}}}
-                   {\interp{\textit{p}}}
-           } \\
+  \interp{\stencil{f}{$i$}{$k$}{\textcap{p}}}_N & =
+    \vecgen{N}{i}{\interv{0}{k}{\interp{\textcap{p}}}} \\
 %
-  \interp{\texttt{backward(dim=\textit{i}, depth=\textit{k}, \textit{p})}}_N & =
-    \vecgen{N}
-           {\interp{\textit{i}}}
-           {\interv{-\interp{\textit{k}}}
-                   {0}
-                   {\interp{\textit{p}}}
-           }
+  \interp{\stencil{b}{$i$}{$k$}{\textcap{p}}}_N & =
+  \vecgen{N}{i}{\interv{-k}{0}{\interp{\textcap{p}}}}
 \end{align*}
 
 Second, we provide the semantics for the permissive region operator, \texttt{+},
-and the restrictive region operator, \texttt{*}, by associating them with meet
-and join respectively. Let \texttt{\textit{R}} and \texttt{\textit{S}} be
-regions.
+and the restrictive region operator, \texttt{*}, by associating them with join
+and meet respectively. Let \textcap{R} and \textcap{S} be regions.
 %
 \begin{align*}
-  \interp{\texttt{\textit{R} + \textit{S}}}_N & =
-    \interp{\texttt{\textit{R}}}_N \wedge \interp{\texttt{\textit{S}}}_N
+  \interp{\texttt{\textcap{R} + \textcap{S}}}_N & =
+    \interp{\textcap{R}}_N \vee \interp{\textcap{S}}_N
 &
-  \interp{\texttt{\textit{R} * \textit{S}}}_N & =
-    \interp{\texttt{\textit{R}}}_N \vee \interp{\texttt{\textit{S}}}_N
+  \interp{\texttt{\textcap{R} * \textcap{S}}}_N & =
+    \interp{\textcap{R}}_N \wedge \interp{\textcap{S}}_N
 \end{align*}
 
 Third, we need to mark presence of modifiers such as \texttt{readOnce} and
@@ -306,39 +258,46 @@ Third, we need to mark presence of modifiers such as \texttt{readOnce} and
 multiplicity modifiers we have the following semantics:
 %
 \begin{align*}
-  \interp{readOnce} & = \textsf{mult} &
+  \interp{\texttt{readOnce}} & = \textsf{mult} &
   \llbracket\epsilon\rrbracket & = \textsf{once}
 \end{align*}
 
 In the context of approximation modifiers, we have
 %
 \begin{align*}
-  \interp{atLeast} & = \textsf{lower} &
-  \interp{atMost} & = \textsf{upper} &
+  \interp{\texttt{atLeast}} & = \textsf{lower} &
+  \interp{\texttt{atMost}} & = \textsf{upper} &
   \llbracket \epsilon \rrbracket = \textsf{exact}
 \end{align*}
 
 Finally, we can give full semantics of a stencil specification:
 %
 \begin{equation*}
-  \interp{stencil \textit{Mult}, \textit{Appr}, \textit{Region}} =
-    \interp{\textit{Mult}}{(\interp{\textit{Appr}}(\interp{\textit{Region}}))}
+  \interp{\texttt{stencil \textcap{Mult}, \textcap{Appr}, \textcap{Region}}}_N =
+    \interp{\textcap{Mult}}
+           {(\interp{\textcap{Appr}}
+                    {(\interp{\textcap{Region}}_N)})}
 \end{equation*}
 
 \section{Equational \& approximation theories}
 
 We know introduce the equational and approximation theory of stencil
-specifications based on $\equiv$ and $<\:$.
+specifications based on $\equiv$ and $\preceq$ in the following two subsections.
 
 \subsection{Equivalences}
+
+We define an equivalence relation, $\equiv$, on regions as follows:
 
 \begin{description}
   \item[Basic] \texttt{*} and \texttt{+} are both idempotent, commutative, and
     associative;
 %
+  \item[Subsumption] If $S$ and $R$ are regions with $S \preceq R$, then
+    $S \texttt{+} R \equiv R$ and $S \texttt{*} R \equiv S$.
+%
   \item[Dist] \texttt{*} distributed over \texttt{+} and dually
     \texttt{+} distributes over \texttt{*}, meaning if \textcap{R}, \textcap{S},
-    and \textcap{T} are regions, then we have the following equivalences:
+    and \textcap{T} are regions, then we have the following dual equivalences:
 %
     \begin{align*}
       \texttt{\textcap{R}*(\textcap{S}+\textcap{T})} & \equiv
@@ -349,32 +308,359 @@ specifications based on $\equiv$ and $<\:$.
 %
   \item[Overlapping pointed] If \textcap{R} is one of \texttt{forward},
     \texttt{backward}, or \texttt{centered}, then we have
-    $\texttt{\textcap{R}(depth=\textcap{k},dim=\textcap{n},\_) +
-    pointed(dim=\textcap{n})} \equiv
-    \texttt{\textcap{R}(depth=\textcap{k},dim=\textcap{n})}$.
+%
+    \begin{equation*}
+      \stencil{\textcap{R}}{$n$}{$k$}{\texttt{nonpointed}} \;\texttt{+}\;
+      \stencil{p}{$n$}{}{} \equiv
+      \stencil{\textcap{R}}{$n$}{$k$}{}
+    \end{equation*}
 %
   \item[Centered] The region constants \texttt{forward} and \texttt{backward}
     are two halves of \texttt{centered} specifications:
 %
-    \begin{gather*}
-      \texttt{centered(depth=\textcap{k},dim=\textit{n},\textcap{p1})} \\
-      \equiv \\
-      \texttt{forward(depth=\textcap{k},dim=\textit{n},\textcap{p2}) +
-        backward(depth=\textcap{k},dim=\textit{n},\textcap{p3})}
-    \end{gather*}
+    \begin{align*}
+      \stencil[s]{c}{$n$}{$k$}{\textcap{p1}} \equiv
+        \stencil[s]{f}{$n$}{$k$}{\textcap{p2}} \texttt{+}
+        \stencil[s]{b}{$n$}{$k$}{\textcap{p3}}
+    \end{align*}
 %
-    Here \textcap{p1} is \texttt{nonpointed} if both \textcap{p1} and
+    Here \textcap{p1} is \texttt{nonpointed} if both \textcap{p2} and
     \textcap{p3} are \texttt{nonpointed} and \texttt{pointed} otherwise.
 \end{description}
 
+\begin{thm}{(Equational soundness)}
+  Equational theory is sound with respect to the lattice model. Let $R$
+  and $S$ be $N$ dimensional regions, then we have
+%
+  \begin{equation*}
+    R \equiv S \implies \interp{R}_N = \interp{S}_N
+  \end{equation*}
+\end{thm}
+
+\begin{proof}
+  Both $\equiv$ and $=$ are equivalence relations. We only need to show that
+  each property associated with specifications equivalence holds as an equality
+  in the model.
+%
+  \begin{description}
+    \item[Basic \& Subsumption] These follow from basic properties of lattices.
+%
+    \item[Dist] This is immediate from the definition of distributive
+      lattice which the model is one.
+%
+    \item[Overlapping pointed] Counterparts of individual regions for some
+      Boolean $p$ are given below:
+%
+      \begin{align*}
+        \interp{\stencil{\textcap{R}}{$n$}{$k$}{\texttt{nonpointed}}}_N
+        & = \vecgen{N}{n}{\interv{-k}{k}{\textsf{false}}} \\
+%
+        \interp{\stencil{p}{$n$}{}{}}_N
+        &= \vecgen{N}{n}{\interv{0}{0}{\textsf{true}}} \\
+%
+        \interp{\stencil{\textcap{R}}{$n$}{$k$}{}}_N
+        &= \vecgen{N}{n}{\interv{-k}{k}{\textsf{true}}}
+      \end{align*}
+
+      Using \Cref{lem:vector-union}, it is sufficient to show
+      $ \interv{-k}{k}{p} \;\cup\; \interv{0}{0}{\textsf{true}} =
+        \interv{-k}{k}{\textsf{true}} $ holds. This immediately follows from
+      \Cref{lem:zinf-identities}.
+%
+    \item[Centered] Let $\interp{\textcap{p1}}$, $\interp{\textcap{p2}}$, and
+      $\interp{\textcap{p3}}$ be $p1$, $p2$, and $p3$ respectively. We
+      know that $p1$ is $p2 \vee p3$ from (\textbf{Centered}) detinition. Then
+      we get the following interpretation for region constants involved in the
+      equivalence:
+%
+      \begin{align*}
+        \interp{\stencil{c}{$k$}{$n$}{$p1$}}_N
+          &= \vecgen{N}{n}{\interv{-k}{k}{p2 \vee p3}} \\
+%
+        \interp{\stencil{f}{$k$}{$n$}{$p2$}}_N
+          &= \vecgen{N}{n}{\interv{0}{k}{p2} }\\
+%
+        \interp{\stencil{b}{$k$}{$n$}{$p3$}}_N
+          &= \vecgen{N}{n}{\interv{0}{k}{p3}}
+      \end{align*}
+%
+      Using \Cref{lem:vector-union}, it is sufficient to show $\interv{-k}{k}{p2
+      \vee p3} = \interv{0}{k}{p2} \cup \interv{-k}{0}{p3}$ holds. This
+      immediately follows from \Cref{lem:zinf-identities}.
+  \end{description}
+\end{proof}
+
 \subsection{Approximations}
+We define a partial of order of approximations, $\preceq$. This relation
+provides us with the following:
+
+\begin{description}
+  \item[Equivalence] If $S$ and $R$ are regions and $S \equiv R$, then we have
+    $S \preceq R$.
+%
+  \item[Combined] If $S$ and $R$ are regions, then we have
+    $S \preceq S \texttt{+} R$ and $S \texttt{*} R \preceq S$.
+%
+  \item[Depth] Let $k$ and $l$ be in positive integers and $k \leq l$, $n$ some
+    fixed dimension, and \textcap{p} either \texttt{pointed} or
+    \texttt{nonpointed}. Further, let \textcap{R} be one of \texttt{centered},
+    \texttt{forward}, and \texttt{backward}. We then have
+%
+    \begin{equation*}
+      \stencil{R}{$n$}{$k$}{\textcap{p}} \preceq \stencil{R}{$n$}{$l$}{\textcap{p}}
+    \end{equation*}
+%
+\end{description}
+
+\begin{thm}{(Approximation soundness)}
+  Theory of approximation is sound with respect to the lattice model. Let $R$
+  and $S$ be $N$ dimensional regions, then we have
+%
+  \begin{equation*}
+    R \preceq S \implies \interp{R}_N \subseteq \interp{S}_N
+  \end{equation*}
+\end{thm}
+%
+\begin{proof}
+  Both $\preceq$ and $\subseteq$ are partial orders on sets. We only need to
+  show that each inequality holds in the model.
+%
+  \begin{description}
+    \item[Equivalence] Region equavilance is modeled with set equality and the
+      partial order on regions is modeled with subset relation. Partial orders
+      are reflexive and the model of eqivalence agrees with that of the partial
+      order, so this rule holds.
+%
+    \item[Combined] \texttt{*} and \texttt{+} maps to meet and join operations
+      in the lattice. All meets and joins in a lattice satisfy these
+      inequalities.
+
+    \item[Depth] When $m$ is $k$ and $l$ in
+      $\stencil{\textcap{R}}{$n$}{$m$}{\textcap{p}}$, we obtain the
+      interpretations $\vecgen{N}{n}{\textit{int}_k}$ and
+      $\vecgen{N}{n}{\textit{int}_l}$ for some $N$ as interpretations of
+      regions. Call these \textit{ks} and \textit{ls} respectively. One way to
+      show $\textit{ks} \subseteq \textit{ls}$ is to show that the intersection
+      of \textit{ks} and \textit{ls} is \textit{ks}.
+
+      To show that the intersection is \textit{ks}, we use
+      \Cref{lem:vector-intersect} which reduces the problem to showing that the
+      intersection of $\textit{int}_k$ and $\textit{int}_l$ is the former since
+      at every point except $n$ the intervals agree, hence the intersection
+      remains the same at these dimensions. Then we use
+      \Cref{lem:zinf-identities} to calculate the intersection. By assumption we
+      have $k \leq l$, so the maximum of the lower bounds is $-k$ and the
+      minimum of lower bounds is $k$ this is same as interval $\textit{int}_k$.
+      Note that pointedness is the same for both intervals and depths are
+      positive integers, so the pointedness is preserved under intersection.
+      This shows the intersection of \textit{ls} and \textit{ks} is indeed
+      \textit{ks} and concludes the proof.
+  \end{description}
+\end{proof}
+
+We present few inequalities that can be derived from the axioms and are useful
+when writing specifications without inference:
+
+\begin{prop}{(Centered approximation)}
+  For any dimension $n$, depth $k$, and pointed attribute $p$,
+  we have
+%
+  \begin{align*}
+    \stencil{f}{$n$}{$k$}{\textcap{p}} & \preceq
+      \stencil{c}{$n$}{$k$}{\textcap{p}} \\
+%
+    \stencil{b}{$n$}{$k$}{\textcap{p}} & \preceq
+      \stencil{c}{$n$}{$k$}{\textcap{p}}
+  \end{align*}
+\end{prop}
+%
+\begin{proof}
+  \shortv{%
+    Both inequalities are proved by combining the missing half of centered by
+    using the inequality (\textbf{Combined}) and then merging them into a single
+    region constant using (\textbf{Centered}).
+  }
+
+  \longv{%
+    Proof of the first inequality:
+    \begin{align*}
+      \stencil[s]{f}{$n$}{$k$}{\textcap{p}}
+        & \preceq
+          \stencil[s]{f}{$n$}{$k$}{\textcap{p}}
+          \;\texttt{+}\;
+          \stencil[s]{b}{$n$}{$k$}{\textcap{p}}
+        & (\textbf{Combined}) \\
+      & \equiv \stencil[s]{c}{$n$}{$k$}{\textcap{p}} & (\textbf{Centered})
+    \end{align*}
+
+    Proof of the second inequality:
+    \begin{align*}
+      \stencil[s]{b}{$n$}{$k$}{\textcap{p}}
+        & \preceq
+          \stencil[s]{f}{$n$}{$k$}{\textcap{p}}
+          \;\texttt{+}\;
+          \stencil[s]{b}{$n$}{$k$}{\textcap{p}}
+        & (\textbf{Combined}) \\
+      & \equiv \stencil[s]{c}{$n$}{$k$}{\textcap{p}} & (\textbf{Centered})
+    \end{align*}
+  }
+\end{proof}
+
+\begin{prop}{(Point approximation)}
+  Let \textcap{R} be one of \texttt{forward}, \texttt{backward}, and
+  \texttt{centered}, $n$ a fixed dimension, and $k$ a fixed depth, then we have
+%
+  \begin{align*}
+    \stencil{p}{$n$}{}{} & \preceq \stencil{R}{$n$}{$k$}{} \\
+%
+    \stencil{R}{$n$}{$k$}{\texttt{nonpointed}} & \preceq
+      \stencil{R}{$n$}{$k$}{}
+  \end{align*}
+\end{prop}
+%
+\begin{proof}
+  \shortv{%
+    Both inequalities are proved by breaking \textcap{R} using
+    (\textbf{Overlapping pointed}) followed by the inequality
+    (\textbf{Combined}).
+  }
+
+  \longv{%
+    Proof of the first inequality:
+    \begin{align*}
+      \stencil[s]{p}{$n$}{}{}
+        & \preceq \stencil{R}{$n$}{$k$}{\texttt{nonpointed}}
+                  \;\texttt{+}\;
+                  \stencil[s]{p}{$n$}{}{}
+        & (\textbf{Combined}) \\
+      & \equiv \stencil{R}{$n$}{$k$}{} & (\textbf{Overlapping pointed})
+    \end{align*}
+
+    Proof of the second inequality:
+    \begin{align*}
+      \stencil{R}{$n$}{$k$}{\textcap{nonpointed}}
+        & \preceq \stencil{R}{$n$}{$k$}{\texttt{nonpointed}}
+                  \;\texttt{+}\;
+                  \stencil[s]{p}{$n$}{}{}
+        & (\textbf{Combined}) \\
+      & \equiv \stencil{R}{$n$}{$k$}{} & (\textbf{Overlapping pointed})
+    \end{align*}
+  }
+\end{proof}
 
 \section{Analysis, Consistency, Inference}
 
 \subsection{Analysis}
 
-\subsection{Consisteny}
+\subsection{Consistency}
+
+Once the specification is synthesised into objects in the model and stencil
+under examination is analysed, consistency checking itself is remarkably simple.
+Two stage checking is outlined below.
+
+\begin{enumerate}
+  \item Multiplicity of the model is checked against the stencil. The only way
+    this fails is if the original specification involved \texttt{readOnce}, but
+    some indexing occur multiple times in the stencil.  Note that absence of
+    \texttt{readOnce} is interpreted liberally, and if the stencil indices
+    happen to occur uniquely, this does not constitute a failure.
+  \item Definition of vector intervals is completely unwinded into sets of
+    offset tuples and depending the approximation modifier (or lack thereof)
+    we compare these tuples to offsets of the stencil computation. Lower and
+    upper bounds are checked with subset and superset relations respectively,
+    while absence of \texttt{atMost} and \texttt{atLeast} results in exact
+    checking with set equality.
+\end{enumerate}
+
+Here is the mathematical definition of consistency checking:
+\begin{align*}
+  \textit{consistent}(\textit{ix}, \textit{model}) & = \begin{cases}
+    \textsf{false} & \textit{model} = \textsf{once}(x) \wedge ix = \textsf{mult}(y) \\
+    \textit{consistent'}(\textit{peel}(ix), \textit{peel}(model)) & \textit{otherwise}
+  \end{cases} \\
+%
+  \textit{consistent'}(\textit{ix}, \textit{model}) & = \begin{cases}
+    m = ix & \textit{model} = \textsf{exact}(m) \\
+    m \supseteq ix & \textit{model} = \textsf{upper}(m) \\
+    m \subseteq ix & \textit{model} = \textsf{lower}(m)
+  \end{cases}
+\end{align*}
+
+Here helper function $\textit{peel} : \textsf{Approx} a \to a$ removes the
+approximation label.
+
+\todo{Here we simply show \textit{consistency'} as set equality/subset/superset,
+but since sets are infinite we might need to elaborate based on representation.}
 
 \subsection{Inference}
+
+\begin{defn}{(Extended origin)}
+  In the $N$ dimensional region space, ${(\interv{-1}{1}{\textsf{true}})}^N$ is
+  said to be the extended origin.
+\end{defn}
+
+\begin{defn}{(Hearing)}
+  A point, $p$, in \region{N} is said to \emph{talk to} the extended origin if
+%
+  \begin{enumerate}
+    \item $p$ is in the extended origin;
+    \item there are distinct indices $i$ and $j$ (between $1$ and $N$) such that
+      $p_i$ is $-1$ to $1$ and there is a $p'$ that talks to the extended origin
+      such that $p_j$ is ${p'}_j - 1$ or ${p'}_j + 1$ and for all other indices
+      $k$, $p_k$ is ${p'}_k$;
+    \item all immediate neighbours of $p$ that are no farther away from the
+      extended origin than $p$ can talk to the extended origin.
+  \end{enumerate}
+
+  A set of points talk to the extended origin if all points in the set talk to
+  the extended origin.
+\end{defn}
+
+\begin{lem}
+  The following three statements are equivalent for a set of points $P \subseteq
+  \mathbb{Z}^N$:
+%
+  \begin{enumerate}
+    \item $P$ defines a superposition of hyper-rectangles each of which crosses
+      the extended origin;
+    \item $P$ talks to the extended origin
+    \item $P$ when regarded as offsets from induction variables forms a
+      neighbourhood stencil;
+    \item $P$ lies in \region{N}.
+  \end{enumerate}
+\end{lem}
+
+\begin{thm}{(Completeness of inference)}\label{thm:inf-completeness}
+  Inference procedure can infer a specification for every stencil computation.
+\end{thm}
+%
+\begin{proof}
+  Would be nice to have.
+\end{proof}
+
+\begin{thm}{(Completeness of exact inference)}
+  Inference procedure can infer a specification for every stencil computation
+  with array indexing behaviour forms a superposition of hyperrectangles removed
+  at most one unit from the origin in any of its dimension.
+\end{thm}
+%
+\begin{proof}
+  Would be nice to have.
+\end{proof}
+
+\begin{thm}{(Optimality of inference)}\label{thm:inf-optimality}
+  For exact inference, inference procedure always infers specifications with
+  fewest number of region constants.
+\end{thm}
+%
+\begin{proof}
+  Would be nice to have.
+\end{proof}
+
+\begin{remark}{}
+  Optimality of general inference is trivial. We only need a single region
+  constant covering accesses in any one of the stencil's dimensions and that
+  would provide an upper bound for the stencil.
+\end{remark}
 
 \end{document}

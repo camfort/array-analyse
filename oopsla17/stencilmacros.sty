@@ -1,0 +1,79 @@
+\ProvidesPackage{stencilmacros}[29/03/2017 Macros for the stencil paper]
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{stmaryrd}
+\usepackage{xifthen}
+\usepackage{xcolor}
+
+% Auxillary declaration
+\newcommand{\eg}{\emph{e.g.}}
+
+% Essential macros
+\newcommand{\zinf}{\textnormal{$\mathbb{Z}_\infty$}}
+\newcommand{\region}[1]{\textnormal{$\textit{Region}_{#1}$}}
+\newcommand{\interp}[1]{\llbracket{} {#1} \rrbracket{}}
+\newcommand{\interv}[3]{\textnormal{$\lbrack#1,#2\rbrack^{#3}$}}
+\newcommand{\vecgen}[3]{\textnormal{$\textit{vec-gen}_{#1}(#2,#3)$}}
+\newcommand{\textcap}[1]{\texttt{\textit{#1}}}
+
+% Stencil macro
+%
+% Optional argument: s when we want the short form, empty otherwise.
+%
+% Mandatory arguments:
+% 1st: c/b/f/p for centered, backward, forward, pointed
+% 2st: dimension
+% 3st: depth
+% 4st: if pointed/nonpointed needs to be specified leave it blank if omitted.
+%
+% Example: \stencil[s]{f}{1}{2}{} = fwd(dim=1,depth=2)
+% Example: \stencil{b}{1}{2}{pointed} = backward(dim=1,depth=2,pointed)
+\newcommand{\stencil}[5][]{%
+  \ifthenelse{\equal{#2}{f}}{%
+    \ifthenelse{\equal{#1}{s}}{%
+      \texttt{fwd}%
+    }{\ifthenelse{\isempty{#1}}{%
+        \texttt{forward}%
+      }{INVALID OPTIONAL}%
+    }%
+  }{\ifthenelse{\equal{#2}{b}}{%
+      \ifthenelse{\equal{#1}{s}}{%
+          \texttt{bwd}%
+      }{\ifthenelse{\isempty{#1}}{%
+          \texttt{backward}%
+        }{INVALID OPTIONAL}%
+      }%
+  }{\ifthenelse{\equal{#2}{c}}{%
+      \ifthenelse{\equal{#1}{s}}{%
+          \texttt{ctd}%
+      }{\ifthenelse{\isempty{#1}}{%
+          \texttt{centered}%
+        }{INVALID OPTIONAL}%
+      }%
+  }{\ifthenelse{\equal{#2}{p}}{%
+      \ifthenelse{\equal{#1}{s}}{%
+          \texttt{ptd}%
+      }{\ifthenelse{\isempty{#1}}{%
+          \texttt{pointed}%
+        }{INVALID OPTIONAL}%
+      }%
+  }{\ifthenelse{\isempty{#1}}{%
+      \textcap{#2}%
+    }{NO OPTIONAL FOR CUSTOM}%
+  }}}}%
+  \texttt{(dim=\textnormal{#3}%
+    \ifthenelse{\isempty{#4}}{}{,depth=\textnormal{#4}}%
+    \ifthenelse{\isempty{#5}}{}{,\textnormal{#5}})}%
+}
+
+% Non-essential macro
+\definecolor{unused}{RGB}{211,167,192}
+\newcommand{\unused}[1]{{\color{unused} #1}}
+
+\definecolor{version}{RGB}{163,193,173}
+\newcommand{\longv}[1]{{\color{version} Long version:} #1}
+\newcommand{\shortv}[1]{{\color{version} Short version:} #1}
+
+\newcommand{\todo}[1]{{\color{green} TODO:} #1}

@@ -8,9 +8,11 @@ fun domainEq :: "domain \<Rightarrow> domain \<Rightarrow> bool" where
   "domainEq Top Top = True" |
   "domainEq (Fin n) (Fin m) = (n = m)" |
   (* expanded catch all to remove duplicate rewrite warnings*) 
-  "domainEq Bot y     = False  " |
+  "domainEq Bot y     = False" |
   "domainEq Top y     = False" |
   "domainEq (Fin n) y  = False"
+  
+type_synonym holeFlag = "bool"
   
 (* Intervals on the domain *)
 type_synonym interval = "(domain * domain)"
@@ -36,9 +38,10 @@ fun hrectEq :: "hrect \<Rightarrow> hrect \<Rightarrow> bool" where
 
 (* set model *)
 
-inductive intervalMod :: "int \<Rightarrow> interval \<Rightarrow> bool" where
-  intervalI: "intervalMod n (Bot, Top)"
-| interval2I: "n \<le> b \<and> a \<le> n \<Longrightarrow> (intervalMod n ((Fin a), (Fin b)))"
+inductive intervalModel :: "int \<Rightarrow> interval \<Rightarrow> bool" where
+  intervalI: "intervalModel n (Bot, Top)"
+| interval2I: "n \<le> b \<and> a \<le> n \<Longrightarrow> (intervalModel n ((Fin a), (Fin b)))"
   
+ 
 end
   

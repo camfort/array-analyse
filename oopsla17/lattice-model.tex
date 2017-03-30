@@ -164,28 +164,28 @@ interpretations of the stencils in the code and the specifications.
 \end{defn}
 
 \begin{defn}{(\emph{Region})}
-  \textit{Region} is the set of $N$ dimensional vector intervals defined as the
-  smallest set satisfying the following:
+  \region{N} is the set of $N$ dimensional vector intervals defined as
+  the smallest set satisfying the following:
 %
   \begin{enumerate}
-    \item If $R$ is in $\textit{Interval}^N$, then $R$ is in \textit{Region}.
-    \item If $R$ and $S$ are in \textit{Region}, then so are $R \cap S$ and $R
-      \cup S$.
+    \item If $R$ is in $\textit{Interval}^N$, then $R$ is in \region{N}.
+    \item If $R$ and $S$ are in \region{N}, then so are $R \cap S$ and
+      $R \cup S$.
   \end{enumerate}
 \end{defn}
 
 \begin{prop}{}
-  $(\textit{Region},\subseteq)$ is a distributive lattice.
+  $(\region{N},\subseteq)$ is a distributive lattice.
 \end{prop}
 %
 \begin{proof}
   Any sublattice of a distributive lattice is a distributive lattice. Power sets
   partially ordered with subset or equal to relation are distributive lattices.
-  \textit{Region} is a subset of $\mathcal{P}{(\zinf{}^{\mkern-19mu{N}})}$ since
-  all vector intervals are subsets of this power set and union and intersection
-  cannot add an element that is not already in the powerset. Inductive
-  definition also ensures that \textit{Region} is closed under these operations.
-  Therefore, \textit{Region} is a distributive sublattice of
+  \region{N} is a subset of $\mathcal{P}{(\zinf{}^{\mkern-19mu{N}})}$ since all
+  vector intervals are subsets of this power set and union and intersection
+  cannot add an element that is not already in the powerset.  Inductive
+  definition also ensures that \region{N} is closed under these operations.
+  Therefore, \region{N} is a distributive sublattice of
   $(\mathcal{P}{(\zinf{}^{\mkern-19mu{N}})}, \subseteq)$.
 \end{proof}
 
@@ -593,6 +593,42 @@ approximation label.
 but since sets are infinite we might need to elaborate based on representation.}
 
 \subsection{Inference}
+
+\begin{defn}{(Extended origin)}
+  In the $N$ dimensional region space, ${(\interv{-1}{1}{\textsf{true}})}^N$ is
+  said to be the extended origin.
+\end{defn}
+
+\begin{defn}{(Hearing)}
+  A point, $p$, in \region{N} is said to \emph{talk to} the extended origin if
+%
+  \begin{enumerate}
+    \item $p$ is in the extended origin;
+    \item there are distinct indices $i$ and $j$ (between $1$ and $N$) such that
+      $p_i$ is $-1$ to $1$ and there is a $p'$ that talks to the extended origin
+      such that $p_j$ is ${p'}_j - 1$ or ${p'}_j + 1$ and for all other indices
+      $k$, $p_k$ is ${p'}_k$;
+    \item all immediate neighbours of $p$ that are no farther away from the
+      extended origin than $p$ can talk to the extended origin.
+  \end{enumerate}
+
+  A set of points talk to the extended origin if all points in the set talk to
+  the extended origin.
+\end{defn}
+
+\begin{lem}
+  The following three statements are equivalent for a set of points $P \subseteq
+  \mathbb{Z}^N$:
+%
+  \begin{enumerate}
+    \item $P$ defines a superposition of hyper-rectangles each of which crosses
+      the extended origin;
+    \item $P$ talks to the extended origin
+    \item $P$ when regarded as offsets from induction variables forms a
+      neighbourhood stencil;
+    \item $P$ lies in \region{N}.
+  \end{enumerate}
+\end{lem}
 
 \begin{thm}{(Completeness of inference)}\label{thm:inf-completeness}
   Inference procedure can infer a specification for every stencil computation.

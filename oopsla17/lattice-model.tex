@@ -59,7 +59,8 @@ interpretations of the stencils in the code and the specifications.
       \{ n \;|\; a \leq n \leq b \wedge (\neg c \implies n \neq 0) \}
   \end{equation*}
 
-  Set of all such intervals (sets) is $\textit{Interval}$.
+  Set of all such intervals (sets) is $\textit{Interval}$. If the superscript is
+  leftout it is treated as \textsf{true}.
 \end{defn}
 
 \begin{lem}{}\label{lem:zinf-identities}
@@ -96,6 +97,12 @@ interpretations of the stencils in the code and the specifications.
   The set of $N$ dimensional offsets vectors is
   $\mathcal{P}{(\zinf{}^{\mkern-19mu{N}})}$ and they trivially form a
   distributive lattice under the superset relation.
+\end{defn}
+
+\begin{defn}{(\emph{Point offsets vector})}
+  A \emph{point offsets vector}, \textit{poff}, is a an offsets vector such that
+  for all indices $i$ $\pi_i(\textit{poff})$, we either have a singleton set or
+  the infinite interval $\interv{-\infty}{\infty}{\textsf{true}}$.
 \end{defn}
 
 \begin{lem}{}\label{lem:vector-intersect}
@@ -595,25 +602,78 @@ but since sets are infinite we might need to elaborate based on representation.}
 \subsection{Inference}
 
 \begin{defn}{(Extended origin)}
-  In the $N$ dimensional region space, ${(\interv{-1}{1}{\textsf{true}})}^N$ is
-  said to be the extended origin.
+  In the $N$ dimensional region space, ${(\interv{-1}{1}{})}^N$ is said to be
+  the extended origin denoted $\textit{EO}_N$.
 \end{defn}
 
-\begin{defn}{(Hearing)}
-  A point, $p$, in \region{N} is said to \emph{talk to} the extended origin if
+\begin{defn}{(Origin distance)}
+  We measure the \emph{origin distance} of a point offsets vector from the
+  extended origin as the minimum number of translations by $\pm 1$ unit in one
+  dimension at a time to reach any point in the extended origin. Since point
+  offsets vector may represent infinite number of points, we measure the
+  distance from the closest one.
+\end{defn}
 %
-  \begin{enumerate}
-    \item $p$ is in the extended origin;
-    \item there are distinct indices $i$ and $j$ (between $1$ and $N$) such that
-      $p_i$ is $-1$ to $1$ and there is a $p'$ that talks to the extended origin
-      such that $p_j$ is ${p'}_j - 1$ or ${p'}_j + 1$ and for all other indices
-      $k$, $p_k$ is ${p'}_k$;
-    \item all immediate neighbours of $p$ that are no farther away from the
-      extended origin than $p$ can talk to the extended origin.
-  \end{enumerate}
+\begin{prop}{}
+  The closed form of origin distance of an $N$ dimensional point offsets vector
+  $p$ is the following:
+%
+  \begin{align*}
+    \textit{dist}_i(p) & = \begin{cases}
+      0 & \pi_i(p) = \interv{-\infty}{\infty}{} \\
+      |\mathsf{a}| - 1 & \pi_i(p) = \{\mathsf{a}\} \\
+    \end{cases} &
+%
+    |p| & = \sum_{i=1}^{N} dist_i(p)
+  \end{align*}
+\end{prop}
+%
+\begin{proof}
+\end{proof}
 
-  A set of points talk to the extended origin if all points in the set talk to
-  the extended origin.
+\begin{defn}{(Close neighbourhood)}
+  A point offsets vector $p'$ is said to be a close neighbour of point offsets
+  vector $p$ if for every index $i$ except $j$, $\pi_i(p)$ agrees with
+  $\pi_i(p')$ but at $j$, $\pi_j(p')$ is such that $|p'| + 1 = |p|$.
+
+  This necessarily means point vectors within the extended origin and the
+  degenerate point offsets vector with \interv{-\infty}{\infty}{} does not have
+  close neighbours.
+\end{defn}
+%
+\begin{prop}
+  The unique close neighbour at index $i$ of an $N$ dimensional point offsets
+  vector, if it exists, is given by the following partial function:
+%
+  \begin{align*}
+    \mathit{close\_neighbour}(p,i) & = \prod^{N}_{j=1} \mathit{shift}(p,i,j) &
+%
+    \mathit{shift}(p,i,j) & =
+      \begin{cases}
+        \{a - 1\} & i = j \wedge \pi_i(p) = \{\mathsf{a}\} \wedge \mathsf{a} > 0\\
+        \{a + 1\} & i = j \wedge \pi_i(p) = \{\mathsf{a}\} \wedge \mathsf{a} < 0\\
+        \pi_j(p)  & otherwise
+      \end{cases}
+  \end{align*}
+\end{prop}
+%
+\begin{proof}
+\end{proof}
+
+\begin{defn}{(Exact set)}
+  The \emph{exact set} at origin distance $d$, $\mathit{ES}_{P,d}$, of a group
+  of $N$ dimensional points $P$ is defined below:
+%
+  \begin{equation*}
+    \mathit{ES}_{P,d} =
+      \{ p \in P \mid \forall i.\
+         p_i \notin \{-1,0,1\} \implies
+         \exists p' \in \mathit{ES}_{P,d-1}.\ p' =
+         \mathit{close\_neighbour}(p,i) \}
+  \end{equation*}
+%
+  The overall \emph{exact set}, $\mathit{ES}_P$ is then $\mathit{ES}_{P,n}$ such
+  tat $\mathit{ES}_{P,n} = \mathit{ES}_{P,n+1}$.
 \end{defn}
 
 \begin{lem}
@@ -623,10 +683,10 @@ but since sets are infinite we might need to elaborate based on representation.}
   \begin{enumerate}
     \item $P$ defines a superposition of hyper-rectangles each of which crosses
       the extended origin;
-    \item $P$ talks to the extended origin
+    \item $P$ is the same as its exact set $\mathit{ES}_P$;
     \item $P$ when regarded as offsets from induction variables forms a
       neighbourhood stencil;
-    \item $P$ lies in \region{N}.
+    \item $P$ is a subset of \region{N}.
   \end{enumerate}
 \end{lem}
 

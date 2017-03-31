@@ -52,7 +52,7 @@ interpretations of the stencils in the code and the specifications.
 \begin{defn}{(\emph{\zinf{} interval})}
   A \emph{\zinf{} interval} is of the form \interv{a}{b}{c}, where $a$ and $b$
   are drawn from \zinf{} with $a \leq 0 \leq b$, $a$ is $-\infty$ \emph{iff} $b$
-  is $\infty$, and $c$ is drawn from $\{ \textsf{true}, \textsf{false} \}$. We
+  is $\infty$, and $c$ is drawn from $\{ \mathsf{true}, \mathsf{false} \}$. We
   define it as follows:
 %
   \begin{equation*}
@@ -61,7 +61,7 @@ interpretations of the stencils in the code and the specifications.
   \end{equation*}
 
   Set of all such intervals (sets) is $\textit{Interval}$. If the superscript is
-  leftout it is treated as \textsf{true}.
+  leftout it is treated as $\mathsf{true}$.
 \end{defn}
 
 \begin{lem}{}\label{lem:zinf-identities}
@@ -103,7 +103,7 @@ interpretations of the stencils in the code and the specifications.
 \begin{defn}{(\emph{Point offsets vector})}
   A \emph{point offsets vector}, \textit{poff}, is a an offsets vector such that
   for all indices $i$ $\pi_i(\textit{poff})$, we either have a singleton set or
-  the infinite interval $\interv{-\infty}{\infty}{\textsf{true}}$.
+  the infinite interval $\interv{-\infty}{\infty}{\mathsf{true}}$.
 \end{defn}
 
 \begin{lem}{}\label{lem:vector-intersect}
@@ -201,18 +201,18 @@ interpretations of the stencils in the code and the specifications.
 \end{proof}
 
 \begin{defn}{}
-  \textsf{Mult} and \textsf{Approx} are parametric labelled variant types with
-  injections given by their definition:
+  $\mathsf{Mult}$ and $\mathsf{Approx}$ are parametric labelled variant types
+  with injections given by their definition:
 %
   \begin{align*}
-    \textsf{Mult} \; a &
-      \triangleq \textsf{mult} \; a \;\mid\; \textsf{only} \; a \\
-    \textsf{Approx} \; a &
-      \triangleq \textsf{exact} \; a \;\mid\; \textsf{lower} \; a \;\mid\;
-        \textsf{upper} \; a \;\mid\; \textsf{both} \; a \; a
+    \mathsf{Mult} \; a &
+      \triangleq \mathsf{mult} \; a \;\mid\; \mathsf{only} \; a \\
+    \mathsf{Approx} \; a &
+      \triangleq \mathsf{exact} \; a \;\mid\; \mathsf{lower} \; a \;\mid\;
+        \mathsf{upper} \; a \;\mid\; \mathsf{both} \; a \; a
   \end{align*}
 %
-  \eg{}, \textsf{lower} is an injection $\mathsf{lower} : a \to \mathsf{Approx}
+  \eg{}, $\mathsf{lower}$ is an injection $\mathsf{lower} : a \to \mathsf{Approx}
   \; a$ etc.
 
   These will be used in the following subsection to give meaning to the
@@ -223,7 +223,7 @@ interpretations of the stencils in the code and the specifications.
 
 We give some basic interpretations: $\interp{\texttt{n}} = n$ where $n$ is in
 $\mathbb{Z}^+$, $\interp{\texttt{pointed}} = \llbracket \epsilon \rrbracket =
-\textsf{true}$, $\interp{\texttt{nonpointed}} = \textsf{false}$.
+\mathsf{true}$, $\interp{\texttt{nonpointed}} = \mathsf{false}$.
 Typographically, \textcap{bold monotype font} is used within specifications
 to indicate a partial textual capture. For convenience, we use \textit{italic
 serif font} inside specifications rather than interpreting its textual capture.
@@ -233,14 +233,14 @@ presentation.
 Let $\textit{vec-gen}_N : \mathbb{N}^+ \times \textit{Interval} \to
 \textit{Interval}^N$ be the function generating an $N$ dimensional vector
 interval such that \vecgen{N}{i}{\interv{a}{b}{c}} has
-$\interv{-\infty}{\infty}{\textsf{true}}$ in all dimensions except the $i^{th}$
+$\interv{-\infty}{\infty}{\mathsf{true}}$ in all dimensions except the $i^{th}$
 one. There, it has \interv{a}{b}{c}.
 
 First, we give meaning to region constants (introduced in \Cref{}).
 %
 \begin{align*}
   \interp{\stencil{p}{$i$}{}{}}_N & =
-    \vecgen{N}{i}{\interv{0}{0}{\textsf{true}}}\\
+    \vecgen{N}{i}{\interv{0}{0}{\mathsf{true}}}\\
 %
   \interp{\stencil{c}{$i$}{$k$}{\textcap{p}}}_N & =
     \vecgen{N}{i}{\interv{-k}{k}{\interp{\textcap{p}}}} \\
@@ -269,16 +269,16 @@ Third, we need to mark presence of modifiers such as \texttt{readOnce} and
 multiplicity modifiers we have the following semantics:
 %
 \begin{align*}
-  \interp{\texttt{readOnce}} & = \textsf{mult} &
-  \llbracket\epsilon\rrbracket & = \textsf{once}
+  \interp{\texttt{readOnce}} & = \mathsf{mult} &
+  \llbracket\epsilon\rrbracket & = \mathsf{once}
 \end{align*}
 
 In the context of approximation modifiers, we have
 %
 \begin{align*}
-  \interp{\texttt{atLeast}} & = \textsf{lower} &
-  \interp{\texttt{atMost}} & = \textsf{upper} &
-  \llbracket \epsilon \rrbracket = \textsf{exact}
+  \interp{\texttt{atLeast}} & = \mathsf{lower} &
+  \interp{\texttt{atMost}} & = \mathsf{upper} &
+  \llbracket \epsilon \rrbracket = \mathsf{exact}
 \end{align*}
 
 Finally, we can give full semantics of a stencil specification:
@@ -364,18 +364,18 @@ We define an equivalence relation, $\equiv$, on regions as follows:
 %
       \begin{align*}
         \interp{\stencil{\textcap{R}}{$n$}{$k$}{\texttt{nonpointed}}}_N
-        & = \vecgen{N}{n}{\interv{-k}{k}{\textsf{false}}} \\
+        & = \vecgen{N}{n}{\interv{-k}{k}{\mathsf{false}}} \\
 %
         \interp{\stencil{p}{$n$}{}{}}_N
-        &= \vecgen{N}{n}{\interv{0}{0}{\textsf{true}}} \\
+        &= \vecgen{N}{n}{\interv{0}{0}{\mathsf{true}}} \\
 %
         \interp{\stencil{\textcap{R}}{$n$}{$k$}{}}_N
-        &= \vecgen{N}{n}{\interv{-k}{k}{\textsf{true}}}
+        &= \vecgen{N}{n}{\interv{-k}{k}{\mathsf{true}}}
       \end{align*}
 
       Using \Cref{lem:vector-union}, it is sufficient to show
-      $ \interv{-k}{k}{p} \;\cup\; \interv{0}{0}{\textsf{true}} =
-        \interv{-k}{k}{\textsf{true}} $ holds. This immediately follows from
+      $ \interv{-k}{k}{p} \;\cup\; \interv{0}{0}{\mathsf{true}} =
+        \interv{-k}{k}{\mathsf{true}} $ holds. This immediately follows from
       \Cref{lem:zinf-identities}.
 %
     \item[Centered] Let $\interp{\textcap{p1}}$, $\interp{\textcap{p2}}$, and
@@ -586,18 +586,18 @@ Two stage checking is outlined below.
 Here is the mathematical definition of consistency checking:
 \begin{align*}
   \textit{consistent}(\textit{ix}, \textit{model}) & = \begin{cases}
-    \textsf{false} & \textit{model} = \textsf{once}(x) \wedge ix = \textsf{mult}(y) \\
+    \mathsf{false} & \textit{model} = \mathsf{once}(x) \wedge ix = \mathsf{mult}(y) \\
     \textit{consistent'}(\textit{peel}(ix), \textit{peel}(model)) & \textit{otherwise}
   \end{cases} \\
 %
   \textit{consistent'}(\textit{ix}, \textit{model}) & = \begin{cases}
-    m = ix & \textit{model} = \textsf{exact}(m) \\
-    m \supseteq ix & \textit{model} = \textsf{upper}(m) \\
-    m \subseteq ix & \textit{model} = \textsf{lower}(m)
+    m = ix & \textit{model} = \mathsf{exact}(m) \\
+    m \supseteq ix & \textit{model} = \mathsf{upper}(m) \\
+    m \subseteq ix & \textit{model} = \mathsf{lower}(m)
   \end{cases}
 \end{align*}
 
-Here helper function $\textit{peel} : \textsf{Approx} a \to a$ removes the
+Here helper function $\textit{peel} : \mathsf{Approx} a \to a$ removes the
 approximation label.
 
 \todo{Here we simply show \textit{consistency'} as set equality/subset/superset,
@@ -694,6 +694,15 @@ but since sets are infinite we might need to elaborate based on representation.}
     \item $P$ is a subset of \region{N}.
   \end{enumerate}
 \end{lem}
+
+\begin{thm}{(Soundness of exact shape inference)}
+  For a set of point offsets vectors $P$, the inference procedure for
+  neighbourhood stencils is sound if the following holds:
+%
+  \begin{equation*}
+    \mathit{consistent}(\mathsf{mult}(P),\mathsf{mult}(\mathit{infer}(P)))
+  \end{equation*}
+\end{thm}
 
 \begin{thm}{(Completeness of inference)}\label{thm:inf-completeness}
   Inference procedure can infer a specification for every stencil computation.

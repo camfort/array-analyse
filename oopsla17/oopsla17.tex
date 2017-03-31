@@ -91,7 +91,17 @@ practises and workflows.
 
 \section{An Empirical Study of Stencils in Scientific Fortran code}
 
-\subsection{Our corpus}
+
+
+\begin{enumerate}
+\item Stencils are ubiquitious;
+\item Most stencils read their data from source arrays with a static pattern
+base on constant offsets from the mid-point;
+\item Most stencils read their data from contiguous \emph{regions} in an array;
+\item Most stencils read each index at most once.
+\end{enumerate}
+
+\subsection{Study}
 %
 \noindent
 We put together a corpus of around 1 million lines of Fortran code from a
@@ -103,17 +113,6 @@ on \cite{griebel1997numerical}), Computational Physics
 ARPACK-NG~\cite{arpackng}, and
 SPECFEM3D~\cite{specfem3d}. Appendix~\ref{app:corpus} provides
 further detail on these packages.
-
-
-
-
-\begin{enumerate}
-\item Stencils are ubiquitious;
-\item Most stencils read their data from source arrays with a static pattern
-base on constant offsets from the mid-point;
-\item Most stencils read their data from contiguous \emph{regions} in an array;
-\item Most stencils read each index at most once.
-\end{enumerate}
 
 \section{A Specification Language for Shape}
 

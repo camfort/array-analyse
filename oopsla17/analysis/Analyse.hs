@@ -65,12 +65,12 @@ main :: IO ()
 main = do
     args <- getArgs
     if (length args == 1) then
-      if (head args == "PI") then
+      {- if (head args == "PI") then
         testLHSvars True
       else 
       if (head args == "PI2") then
         testLHSvars False
-      else
+      else -}
         applyAnalysisToDir (head args) False []
     else if (length args > 1) then
       if (args !! 1 == "-d") then
@@ -81,16 +81,18 @@ main = do
       putStrLn $ "Please specify a directory on which to apply the analysis\
                  \ followed by any number of file names to be excluded "
 
+{-
 testLHSvars flag = do
     files <- readParseSrcDir "experiment" []
     putStrLn $ show $ map (applyLHSvars flag) files
+
 
 applyLHSvars :: Bool -> (Filename, SourceText, F.ProgramFile A) -> [F.Name]
 applyLHSvars flag (filename, source, pf) =
     if flag then FA.allLhsVars pf' else FA.allLhsVarsRobust pf' 
   where
     pf' = FA.initAnalysis $ pf
-
+-}
 
 applyAnalysisToDir :: String -> Bool -> [String] -> IO ()
 applyAnalysisToDir dir debug excludes = do

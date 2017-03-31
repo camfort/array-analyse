@@ -38,22 +38,21 @@ interpretations of the stencils in the code and the specifications.
 
 \subsection{Constructing the lattice model of regions}
 
-\begin{defn}{(\zinf)}
-  We define the set \zinf{} as $\mathbb{Z}$ extended with $\infty$ and
-  $-\infty$. For any $n$ in \zinf{}, we have $-\infty \leq n \leq \infty$. The
-  resulting set is a total order with top and bottom elements.
+\begin{defn}{(\emph{Points})}
+  We define the set \zinf{} of (one-dimensional) \emph{points} as
+  $\mathbb{Z}$ extended with $\infty$ and $-\infty$. For any $n$ in
+  \zinf{}, we have $-\infty \leq n \leq \infty$. The resulting set is
+  a total order with top and bottom elements.
 \end{defn}
 
-\begin{defn}{(\emph{Offset space})}
-  \emph{Offset space} is a subset of \zinf{} members. It is used to capture
-  offsets from induction variables.
-\end{defn}
-
-\begin{defn}{(\emph{\zinf{} interval})}
-  A \emph{\zinf{} interval} is of the form \interv{a}{b}{c}, where $a$ and $b$
+\begin{defn}{(\emph{Point interval})}
+  A \emph{point interval} is a closed interval $\zinf$ which may
+  contain a ``hole'' at the origin, written \interv{a}{b}{c} where $a$ and $b$
   are drawn from \zinf{} with $a \leq 0 \leq b$, $a$ is $-\infty$ \emph{iff} $b$
-  is $\infty$, and $c$ is drawn from $\{ \mathsf{true}, \mathsf{false} \}$. We
+  is $\infty$, and $c$ is drawn from $\mathbb{B} = \{ \mathsf{true}, \mathsf{false} \}$. We
   define it as follows:
+\marginpar{We might add the restriction to $[-\infty, \infty]$ later,
+  but okay for now.}
 %
   \begin{equation*}
     \interv{a}{b}{c} \triangleq
@@ -89,26 +88,69 @@ interpretations of the stencils in the code and the specifications.
   \end{align*}
 \end{proof}
 
-\begin{defn}{(\emph{Offsets vector})}
-  An $N$ dimensional \emph{offsets vector} is a Cartesian product of offset
-  spaces denoted with $\textit{offs}_1 \times \cdots \times \textit{offs}_N$.
-  The function $\pi_i : \mathcal{P}(\zinf{}^{\mkern-19mu{N}}) \to
-  \mathcal{P}(\zinf{})$ retrieves the $i^{th}$ set of offsets.
+\begin{defn}{(\emph{Offsets and offset spaces})}
+  An \emph{offset} is a Cartesian product (vector) of $\zinf$ values representing an
+  $N$-dimensional point. The set of $N$-dimensional offsets is
+  written $\zinf^N$.  An $N$-dimensional \emph{offset space} is a set of
+  offsets, i.e. a member of $\mathcal{P}(\zinf^N)$.
 
-  The set of $N$ dimensional offsets vectors is
-  $\mathcal{P}{(\zinf{}^{\mkern-19mu{N}})}$ and they trivially form a
+An $N$-dimensional offset space can be \emph{projected} into the set
+of points in the $i^{\text{th}}$ dimension by $\pi_i : \mathcal{P}(\zinf{})^{\mkern-19mu{N}} \to
+  \mathcal{P}(\zinf{})$ where $i \in \mathsf{Fin}(N)$. We refer to this projected set as the \emph{$i^{th}$
+    component of an offset space}. 
+\end{defn}
+
+\begin{proposition}
+The set of $N$-dimensional offset spaces
+$\mathcal{P}{(\zinf{}^{\mkern-19mu{N}})}$ trivially forms a
   distributive lattice under the superset relation.
+\end{proposition}
+
+\begin{remark}
+Note that $\mathcal{P}(\zinf^N)$ is isomorphic to a sets of point
+vectors $\mathcal{P}(\zinf)^N$. Therefore, projection $\pi$ on 
+offset spaces is defined by lifting normal Cartesian product
+projection to sets.
+\end{remark}
+
+%\begin{defn}{(\emph{Offsets vector}, $\mathcal{P}(\zinf^N)$)}
+%  An $N$ dimensional \emph{offset space vector} is a Cartesian product of offset
+%  spaces denoted with $\textit{offs}_1 \times \cdots \times
+%  \textit{offs}_N$.
+%  The function $\pi_i : \mathcal{P}(\zinf{})^{\mkern-19mu{N}} \to
+%  \mathcal{P}(\zinf{})$ retrieves the $i^{th}$ offset space.%
+%
+%  The set of $N$ dimensional offsets vectors is
+%  $\mathcal{P}{(\zinf{}^{\mkern-19mu{N}})}$ and they trivially form a
+%  distributive lattice under the superset relation.
+%\end{defn}
+
+\begin{defn}{(\emph{Subscript space})}
+  An $N$-dimensional offset space $\textit{off}$ is a \emph{subscript space} if it
+  satisfies:
+%
+\begin{equation*}
+\forall i \in \textsf{Fin}(N) . \quad 
+\pi_i (\textit{off}) = \{p\} \wedge p \in \mathbb{Z} 
+\;\;
+\vee
+\;\;
+\pi_i (\textit{off}) = \interv{-\infty}{\infty}{\mathsf{true}}
+\end{equation*}
+%
+That is, the $i^{th}$ component of the space is either a singleton 
+in $\mathbb{Z}$ or the infinite interval.
+
+Subscript spaces model array subscript expressions in our source
+langauge where each subscripted expression is either a 
+constant translation of an induction variable within a loop or some
+other expression which is constant with respect to the loop e.g. \texttt{a(i + 1, 0)}.
 \end{defn}
 
-\begin{defn}{(\emph{Point offsets vector})}
-  A \emph{point offsets vector}, \textit{poff}, is a an offsets vector such that
-  for all indices $i$ $\pi_i(\textit{poff})$, we either have a singleton set or
-  the infinite interval $\interv{-\infty}{\infty}{\mathsf{true}}$.
-\end{defn}
 
 \begin{lem}{}\label{lem:vector-intersect}
-  Intersection distributes over offsets vectors. If $\mathit{off}$ and
-  $\mathit{off'}$ are $N$ dimensional ofssets vectors, then
+  Intersection distributes over offset spaces. If $\mathit{off}$ and
+  $\mathit{off'}$ are $N$-dimensional offset spaces, then
 %
   \begin{equation*}
     \mathit{off} \cap \mathit{off'} =
@@ -129,8 +171,8 @@ interpretations of the stencils in the code and the specifications.
 \end{proof}
 
 \begin{lem}{}\label{lem:vector-union}
-  Let $\mathit{off}$ and $\mathit{off'}$ be two $N$ dimensional offsets vectors
-  such that $\pi_i(\mathit{off})$ is equal to $\pi_i(\mathit{off'})$ for all $1
+  Let $\mathit{off}$ and $\mathit{off'}$ be two $N$ dimensional offset
+  spaces such that $\pi_i(\mathit{off})$ is equal to $\pi_i(\mathit{off'})$ for all $1
   \leq i \leq N$ except possibly at $k$, then we have the following:
 %
   \begin{equation*}
@@ -167,15 +209,14 @@ interpretations of the stencils in the code and the specifications.
   \end{align*}
 \end{proof}
 
-\begin{defn}{(\emph{Vector interval})}
-  A vector interval is an $N$ dimensional object which has \zinf{} intervals at
-  each dimension. A vector interval is also an ofssets vector.
-
-  The set of all $N$ dimensional vector intervals is $\textit{Interval}^N$.
+\begin{defn}{(\emph{Offset interval})}
+An offset interval is a finite Cartesian product of point intervals.
+We referer to an interval vector of size $N$ as being $N$-dimensional, and
+denoted by the set $\textit{Interval}^N$.
 \end{defn}
 
-\begin{defn}{(\emph{Region})}
-  \region{N} is the set of $N$ dimensional vector intervals defined as
+\begin{defn}{(\emph{Region})} 
+  A region \region{N} is a set of $N$-dimensional offset intervals defined as
   the smallest set satisfying the following:
 %
   \begin{enumerate}
@@ -605,15 +646,23 @@ but since sets are infinite we might need to elaborate based on representation.}
 
 \subsection{Inference}
 
-\begin{defn}{(Extended origin)}
-  In the $N$ dimensional region space, ${(\interv{-1}{1}{})}^N$ is said to be
-  the extended origin denoted $\textit{EO}_N$.
+\begin{defn}{(Origin)}
+In $N$-dimensions, the \emph{origin} $\mathbf{0}_N$ is the singleton set
+$\{0^N\}$, or equivalently the vector of unit intervals $[0, 0]^N$.
 \end{defn}
 
-\begin{defn}{(Origin distance)}
-  We measure the \emph{origin distance} of a point offsets vector from the
-  extended origin as the minimum number of translations by $\pm 1$ unit in one
-  dimension at a time to reach any point in the extended origin. Since point
+\begin{defn}{(Extended origin)}
+In $N$-dimensions, the \emph{extended origin} is the
+interval vector $[-1, 1]^N$ which is a subspace of \region{N}. 
+\end{defn}
+
+\begin{defn}{(Extended origin distance)}
+  We measure the \emph{extended origin distance} of an offset from the
+  extended origin as the minimum number of translations by $\pm 1$ in one
+  dimension at a time, to reach an offset in the extended
+  origin. 
+
+This notion extends to Since an 
   offsets vector may represent infinite number of points, we measure the
   distance from the closest one.
 \end{defn}

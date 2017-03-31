@@ -1,0 +1,63 @@
+% http://2017.splashcon.org/track/splash-2017-OOPSLA#Instructions-for-Authors
+% "There is no page limit for bibliographic references and appendices,
+% and, therefore, for the overall submission."
+
+\section{Details of the corpus data set}
+\label{app:corpus}
+
+\paragraph{Software Corpus}
+Table~\ref{tab:corpus} shows summary statistics of the software
+packages used in our evaluation, all of which are written in Fortran
+90 or Fortran 77. In total we analysed \SI{\overallLoC} lines of code
+from \numPackages{} packages, of which we successfully parsed
+\SI{\overalllinesParsed} lines. The ``Number of files'' column shows
+how many files in each corpus that we were able to analyse with
+CamFort. The most common reasons for CamFort rejecting a file were
+either use of a C-preprocessor, or illegal use of language features
+from a modern Fortran variant.
+
+\begin{enumerate}
+\item \textbf{The Unified Model}~\cite{um} is a weather
+  forecasting and climate modelling tool developed by the Met Office
+  in the United Kingdom. It is used by research organisations and
+  meteorological services around the world. We use the development
+  branch (trunk) of the model. The code base in closed source but
+  institutional licenses are available for research purposes. The Met
+  Office runs a comprehensive code quality system incorporating
+  dedicated committers (we counted 11) for particular parts of the
+  model. We counted 120 additional contributors whose submissions are
+  reviewed and tested before being accepted into the code base.
+
+\item \textbf{E3MG} (An Energy-Environment-Economy (E3) Model at the Global
+Level) is a macroeconomic model used for assessment of environmental
+policy~\cite{RePEc:aen:journl:2006se-a12}. This was developed by
+Cambridge Econometrics, an independent consultancy company.
+
+\item \textbf{BLAS}~\cite{blas} (Basic Linear Algebra Subprograms) is
+  a popular library providing efficient and portable routines for
+  vector and matrix operations. These routines feature in many other
+  libraries (including LAPACK). We used version 3.6.0. We chose to
+  include this package for breadth, as it provides general numerical
+  functions rather than a specialised scientific model.
+
+\item \textbf{Hybrid4} is a vegetation and biomass model for
+  simulating carbon, water and nitrogen flows~\cite{GBC:GBC635}.
+
+\item \textbf{GEOS-Chem}~\cite{geos-chem} is a three-dimensional model
+  of tropospheric chemistry developed at Harvard and used by $\sim$70
+  universities and research institutions world-wide. We use v.10-01.
+
+\item \textbf{Navier} is a small numerical simulation, giving a
+  discrete approximation to the two-dimensional Navier-Stokes fluid
+  equations, based on the book of~\citet{griebel1997numerical}.
+
+\item \textbf{CP} consists of the example code from the second edition
+  of the book ``Computational
+  Physics''~\cite{nicholas2006computational} introducing numerical
+  techniques and their application to modern physics problems such as
+  fields, waves, statistical mechanics and quantum mechanics.
+
+\item \textbf{ARPACK-NG}~\cite{arpackng} \todo{add a sentence of detail}
+
+\item \textbf{SPECFEM3D}~\cite{specfem3d} \todo{add a little detail}
+\end{enumerate}

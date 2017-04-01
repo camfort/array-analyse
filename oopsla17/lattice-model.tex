@@ -38,28 +38,29 @@ interpretations of the stencils in the code and the specifications.
 
 \subsection{Constructing the lattice model of regions}
 
-\begin{defn}{(\zinf)}
-  We define the set \zinf{} as $\mathbb{Z}$ extended with $\infty$ and
-  $-\infty$. For any $n$ in \zinf{}, we have $-\infty \leq n \leq \infty$. The
-  resulting set is a total order with top and bottom elements.
+\begin{defn}{(\emph{Points})}
+  We define the set \zinf{} of (one-dimensional) \emph{points} as
+  $\mathbb{Z}$ extended with $\infty$ and $-\infty$. For any $n$ in
+  \zinf{}, we have $-\infty \leq n \leq \infty$. The resulting set is
+  a total order with top and bottom elements.
 \end{defn}
 
-\begin{defn}{(\emph{Offset space})}
-  \emph{Offset space} is a subset of \zinf{} members. It is used to capture
-  offsets from induction variables.
-\end{defn}
-
-\begin{defn}{(\emph{\zinf{} interval})}
-  A \emph{\zinf{} interval} is of the form \interv{a}{b}{c}, where $a$ and $b$
-  are drawn from \zinf{} with $a \leq 0 \leq b$ and $c$ is a Boolean value. We
+\begin{defn}{(\emph{Point interval})}
+  A \emph{point interval} is a closed interval $\zinf$ which may
+  contain a ``hole'' at the origin, written \interv{a}{b}{c} where $a$ and $b$
+  are drawn from \zinf{} with $a \leq 0 \leq b$, $a$ is $-\infty$ \emph{iff} $b$
+  is $\infty$, and $c$ is drawn from $\mathbb{B} = \{ \mathsf{true}, \mathsf{false} \}$. We
   define it as follows:
+\marginpar{We might add the restriction to $[-\infty, \infty]$ later,
+  but okay for now.}
 %
   \begin{equation*}
     \interv{a}{b}{c} \triangleq
       \{ n \;|\; a \leq n \leq b \wedge (\neg c \implies n \neq 0) \}
   \end{equation*}
 
-  Set of all such intervals (sets) is $\textit{Interval}$.
+  Set of all such intervals (sets) is $\textit{Interval}$. If the superscript is
+  leftout it is treated as $\mathsf{true}$.
 \end{defn}
 
 \begin{lem}{}\label{lem:zinf-identities}
@@ -83,88 +84,139 @@ interpretations of the stencils in the code and the specifications.
       \\
     = & \; \{ n \;|\; \max \{a,d\} \leq n \leq \min \{b,e\} \wedge (\neg c
       \vee \neg f \implies n \neq 0) \} \\
-    = & \; \interv{\max{\{a,d\}}}{\min{\{b,e\}}}{\neg c \vee \neg f}
+    = & \; \interv{\max{\{a,d\}}}{\min{\{b,e\}}}{c \wedge f}
   \end{align*}
 \end{proof}
 
-\begin{defn}{(\emph{Offsets vector})}
-  An $N$ dimensional \emph{offsets vector} is a Cartesian product of offset
-  spaces denoted with $\textit{offs}_1 \times \cdots \times \textit{offs}_N$.
-  The function $\pi_i : \zinf{}^{\mkern-19mu{N}} \to \zinf{}$ retrieves the
-  $i^{th}$ set of offsets.
+\begin{defn}{(\emph{Offsets and offset spaces})}
+  An \emph{offset} is a Cartesian product (vector) of $\zinf$ values representing an
+  $N$-dimensional point. The set of $N$-dimensional offsets is
+  written $\zinf^N$.  An $N$-dimensional \emph{offset space} is a set of
+  offsets, i.e. a member of $\mathcal{P}(\zinf^N)$.
 
-  The set of $N$ dimensional offsets vectors is
-  $\mathcal{P}{(\zinf{}^{\mkern-19mu{N}})}$ and they trivially form a
-  distributive lattice under the superset relation.
+An $N$-dimensional offset space can be \emph{projected} into the set
+of points in the $i^{\text{th}}$ dimension by $\pi_i : \mathcal{P}(\zinf{})^{\mkern-19mu{N}} \to
+  \mathcal{P}(\zinf{})$ where $i \in \mathsf{Fin}(N)$. We refer to this projected set as the \emph{$i^{th}$
+    component of an offset space}. 
 \end{defn}
 
+\begin{proposition}
+The set of $N$-dimensional offset spaces
+$\mathcal{P}{(\zinf{}^{\mkern-19mu{N}})}$ trivially forms a
+  distributive lattice under the superset relation.
+\end{proposition}
+
+\begin{remark}
+Note that $\mathcal{P}(\zinf^N)$ is isomorphic to a sets of point
+vectors $\mathcal{P}(\zinf)^N$. Therefore, projection $\pi$ on 
+offset spaces is defined by lifting normal Cartesian product
+projection to sets.
+\end{remark}
+
+%\begin{defn}{(\emph{Offsets vector}, $\mathcal{P}(\zinf^N)$)}
+%  An $N$ dimensional \emph{offset space vector} is a Cartesian product of offset
+%  spaces denoted with $\textit{offs}_1 \times \cdots \times
+%  \textit{offs}_N$.
+%  The function $\pi_i : \mathcal{P}(\zinf{})^{\mkern-19mu{N}} \to
+%  \mathcal{P}(\zinf{})$ retrieves the $i^{th}$ offset space.%
+%
+%  The set of $N$ dimensional offsets vectors is
+%  $\mathcal{P}{(\zinf{}^{\mkern-19mu{N}})}$ and they trivially form a
+%  distributive lattice under the superset relation.
+%\end{defn}
+
+\begin{defn}{(\emph{Subscript space})}
+  An $N$-dimensional offset space $\textit{off}$ is a \emph{subscript space} if it
+  satisfies:
+%
+\begin{equation*}
+\forall i \in \textsf{Fin}(N) . \quad 
+\pi_i (\textit{off}) = \{p\} \wedge p \in \mathbb{Z} 
+\;\;
+\vee
+\;\;
+\pi_i (\textit{off}) = \interv{-\infty}{\infty}{\mathsf{true}}
+\end{equation*}
+%
+That is, the $i^{th}$ component of the space is either a singleton 
+in $\mathbb{Z}$ or the infinite interval.
+
+Subscript spaces model array subscript expressions in our source
+langauge where each subscripted expression is either a 
+constant translation of an induction variable within a loop or some
+other expression which is constant with respect to the loop e.g. \texttt{a(i + 1, 0)}.
+\end{defn}
+
+
 \begin{lem}{}\label{lem:vector-intersect}
-  Intersection distributes over offsets vectors. If $v$ and $v'$ are $N$
-  dimensional ofssets vectors, then
+  Intersection distributes over offset spaces. If $\mathit{off}$ and
+  $\mathit{off'}$ are $N$-dimensional offset spaces, then
 %
   \begin{equation*}
-    v \cap v' = \prod_{i = 1}^{N} \pi_i(v) \cap \pi_i(v')
+    \mathit{off} \cap \mathit{off'} =
+      \prod_{i = 1}^{N} \pi_i(\mathit{off}) \cap \pi_i(\mathit{off'})
   \end{equation*}
 \end{lem}
 %
 \begin{proof}
   \begin{align*}
-    v \; \cap \; v' &
-    = \{x \mid \bigwedge_{1 \leq i \leq N } x_i \in v_i \}
+    \mathit{off} \; \cap \; \mathit{off'} &
+    = \{x \mid \bigwedge_{1 \leq i \leq N } x_i \in \pi_i(\mathit{off}) \}
       \;\cap\;
-      \{x \mid \bigwedge_{1 \leq i \leq N } x_i \in v'_i \} \\
-    & = \{x \mid \bigwedge_{1 \leq i \leq N } (x_i \in v_i \wedge x_i \in v'_i) \} \\
-    & = \prod_{i = 1}^{N} \pi_i(v) \cap \pi_i(v')
+      \{x \mid \bigwedge_{1 \leq i \leq N } x_i \in \pi_i(\mathit{off'}) \} \\
+    & = \{x \mid \bigwedge_{1 \leq i \leq N }
+      (x_i \in \pi_i(\mathit{off}) \wedge x_i \in \pi_i(\mathit{off'})) \} \\
+    & = \prod_{i = 1}^{N} \pi_i(\mathit{off}) \cap \pi_i(\mathit{off'})
   \end{align*}
 \end{proof}
 
 \begin{lem}{}\label{lem:vector-union}
-  Let $v$ and $v'$ be two $N$ dimensional offsets vectors such that $\pi_i(v)$
-  is equal to $\pi_i(v')$ for all $1 \leq i \leq N$ except $k$, then we have the
-  following:
+  Let $\mathit{off}$ and $\mathit{off'}$ be two $N$ dimensional offset
+  spaces such that $\pi_i(\mathit{off})$ is equal to $\pi_i(\mathit{off'})$ for all $1
+  \leq i \leq N$ except possibly at $k$, then we have the following:
 %
   \begin{equation*}
-    v \; \cup \; v'
+    \mathit{off} \; \cup \; \mathit{off'}
     =
-    \pi_1(v) \times \cdots \times
-    (\pi_k(v) \cup \pi_k(v')) \times \cdots \times
-    \pi_N(v)
+    \pi_1(\mathit{off}) \times \cdots \times
+    (\pi_k(\mathit{off}) \cup \pi_k(\mathit{off'})) \times \cdots \times
+    \pi_N(\mathit{off})
   \end{equation*}
 \end{lem}
 %
 \begin{proof}
   \begin{align*}
-    v \; \cup \; v' &
+    \mathit{off} \; \cup \; \mathit{off'} &
     = \{x \mid
-          \bigwedge_{1 \leq i \leq N } x_i \in v_i \}
+      \bigwedge_{1 \leq i \leq N } x_i \in \pi_i(\mathit{off}) \}
       \;\cup\;
       \{x \mid
-          \bigwedge_{1 \leq i \leq N } x_i \in v'_i \} \\
+          \bigwedge_{1 \leq i \leq N } x_i \in \pi_i(\mathit{off'}) \} \\
     & = \{x \mid
-          \bigwedge_{\substack{1 \leq i \leq N \\ i \neq k}} x_i \in v_i
-              \wedge x_k \in v_k \vee
-          \bigwedge_{\substack{1 \leq i \leq N \\ i \neq k}} x_i \in v'_i
-            \wedge x_k \in v'_k
+          \bigwedge_{\substack{1 \leq i \leq N \\ i \neq k}}
+            x_i \in \pi_i(\mathit{off}) \wedge x_k \in \pi_k(\mathit{off}) \vee
+          \bigwedge_{\substack{1 \leq i \leq N \\ i \neq k}} x_i \in
+            \pi_i(\mathit{off'}) \wedge x_k \in \pi_k(\mathit{off'})
         \} \\
     & = \{x \mid
-          \bigwedge_{\substack{1 \leq i \leq N \\ i \neq k}} x_i \in v_i
-          \wedge x_k \in v_k \cup v'_k
+          \bigwedge_{\substack{1 \leq i \leq N \\ i \neq k}} x_i \in
+            \pi_i(\mathit{off}) \wedge
+            x_k \in \pi_k(\mathit{off}) \cup \pi_k(\mathit{off'})
         \} \\
-    & = \pi_1(v) \times \cdots \times
-        (\pi_k(v) \cup \pi_k(v')) \times \cdots \times
-        \pi_N(v)
+        & = \pi_1(\mathit{off}) \times \cdots \times
+        (\pi_k(\mathit{off}) \cup \pi_k(\mathit{off'})) \times \cdots \times
+        \pi_N(\mathit{off})
   \end{align*}
 \end{proof}
 
-\begin{defn}{(\emph{Vector interval})}
-  A vector interval is an $N$ dimensional object which has \zinf{} intervals at
-  each dimension. A vector interval is also an ofssets vector.
-
-  The set of all $N$ dimensional vector intervals is $\textit{Interval}^N$.
+\begin{defn}{(\emph{Offset interval})}
+An offset interval is a finite Cartesian product of point intervals.
+We referer to an interval vector of size $N$ as being $N$-dimensional, and
+denoted by the set $\textit{Interval}^N$.
 \end{defn}
 
-\begin{defn}{(\emph{Region})}
-  \region{N} is the set of $N$ dimensional vector intervals defined as
+\begin{defn}{(\emph{Region})} 
+  A region \region{N} is a set of $N$-dimensional offset intervals defined as
   the smallest set satisfying the following:
 %
   \begin{enumerate}
@@ -190,18 +242,18 @@ interpretations of the stencils in the code and the specifications.
 \end{proof}
 
 \begin{defn}{}
-  \textsf{Mult} and \textsf{Approx} are parametric labelled variant types with
-  injections given by their definition:
+  $\mathsf{Mult}$ and $\mathsf{Approx}$ are parametric labelled variant types
+  with injections given by their definition:
 %
   \begin{align*}
-    \textsf{Mult} \; a &
-      \triangleq \textsf{mult} \; a \;\mid\; \textsf{only} \; a \\
-    \textsf{Approx} \; a &
-      \triangleq \textsf{exact} \; a \;\mid\; \textsf{lower} \; a \;\mid\;
-        \textsf{upper} \; a \;\mid\; \textsf{both} \; a \; a
+    \mathsf{Mult} \; a &
+      \triangleq \mathsf{mult} \; a \;\mid\; \mathsf{only} \; a \\
+    \mathsf{Approx} \; a &
+      \triangleq \mathsf{exact} \; a \;\mid\; \mathsf{lower} \; a \;\mid\;
+        \mathsf{upper} \; a \;\mid\; \mathsf{both} \; a \; a
   \end{align*}
 %
-  \eg{}, \textsf{lower} is an injection $\mathsf{lower} : a \to \mathsf{Approx}
+  \eg{}, $\mathsf{lower}$ is an injection $\mathsf{lower} : a \to \mathsf{Approx}
   \; a$ etc.
 
   These will be used in the following subsection to give meaning to the
@@ -212,8 +264,8 @@ interpretations of the stencils in the code and the specifications.
 
 We give some basic interpretations: $\interp{\texttt{n}} = n$ where $n$ is in
 $\mathbb{Z}^+$, $\interp{\texttt{pointed}} = \llbracket \epsilon \rrbracket =
-\textsf{true}$, $\interp{\texttt{nonpointed}} = \textsf{false}$.
-Typographically, \textcap{italic monotype font} is used within specifications
+\mathsf{true}$, $\interp{\texttt{nonpointed}} = \mathsf{false}$.
+Typographically, \textcap{bold monotype font} is used within specifications
 to indicate a partial textual capture. For convenience, we use \textit{italic
 serif font} inside specifications rather than interpreting its textual capture.
 This coalesces syntactic and semantic representation but avoids clutter in the
@@ -222,14 +274,14 @@ presentation.
 Let $\textit{vec-gen}_N : \mathbb{N}^+ \times \textit{Interval} \to
 \textit{Interval}^N$ be the function generating an $N$ dimensional vector
 interval such that \vecgen{N}{i}{\interv{a}{b}{c}} has
-$\interv{-\infty}{\infty}{\textsf{true}}$ in all dimensions except the $i^{th}$
+$\interv{-\infty}{\infty}{\mathsf{true}}$ in all dimensions except the $i^{th}$
 one. There, it has \interv{a}{b}{c}.
 
 First, we give meaning to region constants (introduced in \Cref{}).
 %
 \begin{align*}
   \interp{\stencil{p}{$i$}{}{}}_N & =
-    \vecgen{N}{i}{\interv{0}{0}{\textsf{true}}}\\
+    \vecgen{N}{i}{\interv{0}{0}{\mathsf{true}}}\\
 %
   \interp{\stencil{c}{$i$}{$k$}{\textcap{p}}}_N & =
     \vecgen{N}{i}{\interv{-k}{k}{\interp{\textcap{p}}}} \\
@@ -258,16 +310,16 @@ Third, we need to mark presence of modifiers such as \texttt{readOnce} and
 multiplicity modifiers we have the following semantics:
 %
 \begin{align*}
-  \interp{\texttt{readOnce}} & = \textsf{mult} &
-  \llbracket\epsilon\rrbracket & = \textsf{once}
+  \interp{\texttt{readOnce}} & = \mathsf{mult} &
+  \llbracket\epsilon\rrbracket & = \mathsf{once}
 \end{align*}
 
 In the context of approximation modifiers, we have
 %
 \begin{align*}
-  \interp{\texttt{atLeast}} & = \textsf{lower} &
-  \interp{\texttt{atMost}} & = \textsf{upper} &
-  \llbracket \epsilon \rrbracket = \textsf{exact}
+  \interp{\texttt{atLeast}} & = \mathsf{lower} &
+  \interp{\texttt{atMost}} & = \mathsf{upper} &
+  \llbracket \epsilon \rrbracket = \mathsf{exact}
 \end{align*}
 
 Finally, we can give full semantics of a stencil specification:
@@ -353,18 +405,18 @@ We define an equivalence relation, $\equiv$, on regions as follows:
 %
       \begin{align*}
         \interp{\stencil{\textcap{R}}{$n$}{$k$}{\texttt{nonpointed}}}_N
-        & = \vecgen{N}{n}{\interv{-k}{k}{\textsf{false}}} \\
+        & = \vecgen{N}{n}{\interv{-k}{k}{\mathsf{false}}} \\
 %
         \interp{\stencil{p}{$n$}{}{}}_N
-        &= \vecgen{N}{n}{\interv{0}{0}{\textsf{true}}} \\
+        &= \vecgen{N}{n}{\interv{0}{0}{\mathsf{true}}} \\
 %
         \interp{\stencil{\textcap{R}}{$n$}{$k$}{}}_N
-        &= \vecgen{N}{n}{\interv{-k}{k}{\textsf{true}}}
+        &= \vecgen{N}{n}{\interv{-k}{k}{\mathsf{true}}}
       \end{align*}
 
       Using \Cref{lem:vector-union}, it is sufficient to show
-      $ \interv{-k}{k}{p} \;\cup\; \interv{0}{0}{\textsf{true}} =
-        \interv{-k}{k}{\textsf{true}} $ holds. This immediately follows from
+      $ \interv{-k}{k}{p} \;\cup\; \interv{0}{0}{\mathsf{true}} =
+        \interv{-k}{k}{\mathsf{true}} $ holds. This immediately follows from
       \Cref{lem:zinf-identities}.
 %
     \item[Centered] Let $\interp{\textcap{p1}}$, $\interp{\textcap{p2}}$, and
@@ -529,7 +581,7 @@ when writing specifications without inference:
     Proof of the first inequality:
     \begin{align*}
       \stencil[s]{p}{$n$}{}{}
-        & \preceq \stencil{R}{$n$}{$k$}{\texttt{nonpointed}}
+        & \preceq \stencil{R}{$n$}{$k$}{nonpointed}
                   \;\texttt{+}\;
                   \stencil[s]{p}{$n$}{}{}
         & (\textbf{Combined}) \\
@@ -538,8 +590,8 @@ when writing specifications without inference:
 
     Proof of the second inequality:
     \begin{align*}
-      \stencil{R}{$n$}{$k$}{\textcap{nonpointed}}
-        & \preceq \stencil{R}{$n$}{$k$}{\texttt{nonpointed}}
+      \stencil{R}{$n$}{$k$}{nonpointed}
+        & \preceq \stencil{R}{$n$}{$k$}{nonpointed}
                   \;\texttt{+}\;
                   \stencil[s]{p}{$n$}{}{}
         & (\textbf{Combined}) \\
@@ -575,18 +627,18 @@ Two stage checking is outlined below.
 Here is the mathematical definition of consistency checking:
 \begin{align*}
   \textit{consistent}(\textit{ix}, \textit{model}) & = \begin{cases}
-    \textsf{false} & \textit{model} = \textsf{once}(x) \wedge ix = \textsf{mult}(y) \\
+    \mathsf{false} & \textit{model} = \mathsf{once}(x) \wedge ix = \mathsf{mult}(y) \\
     \textit{consistent'}(\textit{peel}(ix), \textit{peel}(model)) & \textit{otherwise}
   \end{cases} \\
 %
   \textit{consistent'}(\textit{ix}, \textit{model}) & = \begin{cases}
-    m = ix & \textit{model} = \textsf{exact}(m) \\
-    m \supseteq ix & \textit{model} = \textsf{upper}(m) \\
-    m \subseteq ix & \textit{model} = \textsf{lower}(m)
+    m = ix & \textit{model} = \mathsf{exact}(m) \\
+    m \supseteq ix & \textit{model} = \mathsf{upper}(m) \\
+    m \subseteq ix & \textit{model} = \mathsf{lower}(m)
   \end{cases}
 \end{align*}
 
-Here helper function $\textit{peel} : \textsf{Approx} a \to a$ removes the
+Here helper function $\textit{peel} : \mathsf{Approx} \; a \to a$ removes the
 approximation label.
 
 \todo{Here we simply show \textit{consistency'} as set equality/subset/superset,
@@ -594,26 +646,88 @@ but since sets are infinite we might need to elaborate based on representation.}
 
 \subsection{Inference}
 
-\begin{defn}{(Extended origin)}
-  In the $N$ dimensional region space, ${(\interv{-1}{1}{\textsf{true}})}^N$ is
-  said to be the extended origin.
+\begin{defn}{(Origin)}
+In $N$-dimensions, the \emph{origin} $\mathbf{0}_N$ is the singleton set
+$\{0^N\}$, or equivalently the vector of unit intervals $[0, 0]^N$.
 \end{defn}
 
-\begin{defn}{(Hearing)}
-  A point, $p$, in \region{N} is said to \emph{talk to} the extended origin if
-%
-  \begin{enumerate}
-    \item $p$ is in the extended origin;
-    \item there are distinct indices $i$ and $j$ (between $1$ and $N$) such that
-      $p_i$ is $-1$ to $1$ and there is a $p'$ that talks to the extended origin
-      such that $p_j$ is ${p'}_j - 1$ or ${p'}_j + 1$ and for all other indices
-      $k$, $p_k$ is ${p'}_k$;
-    \item all immediate neighbours of $p$ that are no farther away from the
-      extended origin than $p$ can talk to the extended origin.
-  \end{enumerate}
+\begin{defn}{(Extended origin)}
+In $N$-dimensions, the \emph{extended origin} is the
+interval vector $[-1, 1]^N$ which is a subspace of \region{N}. 
+\end{defn}
 
-  A set of points talk to the extended origin if all points in the set talk to
-  the extended origin.
+\begin{defn}{(Extended origin distance)}
+  We measure the \emph{extended origin distance} of an offset from the
+  extended origin as the minimum number of translations by $\pm 1$ in one
+  dimension at a time, to reach an offset in the extended
+  origin. 
+
+This notion extends to Since an 
+  offsets vector may represent infinite number of points, we measure the
+  distance from the closest one.
+\end{defn}
+%
+\begin{prop}{}
+  The closed form of origin distance of an $N$ dimensional point offsets vector
+  $p$ is the following:
+%
+  \begin{align*}
+    \textit{dist}_i(p) & = \begin{cases}
+      0 & \pi_i(p) = \interv{-\infty}{\infty}{} \\
+      |\mathsf{a}| - 1 & \pi_i(p) = \{\mathsf{a}\} \\
+    \end{cases} &
+%
+    |p| & = \sum_{i=1}^{N} dist_i(p)
+  \end{align*}
+\end{prop}
+%
+\begin{proof}
+\end{proof}
+
+\begin{defn}{(Close neighbourhood)}
+  A point offsets vector $p'$ is said to be a close neighbour of point offsets
+  vector $p$ if for every index $i$ except $j$, $\pi_i(p)$ agrees with
+  $\pi_i(p')$ but at $j$, $\pi_j(p')$ is such that $|p'| + 1 = |p|$.
+
+  This necessarily means point vectors within the extended origin and the
+  degenerate point offsets vector with \interv{-\infty}{\infty}{} does not have
+  close neighbours.
+\end{defn}
+%
+\begin{prop}
+  The unique close neighbour at index $i$ of an $N$ dimensional point offsets
+  vector, if it exists, is given by the following partial function:
+%
+  \begin{align*}
+    \mathit{close\_neighbour}(p,i) & = \prod^{N}_{j=1} \mathit{shift}(p,i,j) &
+%
+    \mathit{shift}(p,i,j) & =
+      \begin{cases}
+        \{a - 1\} & i = j \wedge \pi_i(p) = \{\mathsf{a}\} \wedge \mathsf{a} > 0\\
+        \{a + 1\} & i = j \wedge \pi_i(p) = \{\mathsf{a}\} \wedge \mathsf{a} < 0\\
+        \pi_j(p)  & otherwise
+      \end{cases}
+  \end{align*}
+\end{prop}
+%
+\begin{proof}
+\end{proof}
+
+\begin{defn}{(Exact set)}
+  The \emph{exact set} at origin distance $d$, $\mathit{ES}_{P,d}$, of a group
+  of $N$ dimensional points $P$ is defined below:
+%
+  \begin{equation*}
+    \mathit{ES}_{P,d} =
+      \{ p \in P \mid \forall i.\
+         p_i \notin \{-1,0,1\} \implies
+         \exists p' \in \mathit{ES}_{P,d-1}.\ p' =
+         \mathit{close\_neighbour}(p,i) \}
+  \end{equation*}
+%
+  The overall \emph{exact set}, $\mathit{ES}_P$ is then
+  $\bigcup_{1 \leq d \leq D} \mathit{ES}_{P,d}$, where $D$ is the maximum origin
+  distance in $P$.
 \end{defn}
 
 \begin{lem}
@@ -623,12 +737,21 @@ but since sets are infinite we might need to elaborate based on representation.}
   \begin{enumerate}
     \item $P$ defines a superposition of hyper-rectangles each of which crosses
       the extended origin;
-    \item $P$ talks to the extended origin
+    \item $P$ is the same as its exact set $\mathit{ES}_P$;
     \item $P$ when regarded as offsets from induction variables forms a
       neighbourhood stencil;
-    \item $P$ lies in \region{N}.
+    \item $P$ is a subset of \region{N}.
   \end{enumerate}
 \end{lem}
+
+\begin{thm}{(Soundness of exact shape inference)}
+  For a set of point offsets vectors $P$, the inference procedure for
+  neighbourhood stencils is sound if the following holds:
+%
+  \begin{equation*}
+    \mathit{consistent}(\mathsf{mult}(P),\mathsf{mult}(\mathit{infer}(P)))
+  \end{equation*}
+\end{thm}
 
 \begin{thm}{(Completeness of inference)}\label{thm:inf-completeness}
   Inference procedure can infer a specification for every stencil computation.

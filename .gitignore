@@ -1,6 +1,10 @@
 *.aux
 *.log
 *.out
+*.bbl
+*.blg
+_minted*
 *~
+.DS_Store
 paper.pdf
 results.tex

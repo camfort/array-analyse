@@ -13,6 +13,17 @@
 \usepackage{amssymb}
 \usepackage{syntax}
 \usepackage{indentfirst}
+\usepackage{cleveref}
+\usepackage{xcolor}
+\usepackage{siunitx} % For pretty-printing numeric values and SI units
+                     % of measure. e.g., the tabular column type S is
+                     % used to print nice-looking tables of numbers.
+\sisetup{ % defaults
+  group-separator={,},
+  group-minimum-digits={3},
+  output-decimal-marker={.},
+  table-format = 6
+}
 
 %% Bibliography style
 \bibliographystyle{ACM-Reference-Format}
@@ -25,15 +36,20 @@
 
 \setlength{\grammarindent}{3em} % increase separation between LHS/RHS
 
+% Writing macros
 \newcommand{\eg}{\emph{e.g.}}
 \newcommand{\ie}{\emph{i.e.}}
 
 \newcommand{\inbar}{\ \ \textbar\ \ }
 
-\usepackage{cleveref}
-
-\usepackage{xcolor}
+% Meta macros
 \newcommand{\todo}[1]{\textcolor{blue}{#1}}
+
+% For evluation and empirical study
+% Defines the commands (headers)
+\input{resultsCmds}
+% renews the commands with actual data
+%\input{results}
 
 \begin{document}
 \title{Understanding and Verifying the Shape of Stencil Computations}
@@ -56,7 +72,26 @@
 
 \section{Introduction}
 
+\paragraph{Context of this research}
+
+There is an increasing awareness of the need for program verification
+techniques in
+science~\cite{post2005computational,oberkampf2010verification,orchard2014computational}.
+Whilst there are various kinds of automated and semi-automated
+verification tools available, they see little use in science. This is
+partly due to a lack of training and a lack of awareness. But its also
+due to a lack of targetting. This paper is part of a line of research
+to provide lightweight verification tools targetting
+programming patterns common in computational science code, 
+that are easy to use by scientists, and that integrate with common
+practises and workflows.
+
+
+
+
 \section{An Empirical Study of Stencils in Scientific Fortran code}
+
+
 
 \begin{enumerate}
 \item Stencils are ubiquitious;
@@ -66,6 +101,19 @@ base on constant offsets from the mid-point;
 \item Most stencils read each index at most once.
 \end{enumerate}
 
+\subsection{Study}
+%
+\noindent
+We put together a corpus of around 1 million lines of Fortran code from a
+\numPackages{} scientific computing packages ranging in size and scope: The Unified Model (UM)~\cite{um},
+E3MG~\cite{RePEc:aen:journl:2006se-a12}, BLAS~\cite{blas},
+Hybrid4~\cite{GBC:GBC635}, GEOS-Chem~\cite{geos-chem}, Navier (based
+on \cite{griebel1997numerical}), Computational Physics
+2~\cite{nicholas2006computational},
+ARPACK-NG~\cite{arpackng}, and
+SPECFEM3D~\cite{specfem3d}. Appendix~\ref{app:corpus} provides
+further detail on these packages.
+
 \section{A Specification Language for Shape}
 
 \section{Analysis, Checking, and Inference}
@@ -73,5 +121,11 @@ base on constant offsets from the mid-point;
 \section{Evaluation}
 
 \bibliography{references}
+
+\appendix
+% http://2017.splashcon.org/track/splash-2017-OOPSLA#Instructions-for-Authors
+% "There is no page limit for bibliographic references and appendices,
+% and, therefore, for the overall submission."
+\input{appendix}
 
 \end{document}

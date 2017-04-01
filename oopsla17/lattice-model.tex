@@ -137,7 +137,7 @@ projection to sets.
 \;\;
 \vee
 \;\;
-\pi_i (X) = \mathbb{Z} = \interv{-\infty}{\infty}{\mathsf{true}}
+\pi_i (S) = \interv{-\infty}{\infty}{\mathsf{true}}
 \end{equation*}
 %
 That is, the $i^{th}$ component of the set is either a singleton 
@@ -235,12 +235,12 @@ denoted by the set $\textit{Interval}^N$ for a product of $N$ intervals.
 \begin{proof}
   Any sublattice of a distributive lattice is a distributive lattice. Power sets
   partially ordered with subset or equal to relation are distributive lattices.
-  \region{N} is a subset of $\mathcal{P}{(\zinf{}^{\mkern-19mu{N}})}$ since all
+  \region{N} is a subset of $\mathcal{P}{(\zinf{}^{\mkern0mu{N}})}$ since all
   vector intervals are subsets of this power set and union and intersection
   cannot add an element that is not already in the powerset.  Inductive
   definition also ensures that \region{N} is closed under these operations.
   Therefore, \region{N} is a distributive sublattice of
-  $(\mathcal{P}{(\zinf{}^{\mkern-19mu{N}})}, \subseteq)$.
+  $(\mathcal{P}{(\zinf{}^{\mkern0mu{N}})}, \subseteq)$.
 \end{proof}
 
 \begin{defn}{}
@@ -655,50 +655,59 @@ $\{0^N\}$, or equivalently the vector of unit intervals $[0, 0]^N$.
 
 \begin{defn}{(Extended origin)}
 In $N$-dimensions, the \emph{extended origin} is the
-interval vector $[-1, 1]^N$ which is a subspace of \region{N}. 
+interval $[-1, 1]^N$ which is a subset of \region{N}. 
 \end{defn}
 
 \begin{defn}{(Extended origin distance)}
-  We measure the \emph{extended origin distance} of an offset from the
+  We measure the \emph{extended origin distance} of a point from the
   extended origin as the minimum number of translations by $\pm 1$ in one
-  dimension at a time, to reach an offset in the extended
+  dimension at a time, to reach a point in the extended
   origin. 
 
-This notion extends to Since an 
-  offsets vector may represent infinite number of points, we measure the
+This notion extends to sets of points. Since an 
+   there may be an infinite number of points, we measure the
   distance from the closest one.
+\todo{Mistral to check: I may have broken this notion}
 \end{defn}
 %
 \begin{prop}{}
-  The closed form of origin distance of an $N$ dimensional point offsets vector
-  $p$ is the following:
+  The closed form of extend origin distance for a set of $N$-dimensional
+  points $P$ is written as $|P|$ and is defined:
 %
   \begin{align*}
-    \textit{dist}_i(p) & = \begin{cases}
-      0 & \pi_i(p) = \interv{-\infty}{\infty}{} \\
-      |\mathsf{a}| - 1 & \pi_i(p) = \{\mathsf{a}\} \\
-    \end{cases} &
-%
-    |p| & = \sum_{i=1}^{N} dist_i(p)
+|P| & = \sum_{i=1}^{N} dist_i(P)
+ & 
+    \textit{dist}_i(P) & = \begin{cases}
+      0 & \pi_i(P) = \interv{-\infty}{\infty}{} \\
+      \mathsf{a} - 1 & \pi_i(P) = \{\mathsf{a}\} \\
+    \end{cases}
   \end{align*}
 \end{prop}
 %
 \begin{proof}
+\todo{Not sure what we are going to prove here? That it is a metric
+space or something?}
 \end{proof}
 
-\begin{defn}{(Close neighbourhood)}
-  A point offsets vector $p'$ is said to be a close neighbour of point offsets
-  vector $p$ if for every index $i$ except $j$, $\pi_i(p)$ agrees with
-  $\pi_i(p')$ but at $j$, $\pi_j(p')$ is such that $|p'| + 1 = |p|$.
+\todo{We used to call the below property contiguity, and I think this is a natural
+notion- does ``close neighbour'' have some standard use or is
+it okay to call this contiguity?}
+\begin{defn}{(Close neighbour)}
+ A set of points $P$ is said to be a \emph{close neighbour at index $j$} of a set
+   $P'$ if for every index $i$ except $j$, $\pi_i(P) = \pi_i(P')$ 
+ but at $j$ then $\pi_j(P) \neq \pi_i(P')$ and
+ $\textit{dist}_j(P) = \textit{dist}_i(P') + 1$. 
 
+\todo{Not sure how to rewrite the following as I have a bit of hard
+time parsing it.}
   This necessarily means point vectors within the extended origin and the
   degenerate point offsets vector with \interv{-\infty}{\infty}{} does not have
   close neighbours.
 \end{defn}
 %
 \begin{prop}
-  The unique close neighbour at index $i$ of an $N$ dimensional point offsets
-  vector, if it exists, is given by the following partial function:
+  The unique close neighbour at index $i$ of an $N$-dimensional set of
+  points, if it exists, is given by the following partial function:
 %
   \begin{align*}
     \mathit{close\_neighbour}(p,i) & = \prod^{N}_{j=1} \mathit{shift}(p,i,j) &
@@ -713,8 +722,12 @@ This notion extends to Since an
 \end{prop}
 %
 \begin{proof}
+\todo{Hm- I guess uniqueness follows from this being a function rather
+  than a relation? Seems fine no problem to prove- }
 \end{proof}
 
+\todo{On the following, add some intutition first- what is this and
+  what is it for?}
 \begin{defn}{(Exact set)}
   The \emph{exact set} at origin distance $d$, $\mathit{ES}_{P,d}$, of a group
   of $N$ dimensional points $P$ is defined below:
@@ -731,6 +744,10 @@ This notion extends to Since an
   $\bigcup_{1 \leq d \leq D} \mathit{ES}_{P,d}$, where $D$ is the maximum origin
   distance in $P$.
 \end{defn}
+\todo{Ah, I think I am starting to understand, but at 
+$\mathit{ES}_{P,1}$ then we end up saying there exists a 
+$p'$ in $\textit{ES}_{P,0}$, but we don't calculate that set...
+so how does this end?}
 
 \begin{lem}
   The following three statements are equivalent for a set of points $P \subseteq

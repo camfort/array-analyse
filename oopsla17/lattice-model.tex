@@ -646,12 +646,12 @@ are infinite we might need to elaborate based on representation.}
 %
 \begin{prop}{}
   The closed form of extend origin distance for an $N$-dimensional subscript $S$
-  is denoted with $|S|$ and is defined as:
+  is denoted with $\mathit{dist}(S)$ and is defined as:
 %
   \begin{align*}
-    |S| & = \sum_{i=1}^{N} dist_i(S)
+    \mathit{dist}(S) & = \sum_{i=1}^{N} \mathit{dist}_i(S)
     &
-    \textit{dist}_i(S) & = \begin{cases}
+    \mathit{dist}_i(S) & = \begin{cases}
       0 & \pi_i(S) = \interv{-\infty}{\infty}{} \\
       |\mathsf{a}| - 1 & \pi_i(S) = \{\mathsf{a}\} \\
     \end{cases}
@@ -659,14 +659,8 @@ are infinite we might need to elaborate based on representation.}
 \end{prop}
 %
 \begin{proof}
-  \todo{%
-    Not sure what we are going to prove here? That it is a metric space or
-    something?
-
-    Response: The definition says extended origin distance is the smallest
-    number of translations to reach the extended origin, we need to prove that
-    this formula indeed gives that.
-  }
+  Now we prove that function $\mathit{dist}$ indeed gives the lowest number of
+  unit translations to reach the extended origin.
 \end{proof}
 
 \begin{defn}{(Adjacent)}

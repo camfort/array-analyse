@@ -110,7 +110,7 @@ The set $\mathcal{P}{(\zinf{}^{{N}})}$ trivially forms a
 
 \begin{remark}
 Note that $\mathcal{P}(\zinf^N)$ is isomorphic to a sets of point
-vectors $\mathcal{P}(\zinf)^N$. Therefore, projection $\pi$ on 
+vectors $\mathcal{P}(\zinf)^N$. Therefore, projection $\pi$ on
 offset spaces is defined by lifting normal Cartesian product
 projection to sets.
 \end{remark}
@@ -132,20 +132,20 @@ projection to sets.
   satisfies:
 %
 \begin{equation*}
-\forall i \in \textsf{Fin}(N) . \quad 
-\pi_i (S) = \{p\} \wedge p \in \mathbb{Z} 
+\forall i \in \textsf{Fin}(N) . \quad
+\pi_i (S) = \{p\} \wedge p \in \mathbb{Z}
 \;\;
 \vee
 \;\;
 \pi_i (S) = \interv{-\infty}{\infty}{\mathsf{true}}
 \end{equation*}
 %
-That is, the $i^{th}$ component of the set is either a singleton 
+That is, the $i^{th}$ component of the set is either a singleton
 in $\mathbb{Z}$ or the infinite interval.
 
 \todo{We can move this explanation.}
 Subscript spaces model array subscript expressions in our source
-langauge where each subscripted expression is either a 
+langauge where each subscripted expression is either a
 constant translation of an induction variable within a loop or some
 other expression which is constant with respect to the loop e.g. \texttt{a(i + 1, 0)}.
 \end{defn}
@@ -174,7 +174,7 @@ other expression which is constant with respect to the loop e.g. \texttt{a(i + 1
 \end{proof}
 
 \begin{lem}{}\label{lem:vector-union}
-  Let $\mathit{off}$ and $\mathit{off'}$ be two sets of 
+  Let $\mathit{off}$ and $\mathit{off'}$ be two sets of
   points such that $\pi_i(\mathit{off})$ is equal to $\pi_i(\mathit{off'})$ for all $1
   \leq i \leq N$ except possibly at $k$, then we have the following:
 %
@@ -213,11 +213,11 @@ other expression which is constant with respect to the loop e.g. \texttt{a(i + 1
 \end{proof}
 
 \begin{defn}{(\emph{Point interval})}
-An point interval is a finite Cartesian product of intervals on \zinf, 
+An point interval is a finite Cartesian product of intervals on \zinf,
 denoted by the set $\textit{Interval}^N$ for a product of $N$ intervals.
 \end{defn}
 
-\begin{defn}{(\emph{Region})} 
+\begin{defn}{(\emph{Region})}
   A region \region{N} is a set of $N$-dimensional point intervals defined as
   the smallest set satisfying the following:
 %
@@ -662,16 +662,16 @@ $\{0^N\}$, or equivalently the vector of unit intervals $[0, 0]^N$.
 
 \begin{defn}{(Extended origin)}
 In $N$-dimensions, the \emph{extended origin} is the
-interval $[-1, 1]^N$ which is a subset of \region{N}. 
+interval $[-1, 1]^N$ which is a subset of \region{N}.
 \end{defn}
 
 \begin{defn}{(Extended origin distance)}
   We measure the \emph{extended origin distance} of a point from the
   extended origin as the minimum number of translations by $\pm 1$ in one
   dimension at a time, to reach a point in the extended
-  origin. 
+  origin.
 
-This notion extends to sets of points. Since an 
+This notion extends to sets of points. Since an
    there may be an infinite number of points, we measure the
   distance from the closest one.
 \todo{Mistral to check: I may have broken this notion}
@@ -683,7 +683,7 @@ This notion extends to sets of points. Since an
 %
   \begin{align*}
 |P| & = \sum_{i=1}^{N} dist_i(P)
- & 
+ &
     \textit{dist}_i(P) & = \begin{cases}
       0 & \pi_i(P) = \interv{-\infty}{\infty}{} \\
       \mathsf{a} - 1 & \pi_i(P) = \{\mathsf{a}\} \\
@@ -701,9 +701,9 @@ notion- does ``close neighbour'' have some standard use or is
 it okay to call this contiguity?}
 \begin{defn}{(Close neighbour)}
  A set of points $P$ is said to be a \emph{close neighbour at index $j$} of a set
-   $P'$ if for every index $i$ except $j$, $\pi_i(P) = \pi_i(P')$ 
+   $P'$ if for every index $i$ except $j$, $\pi_i(P) = \pi_i(P')$
  but at $j$ then $\pi_j(P) \neq \pi_i(P')$ and
- $\textit{dist}_j(P) = \textit{dist}_i(P') + 1$. 
+ $\textit{dist}_j(P) = \textit{dist}_i(P') + 1$.
 
 \todo{Not sure how to rewrite the following as I have a bit of hard
 time parsing it.}

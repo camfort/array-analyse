@@ -88,68 +88,39 @@ interpretations of the stencils in the code and the specifications.
   \end{align*}
 \end{proof}
 
-\begin{defn}{(\emph{Points})}
-  A $N$-dimenaional \emph{point} is a finite Cartesian product
-  (vector) of $N$ values drawn from $\zinf$.
+\begin{defn}{(\emph{Offset subspace})}
+  An $N$-dimenaional \emph{offset subspace} is a finite Cartesian product of $N$
+  subsets of $\zinf{}$. The set of $N$-dimensional offset subspaces is written
+  ${\mathcal{P}(\zinf{})}^N$.
 
-  The set of $N$-dimensional points is written $\zinf^N$ and the set
-  of sets of $N$-dimensionl points is written $\mathcal{P}(\zinf^N)$.
-
-A set of $N$-dimensional points can be \emph{projected} to the set of
-1-dimensional points in the $i^{\text{th}}$ dimension by
-$\pi_i : \mathcal{P}(\zinf{}^{\mkern0mu{N}}) \to
-\mathcal{P}(\zinf{})$
-where $i \in \mathsf{Fin}(N)$. We refer to this projected set as the
-\emph{$i^{th}$ components}.
+  A offset spaces can be \emph{projected} in the $i^{\textit{th}}$ dimension by
+  $\pi_i : {\mathcal{P}(\zinf{})}^N \to \mathcal{P}(\zinf{})$ where $i \in
+  \mathsf{Fin}(N)$.
 \end{defn}
-
-\begin{prop}
-The set $\mathcal{P}{(\zinf{}^{{N}})}$ trivially forms a
-  distributive lattice under the superset relation.
-\end{prop}
-
-\begin{remark}
-Note that $\mathcal{P}(\zinf^N)$ is isomorphic to a sets of point
-vectors $\mathcal{P}(\zinf)^N$. Therefore, projection $\pi$ on
-offset spaces is defined by lifting normal Cartesian product
-projection to sets.
-\end{remark}
-
-%\begin{defn}{(\emph{Offsets vector}, $\mathcal{P}(\zinf^N)$)}
-%  An $N$ dimensional \emph{offset space vector} is a Cartesian product of offset
-%  spaces denoted with $\textit{offs}_1 \times \cdots \times
-%  \textit{offs}_N$.
-%  The function $\pi_i : \mathcal{P}(\zinf{})^{\mkern-19mu{N}} \to
-%  \mathcal{P}(\zinf{})$ retrieves the $i^{th}$ offset space.%
-%
-%  The set of $N$ dimensional offsets vectors is
-%  $\mathcal{P}{(\zinf{}^{\mkern-19mu{N}})}$ and they trivially form a
-%  distributive lattice under the superset relation.
-%\end{defn}
 
 \begin{defn}{(\emph{Subscript})}
-  A set of $N$-dimensional points $S$ is called a \emph{subscript} if it
+  An $N$-dimensional offset subspace $S$ is called a \emph{subscript} if it
   satisfies:
 %
-\begin{equation*}
-\forall i \in \textsf{Fin}(N) . \quad
-\pi_i (S) = \{p\} \wedge p \in \mathbb{Z}
-\;\;
-\vee
-\;\;
-\pi_i (S) = \interv{-\infty}{\infty}{\mathsf{true}}
-\end{equation*}
-%
-That is, the $i^{th}$ component of the set is either a singleton
-in $\mathbb{Z}$ or the infinite interval.
+  \begin{equation*}
+    \forall i \in \textsf{Fin}(N).\
+      \pi_i (S) = \{p\} \wedge p \in \mathbb{Z}
+      \vee
+      \pi_i (S) = \interv{-\infty}{\infty}{\mathsf{true}}
+  \end{equation*}
+  %
+  That is, the $i^{th}$ component of the set is either a singleton
+  in $\mathbb{Z}$ or the infinite interval.
 
-\todo{We can move this explanation.}
-Subscript spaces model array subscript expressions in our source
-langauge where each subscripted expression is either a
-constant translation of an induction variable within a loop or some
-other expression which is constant with respect to the loop e.g. \texttt{a(i + 1, 0)}.
+  \todo{%
+    We can move this explanation.
+
+    Subscript spaces model array subscript expressions in our source langauge
+    where each subscripted expression is either a constant translation of an
+    induction variable within a loop or some other expression which is constant
+    with respect to the loop e.g. \texttt{a(i+1, 0)}.
+  }
 \end{defn}
-
 
 \begin{lem}{}\label{lem:vector-intersect}
   Intersection distributes over sets of points. If $\mathit{off}$ and
@@ -212,9 +183,10 @@ other expression which is constant with respect to the loop e.g. \texttt{a(i + 1
   \end{align*}
 \end{proof}
 
-\begin{defn}{(\emph{Point interval})}
-An point interval is a finite Cartesian product of intervals on \zinf,
-denoted by the set $\textit{Interval}^N$ for a product of $N$ intervals.
+\begin{defn}{(\emph{Interval subspace})}
+  An interval subspace is a finite Cartesian product of intervals on \zinf{},
+  denoted by the set $\textit{Interval}^N$ for a product of $N$ intervals. An
+  interval subspace is an offset subspace.
 \end{defn}
 
 \begin{defn}{(\emph{Region})}
@@ -234,13 +206,12 @@ denoted by the set $\textit{Interval}^N$ for a product of $N$ intervals.
 %
 \begin{proof}
   Any sublattice of a distributive lattice is a distributive lattice. Power sets
-  partially ordered with subset or equal to relation are distributive lattices.
-  \region{N} is a subset of $\mathcal{P}{(\zinf{}^{\mkern0mu{N}})}$ since all
-  vector intervals are subsets of this power set and union and intersection
-  cannot add an element that is not already in the powerset.  Inductive
-  definition also ensures that \region{N} is closed under these operations.
-  Therefore, \region{N} is a distributive sublattice of
-  $(\mathcal{P}{(\zinf{}^{\mkern0mu{N}})}, \subseteq)$.
+  partially ordered with subset relation are distributive lattices. \region{N}
+  is a subset of $\mathcal{P}{(\zinf{}^N)}$ since all interval subspaces are
+  subsets of this power set and; union and intersection cannot add an element
+  that is not already in the powerset. Inductive definition also ensures that
+  \region{N} is closed under these operations. Therefore, \region{N} is a
+  distributive sublattice of $(\mathcal{P}{(\zinf{}^N)}, \subseteq)$.
 \end{proof}
 
 \begin{defn}{}

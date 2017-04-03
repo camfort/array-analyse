@@ -46,17 +46,15 @@ interpretations of the stencils in the code and the specifications.
 \end{defn}
 
 \begin{defn}
-  We define an extended notion of closed interval on $\zinf$ which may
-  contain a ``hole'' at the origin, written \interv{a}{b}{c} where $a$ and $b$
-  are drawn from \zinf{} with $a \leq 0 \leq b$, $a$ is $-\infty$ \emph{iff} $b$
-  is $\infty$, and $c$ is drawn from $\mathbb{B} = \{ \mathsf{true}, \mathsf{false} \}$. We
-  define it as follows:
-\marginpar{We might add the restriction to $[-\infty, \infty]$ later,
-  but okay for now.}
+  We define an extended notion of closed interval on $\zinf{}$ which may contain
+  a \emph{hole} at the origin, written \interv{a}{b}{c} where $a$ and $b$ are
+  drawn from \zinf{} with $a \leq 0 \leq b$, $a$ is $-\infty$ \emph{iff} $b$ is
+  $\infty$, and $c$ is drawn from $\mathbb{B} = \{ \mathsf{true}, \mathsf{false}
+  \}$. We define it as follows:
 %
   \begin{equation*}
     \interv{a}{b}{c} \triangleq
-      \{ n \;|\; a \leq n \leq b \wedge (\neg c \implies n \neq 0) \}
+      \{ n \mid a \leq n \leq b \wedge (\neg c \implies n \neq 0) \}
   \end{equation*}
 
   Set of all such intervals (sets) is $\textit{Interval}$. If the superscript is

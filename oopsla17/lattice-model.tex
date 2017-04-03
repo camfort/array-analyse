@@ -628,23 +628,30 @@ Two stage checking is outlined below.
 
 Here is the mathematical definition of consistency checking:
 \begin{align*}
-  \textit{consistent}(\textit{ix}, \textit{model}) & = \begin{cases}
-    \mathsf{false} & \textit{model} = \mathsf{once}(x) \wedge ix = \mathsf{mult}(y) \\
-    \textit{consistent'}(\textit{peel}(ix), \textit{peel}(model)) & \textit{otherwise}
+  \mathit{consistent}(\mathit{ix}, \mathit{model}) & = \begin{cases}
+    \mathsf{false} & \mathit{model} = \mathsf{once}(x) \wedge ix = \mathsf{mult}(y) \\
+    \mathit{consistent'}(\mathit{peel}(ix), \mathit{peel}(model)) & \textit{otherwise}
   \end{cases} \\
 %
-  \textit{consistent'}(\textit{ix}, \textit{model}) & = \begin{cases}
-    m = ix & \textit{model} = \mathsf{exact}(m) \\
-    m \supseteq ix & \textit{model} = \mathsf{upper}(m) \\
-    m \subseteq ix & \textit{model} = \mathsf{lower}(m)
+  \mathit{consistent'}(\mathit{ix}, \mathit{model}) & = \begin{cases}
+    m = \mathit{ix} & \mathit{model} = \mathsf{exact}(m) \\
+    m \supseteq \mathit{ix} & \mathit{model} = \mathsf{upper}(m) \\
+    m \subseteq \mathit{ix} & \mathit{model} = \mathsf{lower}(m)
   \end{cases}
 \end{align*}
 
-Here helper function $\textit{peel} : \mathsf{Approx} \; a \to a$ removes the
+Here helper function $\mathit{peel} : \mathsf{Approx} \; a \to a$ removes the
 approximation label.
 
-\todo{Here we simply show \textit{consistency'} as set equality/subset/superset,
-but since sets are infinite we might need to elaborate based on representation.}
+Due to use of infinite intervals, the model and index sets are potentially
+infinite meaning simple procedures used to compute equality, subset, and
+superset relations for finite sets are no avail. The subset and superset
+relations are handled by computing the intersection of $m$ and $\mathit{ix}$
+using \Cref{lem:vector-intersect}, then checking equality with $m$ and
+$\mathit{ix}$ respectively.
+
+\todo{Here we simply show \textit{consistency'} as set equality, but since sets
+are infinite we might need to elaborate based on representation.}
 
 \subsection{Inference}
 

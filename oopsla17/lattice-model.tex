@@ -627,13 +627,13 @@ are infinite we might need to elaborate based on representation.}
 \subsection{Inference}
 
 \begin{defn}{(Origin)}
-In $N$-dimensions, the \emph{origin} $\mathbf{0}_N$ is the singleton set
-$\{0^N\}$, or equivalently the vector of unit intervals $[0, 0]^N$.
+  In $N$-dimensions, the \emph{origin} $\mathbf{0}_N$ is the singleton set
+  $\{0^N\}$, or equivalently the vector of unit intervals $\interv{0}{0}{N}$.
 \end{defn}
 
 \begin{defn}{(Extended origin)}
-In $N$-dimensions, the \emph{extended origin} is the
-interval $[-1, 1]^N$ which is a subset of \region{N}.
+  In $N$-dimensions, the \emph{extended origin} is the interval
+  $\interv{-1}{1}{N}$ which is a subset of \region{N}.
 \end{defn}
 
 \begin{defn}{(Extended origin distance)}
@@ -642,10 +642,10 @@ interval $[-1, 1]^N$ which is a subset of \region{N}.
   dimension at a time, to reach a point in the extended
   origin.
 
-This notion extends to sets of points. Since an
-   there may be an infinite number of points, we measure the
-  distance from the closest one.
-\todo{Mistral to check: I may have broken this notion}
+  This notion extends to sets of points. Since an there may be an infinite
+  number of points, we measure the distance from the closest one.
+
+  \todo{Mistral to check: I may have broken this notion}
 \end{defn}
 %
 \begin{prop}{}
@@ -653,8 +653,8 @@ This notion extends to sets of points. Since an
   points $P$ is written as $|P|$ and is defined:
 %
   \begin{align*}
-|P| & = \sum_{i=1}^{N} dist_i(P)
- &
+    |P| & = \sum_{i=1}^{N} dist_i(P)
+    &
     \textit{dist}_i(P) & = \begin{cases}
       0 & \pi_i(P) = \interv{-\infty}{\infty}{} \\
       \mathsf{a} - 1 & \pi_i(P) = \{\mathsf{a}\} \\
@@ -663,21 +663,27 @@ This notion extends to sets of points. Since an
 \end{prop}
 %
 \begin{proof}
-\todo{Not sure what we are going to prove here? That it is a metric
-space or something?}
+  \todo{%
+    Not sure what we are going to prove here? That it is a metric space or
+    something?
+  }
 \end{proof}
 
-\todo{We used to call the below property contiguity, and I think this is a natural
-notion- does ``close neighbour'' have some standard use or is
-it okay to call this contiguity?}
+\todo{%
+  We used to call the below property contiguity, and I think this is a natural
+  notion- does ``close neighbour'' have some standard use or is it okay to call
+  this contiguity?
+}
 \begin{defn}{(Close neighbour)}
- A set of points $P$ is said to be a \emph{close neighbour at index $j$} of a set
-   $P'$ if for every index $i$ except $j$, $\pi_i(P) = \pi_i(P')$
- but at $j$ then $\pi_j(P) \neq \pi_i(P')$ and
- $\textit{dist}_j(P) = \textit{dist}_i(P') + 1$.
+  A set of points $P$ is said to be a \emph{close neighbour at index $j$} of a
+  set $P'$ if for every index $i$ except $j$, $\pi_i(P) = \pi_i(P')$ but at $j$
+  then $\pi_j(P) \neq \pi_i(P')$ and $\textit{dist}_j(P) = \textit{dist}_i(P') +
+  1$.
 
-\todo{Not sure how to rewrite the following as I have a bit of hard
-time parsing it.}
+\todo{%
+  Not sure how to rewrite the following as I have a bit of hard time parsing it.
+}
+
   This necessarily means point vectors within the extended origin and the
   degenerate point offsets vector with \interv{-\infty}{\infty}{} does not have
   close neighbours.

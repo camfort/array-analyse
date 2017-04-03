@@ -92,8 +92,8 @@ interpretations of the stencils in the code and the specifications.
   ${\mathcal{P}(\zinf{})}^N$.
 
   A offset spaces can be \emph{projected} in the $i^{\textit{th}}$ dimension by
-  $\pi_i : {\mathcal{P}(\zinf{})}^N \to \mathcal{P}(\zinf{})$ where $i \in
-  \mathsf{Fin}(N)$.
+  $\pi_i : {\mathcal{P}(\zinf{})}^N \to \mathcal{P}(\zinf{})$ where $1 \leq i
+  \leq N$.
 \end{defn}
 
 \begin{defn}{(\emph{Subscript})}
@@ -101,7 +101,7 @@ interpretations of the stencils in the code and the specifications.
   satisfies:
 %
   \begin{equation*}
-    \forall i \in \textsf{Fin}(N).\
+    \forall i.\ 1 \leq i \leq N \implies
       \pi_i (S) = \{p\} \wedge p \in \mathbb{Z}
       \vee
       \pi_i (S) = \interv{-\infty}{\infty}{\mathsf{true}}

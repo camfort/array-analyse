@@ -666,15 +666,7 @@ are infinite we might need to elaborate based on representation.}
 \begin{defn}{(Adjacent)}
   A subscript $S$ is said to be \emph{adjacent at index $j$} of another
   subscript $S'$ if for every index $i$ except $j$, $\pi_i(S) = \pi_i(S')$ but
-  at $j$ then $\pi_j(S) \neq \pi_i(S')$ such that $|S| = |S'| + 1$.
-
-\todo{%
-  Not sure how to rewrite the following as I have a bit of hard time parsing it.
-}
-
-  This necessarily means point vectors within the extended origin and the
-  degenerate point offsets vector with \interv{-\infty}{\infty}{} does not have
-  close neighbours.
+  at $j$ then $\pi_j(S) \neq \pi_j(S')$ such that $|S| = |S'| + 1$.
 \end{defn}
 %
 \begin{prop}
@@ -710,7 +702,7 @@ are infinite we might need to elaborate based on representation.}
       \{ p \in P \mid \forall i.\
       p_i \notin [-1,1] \implies
          \exists p' \in \mathit{ES}_{P,d-1}.\ p' =
-         \mathit{close\_neighbour}(p,i) \}
+         \mathit{adjacent}(p,i) \}
   \end{align*}
 %
   The overall \emph{exact set}, $\mathit{ES}_P$ is then

@@ -653,15 +653,15 @@ are infinite we might need to elaborate based on representation.}
 \end{defn}
 %
 \begin{prop}{}
-  The closed form of extend origin distance for a set of $N$-dimensional
-  points $P$ is written as $|P|$ and is defined:
+  The closed form of extend origin distance for an $N$-dimensional subscript $S$
+  is denoted with $|S|$ and is defined as:
 %
   \begin{align*}
-    |P| & = \sum_{i=1}^{N} dist_i(P)
+    |S| & = \sum_{i=1}^{N} dist_i(S)
     &
-    \textit{dist}_i(P) & = \begin{cases}
-      0 & \pi_i(P) = \interv{-\infty}{\infty}{} \\
-      |\mathsf{a}| - 1 & \pi_i(P) = \{\mathsf{a}\} \\
+    \textit{dist}_i(S) & = \begin{cases}
+      0 & \pi_i(S) = \interv{-\infty}{\infty}{} \\
+      |\mathsf{a}| - 1 & \pi_i(S) = \{\mathsf{a}\} \\
     \end{cases}
   \end{align*}
 \end{prop}
@@ -670,6 +670,10 @@ are infinite we might need to elaborate based on representation.}
   \todo{%
     Not sure what we are going to prove here? That it is a metric space or
     something?
+
+    Response: The definition says extended origin distance is the smallest
+    number of translations to reach the extended origin, we need to prove that
+    this formula indeed gives that.
   }
 \end{proof}
 
@@ -677,12 +681,13 @@ are infinite we might need to elaborate based on representation.}
   We used to call the below property contiguity, and I think this is a natural
   notion- does ``close neighbour'' have some standard use or is it okay to call
   this contiguity?
+
+  Response: how about adjecency?
 }
-\begin{defn}{(Close neighbour)}
-  A set of points $P$ is said to be a \emph{close neighbour at index $j$} of a
-  set $P'$ if for every index $i$ except $j$, $\pi_i(P) = \pi_i(P')$ but at $j$
-  then $\pi_j(P) \neq \pi_i(P')$ and $\textit{dist}_j(P) = \textit{dist}_i(P') +
-  1$.
+\begin{defn}{(Adjacent)}
+  A subscript $S$ is said to be \emph{adjacent at index $j$} of another
+  subscript $S'$ if for every index $i$ except $j$, $\pi_i(S) = \pi_i(S')$ but
+  at $j$ then $\pi_j(S) \neq \pi_i(S')$ such that $|S| = |S'| + 1$.
 
 \todo{%
   Not sure how to rewrite the following as I have a bit of hard time parsing it.
@@ -694,17 +699,17 @@ are infinite we might need to elaborate based on representation.}
 \end{defn}
 %
 \begin{prop}
-  The unique close neighbour at index $i$ of an $N$-dimensional set of
-  points, if it exists, is given by the following partial function:
+  The unique adjacent at index $i$ of a subscript, if it exists, is given by the
+  following partial function:
 %
   \begin{align*}
-    \mathit{close\_neighbour}(p,i) & = \prod^{N}_{j=1} \mathit{shift}(p,i,j) &
+    \mathit{adjacent}(S,i) & = \prod^{N}_{j=1} \mathit{shift}(S,i,j) &
 %
-    \mathit{shift}(p,i,j) & =
+    \mathit{shift}(S,i,j) & =
       \begin{cases}
-        \{a - 1\} & i = j \wedge \pi_i(p) = \{\mathsf{a}\} \wedge \mathsf{a} > 0\\
-        \{a + 1\} & i = j \wedge \pi_i(p) = \{\mathsf{a}\} \wedge \mathsf{a} < 0\\
-        \pi_j(p)  & otherwise
+        \{a - 1\} & i = j \wedge \pi_i(S) = \{\mathsf{a}\} \wedge \mathsf{a} > 0\\
+        \{a + 1\} & i = j \wedge \pi_i(S) = \{\mathsf{a}\} \wedge \mathsf{a} < 0\\
+        \pi_j(S)  & otherwise
       \end{cases}
   \end{align*}
 \end{prop}

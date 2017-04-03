@@ -732,22 +732,19 @@ time parsing it.}
   The \emph{exact set} at origin distance $d$, $\mathit{ES}_{P,d}$, of a group
   of $N$ dimensional points $P$ is defined below:
 %
-  \begin{equation*}
-    \mathit{ES}_{P,d} =
+  \begin{align*}
+    \mathit{ES}_{P,0} & = \{ p \in P \mid \forall \i.\ \pi_i(p) \in \interv{-1}{1}{} \} \\
+    \mathit{ES}_{P,d} & =
       \{ p \in P \mid \forall i.\
-         p_i \notin \{-1,0,1\} \implies
+      p_i \notin [-1,1] \implies
          \exists p' \in \mathit{ES}_{P,d-1}.\ p' =
          \mathit{close\_neighbour}(p,i) \}
-  \end{equation*}
+  \end{align*}
 %
   The overall \emph{exact set}, $\mathit{ES}_P$ is then
   $\bigcup_{1 \leq d \leq D} \mathit{ES}_{P,d}$, where $D$ is the maximum origin
   distance in $P$.
 \end{defn}
-\todo{Ah, I think I am starting to understand, but at 
-$\mathit{ES}_{P,1}$ then we end up saying there exists a 
-$p'$ in $\textit{ES}_{P,0}$, but we don't calculate that set...
-so how does this end?}
 
 \begin{lem}
   The following three statements are equivalent for a set of points $P \subseteq

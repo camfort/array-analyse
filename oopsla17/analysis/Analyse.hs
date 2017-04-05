@@ -65,12 +65,6 @@ main :: IO ()
 main = do
     args <- getArgs
     if (length args == 1) then
-      {- if (head args == "PI") then
-        testLHSvars True
-      else 
-      if (head args == "PI2") then
-        testLHSvars False
-      else -}
         applyAnalysisToDir (head args) False []
     else if (length args > 1) then
       if (args !! 1 == "-d") then
@@ -80,19 +74,6 @@ main = do
     else
       putStrLn $ "Please specify a directory on which to apply the analysis\
                  \ followed by any number of file names to be excluded "
-
-{-
-testLHSvars flag = do
-    files <- readParseSrcDir "experiment" []
-    putStrLn $ show $ map (applyLHSvars flag) files
-
-
-applyLHSvars :: Bool -> (Filename, SourceText, F.ProgramFile A) -> [F.Name]
-applyLHSvars flag (filename, source, pf) =
-    if flag then FA.allLhsVars pf' else FA.allLhsVarsRobust pf' 
-  where
-    pf' = FA.initAnalysis $ pf
--}
 
 applyAnalysisToDir :: String -> Bool -> [String] -> IO ()
 applyAnalysisToDir dir debug excludes = do
@@ -106,6 +87,18 @@ applyAnalysisToDir dir debug excludes = do
 
 type ForContigAndNonContig a = (a, a)
 
+-- Categories
+data Kind = Read | Stencil
+data Contig = NonContig | Contig
+
+type Cat = (Kind, Contig)
+
+isStencil (Stencil, _) = True
+isStencil _            = False
+
+isContig (_, Contig) = True
+isContig _ = False
+
 -- Results data type
 data Result = Result {
     numLines                   :: Int   -- Number of lines parsed
@@ -116,7 +109,38 @@ data Result = Result {
   , numLHSButNonNeighbourRHS   :: Int  -- Q1
   , numLHSButInconsistentIVRHS :: Int  -- Q2 where Q >= Q1 >= Q2
   ------------------------------------
-  , numStencils                :: Int   -- b
+  -- Special interest
+  ------------------------------------
+  , numSingNonContigStencils :: Int
+  , numStencilRelativisedRHS :: Int
+  ------------------------------------
+  , numOverall  :: M.Map Cat Int
+  , numLinear   :: M.Map Cat Int
+  , numNoOrigin :: M.Map Cat Int
+  ------------------------------------
+  -- Histograms
+  , histDimensionality :: M.Map Cat [Int]
+  , histMaxDepth       :: M.Map Cat [Int]
+  , histNumArraysRead  :: M.Map Cat [Int]
+  , histNumIndexExprs  :: M.Map Cat [Int]
+  , histPatterns       :: M.Map (M.Map Int Int
+                             , M.Map (Int, Int) Int
+                             , M.Map (Int, Int, Int) Int)
+
+  } deriving Show
+
+showCats :: Show a => M.Map Cat a -> String -> String
+showCats map prefix =
+     showCat Stencil " stencils"
+  ++ showCat Read " reads"
+  where
+    showCat cat msg =
+      let prefix' = prefix ++ msg
+      in rline prefix' $ (map ! (cat, Contig) + map ! (cat, NonContig))
+      ++ rline (replicate (length prefix') ' ' ++ " (contiguous)") $ map ! (cat, Contig)
+      ++ rline (replicate (length prefix') ' ' ++ " (non-contiguous)") $ map ! (cat, NonContig)
+
+{-, numStencils                :: Int   -- b
   , numRelativisedRHS          :: Int   -- R (where R = M)
   , numContiguousStencils      :: Int    -- c  where p >= c
   , numNoOrigin                :: Int    -- c' where c >= c'
@@ -135,6 +159,7 @@ data Result = Result {
                              , M.Map (Int, Int, Int) Int)
                             -- only for 1, 2 and 3 dimensional specs
     } deriving Show
+-}
 
 resultValidation =
       (\r -> (numArrayWrites r) `gte` (numNeighbourArrayWrites r))
@@ -157,9 +182,12 @@ resultValidation =
           `eq` ((numNeighbourArrayWrites r) - ((numConstArrayWrites r) + (numIVArrayWrites r))))
           `reason` "Num relativised stencils = LHS Neighbour with some relative offset"
 
- <**> (\r -> (numStencils r)
-            `gte` ((numContiguousStencils r) + (numSingNonContigStencils r)))
+ <**> (\r -> (sumMap . justStencils $ r)
+            `gte` ((sumMap . justContigStencils $ r) + (numSingNonContigStencils r)))
            `reason` "Num stencils >= Num contiguous stencils + num non-contig single index"
+ where sumMap = sum . M.elems
+       justStencils = fst . M.partitionWithKey (\k _ -> isStencil k)
+       justContigStencils = fst . M.partitionWithKey (\k _ -> isStencil k && isContig k)
 
 gte, eq :: Int -> Int -> (Bool, Int, Int)
 gte x y = (x >= y, x, y)
@@ -185,28 +213,36 @@ prettyResults r =
  ++ rline "Array writes to neighbourhood+constant IV indices" (numConstArrayWrites r)
  ++ rline "Neighbour LHS but RHS with non-neighbour indices" (numLHSButNonNeighbourRHS r)
  ++ rline "Neighbour LHS but RHS with inconsistent IV use" (numLHSButInconsistentIVRHS r)
- ++ rline "Stencils" (numStencils r)
- ++ rline "Relativised stencils" (numRelativisedRHS r)
- ++ rline "Contiguous stencils (including no origin)" (numContiguousStencils r)
- ++ rline "Stencils with no origin" (numNoOrigin r)
+ ++ "----------------------------------------------------------------------------\n"
+ ++ "Categorisations: \n"
+ ++ showCats "Number of" (numOverall r)
+ ++ showCats "Number of linear" (numLinear r)
+ ++ showCats "Numver with no origin" (numNoOrigin r)
  ++ rline "Non-contiguous stencils with one index" (numSingNonContigStencils r)
- ++ rline "Contiguous linear stencils" (numContigLinearStencils r)
  ++ "----------------------------------------------------------------------------\n"
  ++ "Histograms and median: \n"
- ++ hline "Dimensionality" (dimensionalityHist r)
- ++ hline "Maximum depth" (maxDepthHist r)
- ++ hline "Arrays read in stencil" (numArraysReadHist r)
- ++ hline "Indexing terms in stencil" (numIndexExprsHist r)
- ++ rline' "Indexing pattern heat map" (patternHist r)
+ ++ hline "Dimensionality" (histDimensionality r)
+ ++ hline "Maximum depth" (histMaxDepth r)
+ ++ hline "Arrays read in stencil" (histNumArraysRead r)
+ ++ hline "Indexing terms in stencil" (histNumIndexExprs r)
+ ++ rline' "Indexing pattern heat map" (histPatterns r)
  ++ "\n"
 
 rline msg num = "   " ++ msg ++ ":" ++ (replicate (60 - (length msg)) ' ') ++ (show num) ++ "\n"
 rline' msg num = "   " ++ msg ++ ":" ++ (replicate (60 - (length msg)) ' ') ++ "\n" ++ (show num) ++ "\n"
-hline msg (contigHist, noncontigHist) =
+hline msg map =
+     hline' msg "Stencils" Stencil map
+  ++ hline' msg "Reads" Read map
+
+hline' msg msg' cat map =
   "   " ++ msg ++ "\n"
-  ++ "      Continguous stencils:\n" ++ hview contigHist ++ "\n"
-  ++ "      Non-contig. stencils:\n" ++ hview noncontigHist ++ "\n"
+  ++ "    " ++ msg' ++ ":\n"
+  ++ "      Continguous:\n" ++ hview contigHist ++ "\n"
+  ++ "      Non-contig.:\n" ++ hview noncontigHist ++ "\n"
   ++ "      Total:\n" ++ hview (histZip contigHist noncontigHist) ++ "\n"
+  where
+    contigHist = map ! (cat, Contig)
+    noncontigHist = map ! (cat, NonContig)
 
 hview :: [Int] -> String
 hview xs = "         k: " ++ top ++ "\n" ++ "         v: " ++ bottom
@@ -224,8 +260,14 @@ hview xs = "         k: " ++ top ++ "\n" ++ "         v: " ++ bottom
 
 -- Results form a monoid
 instance Monoid Result where
-  mempty = Result 0 0 0 0 0 0 0 0 0 0 0 0 0 ([],[]) ([],[]) ([],[]) ([],[])
-            ((M.empty, M.empty, M.empty), (M.empty, M.empty, M.empty))
+  mempty = Result 0 0 0 0 0 0 0
+                  0 0
+                  (catMapEmpty 0) (catMapEmpty 0) (catMapEmpty 0)
+                  (catMapEmpty []) (catMapEmpty []) (catMapEmpty []) (catMapEmpty [])
+                  (catMapEmpty (M.empty, M.empty, M.empty))
+
+    where catMapEmpty e = fromList [((Stencil, Contig), e), ((Stencil, Noncontig), e),
+                                    ((Read, Contig), e), ((Read, Noncontig), e)]
 
   mappend r1 r2 = Result
      { numLines = numLines r1 + numLines r2
@@ -243,25 +285,18 @@ instance Monoid Result where
      , numLHSButInconsistentIVRHS = numLHSButInconsistentIVRHS r1
                                   + numLHSButInconsistentIVRHS r2
 
-     , numStencils = numStencils r1 + numStencils r2
+     , numSingNonContigStencils = numSingNonContigStencils r1
+                                + numSingNonContigStencils r2
 
-     , numRelativisedRHS = numRelativisedRHS r1
-                         + numRelativisedRHS r2
+     , numOverall = M.unionWith (+) (numOverall r1) (numOverall r2)
+     , numLinear  = M.unionWith (+) (numLinear r1) (numLinear r2)
+     , numNoOrigin = M.unionWith (+) (numNoOrigin r1) (numNoOrigin r2)
 
-     , numContiguousStencils = numContiguousStencils r1
-                             + numContiguousStencils r2
-
-     , numNoOrigin = numNoOrigin r1 + numNoOrigin r2
-
-     , numSingNonContigStencils = numSingNonContigStencils r1 + numSingNonContigStencils r2
-
-     , numContigLinearStencils = numContigLinearStencils r1 + numContigLinearStencils r2
-
-     , dimensionalityHist = histZip (dimensionalityHist r1) (dimensionalityHist r2)
-     , maxDepthHist = histZip (maxDepthHist r1) (maxDepthHist r2)
-     , numArraysReadHist = histZip (numArraysReadHist r1) (numArraysReadHist r2)
-     , numIndexExprsHist = histZip (numIndexExprsHist r1) (numIndexExprsHist r2)
-     , patternHist = histZip (patternHist r1) (patternHist r2)
+     , histDimensionality = M.unionWith histZip (histDimensionality r1) (histDimensionality r2)
+     , histMaxDepth = M.unionWith histZip (histMaxDepth r1) (histMaxDepth r2)
+     , histNumArraysRead = M.unionWith histZip (histNumArraysRead r1) (hisyNumArraysRead r2)
+     , histNumIndexExprs = M.unionWith histZip (histNumIndexExprs r1) (histNumIndexExprs r2)
+     , histPatterns = M.unionWith histZip (histPatterns r1) (histPatterns r2)
      }
 
 class HistogramZip t where
@@ -287,7 +322,7 @@ applyAnalysisToFile (filename, source, pf) =
   where
     lines = length $ B.lines source
     pf' = FAR.analyseRenames . FA.initAnalysis $ pf
-    nameMap = FAR.extractNameMap pf'
+     nameMap = FAR.extractNameMap pf'
     (dbg, r) = stencilAnalyse nameMap . FAB.analyseBBlocks $ pf'
 
 -- The core of the analysis works within this monad
@@ -335,7 +370,7 @@ stencilAnalyse nameMap pf@(F.ProgramFile mi cm_pus blocks) =
 
     -- identify every loop by its back-edge
     beMap = FAD.genBackEdgeMap (FAD.dominators gr) gr
-
+3
     -- get map of AST-Block-ID ==> corresponding AST-Block
     bm    = FAD.genBlockMap pf
     -- get map of program unit ==> basic block graph
@@ -372,8 +407,13 @@ classify ixs | isOrigin ixs =
 -- Traverse Blocks in the AST and infer stencil specifications
 perBlock :: F.Block (FA.Analysis A) -> Analysis (F.Block (FA.Analysis A))
 
+-- TODO insert new analysis part here
+{-perBlock b = do
+   ivmap <- get
+   analyseRHS [] -}
+
 perBlock b@(F.BlStatement ann span@(FU.SrcSpan lp up) _ stmnt) = do
-    -- On all StExpressionAs that occur in stmt....
+    -- On all StExpressionAssign that occur in stmt....
     let lhses = [lhs | (F.StExpressionAssign _ _ lhs _)
                            <- universe stmnt :: [F.Statement (FA.Analysis A)]]
     ivmap <- get
@@ -408,6 +448,7 @@ analyseRHS lhs blocks = do
     let subscripts = let ?flowsGraph = flTo
                          ?nameMap = nameMap
                      in M.unionsWith (++) $ evalState (mapM (genSubscripts True) blocks) []
+
     let subscripts' = filterOutFuns nameMap subscripts
     let rhses = M.map (\ixs -> map (map (ixToNeighbour ivs)) ixs) subscripts'
     return $ ("Read arrays: " ++ show (M.keys subscripts) ++ "\n", classifyRHSsubscripts ivs rhses lhs)
@@ -437,22 +478,26 @@ classifyRHSsubscripts ivs rhses lhs
   | anyMap (\rhs -> not (consistentIVSuse lhs rhs)) rhses
   = mempty { numLHSButInconsistentIVRHS = 1 }
 
+boolToContig True  = Contig
+boolToContig False = NonContig
+
 classifyRHSsubscripts ivs rhses lhs =
-    mempty { numStencils              = 1
-           , numRelativisedRHS        = flag (rhses /= rhsesRel)
-           , numContiguousStencils    = flag isContig
+    mempty { numOverall               = M.fromList [(cat, 1)]
+           , numStencilRelativisedRHS = flag (rhses /= rhsesRel)
            , numSingNonContigStencils = flag (not isContig && (length . M.elems $ rhsesO) == 1)
-           , numNoOrigin              = flag (not (allMap (any isOrigin) rhses))
-           , numContigLinearStencils  = flag (isContig && allMap (not . snd) rhsesWithMult)
-           , dimensionalityHist = selectHist dimensionalities
-           , maxDepthHist       = selectHist maxDepth
-           , numArraysReadHist  = selectHist numArrays
-           , numIndexExprsHist  = selectHist numIndexExprs
-           , patternHist        = if isContig then (patterns, m0) else (m0, patterns) }
+           , numNoOrigin              = M.fromList [(cat, flag (not (allMap (any isOrigin) rhses)))]
+           , numLinear                = M.fromList [(cat, flag (isContig && allMap (not . snd) rhsesWithMult))]
+           , histDimensionality       = M.fromList [(cat, dimensionalities)]
+           , histMaxDepth             = M.fromList [(cat, maxDepth)]
+           , histNumArraysRead        = M.fromList [(cat, numArrays)]
+           , histNumIndexExprs        = M.fromList [(cat, numIndexExprs)]
+           , histPatterns             = M.fromList [(cat, patterns)] }
   where
+    cat = (Stencil, contig)
     m0 = (M.empty, M.empty, M.empty)
+    contig   = boolToContig isContig
     isContig = allMap contiguous rhses
-    selectHist = if isContig then contig else nonContig
+
     rhsesRel = M.map (relativise lhs) rhses
     -- Dimensionality
     dimensionalities = concatHist . map toHist . nub . map length . concat . M.elems $ rhses
@@ -532,9 +577,9 @@ concatHist (x:y:xs) = (x `histZip` y) `histZip` (concatHist xs)
 
 -- Injections into representing data for contiguous and non-contiguous
 -- stencils
-contig, nonContig :: Monoid a => a -> (a, a)
-contig n = (n, mempty)
-nonContig n = (mempty, n)
+--contig, nonContig :: Monoid a => a -> (a, a)
+--contig n = (n, mempty)
+--nonContig n = (mempty, n)
 
 -- Predicate transformers on Maps
 anyMap p m = M.size (M.filter p m) > 0

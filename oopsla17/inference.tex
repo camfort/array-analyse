@@ -26,13 +26,9 @@
 \begin{document}
 \maketitle
 
-\begin{defn}{Hyperrectangle and $n$-dimensional closed intervals}
-A hyperrectangle is an $n$-dimensional rectangular polygon (also
-called rectilinear polygon).
-\end{defn}
-
 \noindent
-Recall the function $\textit{schematic}_I$ parameterised by
+\begin{defn}
+The function $\textit{schematic}_I$ parameterised by
 a set of induction variables $I$, which maps
 from an array subscript into a $n$-dimensional (closed) interval:
 %
@@ -46,8 +42,9 @@ from an array subscript into a $n$-dimensional (closed) interval:
 \end{cases}
 \end{align*}
 Note that \textit{inveral} may be undefined (it is a partial function)
-in which case \textit{schematic} is similarly undefined if any of its
+in which case \textit{schematic} is undefined if any of its
 components are undefined.
+\end{defn}
 
 \noindent
 Specification inference is demonstrated on the following five-point
@@ -62,8 +59,8 @@ stencil code:
 
 \begin{enumerate}[leftmargin=1.5em]
 \item \textbf{Analysis} A source code analysis converts array subscripts into
-  $n$-dimensional via \textit{schematic}. Intervals are grouped as a
-  finite map  by the array variable read from. For our example:
+  an interval subspace via \textit{schematic}. Intervals are grouped as a
+  finite map by the array variable read from. For our example:
 %
 \begin{equation*}
 \texttt{a} \mapsto \{[0,0]\times[0,0], \;\; [-1,0]\times[0,0], \;\;
@@ -71,26 +68,71 @@ stencil code:
 \end{equation*}
 %
 
+\item \textbf{Covering}
+
+A covering of (possibly overlapping) regions is computed iteratively
+by the following steps until a fixed-point is reached:
+
+\begin{enumerate}
 
 \item \textbf{Coalesce intervals}
-Intervals which are \emph{contiguous} in one dimension are then
-repeatedly coalesced.
+Intervals which are adjacent (contiguous in one dimension) are
+coalesced.
 
-\begin{definition}[Contiguous intervals]
-Two $n$-dimensional intervals $\vect{x}$ and $\vect{y}$ are
-\emph{contiguous} if each component is equal:
+%\begin{definition}[Contiguous intervals]
+%Two $n$-dimensional intervals $\vect{x}$ and $\vect{y}$ are
+%\emph{contiguous} if each component is equal:
+%%
+%\begin{equation*}
+%\exists j \in \{1, \ldots, n\} . \pi_j \vect{x} = [x_l, x_u] 
+%\wedge \pi_j \vect{y} = [y_l, y_u] 
+%\wedge x_u + 1 = y_l 
+%%\wedge (\forall i \in \{1, \ldots, n\}, i \neq j . \; \pi_i \vect{x} =
+%\pi_i \vect{y})
+%\end{equation*}
 %
-\begin{equation*}
-\exists j \in \{1, \ldots, n\} . \pi_j \vect{x} = [x_l, x_u] 
-\wedge \pi_j \vect{y} = [y_l, y_u] 
-\wedge x_u + 1 = y_l 
-\wedge (\forall i \in \{1, \ldots, n\}, i \neq j . \; \pi_i \vect{x} =
-\pi_i \vect{y})
-\end{equation*}
-%
-\end{definition}
+% \end{definition}
+
+\item \textbf{Remove completely overlapped intervals}
+
+
 
 \end{enumerate}
+
+\item \textbf{To syntax} - From the resulting set of interval vectors $V$,
+providing a minimal covering, convert this to the syntax of
+specifications by the following procedure:
+%
+\begin{equation*}
+\textit{spec}_N(V) = \sum_{\textbf{x} \in V} \prod_{d \in \{1,\ldots,N\}}
+\textit{spec1}_d \; (\pi_d \textbf{x})
+\end{equation*}
+
+\begin{align*}
+\textit{spec1}_d = 
+  \begin{array}{ll}
+  \interv{-\infty}{\infty}{} & \mapsto \quad \epsilon \\
+  \interv{0}{0}{} & \mapsto \quad \stencil[s]{c}{d}{$0$}{} \\
+  \interv{-n}{n}{} & \mapsto \quad \stencil[s]{c}{d}{$n$}{} \\
+  \interv{-n}{m}{} & \mapsto \quad \stencil[s]{b}{d}{$n$}{} +
+            \stencil[s]{f}{d}{$m$}{} \\
+  \interv{-n}{0}{} & \mapsto \quad \stencil[s]{b}{d}{$n$}{} \\
+  \interv{-n}{-1}{} & \mapsto \quad
+             \stencil[s]{b}{d}{$n$}{\nonpointed} \\
+  \interv{0}{n}{} & \mapsto \quad \stencil[s]{f}{d}{$n$}{} \\
+  \interv{1}{n}{} & \mapsto \quad
+             \stencil[s]{f}{d}{$c$}{\nonpointed} \\
+  \interv{-n}{-m}{} & \mapsto \quad \atMost{} \;
+             \stencil[s]{b}{d}{$n$}{} \\
+  \interv{+n}{+m}{} & \mapsto \quad \atMost{} \;
+                    \stencil[s]{f}{d}{$m$}{}
+  \end{array}
+\end{align*}
+
+\end{enumerate}
+
+\begin{lemma} \textit{spec1D} is a total function.
+\end{lemma}
 
 \end{document}
 

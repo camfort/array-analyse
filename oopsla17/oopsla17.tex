@@ -25,6 +25,8 @@
   table-format = 6
 }
 
+\usepackage{stencilmacros}
+
 %% Bibliography style
 \bibliographystyle{ACM-Reference-Format}
 %% Citation style
@@ -36,14 +38,7 @@
 
 \setlength{\grammarindent}{3em} % increase separation between LHS/RHS
 
-% Writing macros
-\newcommand{\eg}{\emph{e.g.}}
-\newcommand{\ie}{\emph{i.e.}}
-
 \newcommand{\inbar}{\ \ \textbar\ \ }
-
-% Meta macros
-\newcommand{\todo}[1]{\textcolor{blue}{#1}}
 
 % For evluation and empirical study
 % Defines the commands (headers)
@@ -54,12 +49,28 @@
 \begin{document}
 \title{Understanding and Verifying the Shape of Stencil Computations}
 
+\author{Dominic Orchard}
+\affiliation{
+  \department{School of Computing}
+  \institution{University of Kent}
+}
+\email{d.a.orchard@kent.ac.uk}
+
+
 \author{Mistral Contrastin}
 \affiliation{
   \department{Computer Laboratory}
   \institution{University of Cambridge}
 }
 \email{Mistral.Contrastin@cl.cam.ac.uk}
+
+\author{Matthew Danish}
+\affiliation{
+  \department{Computer Laboratory}
+  \institution{University of Cambridge}
+}
+\email{Matthew.Danish@cl.cam.ac.uk}
+
 
 \author{Andrew Rice}
 \affiliation{
@@ -115,6 +126,41 @@ SPECFEM3D~\cite{specfem3d}. Appendix~\ref{app:corpus} provides
 further detail on these packages.
 
 \section{A Specification Language for Shape}
+
+\begin{figure}[t]
+\begin{align*}
+\def\arraystretch{1}
+\setlength{\arraycolsep}{0.2em}
+\newcommand{\dimTy}{$\mathbb{N}_{>0}$}
+\newcommand{\depthRange}{$\mathbb{N}_{>0}$}
+\begin{array}{rl}
+\nonterm{specification} ::= & \nonterm{regionDec} \mid \nonterm{specDec} \\
+\nonterm{specDec} ::= & \term{stencil} \; \nonterm{spec} \;
+                        \texttt{::} \; v \\
+\nonterm{regionDec} ::= &  \texttt{region} \; \texttt{::} \; \nonterm{rvar} \; \texttt{=} \;
+                         \nonterm{region}\\[0.4em]
+%\nonterm{spec} ::= & \nonterm{spatial} \mid \nonterm{temporal}
+%\\[1em]
+\nonterm{spec} ::= & [\nonterm{mult},] \; [\nonterm{approx},] \; \nonterm{region} \\
+\nonterm{mult} ::= & \term{readOnce} \\
+\nonterm{approx} ::= & \term{atMost} \; \mid \; \term{atLeast} \\[0.1em]
+\nonterm{region} ::= & \nonterm{rvar} \; \mid \;
+                       \stencil{p}{\dimTy}{}{} \; \\
+& {\qquad\; \mid \; \stencil{f}{\dimTy}{\depthRange}{\;[, \nonpointed]}} \\
+& {\qquad\; \mid \; \stencil{b}{\dimTy}{\depthRange}{\;[, \nonpointed]}} \\
+& {\qquad\; \mid \; \stencil{c}{\dimTy}{\depthRange}{\;[, \nonpointed]}} \\
+& {\qquad\; \mid \; \nonterm{region} \, \term{+}
+  \, \nonterm{region} \; \mid \; \nonterm{region} \; \term{*} \; \nonterm{region}} \\[0.25em]
+%\multicolumn{2}{l}{\qquad\qquad \mid \; \nonterm{rvar}}
+%\\[0.5em]
+%\nonterm{temporal} ::= \; & \term{dependency} \; (v \; \{ , v \}) [, \texttt{mutual}]
+%  \\[0.5em]
+\nonterm{rvar} ::= \; & [\text{\term{a}-\term{z}$\,$\term{A}-\term{Z}$\,$\term{0}-\term{9}}]+\\[-1em]
+\end{array}
+\end{align*}
+\caption{Specification syntax (EBNF grammar)}
+\label{fig:syntax}
+\end{figure}
 
 \section{Analysis, Checking, and Inference}
 

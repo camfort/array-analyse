@@ -7,8 +7,9 @@
 \usepackage{xifthen}
 \usepackage{xcolor}
 
-% Auxillary declaration
+% Writing macros
 \newcommand{\eg}{\emph{e.g.}}
+\newcommand{\ie}{\emph{i.e.}}
 
 % Essential macros
 %\newcommand{\zinf}{\textnormal{$\mathbb{Z}_\infty$}}
@@ -18,6 +19,10 @@
 \newcommand{\interv}[3]{\textnormal{$\lbrack#1,#2\rbrack^{#3}$}}
 \newcommand{\vecgen}[3]{\textnormal{$\textit{vec-gen}_{#1}(#2,#3)$}}
 \newcommand{\textcap}[1]{\texttt{\textbf{#1}}}
+
+% Syntax macros
+\newcommand{\nonterm}[1]{\textit{#1}}
+\newcommand{\term}[1]{\texttt{#1}}
 
 % Stencil macro
 %
@@ -82,4 +87,5 @@
 \newcommand{\longv}[1]{{\color{version} Long version:} #1}
 \newcommand{\shortv}[1]{{\color{version} Short version:} #1}
 
-\newcommand{\todo}[1]{{\color{green} TODO:} #1}
+% Meta macros
+\newcommand{\todo}[1]{{\color{green}{TODO: #1}}}

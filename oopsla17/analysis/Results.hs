@@ -12,10 +12,15 @@ import Camfort.Specification.Stencils.InferenceFrontend
 data Kind = Read | Stencil deriving (Eq, Show, Ord)
 data Contig = NonContig | Contig deriving (Eq, Show, Ord)
 
+
+-- LHS assign, RHS subscript, RHS affine, RHS neigh
+-- LHS subscript, RHS subscript, RHS affine, RHS neigh
+-- LHS affine, RHS
+
+-- lhs neight
+
 data LHS = Assign | O Class
-data Class = Subscript | Affine [(Int, Int)] | Neigh [Neighbour]
-
-
+data Class = Subscript | Affine [(Int, String, Int)] | Neigh [Neighbour]
 
 
 type Cat = (Kind, Contig)

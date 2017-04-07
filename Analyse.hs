@@ -79,6 +79,7 @@ import Data.Monoid
 import Debug.Trace
 
 import Results
+import Indices
 
 main :: IO ()
 main = do
@@ -178,7 +179,9 @@ stencilAnalyse nameMap pf@(F.ProgramFile mi cm_pus blocks) =
 
 
 
-classifyIx :: FAD.InductionVarMapByASTBlock -> [F.Index (FA.Analysis Annotation)] -> Class
+classifyIx :: FAD.InductionVarMapByASTBlock
+           -> [F.Index (FA.Analysis Annotation)]
+           -> Class
 classifyIx ivs ix =
   case neighbourIndex ivs ix of
     Nothing ->
@@ -186,10 +189,6 @@ classifyIx ivs ix =
         Nothing -> Subscript
         Just afs -> Affine afs
     Just n -> Neigh n
-
-
-affineIndex :: FAD.InductionVarMapByASTBlock -> [F.Index (FA.Analysis Annotation)] -> Maybe [(Int, Int)]
-affineIndex ivs ix = undefined
 
 -- Used to classify an index
 

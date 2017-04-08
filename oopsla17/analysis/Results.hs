@@ -1,4 +1,6 @@
 {-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE GADTs, DataKinds, PolyKinds, KindSignatures #-}
+{-# LANGUAGE StandaloneDeriving #-}
 
 module Results where
 
@@ -8,47 +10,63 @@ import Data.List
 
 import Camfort.Specification.Stencils.InferenceFrontend
 
--- Categories
-data Kind = Read | Stencil deriving (Eq, Show, Ord)
-data Contig = NonContig | Contig deriving (Eq, Show, Ord)
+-- ## Categorisations:
 
+--   * RHS shape/position/contiguity
+data Shape    = Orthotope | SumOfOrthotope | Other
+    deriving (Eq, Show, Ord)
 
--- LHS assign, RHS subscript, RHS affine, RHS neigh
--- LHS subscript, RHS subscript, RHS affine, RHS neigh
--- LHS affine, RHS
+data Position = OverOrigin | StraddleOrigin | Elsewhere
+    deriving (Eq, Show, Ord)
 
--- lhs neight
+data Contig   = SingleNonContig | NonContig | Contig
+    deriving (Eq, Show, Ord)
 
-data LHS = Assign | O Class
+data Reuse    = Linear | NonLinear
+    deriving (Eq, Show, Ord)
+
+data Physicality s where
+     PL :: Physicality LHS
+     PR :: (Shape, Position, Contig, Reuse) -> Physicality RHS
+
+deriving instance Eq (Physicality s)
+deriving instance Ord (Physicality s)
+deriving instance Show (Physicality s)
+
+--   * Categorisation of indices (on LHS or RHS)
+data Side = LHS | RHS
+
+data Form (s :: Side) where
+    Vars        :: Form LHS
+    Subscripts  :: Form s
+    Affines     :: [(Int, String)] -> Physicality s -> Form s
+    Neighbours  :: [String]        -> Physicality s -> Form s
+    IVs         :: Form LHS
+
+deriving instance Eq (Form s)
+deriving instance Ord (Form s)
+deriving instance Show (Form s)
+
+type Relativised = Bool
+
+--   * Consistency between sides
+data Consistency = Consistent  Relativised
+                 | Permutation Relativised
+                 | LHSsubset   Relativised
+                 | LHSsuperset Relativised
+                 | Inconsistent
+      deriving (Eq, Show, Ord)
+
+-- Overall categorisation
+type Cat = (Form LHS, Form RHS, Consistency)
+
+-- ## Classification on subscripts
 data Class = Subscript | Affine [(Int, String, Int)] | Neigh [Neighbour]
-
-
-type Cat = (Kind, Contig)
-
-isStencil (Stencil, _) = True
-isStencil _            = False
-
-isContig (_, Contig) = True
-isContig _ = False
 
 -- Results data type
 data Result = Result {
-    numLines                   :: Int   -- Number of lines parsed
-  , numArrayWrites             :: Int   -- N  where N >= P + M
-  , numIVArrayWrites           :: Int   -- P
-  , numNeighbourArrayWrites    :: Int   -- M
-  , numConstArrayWrites        :: Int   -- Q where M >= Q and M >= P
-  , numLHSButNonNeighbourRHS   :: Int  -- Q1
-  , numLHSButInconsistentIVRHS :: Int  -- Q2 where Q >= Q1 >= Q2
-  ------------------------------------
-  -- Special interest
-  ------------------------------------
-  , numSingNonContigStencils :: Int
-  , numStencilRelativisedRHS :: Int
-  ------------------------------------
-  , numOverall  :: M.Map Cat Int
-  , numLinear   :: M.Map Cat Int
-  , numNoOrigin :: M.Map Cat Int
+    numLines              :: Int
+  , counts                :: M.Map Cat Int
   ------------------------------------
   -- Histograms
   , histLengthOfDataflow :: M.Map Cat [Int]
@@ -65,46 +83,21 @@ data Result = Result {
 
 -- Results form a monoid
 instance Monoid Result where
-  mempty = Result 0 0 0  0 0 0 0
-                  0 0
-                  (catMapEmpty 0) (catMapEmpty 0) (catMapEmpty 0)
-                  (catMapEmpty []) (catMapEmpty []) (catMapEmpty [])
-                  (catMapEmpty []) (catMapEmpty [])
-                  (catMapEmpty (M.empty, M.empty, M.empty))
-
-    where catMapEmpty e = M.fromList [((Stencil, Contig), e), ((Stencil, NonContig), e),
-                                     ((Read, Contig), e), ((Read, NonContig), e)]
+  mempty = Result 0 M.empty
+                  M.empty  M.empty  M.empty  M.empty  M.empty M.empty
 
   mappend r1 r2 = Result
      { numLines = numLines r1 + numLines r2
-     , numArrayWrites = numArrayWrites r1 + numArrayWrites r2
-     , numIVArrayWrites = numIVArrayWrites r1 + numIVArrayWrites r2
-     , numNeighbourArrayWrites = numNeighbourArrayWrites r1
-                                + numNeighbourArrayWrites r2
-
-     , numConstArrayWrites = numConstArrayWrites r1
-                               + numConstArrayWrites r2
-
-     , numLHSButNonNeighbourRHS = numLHSButNonNeighbourRHS r1
-                                 + numLHSButNonNeighbourRHS r2
-
-     , numLHSButInconsistentIVRHS = numLHSButInconsistentIVRHS r1
-                                  + numLHSButInconsistentIVRHS r2
-
-     , numStencilRelativisedRHS = numStencilRelativisedRHS r1
-                                + numStencilRelativisedRHS r2
-
-     , numSingNonContigStencils = numSingNonContigStencils r1
-                                + numSingNonContigStencils r2
-
-     , numOverall = M.unionWith (+) (numOverall r1) (numOverall r2)
-     , numLinear  = M.unionWith (+) (numLinear r1) (numLinear r2)
-     , numNoOrigin = M.unionWith (+) (numNoOrigin r1) (numNoOrigin r2)
-     , histLengthOfDataflow = M.unionWith histZip (histLengthOfDataflow r1) (histLengthOfDataflow r2)
-     , histDimensionality = M.unionWith histZip (histDimensionality r1) (histDimensionality r2)
+     , counts = M.unionWith (+) (counts r1) (counts r2)
+     , histLengthOfDataflow = M.unionWith histZip (histLengthOfDataflow r1)
+                                                  (histLengthOfDataflow r2)
+     , histDimensionality = M.unionWith histZip (histDimensionality r1)
+                                                (histDimensionality r2)
      , histMaxDepth = M.unionWith histZip (histMaxDepth r1) (histMaxDepth r2)
-     , histNumArraysRead = M.unionWith histZip (histNumArraysRead r1) (histNumArraysRead r2)
-     , histNumIndexExprs = M.unionWith histZip (histNumIndexExprs r1) (histNumIndexExprs r2)
+     , histNumArraysRead = M.unionWith histZip (histNumArraysRead r1)
+                                               (histNumArraysRead r2)
+     , histNumIndexExprs = M.unionWith histZip (histNumIndexExprs r1)
+                                               (histNumIndexExprs r2)
      , histPatterns = M.unionWith histZip (histPatterns r1) (histPatterns r2)
      }
 
@@ -130,7 +123,9 @@ instance Ord k => HistogramZip (M.Map k Int) where
 -- Pretty print results
 --------------------------------------------------------------------------------
 
-prettyResults r histograms =
+prettyResults r histograms = "TO-REDO"
+
+{-
     "Results: \n"
  ++ rline "Source lines parsed" (numLines r)
  ++ rline "Array writes" (numArrayWrites r)
@@ -199,12 +194,14 @@ showCats prefix amap =
       ++ (rline ((replicate 46 ' ') ++ "(contiguous)") $ amap M.! (cat, Contig))
       ++ (rline ((replicate 42 ' ') ++ "(non-contiguous)") $ amap M.! (cat, NonContig))
       ++ "\n"
-
+-}
 --------------------------------------------------------------------------------
 -- Validate results
 --------------------------------------------------------------------------------
 
-resultValidation =
+resultValidation = error "TO-REDO"
+
+{-
       (\r -> (numArrayWrites r) `gte` (numNeighbourArrayWrites r))
           `reason` "Array writes >= Neighbour Writes"
 
@@ -232,6 +229,7 @@ resultValidation =
  where sumMap = Data.List.sum . M.elems
        justStencils = fst . M.partitionWithKey (\k _ -> isStencil k)
        justContigStencils = fst . M.partitionWithKey (\k _ -> isStencil k && isContig k)
+-}
 
 gte, eq :: Int -> Int -> (Bool, Int, Int)
 gte x y = (x >= y, x, y)

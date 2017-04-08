@@ -178,18 +178,7 @@ stencilAnalyse nameMap pf@(F.ProgramFile mi cm_pus blocks) =
     dm    = FAD.genDefMap bm
 
 
-
-classifyIx :: FAD.InductionVarMapByASTBlock
-           -> [F.Index (FA.Analysis Annotation)]
-           -> Class
-classifyIx ivs ix =
-  case neighbourIndex ivs ix of
-    Nothing ->
-      case affineIndex ivs ix of
-        Nothing -> Subscript
-        Just afs -> Affine afs
-    Just n -> Neigh n
-
+{-
 -- Used to classify an index
 
 classifyLHS ixs | any ((==) NonNeighbour) ixs =
@@ -208,6 +197,8 @@ classifyLHS ixs | any (\i -> case i of Constant _ -> True; _ -> False) ixs =
 classifyLHS ixs | isOrigin ixs =
     -- All induction variables
     mempty { numArrayWrites = 1, numNeighbourArrayWrites = 1, numIVArrayWrites = 1 }
+-}
+
 
 -- Traverse Blocks in the AST and infer stencil specifications
 -- Note that this should be applied by `descendBiM`, as it does its
@@ -238,25 +229,14 @@ perBlockInnerDo b@(F.BlStatement ann span@(FU.SrcSpan lp up) _ stmnt) = do
 
     else do
       results <- forM lhses $ \lhs -> do
-           -- A potential stencil
-           case isArraySubscript lhs of
-             Just subs -> do
-               let lhsIndices = map (ixToNeighbour ivs) subs
-               let r = classifyLHS lhsIndices
-               if (numNeighbourArrayWrites r > 0) then do
-                   -- If the LHS is a neighbourhood index
-                   (dbg, rhses, dflowLen) <- analyseRHS [b]
-                   let r' = classifyRHSsubscripts Stencil rhses lhsIndices dflowLen
-                   return ("At: " ++ show span ++ "\n" ++ dbg, r `mappend` r')
-               else return ("", r)
-
-             -- Not a stencil, find out if its an array read
-             Nothing  -> do
-               (dbg, rhses, dflowLen) <- analyseRHS [b]
-               let r = classifyRHSsubscripts Read rhses [] dflowLen
-               return ("Read at: " ++ show span ++ "\n" ++ dbg, r)
+         (dbg, rhses, dflowLen) <- analyseRHS [b]
+         let (dbg', cat, result) = classify ivs lhs rhses
+         let result' = result { histLengthOfDataflow =
+                                   M.fromList [(cat, toHist dflowLen)] }
+         return ("At: " ++ show span ++ "\n" ++ dbg ++ dbg', result')
       tell (mconcat results)
       return b
+
 perBlockInnerDo b = do
    -- Go inside other kinds of block (like case/if)
    b' <- descendM (descendBiM perBlockInnerDo) b
@@ -264,7 +244,7 @@ perBlockInnerDo b = do
 
 -- Analyse the RHS of any array subscripts in a block
 analyseRHS :: [F.Block (FA.Analysis A)]
-           -> Analysis (String, M.Map Variable [[Neighbour]], Int)
+           -> Analysis (String, M.Map Variable [[F.Index (FA.Analysis A)]], Int)
 analyseRHS blocks = do
     (ivs, visitedNodes) <- get
     (flTo, nameMap) <- ask
@@ -274,11 +254,10 @@ analyseRHS blocks = do
          in runState (mapM (genSubscripts True) blocks) []
     let subscripts = M.unionsWith (++) maps
     let subscripts' = filterOutFuns nameMap subscripts
-    let rhses = M.map (\ixs -> map (map (ixToNeighbour ivs)) ixs) subscripts'
     let lenDataflowPath = length . nub $ visitedNodes'
     put (ivs, visitedNodes ++ visitedNodes')
     return $ ("Read arrays: " ++ show (M.keys subscripts) ++ "\n"
-             , rhses
+             , subscripts'
              , lenDataflowPath) -- dataflow
 
 -- Filter out any variable names which do not appear in the name map or
@@ -294,6 +273,7 @@ filterOutFuns nameMap m =
 boolToContig True  = Contig
 boolToContig False = NonContig
 
+{-
 -- The main function for classifying the RHS subscripts into different
 -- kinds of stencil
 classifyRHSsubscripts :: Kind
@@ -349,6 +329,7 @@ classifyRHSsubscripts kind rhses lhs dflowLen =
     rhsesWithMult = M.map hasDuplicates rhses
     maximum0 [] = 0
     maximum0 xs = maximum xs
+-}
 
 -- Predicate on whether an index is at the origin
 isOrigin :: [Neighbour] -> Bool

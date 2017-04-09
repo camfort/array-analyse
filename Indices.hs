@@ -1,3 +1,5 @@
+{-# LANGUAGE FlexibleInstances #-}
+
 module Indices where
 
 import Camfort.Specification.Stencils.InferenceBackend
@@ -38,14 +40,74 @@ classify ivs lhs rhses = (debug, cat, undefined)
   where
     debug = ""
     result = undefined
-    cat = (formLHS, formRHS, consistency)
-    formLHS = undefined
-    formRHS = undefined
-    consistency = undefined
-    lhsClassifiers =
+    --cat = (formLHS, formRHS, consistency)
+    --formLHS = undefined
+    --formRHS = undefined
+    --consistency = undefined
+    rhses' = concat . M.elems $ rhses
+    cat =
       case isArraySubscript lhs of
-        Nothing   -> Vars
-        Just subs -> undefined -- classifyIx ivs subs
+         Nothing   -> (Vars, undefined, undefined)
+         Just subs -> case classifyIx ivs subs of
+                        Subscript -> (Subscripts, undefined, undefined)
+                        Affine as -> classifyRHSLHSAffine ivs as rhses'
+                        Neigh ns  -> classifyRHSLHSNeighbour ivs ns rhses'
+
+classifyRHSLHSNeighbour ivs lhsAs rhses =
+   case mapM (neighbourIndex ivs) rhses of
+      Nothing -> (Neighbours PL, Neighbours (PR Nothing), Inconsistent)
+      Just rhsAs ->
+           (Neighbours PL, Neighbours (PR (Just undefined)) , cons)
+        where (cons, rel) = consistency lhsAs rhsAs
+  where justVars = fromJust . mapM neighbourVar
+        lhsASRep = justVars lhsAs
+
+classifyRHSLHSAffine ivs lhsAs rhses =
+    case mapM (affineIndex ivs) rhses of
+      Nothing -> (Affines PL, Affines (PR Nothing), Inconsistent)
+      Just rhsAs ->
+         (Affines PL, Affines physicality, cons)
+           -- TOOD: probably need to do something with the
+           -- relative offsets...
+           where (cons, rel) = consistency lhsAs rhsAs
+                 physicality = error "TOOD"
+  where lhsAsRep = map trunc lhsAs
+        trunc (a, i, b) = (a, i)
+
+consistency :: (Eq t, Relativise t) => [t] -> [[t]] -> (Consistency, Maybe [[t]])
+consistency lhs rhses = (cons `setRelativised` (rel==rhses), relM)
+  where
+    cons = sideConsistency lhs rhses
+    rel  = relativiseSubscripts lhs rhses
+    relM = if (rel==rhses) then Just rel else Nothing
+
+class Relativise t where
+  relativiseSubscripts :: [t] -> [[t]] -> [[t]]
+
+instance Relativise Neighbour where
+  relativiseSubscripts = relativise
+
+-- affines
+instance Relativise (Int, String, Int) where
+  relativiseSubscripts lhs rhses = foldr relativiseRHS rhses lhs
+    where
+      relativiseRHS (a, i, b) rhses = map (map (relativiseBy a i b)) rhses
+      relativiseBy a i b (c, j, d) | i == j && a == c = (a, i, d - b)
+      relativiseBy _ _ _ x = x
+
+-- ## Classification on subscripts
+data Class = Subscript | Affine [(Int, String, Int)] | Neigh [Neighbour]
+
+classifyIx :: FAD.InductionVarMapByASTBlock
+           -> [F.Index (FA.Analysis A)]
+           -> Class
+classifyIx ivs ix =
+  case neighbourIndex ivs ix of
+    Nothing ->
+      case affineIndex ivs ix of
+        Nothing -> Subscript
+        Just afs -> Affine afs
+    Just n -> Neigh n
 
 affineIndex :: FAD.InductionVarMapByASTBlock
             -> [F.Index (FA.Analysis Annotation)]
@@ -68,14 +130,19 @@ matchAffine :: [Variable]
             -> Maybe (Int, String, Int)
 
 matchAffine ivs (F.ExpBinary _ _ F.Addition e e') =
-      ((matchMult ivs e) >>= (\(a, i) -> matchConst ivs e' >>= \b -> return (a, i, b)))
-  <+> ((matchConst ivs e') >>= (\b -> matchMult ivs e >>= \(a, i) -> return (a, i, b)))
+      ((matchMult ivs e) >>= (\(a, i) -> matchConst e' >>= \b -> return (a, i, b)))
+  <+> ((matchConst e') >>= (\b -> matchMult ivs e >>= \(a, i) -> return (a, i, b)))
 
 matchAffine ivs (F.ExpBinary _ _ F.Subtraction e e') =
-      ((matchMult ivs e) >>= (\(a, i) -> matchConst ivs e' >>= \b -> return (a, i, -b)))
-  <+> ((matchConst ivs e') >>= (\b -> matchMult ivs e >>= \(a, i) -> return (-a, i, b)))
+      ((matchMult ivs e) >>= (\(a, i) -> matchConst e' >>= \b -> return (a, i, -b)))
+  <+> ((matchConst e') >>= (\b -> matchMult ivs e >>= \(a, i) -> return (-a, i, b)))
 
-matchAffine _ e = Nothing
+-- Allow a bare constant, since `matchAffine` is called
+-- as part of `affineIndex`, which is only ever called after `neighbourIndex`.
+-- This accounts for indices which are a mixture of affine and neighbour and constant
+matchAffine ivs e = do
+  c <- matchConst e
+  return (0, "", c)
 
 (<+>) :: Maybe a -> Maybe a -> Maybe a
 Nothing <+> Just a  = Just a
@@ -104,31 +171,24 @@ matchMult ivs e@(F.ExpValue _ _ (F.ValVariable {}))
 
 matchMult ivs _ = Nothing
 
-matchConst :: [Variable]
-           -> F.Expression (FA.Analysis A)
+matchConst :: F.Expression (FA.Analysis A)
            -> Maybe Int
-matchConst ivs (F.ExpValue _ _ (F.ValInteger val)) = Just $ read val
-matchConst ivs _                                   = Nothing
+matchConst (F.ExpValue _ _ (F.ValInteger val)) = Just $ read val
+matchConst _                                   = Nothing
 
-classifyIx :: FAD.InductionVarMapByASTBlock
-           -> [F.Index (FA.Analysis A)]
-           -> Class
-classifyIx ivs ix =
-  case neighbourIndex ivs ix of
-    Nothing ->
-      case affineIndex ivs ix of
-        Nothing -> Subscript
-        Just afs -> Affine afs
-    Just n -> Neigh n
+sideConsistency :: Eq a => [a] -> [[a]] -> Consistency
+sideConsistency xs xss =
+  foldr (\ys a -> (sideConsistency1 xs ys) `joinConsistency` a)
+    (sideConsistency1 xs (head xss)) (tail xss)
 
-
-neighbourConsistency :: Eq a => [a] -> [a] -> (Relativised -> Consistency)
-neighbourConsistency lhs rhs
-    | lhs == rhs = Consistent
-    | all (`elem` rhs) lhs && all (`elem` lhs) rhs = Permutation
-    | all (`elem` rhs) lhs = LHSsuperset
-    | all (`elem` lhs) rhs = LHSsubset
-    | otherwise            = \_ -> Inconsistent
+-- Sets all 'relativised' information to True
+sideConsistency1 :: Eq a => [a] -> [a] -> Consistency
+sideConsistency1 lhs rhs
+    | lhs == rhs = Consistent True
+    | all (`elem` rhs) lhs && all (`elem` lhs) rhs = Permutation True
+    | all (`elem` rhs) lhs = LHSsuperset True
+    | all (`elem` lhs) rhs = LHSsubset True
+    | otherwise            = Inconsistent
 
 consistentNeighbours :: [Class] -> Maybe [String]
 consistentNeighbours ixs = do

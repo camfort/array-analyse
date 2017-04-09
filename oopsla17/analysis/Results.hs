@@ -27,7 +27,7 @@ data Reuse    = Linear | NonLinear
 
 data Physicality s where
      PL :: Physicality LHS
-     PR :: (Shape, Position, Contig, Reuse) -> Physicality RHS
+     PR :: Maybe (Shape, Position, Contig, Reuse) -> Physicality RHS
 
 deriving instance Eq (Physicality s)
 deriving instance Ord (Physicality s)
@@ -39,8 +39,8 @@ data Side = LHS | RHS
 data Form (s :: Side) where
     Vars        :: Form LHS
     Subscripts  :: Form s
-    Affines     :: [(Int, String)] -> Physicality s -> Form s
-    Neighbours  :: [String]        -> Physicality s -> Form s
+    Affines     :: Physicality s -> Form s
+    Neighbours  :: Physicality s -> Form s
     IVs         :: Form LHS
 
 deriving instance Eq (Form s)
@@ -57,11 +57,23 @@ data Consistency = Consistent  Relativised
                  | Inconsistent
       deriving (Eq, Show, Ord)
 
+setRelativised :: Consistency -> Bool -> Consistency
+setRelativised (Consistent _)  r = Consistent r
+setRelativised (Permutation _) r = Permutation r
+setRelativised (LHSsubset   _) r = LHSsubset r
+setRelativised (LHSsuperset _) r = LHSsuperset r
+setRelativised Inconsistent    _ = Inconsistent
+
+joinConsistency :: Consistency -> Consistency -> Consistency
+joinConsistency (Consistent r)  (Consistent s)  = Consistent (r && s)
+joinConsistency (Permutation r) (Permutation s) = Permutation (r && s)
+joinConsistency (LHSsubset r)   (LHSsubset s)   = LHSsubset (r && s)
+joinConsistency (LHSsuperset r) (LHSsuperset s) = LHSsuperset (r && s)
+joinConsistency Inconsistent    Inconsistent    = Inconsistent
+joinConsistency _               _               = Inconsistent
+
 -- Overall categorisation
 type Cat = (Form LHS, Form RHS, Consistency)
-
--- ## Classification on subscripts
-data Class = Subscript | Affine [(Int, String, Int)] | Neigh [Neighbour]
 
 -- Results data type
 data Result = Result {
@@ -74,6 +86,7 @@ data Result = Result {
   , histMaxDepth         :: M.Map Cat [Int]
   , histNumArraysRead    :: M.Map Cat [Int]
   , histNumIndexExprs    :: M.Map Cat [Int]
+  , histAffineScale      :: [Int]
   , histPatterns         :: M.Map Cat (M.Map Int Int
                                      , M.Map (Int, Int) Int
                                      , M.Map (Int, Int, Int) Int)
@@ -84,7 +97,7 @@ data Result = Result {
 -- Results form a monoid
 instance Monoid Result where
   mempty = Result 0 M.empty
-                  M.empty  M.empty  M.empty  M.empty  M.empty M.empty
+                  M.empty M.empty M.empty  M.empty  M.empty [] M.empty
 
   mappend r1 r2 = Result
      { numLines = numLines r1 + numLines r2
@@ -98,6 +111,7 @@ instance Monoid Result where
                                                (histNumArraysRead r2)
      , histNumIndexExprs = M.unionWith histZip (histNumIndexExprs r1)
                                                (histNumIndexExprs r2)
+     , histAffineScale = histZip (histAffineScale r1) (histAffineScale r2)
      , histPatterns = M.unionWith histZip (histPatterns r1) (histPatterns r2)
      }
 

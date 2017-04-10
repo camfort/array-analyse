@@ -5,12 +5,6 @@
  TODO
    * capture single non-contig
    * Figure out whether to bin the different kinds of shape (maybe up to 3D)
-            * Tag patterns with either rectilinear,
-                                       contiguous composite of rectilinear,
-                                       contiguous composite of rectilinear (over ex. origin)
-                                       other
-
-
 
 -}
 
@@ -89,24 +83,25 @@ main = do
 
       dir:args@(a1:a2:_)
         -> applyAnalysisToDir dir (a1 == "-d" || a2 == "-d")
-                                  (a1 == "-h" || a2 == "-h") (filterFlags args)
+                                  (a1 == "-b" || a2 == "-b") (filterFlags args)
 
       dir:args@(a1:_)
-        -> applyAnalysisToDir dir (a1 == "-d") (a1 == "-h") (filterFlags args)
+        -> applyAnalysisToDir dir (a1 == "-d") (a1 == "-b") (filterFlags args)
 
       _ -> putStrLn $ "Please specify a directory on which to apply the\
                      \ analysis followed by any number of file names\
                      \ to be excluded."
   where
-    filterFlags = filter (\arg -> arg /= "-d" && arg /= "-h")
+    filterFlags = filter (\arg -> arg /= "-d" && arg /= "-b")
 
 applyAnalysisToDir :: String -> Bool -> Bool -> [String] -> IO ()
-applyAnalysisToDir dir debug histograms excludes = do
+applyAnalysisToDir dir debug bins excludes = do
     files <- readParseSrcDir dir excludes
     let debugsAndResults = map applyAnalysisToFile files
-    let (dbg, result)   = mconcat debugsAndResults
+    let (dbg, result)    = mconcat debugsAndResults
+    writeFile (dir ++ ".stencils-analysis") (show result)
     if debug then putStrLn $ dbg else return ()
-    putStrLn $ prettyResults result histograms
+    putStrLn $ prettyResults result bins
     valid <- resultValidation result
     if valid then (putStrLn $ "Results were valid") else (putStrLn "Results were invalid")
 
@@ -210,14 +205,14 @@ perBlockInnerDo b@(F.BlStatement ann span@(FU.SrcSpan lp up) _ stmnt) = do
       results <- forM lhses $ \lhs -> do
          (dbg, rhses, dflowLen) <- analyseRHS [b]
          let (dbg', result) = classify ivs lhs rhses
-         let result' = result { histLengthOfDataflow = toHist dflowLen }
+         let result' = result { histLengthOfDataflow = toHist (dflowLen - 1) }
          return ("At: " ++ show span ++ "\n" ++ dbg ++ dbg', result')
       tell (mconcat results)
       return b
 
 perBlockInnerDo b = do
    -- Go inside other kinds of block (like case/if)
-   b' <- descendM (descendBiM perBlockInnerDo) b
+   b' <- descendBiM perBlock b
    return b'
 
 -- Analyse the RHS of any array subscripts in a block

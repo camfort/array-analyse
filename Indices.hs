@@ -32,6 +32,7 @@ import qualified Data.Map as M
 import Data.Foldable
 import Data.List
 import Data.Maybe
+import Debug.Trace
 
 import Neighbour
 import Results
@@ -67,7 +68,7 @@ classifyArrayCode ivs lhs rhses =
 
     result  = case affineScales of
                 Nothing -> result1
-                Just scales -> result1 { histAffineScale = scales }
+                Just scales -> result1 { histAffineScale = concatHist (map toHist scales) }
     ------------
     lhsRep = case isArraySubscript lhs of
                   Nothing -> Nothing
@@ -89,7 +90,7 @@ classifyArrayCode ivs lhs rhses =
                 Subscript -> Subscripts
                 Affine _  -> Affines . R    $ rhsPhysical
                 Neigh  _  -> Neighbours . R $ rhsPhysical
-    rhsPhysical = (shape, position, boolToContig contiguity, boolToReuse linear)
+    rhsPhysical = (shape, position, boolToContig contiguity, boolToReuse (not nonLinear))
     ------------
     neighbourisedRhs = case rhsRepRel of
                          Subscript -> []
@@ -97,7 +98,7 @@ classifyArrayCode ivs lhs rhses =
                          Neigh  ns -> ns
     (shape, position) = shapeAndPosition neighbourisedRhs
     -- Work out if the pattern is linear or not
-    (_, linear) = hasDuplicates neighbourisedRhs
+    (_, nonLinear) = hasDuplicates neighbourisedRhs
     -- Contiguity
     contiguity = contiguous neighbourisedRhs
     -- Calculate the max depth (from relativised)
@@ -116,7 +117,7 @@ classifyArrayCode ivs lhs rhses =
     maximum0 xs = maximum xs
 
     affineScales = case rhsRep of
-                      Affine as -> Just . map (\(a, _, _) -> a) . concat $ as
+                      Affine as -> Just . nub . map (\(a, _, _) -> a) . concat $ as
                       _         -> Nothing
 
 checkConsistency :: (Eq t, Relativise t, Basis t, Eq (Base t)) => [t] -> [[t]] -> (Consistency, [[t]])
@@ -200,13 +201,17 @@ matchAffine :: [Variable]
             -> F.Expression (FA.Analysis Annotation)
             -> Maybe (Int, String, Int)
 
-matchAffine ivs (F.ExpBinary _ _ F.Addition e e') =
+-- Allow something of the form a*i or i*a
+matchAffine ivs e | matchMult ivs e /= Nothing =
+  matchMult ivs e >>= (\(a, i) -> return (a, i, 0))
+
+matchAffine ivs (F.ExpBinary _ _ F.Addition e e') = do
       ((matchMult ivs e) >>= (\(a, i) -> matchConst e' >>= \b -> return (a, i, b)))
-  <+> ((matchConst e') >>= (\b -> matchMult ivs e >>= \(a, i) -> return (a, i, b)))
+  <+> ((matchConst e) >>= (\b -> matchMult ivs e' >>= \(a, i) -> return (a, i, b)))
 
 matchAffine ivs (F.ExpBinary _ _ F.Subtraction e e') =
       ((matchMult ivs e) >>= (\(a, i) -> matchConst e' >>= \b -> return (a, i, -b)))
-  <+> ((matchConst e') >>= (\b -> matchMult ivs e >>= \(a, i) -> return (-a, i, b)))
+  <+> ((matchConst e) >>= (\b -> matchMult ivs e' >>= \(a, i) -> return (-a, i, b)))
 
 -- Allow a bare constant, since `matchAffine` is called
 -- as part of `affineIndex`, which is only ever called after `neighbourIndex`.
@@ -219,7 +224,7 @@ matchAffine ivs e = do
 Nothing <+> Just a  = Just a
 Just a <+> Nothing  = Just a
 Nothing <+> Nothing = Nothing
-Just a <+> Just _   = Nothing
+Just a <+> Just b   = Just b
 
 matchMult :: [Variable]
           -> F.Expression (FA.Analysis Annotation)
@@ -246,4 +251,3 @@ matchConst :: F.Expression (FA.Analysis A)
            -> Maybe Int
 matchConst (F.ExpValue _ _ (F.ValInteger val)) = Just $ read val
 matchConst _                                   = Nothing
-

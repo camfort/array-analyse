@@ -1,4 +1,7 @@
 {-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE TypeFamilies #-}
+{-# LANGUAGE FlexibleContexts #-}
 
 module Indices where
 
@@ -27,7 +30,10 @@ import qualified Data.Set as S
 import qualified Data.IntMap as IM
 import qualified Data.Map as M
 import Data.Foldable
+import Data.List
 import Data.Maybe
+
+import Neighbour
 import Results
 
 
@@ -35,51 +41,116 @@ import Results
 classify :: FAD.InductionVarMapByASTBlock
          -> F.Expression (FA.Analysis A)
          -> M.Map Variable [[F.Index (FA.Analysis A)]]
-         -> (String, Cat, Result)
-classify ivs lhs rhses = (debug, cat, undefined)
+         -> (String, Result)
+classify ivs lhs rhses = (debug, resultN)
   where
     debug = ""
-    result = undefined
-    --cat = (formLHS, formRHS, consistency)
-    --formLHS = undefined
-    --formRHS = undefined
-    --consistency = undefined
-    rhses' = concat . M.elems $ rhses
-    cat =
-      case isArraySubscript lhs of
-         Nothing   -> (Vars, undefined, undefined)
-         Just subs -> case classifyIx ivs subs of
-                        Subscript -> (Subscripts, undefined, undefined)
-                        Affine as -> classifyRHSLHSAffine ivs as rhses'
-                        Neigh ns  -> classifyRHSLHSNeighbour ivs ns rhses'
 
-classifyRHSLHSNeighbour ivs lhsAs rhses =
-   case mapM (neighbourIndex ivs) rhses of
-      Nothing -> (Neighbours PL, Neighbours (PR Nothing), Inconsistent)
-      Just rhsAs ->
-           (Neighbours PL, Neighbours (PR (Just undefined)) , cons)
-        where (cons, rel) = consistency lhsAs rhsAs
-  where justVars = fromJust . mapM neighbourVar
-        lhsASRep = justVars lhsAs
+    -- Num arrays read
+    numArrays = length . M.keys $ rhses
 
-classifyRHSLHSAffine ivs lhsAs rhses =
-    case mapM (affineIndex ivs) rhses of
-      Nothing -> (Affines PL, Affines (PR Nothing), Inconsistent)
-      Just rhsAs ->
-         (Affines PL, Affines physicality, cons)
-           -- TOOD: probably need to do something with the
-           -- relative offsets...
-           where (cons, rel) = consistency lhsAs rhsAs
-                 physicality = error "TOOD"
-  where lhsAsRep = map trunc lhsAs
-        trunc (a, i, b) = (a, i)
+    resultN = result { histNumArraysRead = toHist numArrays }
+    result = foldr1 mappend (map (classifyArrayCode ivs lhs) (M.elems rhses))
 
-consistency :: (Eq t, Relativise t) => [t] -> [[t]] -> (Consistency, Maybe [[t]])
-consistency lhs rhses = (cons `setRelativised` (rel==rhses), relM)
+(><) :: (a -> b) -> (c -> d) -> (a, c) -> (b, d)
+f >< g = \(x, y) -> (f x, g y)
+
+-- LHS are neighbours
+classifyArrayCode ivs lhs rhses =
+    result
   where
-    cons = sideConsistency lhs rhses
+    cat    = (lhsForm, rhsForm, consistency)
+    result1 = mempty { histMaxDepth = M.fromList [(cat, toHist maxDepth)]
+                     , histDimensionality = mkHist cat dim
+                     , histNumIndexExprs  = mkHist cat . toHist . length $ rhses
+                     , counts             = mkHist cat 1 }
+
+    result  = case affineScales of
+                Nothing -> result1
+                Just scales -> result1 { histAffineScale = scales }
+    ------------
+    lhsRep = case isArraySubscript lhs of
+                  Nothing -> Nothing
+                  Just lhsSubscript -> Just $ classifyIxs ivs [lhsSubscript]
+    rhsRep = classifyIxs ivs rhses
+    (consistency, rhsRepRel) =
+      case (lhsRep, rhsRep) of
+        (Nothing, _) -> (Consistent False, rhsRep)
+        (Just (Neigh [lhsAs]), Neigh rhsAs)   -> (id >< Neigh) $ checkConsistency lhsAs rhsAs
+        (Just (Affine [lhsAs]), Affine rhsAs) -> (id >< Affine) $ checkConsistency lhsAs rhsAs
+        (_, _)                                -> (Inconsistent, rhsRep)
+    ------------
+    lhsForm = case lhsRep of
+                Nothing -> Vars
+                Just Subscript  -> Subscripts
+                Just (Affine _) -> Affines L
+                Just (Neigh  _) -> Neighbours L
+    rhsForm = case rhsRep of
+                Subscript -> Subscripts
+                Affine _  -> Affines . R    $ rhsPhysical
+                Neigh  _  -> Neighbours . R $ rhsPhysical
+    rhsPhysical = (shape, position, boolToContig contiguity, boolToReuse linear)
+    ------------
+    neighbourisedRhs = case rhsRepRel of
+                         Subscript -> []
+                         Affine as -> map (map affineToNeighbour) as
+                         Neigh  ns -> ns
+    (shape, position) = shapeAndPosition neighbourisedRhs
+    -- Work out if the pattern is linear or not
+    (_, linear) = hasDuplicates neighbourisedRhs
+    -- Contiguity
+    contiguity = contiguous neighbourisedRhs
+    -- Calculate the max depth (from relativised)
+
+    ------------ Other properties
+    -- Dimensionality
+    dim = concatHist . map toHist . nub . map length $ rhses
+
+    rhsOffsets = map (filter ((/=) absoluteRep)
+                       . fromJust . mapM neighbourToOffset) neighbourisedRhs
+
+    maxDepth = maximum0 . map maximum0 $ rhsOffsets
+
+    maximum0 :: [Int] -> Int
+    maximum0 [] = 0
+    maximum0 xs = maximum xs
+
+    affineScales = case rhsRep of
+                      Affine as -> Just . map (\(a, _, _) -> a) . concat $ as
+                      _         -> Nothing
+
+checkConsistency :: (Eq t, Relativise t, Basis t, Eq (Base t)) => [t] -> [[t]] -> (Consistency, [[t]])
+checkConsistency lhs rhses = (cons `setRelativised` (rel /= rhses), rel)
+  where
+    cons = sideConsistency (map basis lhs) (map (map basis) rhses)
     rel  = relativiseSubscripts lhs rhses
-    relM = if (rel==rhses) then Just rel else Nothing
+
+sideConsistency :: Eq a => [a] -> [[a]] -> Consistency
+sideConsistency xs xss =
+  foldr (\ys a -> (sideConsistency1 xs ys) `joinConsistency` a)
+    (sideConsistency1 xs (head xss)) (tail xss)
+
+-- Sets all 'relativised' information to True
+sideConsistency1 :: Eq a => [a] -> [a] -> Consistency
+sideConsistency1 lhs rhs
+    | lhs == rhs = Consistent True
+    | all (`elem` rhs) lhs && all (`elem` lhs) rhs = Permutation True
+    | all (`elem` rhs) lhs = LHSsuperset True
+    | all (`elem` lhs) rhs = LHSsubset True
+    | otherwise            = Inconsistent
+
+class Basis t where
+  type Base t
+  basis :: Eq (Base t) => t -> Base t
+
+instance Basis Neighbour where
+  type Base Neighbour = String
+  basis (Neighbour i _) = i
+  basis (Constant _)    = ""
+
+instance Basis (Int, String, Int) where
+  type Base (Int, String, Int) = (Int, String)
+  basis (a, i, b) = (a, i)
 
 class Relativise t where
   relativiseSubscripts :: [t] -> [[t]] -> [[t]]
@@ -96,15 +167,15 @@ instance Relativise (Int, String, Int) where
       relativiseBy _ _ _ x = x
 
 -- ## Classification on subscripts
-data Class = Subscript | Affine [(Int, String, Int)] | Neigh [Neighbour]
+data Class = Subscript | Affine [[(Int, String, Int)]] | Neigh [[Neighbour]]
 
-classifyIx :: FAD.InductionVarMapByASTBlock
-           -> [F.Index (FA.Analysis A)]
+classifyIxs :: FAD.InductionVarMapByASTBlock
+           -> [[F.Index (FA.Analysis A)]]
            -> Class
-classifyIx ivs ix =
-  case neighbourIndex ivs ix of
+classifyIxs ivs ixs =
+  case mapM (neighbourIndex ivs) ixs of
     Nothing ->
-      case affineIndex ivs ix of
+      case mapM (affineIndex ivs) ixs of
         Nothing -> Subscript
         Just afs -> Affine afs
     Just n -> Neigh n
@@ -176,54 +247,3 @@ matchConst :: F.Expression (FA.Analysis A)
 matchConst (F.ExpValue _ _ (F.ValInteger val)) = Just $ read val
 matchConst _                                   = Nothing
 
-sideConsistency :: Eq a => [a] -> [[a]] -> Consistency
-sideConsistency xs xss =
-  foldr (\ys a -> (sideConsistency1 xs ys) `joinConsistency` a)
-    (sideConsistency1 xs (head xss)) (tail xss)
-
--- Sets all 'relativised' information to True
-sideConsistency1 :: Eq a => [a] -> [a] -> Consistency
-sideConsistency1 lhs rhs
-    | lhs == rhs = Consistent True
-    | all (`elem` rhs) lhs && all (`elem` lhs) rhs = Permutation True
-    | all (`elem` rhs) lhs = LHSsuperset True
-    | all (`elem` lhs) rhs = LHSsubset True
-    | otherwise            = Inconsistent
-
-consistentNeighbours :: [Class] -> Maybe [String]
-consistentNeighbours ixs = do
-   neighbourReps <- allNeighbours ixs
-   foldr1M eqW neighbourReps
-
-eqW :: Eq a => a -> a -> Maybe a
-eqW x y | x == y = Just x
-eqW _ _          = Nothing
-
-allNeighbours :: [Class] -> Maybe [[String]]
-allNeighbours [] = error $ "Non-empty classification, shouldn't happen"
-allNeighbours ((Neigh ns):nss) = do
-    vs <- mapM neighbourVar ns
-    nss' <- allNeighbours nss
-    return (vs : nss')
-
-neighbourVar :: Neighbour -> Maybe String
-neighbourVar (Neighbour v _) = Just v
-neighbourVar (Constant _)    = Just ""
-neighbourVar _               = Nothing
-
--- consistentAffines - takes a list of index classifiers
---    returns Just of a list of pairs representing scalar mults. of IVs
---      if all indices are affine with the same basis
---    otherwise Nothing
-consistentAffines :: [Class] -> Maybe [(Int, String)]
-consistentAffines ixs = do
-    affineReps <- allAffine ixs
-    consistents <- foldr1M (\r x -> sequence $ zipWith affineCmp r x) affineReps
-    return $ map (\(a, i, _) -> (a, i)) consistents
-affineCmp (a, i, _) (a', i', b') | a == a' && i == i' = Just (a', i', b')
-
-allAffine :: [Class] -> Maybe [[(Int, String, Int)]]
-allAffine [] = error $ "Non-empty classification, shouldn't happen"
-allAffine (Affine is : as) = allAffine as >>= (\as' -> Just (is : as'))
-
-foldr1M f (x:xs) = foldrM f x xs

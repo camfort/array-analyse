@@ -14,20 +14,35 @@ import Camfort.Specification.Stencils.InferenceFrontend
 
 --   * RHS shape/position/contiguity
 data Shape    = Orthotope | SumOfOrthotope | Other
+              -- I think 'Other' shouldn't actually occur, but until I have a proof
+              -- I'll leave this hear to catch 'unwiedly' things
     deriving (Eq, Show, Ord)
 
 data Position = OverOrigin | StraddleOrigin | Elsewhere
     deriving (Eq, Show, Ord)
 
+joinPosition :: Position -> Position -> Position
+joinPosition OverOrigin OverOrigin = OverOrigin
+joinPosition StraddleOrigin StraddleOrigin = StraddleOrigin
+joinPosition _ _ = Elsewhere
+
 data Contig   = SingleNonContig | NonContig | Contig
     deriving (Eq, Show, Ord)
+
+boolToContig :: Bool -> Contig
+boolToContig True = Contig
+boolToContig False = NonContig
 
 data Reuse    = Linear | NonLinear
     deriving (Eq, Show, Ord)
 
+boolToReuse :: Bool -> Reuse
+boolToReuse True = Linear
+boolToReuse False = NonLinear
+
 data Physicality s where
-     PL :: Physicality LHS
-     PR :: Maybe (Shape, Position, Contig, Reuse) -> Physicality RHS
+     L :: Physicality LHS
+     R :: (Shape, Position, Contig, Reuse) -> Physicality RHS
 
 deriving instance Eq (Physicality s)
 deriving instance Ord (Physicality s)
@@ -55,7 +70,17 @@ data Consistency = Consistent  Relativised
                  | LHSsubset   Relativised
                  | LHSsuperset Relativised
                  | Inconsistent
-      deriving (Eq, Show, Ord)
+      deriving (Eq, Ord)
+
+instance Show Consistency where
+  show (Consistent r)  = "Consistent" ++ showR r
+  show (Permutation r) = "Permutation" ++ showR r
+  show (LHSsubset r)   = "LHSsubset" ++ showR r
+  show (LHSsuperset r) = "LHSsuperset" ++ showR r
+  show Inconsistent    = "Inconsistent"
+
+showR True = " relativised"
+showR False = ""
 
 setRelativised :: Consistency -> Bool -> Consistency
 setRelativised (Consistent _)  r = Consistent r
@@ -81,110 +106,105 @@ data Result = Result {
   , counts                :: M.Map Cat Int
   ------------------------------------
   -- Histograms
-  , histLengthOfDataflow :: M.Map Cat [Int]
   , histDimensionality   :: M.Map Cat [Int]
   , histMaxDepth         :: M.Map Cat [Int]
-  , histNumArraysRead    :: M.Map Cat [Int]
   , histNumIndexExprs    :: M.Map Cat [Int]
+  , histNumArraysRead    :: [Int]
+  , histLengthOfDataflow :: [Int]
   , histAffineScale      :: [Int]
-  , histPatterns         :: M.Map Cat (M.Map Int Int
-                                     , M.Map (Int, Int) Int
-                                     , M.Map (Int, Int, Int) Int)
 
   } deriving Show
 
 
 -- Results form a monoid
 instance Monoid Result where
-  mempty = Result 0 M.empty
-                  M.empty M.empty M.empty  M.empty  M.empty [] M.empty
+  mempty = Result 0 M.empty M.empty M.empty M.empty [] [] []
 
   mappend r1 r2 = Result
      { numLines = numLines r1 + numLines r2
      , counts = M.unionWith (+) (counts r1) (counts r2)
-     , histLengthOfDataflow = M.unionWith histZip (histLengthOfDataflow r1)
-                                                  (histLengthOfDataflow r2)
+
      , histDimensionality = M.unionWith histZip (histDimensionality r1)
                                                 (histDimensionality r2)
      , histMaxDepth = M.unionWith histZip (histMaxDepth r1) (histMaxDepth r2)
-     , histNumArraysRead = M.unionWith histZip (histNumArraysRead r1)
-                                               (histNumArraysRead r2)
      , histNumIndexExprs = M.unionWith histZip (histNumIndexExprs r1)
                                                (histNumIndexExprs r2)
+
+     , histNumArraysRead = histZip (histNumArraysRead r1) (histNumArraysRead r2)
+     , histLengthOfDataflow = histZip (histLengthOfDataflow r1) (histLengthOfDataflow r2)
      , histAffineScale = histZip (histAffineScale r1) (histAffineScale r2)
-     , histPatterns = M.unionWith histZip (histPatterns r1) (histPatterns r2)
      }
 
--- Operations for combining different kinds of histograms
-class HistogramZip t where
-    histZip :: t -> t -> t
+-- Combine histograms
+histZip :: [Int] -> [Int] -> [Int]
+histZip [] xs = xs
+histZip xs [] = xs
+histZip (x:xs) (y:ys) = (x+y):(histZip xs ys)
 
-instance HistogramZip [Int] where
-    histZip [] xs = xs
-    histZip xs [] = xs
-    histZip (x:xs) (y:ys) = (x+y):(histZip xs ys)
+-- Histogram manipulation
+flag True = 1
+flag False = 0
 
-instance HistogramZip a => HistogramZip (a, a) where
-    histZip (a, b) (x, y) = (histZip a x, histZip b y)
+-- Generate a singleton histogram for value 'n'
+toHist :: Int -> [Int]
+toHist n = (replicate n 0) ++ [1]
 
-instance (HistogramZip a, HistogramZip b, HistogramZip c) => HistogramZip (a, b, c) where
-    histZip (a, b, c) (x, y, z) = (histZip a x, histZip b y, histZip c z)
+-- 'zip' together a list of histograms
+concatHist [] = []
+concatHist [x] = x
+concatHist (x:y:xs) = (x `histZip` y) `histZip` (concatHist xs)
 
-instance Ord k => HistogramZip (M.Map k Int) where
-    histZip x y = M.unionWith (+) x y
+-- Singleton histogram
+mkHist :: Cat -> a -> M.Map Cat a
+mkHist cat x = M.fromList [(cat, x)]
+
 
 --------------------------------------------------------------------------------
 -- Pretty print results
 --------------------------------------------------------------------------------
 
-prettyResults r histograms = "TO-REDO"
-
-{-
+prettyResults r histograms =
     "Results: \n"
  ++ rline "Source lines parsed" (numLines r)
- ++ rline "Array writes" (numArrayWrites r)
- ++ rline "Array writes to neighbourhood indices"
-          (numNeighbourArrayWrites r - numConstArrayWrites r)
- ++ rline "Array writes to I.V. indices" (numIVArrayWrites r)
- ++ rline "Array writes to neighbourhood+constant IV indices" (numConstArrayWrites r)
- ++ rline "Neighbour LHS but RHS with non-neighbour indices" (numLHSButNonNeighbourRHS r)
- ++ rline "Neighbour LHS but RHS with inconsistent IV use" (numLHSButInconsistentIVRHS r)
- ++ "----------------------------------------------------------------------------\n"
- ++ "Categorisations: \n"
- ++ showCats "Number of" (numOverall r)
- ++ showCats "Number of linear" (numLinear r)
- ++ showCats "Number with no origin" (numNoOrigin r)
- ++ rline "Non-contiguous stencils with one index" (numSingNonContigStencils r)
- ++ "----------------------------------------------------------------------------\n"
- ++ if histograms then
-       "Histograms and median: \n"
-        ++ hline "Dimensionality" (histDimensionality r)
-        ++ hline "Maximum depth" (histMaxDepth r)
-        ++ hline "Arrays read in stencil" (histNumArraysRead r)
-        ++ hline "Indexing terms in stencil" (histNumIndexExprs r)
-        ++ hline "Length of (array read) dataflow path" (histLengthOfDataflow r)
-        ++ rline' "Indexing pattern heat map" (histPatterns r)
-        ++ "\n"
-    else ""
+ ++ mapView "Counts" (counts r)
+ ++ mapView "Dimensionality" (histDimensionality r)
+ ++ mapView "Max depth" (histMaxDepth r)
+ ++ mapView "Number of indexing expressions" (histNumIndexExprs r)
+ ++ rline' "Number of arrays read"    (hview . histNumArraysRead $ r)
+ ++ rline' "Length of dataflow path"  (hview . histLengthOfDataflow $ r)
+ ++ rline' "Scale of affine indexing" (hview . histAffineScale $ r)
 
-rline msg num = "   " ++ msg ++ ":" ++ (replicate (60 - (length msg)) ' ') ++ (show num) ++ "\n"
-rline' msg num = "   " ++ msg ++ ":" ++ (replicate (60 - (length msg)) ' ') ++ "\n" ++ (show num) ++ "\n"
-hline msg map =
-     hline' msg "Stencils" Stencil map
-  ++ hline' msg "Reads" Read map
+rline msg num = "   " ++ msg ++ ":" ++ (replicate (90 - (length msg)) ' ') ++ (show num) ++ "\n"
+rline' msg dat = "   " ++ msg ++ ":" ++ (replicate (90 - (length msg)) ' ') ++ dat ++ "\n"
 
-hline' msg msg' cat map =
-  "   " ++ msg ++ "\n"
-  ++ "    " ++ msg' ++ ":\n"
-  ++ "      Continguous:\n" ++ hview contigHist ++ "\n"
-  ++ "      Non-contig.:\n" ++ hview noncontigHist ++ "\n"
-  ++ "      Total:\n" ++ hview (histZip contigHist noncontigHist) ++ "\n"
-  where
-    contigHist = map M.! (cat, Contig)
-    noncontigHist = map M.! (cat, NonContig)
+mapView msg map =
+       "   " ++ msg ++ ":\n"
+    ++ rline' ((replicate 5 ' ') ++ "Total") (show' . histTotal $ M.elems map)
+    ++ concatMap (\(cat, dat) -> hline' cat (show' dat)) (M.assocs map)
+    ++ "\n"
+
+class HistogramShow t where
+  show'     :: t -> String
+  histTotal :: [t] -> t
+
+instance HistogramShow Int where
+  show'     = show
+  histTotal = sum
+
+instance HistogramShow [Int] where
+  show'     = hview
+  histTotal = foldr1 histZip
+
+hline' cat dat =
+  rline' ((replicate 5 ' ') ++ (show cat)) dat
 
 hview :: [Int] -> String
-hview xs = "         k: " ++ top ++ "\n" ++ "         v: " ++ bottom
+hview xs = "k: "
+        ++ top ++ "\n"
+        ++ (replicate 94 ' ')
+        ++ "v: "
+        ++ bottom
+        ++ "\n"
   where
     (top, bottom) = hview' (zip [0..(length xs)] xs) False
     hview' :: [(Int, Int)] -> Bool -> (String, String)
@@ -197,23 +217,12 @@ hview xs = "         k: " ++ top ++ "\n" ++ "         v: " ++ bottom
             pad :: Int -> String
             pad x = (show x) ++ (replicate (width - (length . show $ x)) ' ')
 
-showCats :: (Num a, Show a) => String -> M.Map Cat a -> String
-showCats prefix amap =
-     showCat Stencil " stencils"
-  ++ showCat Read " reads"
-  where
-    showCat cat msg =
-      let prefix' = prefix ++ msg
-      in rline prefix' (amap M.! (cat, Contig) + amap M.! (cat, NonContig))
-      ++ (rline ((replicate 46 ' ') ++ "(contiguous)") $ amap M.! (cat, Contig))
-      ++ (rline ((replicate 42 ' ') ++ "(non-contiguous)") $ amap M.! (cat, NonContig))
-      ++ "\n"
--}
 --------------------------------------------------------------------------------
 -- Validate results
 --------------------------------------------------------------------------------
 
-resultValidation = error "TO-REDO"
+resultValidation :: Result -> IO Bool
+resultValidation r = return True --  TO-REDO
 
 {-
       (\r -> (numArrayWrites r) `gte` (numNeighbourArrayWrites r))

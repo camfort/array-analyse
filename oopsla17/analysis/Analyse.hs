@@ -3,13 +3,12 @@
  Analysis of array usage
 
  TODO
-   * Detect affine indices (see classifyRHSsubscripts)
+   * capture single non-contig
    * Figure out whether to bin the different kinds of shape (maybe up to 3D)
             * Tag patterns with either rectilinear,
                                        contiguous composite of rectilinear,
                                        contiguous composite of rectilinear (over ex. origin)
                                        other
-   * Collapse first few 'classifyRHSSubscripts'
 
 
 
@@ -87,11 +86,14 @@ main = do
     case args of
       [dir]
         -> applyAnalysisToDir (head args) False False []
+
       dir:args@(a1:a2:_)
         -> applyAnalysisToDir dir (a1 == "-d" || a2 == "-d")
                                   (a1 == "-h" || a2 == "-h") (filterFlags args)
+
       dir:args@(a1:_)
         -> applyAnalysisToDir dir (a1 == "-d") (a1 == "-h") (filterFlags args)
+
       _ -> putStrLn $ "Please specify a directory on which to apply the\
                      \ analysis followed by any number of file names\
                      \ to be excluded."
@@ -177,29 +179,6 @@ stencilAnalyse nameMap pf@(F.ProgramFile mi cm_pus blocks) =
     -- get map of variable name ==> { defining AST-Block-IDs }
     dm    = FAD.genDefMap bm
 
-
-{-
--- Used to classify an index
-
-classifyLHS ixs | any ((==) NonNeighbour) ixs =
-    -- Any non-neighour indexing
-    mempty { numArrayWrites = 1 }
-
-classifyLHS ixs | all (\i -> case i of Neighbour _ _ -> True; _ -> False) ixs
-            && any (\i -> case i of Neighbour _ o -> o /= 0; _ -> False) ixs =
-    -- All neighbour with some relative
-    mempty { numArrayWrites = 1, numNeighbourArrayWrites = 1 }
-
-classifyLHS ixs | any (\i -> case i of Constant _ -> True; _ -> False) ixs =
-    -- All relative or constant
-    mempty { numArrayWrites = 1, numNeighbourArrayWrites = 1, numConstArrayWrites = 1 }
-
-classifyLHS ixs | isOrigin ixs =
-    -- All induction variables
-    mempty { numArrayWrites = 1, numNeighbourArrayWrites = 1, numIVArrayWrites = 1 }
--}
-
-
 -- Traverse Blocks in the AST and infer stencil specifications
 -- Note that this should be applied by `descendBiM`, as it does its
 -- own inner traversal and relies on the order in which blocks are visited
@@ -230,9 +209,8 @@ perBlockInnerDo b@(F.BlStatement ann span@(FU.SrcSpan lp up) _ stmnt) = do
     else do
       results <- forM lhses $ \lhs -> do
          (dbg, rhses, dflowLen) <- analyseRHS [b]
-         let (dbg', cat, result) = classify ivs lhs rhses
-         let result' = result { histLengthOfDataflow =
-                                   M.fromList [(cat, toHist dflowLen)] }
+         let (dbg', result) = classify ivs lhs rhses
+         let result' = result { histLengthOfDataflow = toHist dflowLen }
          return ("At: " ++ show span ++ "\n" ++ dbg ++ dbg', result')
       tell (mconcat results)
       return b
@@ -269,135 +247,3 @@ filterOutFuns nameMap m =
         Nothing           -> False
         Just k' | k == k' -> False
         _                 -> True) m
-
-boolToContig True  = Contig
-boolToContig False = NonContig
-
-{-
--- The main function for classifying the RHS subscripts into different
--- kinds of stencil
-classifyRHSsubscripts :: Kind
-                      -> M.Map Variable [[Neighbour]]
-                      -> [Neighbour]
-                      -> Int
-                      -> Result
-classifyRHSsubscripts Stencil rhses _ dflowLen
-  | rhses == M.empty || anyMap (\rhs -> any (any ((==) NonNeighbour)) rhs) rhses
-  = mempty { numLHSButNonNeighbourRHS = 1
-           , histLengthOfDataflow = M.fromList [((Stencil, NonContig), toHist dflowLen)]}
-
-classifyRHSsubscripts Stencil rhses lhs dflowLen
-  | anyMap (\rhs -> not (consistentIVSuse lhs rhs)) rhses
-  = mempty { numLHSButInconsistentIVRHS = 1
-           , histLengthOfDataflow = M.fromList [((Stencil, NonContig), toHist dflowLen)]}
-
-classifyRHSsubscripts kind rhses lhs dflowLen =
-    mempty { numOverall               = M.fromList [(cat, 1)]
-           , numStencilRelativisedRHS = flag (isStencil && rhses /= rhsesRel)
-           , numSingNonContigStencils = flag (isStencil
-                                             && not isContig
-                                             && (length . concat . M.elems $ rhsesO) == 1)
-           , numNoOrigin              = M.fromList [(cat, flag (not (allMap (any isOrigin) rhses)))]
-           , numLinear                = M.fromList [(cat, flag (allMap (not . snd) rhsesWithMult))]
-           , histDimensionality       = M.fromList [(cat, dimensionalities)]
-           , histMaxDepth             = M.fromList [(cat, maxDepth)]
-           , histNumArraysRead        = M.fromList [(cat, numArrays)]
-           , histNumIndexExprs        = M.fromList [(cat, numIndexExprs)]
-           , histLengthOfDataflow     = M.fromList [(cat, toHist dflowLen)]
-           , histPatterns             = M.fromList [(cat, patterns)] }
-  where
-    cat = (kind, contig)
-    m0 = (M.empty, M.empty, M.empty)
-    contig   = boolToContig isContig
-    isContig = allMap contiguous rhses
-    isStencil = kind == Stencil
-
-    -- Relativise the rhses if this is a stencil
-    rhsesRel = if isStencil then M.map (relativise lhs) rhses else rhses
-    -- Dimensionality
-    dimensionalities = concatHist . map toHist . nub . map length . concat . M.elems $ rhses
-    -- Max depth
-    rhsesO = M.map (map (filter ((/=) absoluteRep) . fromJust . mapM neighbourToOffset)) rhsesRel
-    maxDepth = toHist . maximum0 . M.elems . M.map (maximum0 . map maximum0) $ rhsesO
-    -- Num arrays read
-    numArrays = toHist . length . M.keys $ rhses
-    -- Index exprs
-    numIndexExprs = toHist . Data.List.sum . map length . M.elems $ rhses
-    -- Patterns
-    patterns = mkPatterns . concat . M.elems $ rhsesO
-    -- Work out if the pattern is linear or not
-    rhsesWithMult = M.map hasDuplicates rhses
-    maximum0 [] = 0
-    maximum0 xs = maximum xs
--}
-
--- Predicate on whether an index is at the origin
-isOrigin :: [Neighbour] -> Bool
-isOrigin nixs = all (\i -> case i of Neighbour _ 0 -> True; _ -> False) nixs
-
--- Predicate on whether an index is rectilinearly next to the origin
-nextToOrigin :: [Neighbour] -> Bool
-nextToOrigin [] = True
-nextToOrigin ((Neighbour _ 1):nixs) = isOrigin nixs
-nextToOrigin ((Neighbour _ (-1)):nixs) = isOrigin nixs
-nextToOrigin ((Neighbour _ 0):nixs) = nextToOrigin nixs
-nextToOrigin _ = False
-
--- Given two indices, find out if they are (rectilinear) neighbours
-neighbouringIxs :: [Neighbour] -> [Neighbour] -> Bool
-neighbouringIxs [] [] = True
-neighbouringIxs (x : xs) (y : ys) | x == y = neighbouringIxs xs ys
-neighbouringIxs ((Neighbour v o) : xs) ((Neighbour v' o') : ys)
-  | v == v' && abs (o - o') == 1 && xs == ys = True
-neighbouringIxs _ _ = False
-
--- Given an index 'ns' and a set of indices 'nss',
--- find if 'ns' has a neighbour in 'nss'
-hasNeighbouringIx :: [Neighbour] -> [[Neighbour]] -> Bool
-hasNeighbouringIx ns [] = False
-hasNeighbouringIx ns (ns' : nss) =
-  neighbouringIxs ns ns' || hasNeighbouringIx ns nss
-
--- Contiguous stencil (need not include the origin)
-contiguous :: [[Neighbour]] -> Bool
-contiguous xs = contiguity' xs
-  where
-    contiguity' [] = True
-    contiguity' (y : ys) | isOrigin y = contiguity' ys
-    contiguity' (y : ys) | nextToOrigin y = contiguity' ys
-    contiguity' (y : ys) | hasNeighbouringIx y (xs \\ [y]) = contiguity' ys
-    contiguity' _ = False
-
--- Given a list of indices (as a list of offsets), calculate heat maps
--- for one, two and three dimension arrays
-mkPatterns :: [[Int]]
-           -> (M.Map Int Int, M.Map (Int, Int) Int, M.Map (Int, Int, Int) Int)
-mkPatterns ixs = mconcat . map mkPattern $ ixs
-  where
-    mkPattern [x] = (M.fromList [(x, 1)], M.empty, M.empty)
-    mkPattern [x, y] = (M.empty, M.fromList [((x, y), 1)], M.empty)
-    mkPattern [x, y, z] = (M.empty, M.empty, M.fromList [((x, y, z), 1)])
-    mkPattern _ = (M.empty, M.empty, M.empty)
-
--- Histogram manipulation
-flag True = 1
-flag False = 0
-
--- Generate a singleton histogram for value 'n'
-toHist :: Int -> [Int]
-toHist n = (replicate n 0) ++ [1]
-
--- 'zip' together a list of histograms
-concatHist [] = []
-concatHist [x] = x
-concatHist (x:y:xs) = (x `histZip` y) `histZip` (concatHist xs)
-
--- Injections into representing data for contiguous and non-contiguous
--- stencils
---contig, nonContig :: Monoid a => a -> (a, a)
---contig n = (n, mempty)
---nonContig n = (mempty, n)
-
--- Predicate transformers on Maps
-anyMap p m = M.size (M.filter p m) > 0
-allMap p m = M.size (M.filter p m) == M.size m

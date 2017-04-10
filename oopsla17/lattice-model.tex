@@ -683,20 +683,21 @@ are infinite we might need to elaborate based on representation.}
   what is it for?}
 \begin{defn}{(Exact set)}
   The \emph{exact set} at origin distance $d$, $\mathit{ES}_{P,d}$, of a group
-  of $N$ dimensional points $P$ is defined below:
+  of $N$ dimensional subscripts $S$ is defined below:
 %
   \begin{align*}
-    \mathit{ES}_{P,0} & = \{ p \in P \mid \forall \i.\ \pi_i(p) \in \interv{-1}{1}{} \} \\
-    \mathit{ES}_{P,d} & =
-      \{ p \in P \mid \forall i.\
-      p_i \notin [-1,1] \implies
-         \exists p' \in \mathit{ES}_{P,d-1}.\ p' =
-         \mathit{adjacent}(p,i) \}
+    \mathit{ES}_{S,0} = &
+      \{ s \in S \mid \forall \i.\ \pi_i(s) \in \{\{-1\}, \{0\}, \{1\}\} \} \\
+    \mathit{ES}_{S,d} = &
+      \{ s \in S \mid \forall i.\
+      \pi_i(s) \notin \{\{-1\}, \{0\}, \{1\}\} \implies
+      \exists s' \in \mathit{ES}_{S,d-1}.\ s' =
+         \mathit{adjacent}(s,i) \}
   \end{align*}
 %
-  The overall \emph{exact set}, $\mathit{ES}_P$ is then
-  $\bigcup_{1 \leq d \leq D} \mathit{ES}_{P,d}$, where $D$ is the maximum origin
-  distance in $P$.
+  The overall \emph{exact set}, $\mathit{ES}_S$ is then
+  $\bigcup_{0 \leq d \leq D} \mathit{ES}_{S,d}$, where $D$ is the maximum origin
+  distance in $S$.
 \end{defn}
 
 \begin{lem}{(\emph{Connecting})}

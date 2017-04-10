@@ -66,9 +66,15 @@ classifyArrayCode ivs lhs rhses =
                      , histNumIndexExprs  = mkHist cat . toHist . length $ rhses
                      , counts             = mkHist cat 1 }
 
-    result  = case affineScales of
+    result2  = case affineScales of
                 Nothing -> result1
                 Just scales -> result1 { histAffineScale = concatHist (map toHist scales) }
+    -- pattern bins
+    result = case maximum . map length $ rhses of
+               1 -> result2 { patternBin1D = M.fromList [(to1D pattern, 1)] }
+               2 -> result2 { patternBin2D = M.fromList [(to2D pattern, 1)] }
+               3 -> result2 { patternBin3D = M.fromList [(to3D pattern, 1)] }
+               _ -> result2
     ------------
     lhsRep = case isArraySubscript lhs of
                   Nothing -> Nothing
@@ -119,6 +125,9 @@ classifyArrayCode ivs lhs rhses =
     affineScales = case rhsRep of
                       Affine as -> Just . nub . map (\(a, _, _) -> a) . concat $ as
                       _         -> Nothing
+    -- capture pattern bin
+    pattern = sort . nub $ rhsOffsets
+
 
 checkConsistency :: (Eq t, Relativise t, Basis t, Eq (Base t)) => [t] -> [[t]] -> (Consistency, [[t]])
 checkConsistency lhs rhses = (cons `setRelativised` (rel /= rhses), rel)

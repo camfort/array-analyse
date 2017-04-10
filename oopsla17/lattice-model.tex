@@ -641,7 +641,7 @@ are infinite we might need to elaborate based on representation.}
     \mathit{dist}(S) & = \sum_{i=1}^{N} \mathit{dist}_i(S)
     &
     \mathit{dist}_i(S) & = \begin{cases}
-      0 & \pi_i(S) = \interv{-\infty}{\infty}{} \\
+      0 & \pi_i(S) \in \{ \interv{-\infty}{\infty}{}, \{ 0 \}\} \\
       |\mathsf{a}| - 1 & \pi_i(S) = \{\mathsf{a}\} \\
     \end{cases}
   \end{align*}
@@ -683,41 +683,42 @@ are infinite we might need to elaborate based on representation.}
   what is it for?}
 \begin{defn}{(Exact set)}
   The \emph{exact set} at origin distance $d$, $\mathit{ES}_{P,d}$, of a group
-  of $N$ dimensional points $P$ is defined below:
+  of $N$ dimensional subscripts $S$ is defined below:
 %
   \begin{align*}
-    \mathit{ES}_{P,0} & = \{ p \in P \mid \forall \i.\ \pi_i(p) \in \interv{-1}{1}{} \} \\
-    \mathit{ES}_{P,d} & =
-      \{ p \in P \mid \forall i.\
-      p_i \notin [-1,1] \implies
-         \exists p' \in \mathit{ES}_{P,d-1}.\ p' =
-         \mathit{adjacent}(p,i) \}
+    \mathit{ES}_{S,0} = &
+      \{ s \in S \mid \forall \i.\ \pi_i(s) \in \{\{-1\}, \{0\}, \{1\}\} \} \\
+    \mathit{ES}_{S,d} = &
+      \{ s \in S \mid \forall i.\
+      \pi_i(s) \notin \{\{-1\}, \{0\}, \{1\}\} \implies
+      \exists s' \in \mathit{ES}_{S,d-1}.\ s' =
+         \mathit{adjacent}(s,i) \}
   \end{align*}
 %
-  The overall \emph{exact set}, $\mathit{ES}_P$ is then
-  $\bigcup_{1 \leq d \leq D} \mathit{ES}_{P,d}$, where $D$ is the maximum origin
-  distance in $P$.
+  The overall \emph{exact set}, $\mathit{ES}_S$ is then
+  $\bigcup_{0 \leq d \leq D} \mathit{ES}_{S,d}$, where $D$ is the maximum origin
+  distance in $S$.
 \end{defn}
 
 \begin{lem}{(\emph{Connecting})}
-  The following three statements are equivalent for a set of points $P \subseteq
-  \mathbb{Z}^N$:
+  The following three statements are equivalent for a set of $N$-dimensional
+  subscripts $S$:
 %
   \begin{enumerate}
-    \item $P$ is the same as its exact set $\mathit{ES}_P$;
-    \item $P$ when regarded as offsets from induction variables forms a
+    \item $S$ is the same as its exact set $\mathit{ES}_S$;
+    \item $S$ when regarded as offsets from induction variables forms a
       neighbourhood stencil;
-    \item $P$ is a subset of \region{N}.
+    \item $S$ is in \region{N}.
   \end{enumerate}
 \end{lem}
 
 \begin{thm}{(Soundness of exact shape inference)}
-  For a set of point offsets vectors $P$, the inference procedure for
+  For a set of subscripts $S$ of same dimension, the inference procedure for
   neighbourhood stencils is sound if the following holds:
 %
   \begin{equation*}
-    \forall P. \mathit{peel}(\mathit{infer}(P)) = m \implies
-      \mathit{consistent'}(P,m)
+    \forall S. \mathit{peel}(\mathit{infer}(S)) = m \implies
+      \mathit{consistent'}(S,m)
   \end{equation*}
 \end{thm}
 

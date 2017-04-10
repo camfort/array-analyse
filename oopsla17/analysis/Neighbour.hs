@@ -32,6 +32,10 @@ classifyIntervalRegions xs =
 
 intervalToPosition = foldr1 joinPosition . map positionInterval . toList . transposeVecInterval
 
+toList :: Vec n a -> [a]
+toList Nil = []
+toList (Cons x xs) = x : (toList xs)
+
 transposeVecInterval :: Span (Vec n Int) -> Vec n (Span Int)
 transposeVecInterval (Nil, Nil) = Nil
 transposeVecInterval (Cons l ls, Cons u us) = Cons (l, u) intervalVec

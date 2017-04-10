@@ -16,10 +16,10 @@ import Camfort.Specification.Stencils.InferenceFrontend
 data Shape    = Orthotope | SumOfOrthotope | Other
               -- I think 'Other' shouldn't actually occur, but until I have a proof
               -- I'll leave this hear to catch 'unwiedly' things
-    deriving (Eq, Show, Ord)
+    deriving (Eq, Show, Ord, Read)
 
 data Position = OverOrigin | StraddleOrigin | Elsewhere
-    deriving (Eq, Show, Ord)
+    deriving (Eq, Show, Ord, Read)
 
 joinPosition :: Position -> Position -> Position
 joinPosition OverOrigin OverOrigin = OverOrigin
@@ -27,14 +27,14 @@ joinPosition StraddleOrigin StraddleOrigin = StraddleOrigin
 joinPosition _ _ = Elsewhere
 
 data Contig   = SingleNonContig | NonContig | Contig
-    deriving (Eq, Show, Ord)
+    deriving (Eq, Show, Ord, Read)
 
 boolToContig :: Bool -> Contig
 boolToContig True = Contig
 boolToContig False = NonContig
 
 data Reuse    = Linear | NonLinear
-    deriving (Eq, Show, Ord)
+    deriving (Eq, Show, Ord, Read)
 
 boolToReuse :: Bool -> Reuse
 boolToReuse True = Linear
@@ -47,6 +47,14 @@ data Physicality s where
 deriving instance Eq (Physicality s)
 deriving instance Ord (Physicality s)
 deriving instance Show (Physicality s)
+
+instance Read (Physicality LHS) where
+  readsPrec n ('L':xs) = [(L, xs)]
+  readsPrec n _        = []
+
+instance Read (Physicality RHS) where
+  readsPrec n ('R':' ':xs) = map (\(n, rest) -> (R n, rest)) $ readsPrec n xs
+  readsPrec n _            = []
 
 --   * Categorisation of indices (on LHS or RHS)
 data Side = LHS | RHS
@@ -62,6 +70,39 @@ deriving instance Eq (Form s)
 deriving instance Ord (Form s)
 deriving instance Show (Form s)
 
+instance Read (Form LHS) where
+  readsPrec n xs | "Vars" `isPrefixOf` xs
+    = [(Vars, drop (length "Vars") xs)]
+  readsPrec n xs | "Subscripts" `isPrefixOf` xs
+    = [(Subscripts, drop (length "Subscripts") xs)]
+
+  readsPrec n xs | "Affines" `isPrefixOf` xs
+    = readsPrec n (drop (length "Affines ") xs)
+          >>= (\(pl, rest) -> [(Affines pl, rest)])
+
+  readsPrec n xs | "Neighbours" `isPrefixOf` xs
+    = readsPrec n (drop (length "Neighbours ") xs)
+         >>= (\(pl, rest) -> [(Neighbours pl, rest)])
+
+  readsPrec n xs | "IVs" `isPrefixOf` xs
+    = [(IVs, drop (length "IVs") xs)]
+
+  readsPrec n xs = []
+
+instance Read (Form RHS) where
+  readsPrec n xs | "Subscripts" `isPrefixOf` xs
+    = [(Subscripts, drop (length "Subscripts") xs)]
+
+  readsPrec n xs | "Affines" `isPrefixOf` xs
+    = readsPrec n (drop (length "Affines (") xs)
+          >>= (\(pr, ')':rest) -> [(Affines pr, rest)])
+
+  readsPrec n xs | "Neighbours" `isPrefixOf` xs
+    = readsPrec n (drop (length "Neighbours (") xs)
+         >>= (\(pr, ')':rest) -> [(Neighbours pr, rest)])
+
+  readsPrec n xs = []
+
 type Relativised = Bool
 
 --   * Consistency between sides
@@ -71,6 +112,23 @@ data Consistency = Consistent  Relativised
                  | LHSsuperset Relativised
                  | Inconsistent
       deriving (Eq, Ord)
+
+instance Read Consistency where
+  readsPrec n xs =
+       consistencyRead "Consistent" Consistent 0 xs
+    ++ consistencyRead "Permutation" Permutation 0 xs
+    ++ consistencyRead "LHSsubset" LHSsubset 0 xs
+    ++ consistencyRead "LHSsuperset" LHSsuperset 0 xs
+    ++ consistencyRead "Inconsitent" (\b -> Inconsistent) 0 xs
+
+consistencyRead consString cons n xs =
+    if consString `isPrefixOf` xs
+    then [(cons relFlag, drop (length (consString ++ showR relFlag)) xs)]
+    else []
+  where
+    relFlag = (showR True) `isPrefixOf` (drop (length consString) xs)
+
+readR xs = (showR True) `isSuffixOf` xs
 
 instance Show Consistency where
   show (Consistent r)  = "Consistent" ++ showR r
@@ -112,13 +170,15 @@ data Result = Result {
   , histNumArraysRead    :: [Int]
   , histLengthOfDataflow :: [Int]
   , histAffineScale      :: [Int]
-
-  } deriving Show
+  , patternBin1D         :: M.Map [Int] Int
+  , patternBin2D         :: M.Map [(Int,Int)] Int
+  , patternBin3D         :: M.Map [(Int, Int, Int)] Int
+  } deriving (Show, Read)
 
 
 -- Results form a monoid
 instance Monoid Result where
-  mempty = Result 0 M.empty M.empty M.empty M.empty [] [] []
+  mempty = Result 0 M.empty M.empty M.empty M.empty [] [] [] M.empty M.empty M.empty
 
   mappend r1 r2 = Result
      { numLines = numLines r1 + numLines r2
@@ -133,6 +193,9 @@ instance Monoid Result where
      , histNumArraysRead = histZip (histNumArraysRead r1) (histNumArraysRead r2)
      , histLengthOfDataflow = histZip (histLengthOfDataflow r1) (histLengthOfDataflow r2)
      , histAffineScale = histZip (histAffineScale r1) (histAffineScale r2)
+     , patternBin1D = M.unionWith (+) (patternBin1D r1) (patternBin1D r2)
+     , patternBin2D = M.unionWith (+) (patternBin2D r1) (patternBin2D r2)
+     , patternBin3D = M.unionWith (+) (patternBin3D r1) (patternBin3D r2)
      }
 
 -- Combine histograms
@@ -150,9 +213,8 @@ toHist :: Int -> [Int]
 toHist n = (replicate n 0) ++ [1]
 
 -- 'zip' together a list of histograms
-concatHist [] = []
-concatHist [x] = x
-concatHist (x:y:xs) = (x `histZip` y) `histZip` (concatHist xs)
+concatHist :: [[Int]] -> [Int]
+concatHist = foldr1 histZip
 
 -- Singleton histogram
 mkHist :: Cat -> a -> M.Map Cat a
@@ -163,7 +225,7 @@ mkHist cat x = M.fromList [(cat, x)]
 -- Pretty print results
 --------------------------------------------------------------------------------
 
-prettyResults r histograms =
+prettyResults r bins =
     "Results: \n"
  ++ rline "Source lines parsed" (numLines r)
  ++ mapView "Counts" (counts r)
@@ -173,9 +235,18 @@ prettyResults r histograms =
  ++ rline' "Number of arrays read"    (hview . histNumArraysRead $ r)
  ++ rline' "Length of dataflow path"  (hview . histLengthOfDataflow $ r)
  ++ rline' "Scale of affine indexing" (hview . histAffineScale $ r)
-
+ ++ if bins
+    then binView "1D patterns" (patternBin1D r)
+      ++ binView "2D patterns" (patternBin2D r)
+      ++ binView "3D patterns" (patternBin3D r)
+    else ""
 rline msg num = "   " ++ msg ++ ":" ++ (replicate (90 - (length msg)) ' ') ++ (show num) ++ "\n"
 rline' msg dat = "   " ++ msg ++ ":" ++ (replicate (90 - (length msg)) ' ') ++ dat ++ "\n"
+
+binView msg bin =
+      rline msg (length . M.keys $ bin)
+   ++ (concatMap (\(pat, count) -> "   " ++ show count ++ " of " ++ show pat)
+        (M.assocs bin))
 
 mapView msg map =
        "   " ++ msg ++ ":\n"

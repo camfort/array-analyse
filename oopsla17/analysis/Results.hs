@@ -175,6 +175,19 @@ data Result = Result {
   , patternBin3D         :: M.Map [(Int, Int, Int)] Int
   } deriving (Show, Read)
 
+-- pre-condition: list of 1-dimensional offsets
+to1D :: [[Int]] -> [Int]
+to1D [] = []
+to1D ([x]:xs) = x : to1D xs
+-- pre-condition: list of 2-dimensional offsets
+to2D :: [[Int]] -> [(Int, Int)]
+to2D [] = []
+to2D ([x, y]:xs) = (x, y) : to2D xs
+-- pre-condition: list of 3-dimensional offsets
+to3D :: [[Int]] -> [(Int, Int, Int)]
+to3D [] = []
+to3D ([x, y, z]:xs) = (x, y, z) : to3D xs
+
 
 -- Results form a monoid
 instance Monoid Result where
@@ -245,7 +258,7 @@ rline' msg dat = "   " ++ msg ++ ":" ++ (replicate (90 - (length msg)) ' ') ++ d
 
 binView msg bin =
       rline msg (length . M.keys $ bin)
-   ++ (concatMap (\(pat, count) -> "   " ++ show count ++ " of " ++ show pat)
+   ++ (concatMap (\(pat, count) -> "      " ++ show count ++ " of " ++ show pat ++ "\n")
         (M.assocs bin))
 
 mapView msg map =

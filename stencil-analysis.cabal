@@ -17,6 +17,9 @@ source-repository head
 
 executable stencil-analysis
   main-is:             Analyse.hs
+  other-modules:       Indices,
+                       Neighbour,
+                       Results
   build-depends:       base >=4.9 && <4.10,
                        camfort >= 0.9.0.2,
                        fortran-src >= 0.1.0.6,

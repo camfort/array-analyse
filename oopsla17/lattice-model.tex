@@ -713,12 +713,12 @@ are infinite we might need to elaborate based on representation.}
 \end{lem}
 
 \begin{thm}{(Soundness of exact shape inference)}
-  For a set of point offsets vectors $P$, the inference procedure for
+  For a set of subscripts $S$ of same dimension, the inference procedure for
   neighbourhood stencils is sound if the following holds:
 %
   \begin{equation*}
-    \forall P. \mathit{peel}(\mathit{infer}(P)) = m \implies
-      \mathit{consistent'}(P,m)
+    \forall S. \mathit{peel}(\mathit{infer}(S)) = m \implies
+      \mathit{consistent'}(S,m)
   \end{equation*}
 \end{thm}
 

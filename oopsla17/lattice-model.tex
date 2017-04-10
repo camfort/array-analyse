@@ -641,7 +641,7 @@ are infinite we might need to elaborate based on representation.}
     \mathit{dist}(S) & = \sum_{i=1}^{N} \mathit{dist}_i(S)
     &
     \mathit{dist}_i(S) & = \begin{cases}
-      0 & \pi_i(S) = \interv{-\infty}{\infty}{} \\
+      0 & \pi_i(S) \in \{ \interv{-\infty}{\infty}{}, \{ 0 \}\} \\
       |\mathsf{a}| - 1 & \pi_i(S) = \{\mathsf{a}\} \\
     \end{cases}
   \end{align*}

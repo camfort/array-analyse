@@ -45,13 +45,11 @@ classify :: FAD.InductionVarMapByASTBlock
          -> (String, Result)
 classify ivs lhs rhses = (debug, resultN)
   where
-    debug = ""
-
     -- Num arrays read
     numArrays = length . M.keys $ rhses
 
     resultN = result { histNumArraysRead = toHist numArrays }
-    result = if null $ M.elems rhses
+    (debug, result) = if null $ M.elems rhses
              then mempty
              else foldr1 mappend (map (classifyArrayCode ivs lhs) (M.elems rhses))
 
@@ -60,7 +58,7 @@ f >< g = \(x, y) -> (f x, g y)
 
 -- LHS are neighbours
 classifyArrayCode ivs lhs rhses =
-    result
+    (show cat ++ "\n", result)
   where
     cat    = (lhsForm, rhsForm, consistency)
     result1 = mempty { histMaxDepth = M.fromList [(cat, toHist maxDepth),
@@ -121,15 +119,16 @@ classifyArrayCode ivs lhs rhses =
     -- Max and min depth
     (maxDepth, minDepth) = (maximum' >< minimum')
                          . unzip
-                         . map (maxMin . filter (/= absoluteRep)) $ rhsOffsets
+                         . map (maxMin . filter notAbsolute) $ rhsOffsets
     maxMin x = (maximum' x, minimum' x)
+    notAbsolute x = x /= absoluteRep && x /= -absoluteRep
 
-    maximum' :: (Ord a, Bounded a) => [a] -> a
-    maximum' [] = minBound
+    maximum' :: [Int] -> Int
+    maximum' [] = 0
     maximum' xs = maximum xs
 
-    minimum' :: (Ord a, Bounded a) => [a] -> a
-    minimum' [] = maxBound
+    minimum' :: [Int] -> Int
+    minimum' [] = 0
     minimum' xs = minimum xs
 
     -- Affine scalar multiples

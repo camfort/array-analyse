@@ -25,6 +25,8 @@ data Position = OverOrigin | StraddleOrigin | Elsewhere
 joinPosition :: Position -> Position -> Position
 joinPosition OverOrigin OverOrigin = OverOrigin
 joinPosition StraddleOrigin StraddleOrigin = StraddleOrigin
+joinPosition OverOrigin StraddleOrigin = OverOrigin
+joinPosition StraddleOrigin OverOrigin = OverOrigin
 joinPosition _ _ = Elsewhere
 
 data Contig   = SingleNonContig | NonContig | Contig

@@ -61,6 +61,7 @@ import qualified Language.Fortran.Util.SecondParameter as FUS
 import Data.Data
 import Data.Foldable
 import Data.Generics.Uniplate.Operations
+import qualified Data.Generics.Str as Str
 import Data.Graph.Inductive.Graph hiding (isEmpty)
 import qualified Data.Map as M
 import qualified Data.IntMap as IM
@@ -69,6 +70,8 @@ import qualified Data.ByteString.Char8 as B
 import Data.Maybe
 import Data.List
 import Data.Monoid
+import Data.Traversable
+
 import Debug.Trace
 import System.Directory
 import qualified System.IO.Strict as Strict
@@ -165,14 +168,15 @@ stencilAnalyse nameMap pf@(F.ProgramFile mi cm_pus blocks) =
     (dbg1 ++ dbg2, result1 `mappend` result2)
   where
     (_, (dbg1, result1)) = runWriter (transformBiM perPU cm_pus)
-    (_, (dbg2, result2)) = runAnalysis ivMap flTo nameMap (descendBiM perBlock blocks)
+    (_, (dbg2, result2)) = runAnalysis ivMap flTo nameMap
+                             (descendBiM (perBlock False) blocks)
 
     -- Run inference per program unit, placing the flowsmap in scope
     perPU :: F.ProgramUnit (FA.Analysis A)
           -> Writer (String, Result) (F.ProgramUnit (FA.Analysis A))
 
     perPU pu | Just _ <- FA.bBlocks $ F.getAnnotation pu = do
-              let pum = descendBiM perBlock pu
+              let pum = descendBiM (perBlock False) pu
               let (pu', log) = runAnalysis ivMap flTo nameMap pum
               tell log
               return pu'
@@ -203,15 +207,15 @@ stencilAnalyse nameMap pf@(F.ProgramFile mi cm_pus blocks) =
 -- Traverse Blocks in the AST and infer stencil specifications
 -- Note that this should be applied by `descendBiM`, as it does its
 -- own inner traversal and relies on the order in which blocks are visited
-perBlock :: F.Block (FA.Analysis A) -> Analysis (F.Block (FA.Analysis A))
+perBlock :: Bool -> F.Block (FA.Analysis A) -> Analysis (F.Block (FA.Analysis A))
 
-perBlock b@(F.BlDo aan span lab cname lab' mDoSpec body tlab) = do
+perBlock inDo b@(F.BlDo ann span lab cname lab' mDoSpec body tlab) = do
    -- Inside a DO block
    -- Process the inside of a DO block in reverse order
-   mapM perBlockInnerDo (reverse body)
+   mapM (perBlock True) (reverse body)
    return b
 
-perBlock b@(F.BlStatement ann span@(FU.SrcSpan lp up) _ stmnt) = do
+perBlock False b@(F.BlStatement ann span@(FU.SrcSpan lp up) _ stmnt) = do
   -- Detect subscript range expressions outside loops
   let lhses = [lhs | (F.StExpressionAssign _ _ lhs _)
                          <- universe stmnt :: [F.Statement (FA.Analysis A)]]
@@ -220,15 +224,9 @@ perBlock b@(F.BlStatement ann span@(FU.SrcSpan lp up) _ stmnt) = do
   if (null subscriptRanges)
     then return b
      -- Use the normal 'inner do' mode if this looks like a ranged-based expression
-    else perBlockInnerDo b
+    else perBlock True b
 
-perBlock b = do
-    -- Go inside child blocks
-    b' <- descendM (descendBiM perBlock) b
-    return b'
-
-perBlockInnerDo :: F.Block (FA.Analysis A) -> Analysis (F.Block (FA.Analysis A))
-perBlockInnerDo b@(F.BlStatement ann span@(FU.SrcSpan lp up) _ stmnt) = do
+perBlock True b@(F.BlStatement ann span@(FU.SrcSpan lp up) _ stmnt) = do
     -- On all StExpressionAssign that occur in a stmt within a DO
     let lhses = [lhs | (F.StExpressionAssign _ _ lhs _)
                            <- universe stmnt :: [F.Statement (FA.Analysis A)]]
@@ -247,10 +245,37 @@ perBlockInnerDo b@(F.BlStatement ann span@(FU.SrcSpan lp up) _ stmnt) = do
       tell (mconcat results)
       return b
 
-perBlockInnerDo b = do
-   -- Go inside other kinds of block (like case/if)
-   b' <- descendBiM perBlock b
-   return b'
+perBlock inDo b = do
+    -- Go inside child blocks
+    b' <- descendReverseM (descendBiReverseM (perBlock inDo)) b
+    return b'
+
+-- Custom version of descend that process tree in reverse order
+
+descendReverseM :: (Data on, Monad m) => (on -> m on) -> on -> m on
+descendReverseM f x =
+    liftM generate . fmap unwrapReverse . traverse f . Reverse $ current
+  where (current, generate) = uniplate x
+
+descendBiReverseM :: (Data from, Data to, Monad m) => (to -> m to) -> from -> m from
+descendBiReverseM f x =
+    liftM generate . fmap unwrapReverse . traverse f . Reverse $ current
+  where (current, generate) = biplate x
+
+data Reverse f a = Reverse { unwrapReverse :: f a }
+
+instance Functor (Reverse Str.Str) where
+    fmap f (Reverse s) = Reverse (fmap f s)
+
+instance Foldable (Reverse Str.Str) where
+    foldMap f (Reverse x) = foldMap f x
+
+instance Traversable (Reverse Str.Str) where
+    traverse f (Reverse Str.Zero) = pure $ Reverse Str.Zero
+    traverse f (Reverse (Str.One x)) = (Reverse . Str.One) <$> f x
+    traverse f (Reverse (Str.Two x y)) = (\y x -> Reverse $ Str.Two x y)
+                             <$> (fmap unwrapReverse . traverse f . Reverse $ y)
+                             <*> (fmap unwrapReverse . traverse f . Reverse $ x)
 
 -- Analyse the RHS of any array subscripts in a block
 analyseRHS :: [F.Block (FA.Analysis A)]
@@ -266,7 +291,7 @@ analyseRHS blocks = do
     let subscripts' = filterOutFuns nameMap subscripts
     let lenDataflowPath = length . nub $ visitedNodes'
     put (ivs, visitedNodes ++ visitedNodes')
-    return $ ("Read arrays: " ++ show (M.keys subscripts) ++ "\n"
+    return $ ("Read arrays: " ++ show (M.keys subscripts') ++ "\n"
              , subscripts'
              , lenDataflowPath) -- dataflow
 

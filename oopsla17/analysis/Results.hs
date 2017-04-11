@@ -251,7 +251,7 @@ toHist n = (replicate n 0) ++ [1]
 
 -- 'zip' together a list of histograms
 concatHist :: [[Int]] -> [Int]
-concatHist = foldr1 histZip
+concatHist = foldr histZip []
 
 -- Singleton histogram
 mkHist :: Cat -> a -> M.Map Cat a
@@ -301,7 +301,7 @@ instance HistogramShow Int where
 
 instance HistogramShow [Int] where
   show'     = hview
-  histTotal = foldr1 histZip
+  histTotal = foldr histZip []
 
 hline' cat dat =
   rline' ((replicate 5 ' ') ++ (show cat)) dat

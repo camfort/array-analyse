@@ -72,6 +72,7 @@ import Data.Monoid
 import Debug.Trace
 import System.Directory
 import qualified System.IO.Strict as Strict
+import Control.DeepSeq
 
 import Results
 import Indices
@@ -128,7 +129,7 @@ applyAnalysisToFile :: String
                     -> IO (String, Result)
 applyAnalysisToFile dir (filename, source, pf) (dbg0, result0) = do
     -- Write results so far to the restart file
-    writeFile (dir ++ ".restart") (show (result0 `mappend` result'))
+    dbg' `deepseq` writeFile (dir ++ ".restart") (show (result0 `mappend` result'))
     -- Return results and debugs
     return (dbg0 ++ dbg', result0 `mappend` result')
   where

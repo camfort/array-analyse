@@ -46,8 +46,7 @@
 % renews the commands with actual data
 %\input{results}
 
-\begin{document}
-\title{Understanding and Verifying the Shape of Stencil Computations}
+\title{Verifying Spatial Properties of Array Computations}
 
 \author{Dominic Orchard}
 \affiliation{
@@ -79,54 +78,38 @@
 }
 \email{Andrew.Rice@cl.cam.ac.uk}
 
-\maketitle
 
 \begin{abstract}
   Arrays computations are the workhorse of numerical modelling and
-  computational science.
-  Many practitioners are aware of need to ensure program
-  correctness, yet very few of the techniques from the programming
-  research community are applied by scientists. We aim to change that
-  by providing lightweight verification tools to scientists.
-  We focus on one error-prone aspect of numerical code: the 
-  data access pattern of arrays. 
-  Firstly, we report on a code analysis study on twelve real-world
-  computational science code base, identifying common idioms of array
-  usage and their spatial properties. This provides much needed data
-  on array programming idioms common in science, spanning roughly 1.5
-  million lines of code.
-  From this data, we 
-  designed a lightweight declarative specification language capturing
-  the majority of access patterns for arrays. We details its semantics
-  and algorithms for checking and inference.
-  We detail the design and implementation of a verification tool for
+  computational science. However, low-level manipulation of array
+  indices is a source of program error.  Many practitioners are aware
+  of the need to ensure program correctness, yet very few of the
+  techniques from the programming research community are applied by
+  scientists. We aim to change that by providing targetted lightweight
+  verification techniques for scientific code.  We focus on the all
+  too common mistake of array offset errors as a generalisation of
+  off-by-one errors.  Firstly, we report on a code analysis study on
+  twelve real-world computational science code base, identifying
+  common idioms of array usage and their spatial properties. This
+  provides much needed data on array programming idioms common in
+  scientific code.  From this data, we designed a lightweight
+  declarative specification language capturing the majority of array
+  access patterns via a small set of combinators. We detail a semantic
+  model, and the design and implementation of a verification tool for
   our specification language, which both checks and infers
-  specifications.
-  We evaluate our tool on the our previous corpus of scientific code
-  and give verification case studies of bugs that could be detected
-  with our approach. We find roughly 60,000 targets for specification, showing the vast majority
-  of stencil computations indeed have a simple, regular, static shape.
+  specifications.  We evaluate our tool on our corpus of scientific
+  code and give verification case studies of bug fixes that are
+  detected by our approach. We found roughly 60,000 targets for
+  specification across roughly 1.2 million lines of code, showing the
+  vast majority of array computations read from arrays in a pattern with
+  a simple, regular, static shape.
 \end{abstract}
   
- %S ubsequently, Fortran continues to be a
-%  popular language choice, due to its focus on arrays and its high
-%  performance.
+%  We focus on one error-prone aspect of numerical code: the 
+%  data access pattern of arrays. 
 
-%  In this paper, we propose an alternate approach:
-%  a specification language and automated tool for verifying the
-%  spatial behaviour of stencils. The specification language is based
-%  on the hypothesis that stencil computations read from arrays with a
-%  regular, fixed pattern which can be captured by a simple
-%  set of abstract combinators. These
-%  specifications can be embedded as annotations in source code,
-%  against which code can be checked for conformance. For legacy code,
-%  spatial specifications can be inferred, providing documentation and
-%  aiding future software maintenance. We evaluate our specification
-%  language and verification tool against
-%  a corpus of numerical Fortran code ($\sim$ 1 million lines) for
-%  which we generate $\sim$60,000 specifications, showing the vast majority
-%  of stencil computations indeed have a simple, regular, static shape.
-%\end{abstract}
+\begin{document}
+\maketitle
 
 \section{Introduction}
 

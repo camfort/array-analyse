@@ -210,6 +210,17 @@ perBlock b@(F.BlDo aan span lab cname lab' mDoSpec body tlab) = do
    mapM perBlockInnerDo (reverse body)
    return b
 
+perBlock b@(F.BlStatement ann span@(FU.SrcSpan lp up) _ stmnt) = do
+  -- Detect subscript range expressions outside loops
+  let lhses = [lhs | (F.StExpressionAssign _ _ lhs _)
+                         <- universe stmnt :: [F.Statement (FA.Analysis A)]]
+  -- Find subscript ranges involved
+  let subscriptRanges = [r | r@(F.IxRange {}) <- universeBi lhses :: [F.Index (FA.Analysis A)]]
+  if (null subscriptRanges)
+    then return b
+     -- Use the normal 'inner do' mode if this looks like a ranged-based expression
+    else perBlockInnerDo b
+
 perBlock b = do
     -- Go inside child blocks
     b' <- descendM (descendBiM perBlock) b

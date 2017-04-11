@@ -61,7 +61,8 @@ classifyArrayCode ivs lhs rhses =
     result
   where
     cat    = (lhsForm, rhsForm, consistency)
-    result1 = mempty { histMaxDepth = M.fromList [(cat, toHist maxDepth)]
+    result1 = mempty { histMaxDepth = M.fromList [(cat, toHist maxDepth),
+                                                  (cat, toHist minDepth)]
                      , histDimensionality = mkHist cat dim
                      , histNumIndexExprs  = mkHist cat . toHist . length $ rhses
                      , counts             = mkHist cat 1 }
@@ -90,12 +91,12 @@ classifyArrayCode ivs lhs rhses =
     lhsForm = case lhsRep of
                 Nothing -> Vars
                 Just Subscript  -> Subscripts
-                Just (Affine _) -> Affines L
-                Just (Neigh  _) -> Neighbours L
+                Just (Affine as) -> if allIVs as then IVs else Affines (hasConstants as) L
+                Just (Neigh  ns) -> if allIVs ns then IVs else Neighbours (hasConstants ns) L
     rhsForm = case rhsRep of
                 Subscript -> Subscripts
-                Affine _  -> Affines . R    $ rhsPhysical
-                Neigh  _  -> Neighbours . R $ rhsPhysical
+                Affine as  -> Affines (hasConstants as) (R rhsPhysical)
+                Neigh  ns  -> Neighbours (hasConstants ns) (R rhsPhysical)
     rhsPhysical = (shape, position, boolToContig contiguity, boolToReuse (not nonLinear))
     ------------
     neighbourisedRhs = case rhsRepRel of
@@ -113,23 +114,33 @@ classifyArrayCode ivs lhs rhses =
     -- Dimensionality
     dim = concatHist . map toHist . nub . map length $ rhses
 
-    rhsOffsets = map (filter ((/=) absoluteRep)
-                       . fromJust . mapM neighbourToOffset) neighbourisedRhs
+    rhsOffsets = map (fromJust . mapM neighbourToOffset) neighbourisedRhs
 
-    maxDepth = maximum0 . map maximum0 $ rhsOffsets
+    -- Max and min depth
+    (maxDepth, minDepth) = (maximum' >< minimum') . unzip . map (maxMin . filter (/= absoluteRep)) $ rhsOffsets
+    maxMin x = (maximum' x, minimum' x)
 
-    maximum0 :: [Int] -> Int
-    maximum0 [] = 0
-    maximum0 xs = maximum xs
+    maximum' :: (Ord a, Bounded a) => [a] -> a
+    maximum' [] = minBound
+    maximum' xs = maximum xs
 
+    minimum' :: (Ord a, Bounded a) => [a] -> a
+    minimum' [] = maxBound
+    minimum' xs = minimum xs
+
+    -- Affine scalar multiples
     affineScales = case rhsRep of
                       Affine as -> Just . nub . map (\(a, _, _) -> a) . concat $ as
                       _         -> Nothing
-    -- capture pattern bin
-    pattern = sort . nub $ rhsOffsets
+    -- Pattern bin
+    pattern = sort . nub . map (map shrinkAbsoluteRep) $ rhsOffsets
+
+    shrinkAbsoluteRep x | x == absoluteRep = 137
+    shrinkAbsoluteRep x                    = x
 
 
-checkConsistency :: (Eq t, Relativise t, Basis t, Eq (Base t)) => [t] -> [[t]] -> (Consistency, [[t]])
+checkConsistency :: (Eq t, Relativise t, Basis t, Eq (Base t))
+                 => [t] -> [[t]] -> (Consistency, [[t]])
 checkConsistency lhs rhses = (cons `setRelativised` (rel /= rhses), rel)
   where
     cons = sideConsistency (map basis lhs) (map (map basis) rhses)
@@ -145,8 +156,8 @@ sideConsistency1 :: Eq a => [a] -> [a] -> Consistency
 sideConsistency1 lhs rhs
     | lhs == rhs = Consistent True
     | all (`elem` rhs) lhs && all (`elem` lhs) rhs = Permutation True
-    | all (`elem` rhs) lhs = LHSsuperset True
-    | all (`elem` lhs) rhs = LHSsubset True
+    | all (`elem` rhs) lhs = LHSsubset True
+    | all (`elem` lhs) rhs = LHSsuperset True
     | otherwise            = Inconsistent
 
 class Basis t where
@@ -260,3 +271,34 @@ matchConst :: F.Expression (FA.Analysis A)
            -> Maybe Int
 matchConst (F.ExpValue _ _ (F.ValInteger val)) = Just $ read val
 matchConst _                                   = Nothing
+
+-- Work out with the subscript representation comprises of all 'bare' induction
+-- variables
+hasConstants :: Subscripts t => [t] -> HasConstants
+hasConstants = boolToHasConstants . hasConstantsFlag
+
+class Subscripts t where
+  allIVs :: [t] -> Bool
+  hasConstantsFlag :: [t] -> Bool
+
+instance Subscripts a => Subscripts [a] where
+  allIVs       = and . map allIVs
+  hasConstantsFlag = or  . map hasConstantsFlag
+
+instance Subscripts (Int, String, Int) where
+  allIVs [] = True
+  allIVs ((1, i, 0):xs) = allIVs xs
+  allIVs _  = False
+
+  hasConstantsFlag [] = False
+  hasConstantsFlag ((0, i, 0):xs) = True
+  hasConstantsFlag (_:xs) = hasConstantsFlag xs
+
+instance Subscripts Neighbour where
+  allIVs [] = True
+  allIVs ((Neighbour i 0):xs) = allIVs xs
+  allIVs _  = False
+
+  hasConstantsFlag [] = False
+  hasConstantsFlag ((Constant _):xs) = True
+  hasConstantsFlag (_:xs) = hasConstantsFlag xs

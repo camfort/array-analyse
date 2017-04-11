@@ -9,6 +9,7 @@ import qualified Data.Map as M
 import Data.List
 
 import Camfort.Specification.Stencils.InferenceFrontend
+import Camfort.Specification.Stencils.Syntax (absoluteRep)
 
 -- ## Categorisations:
 
@@ -59,11 +60,27 @@ instance Read (Physicality RHS) where
 --   * Categorisation of indices (on LHS or RHS)
 data Side = LHS | RHS
 
+data HasConstants = WithConsts | Normal
+   deriving (Eq, Ord)
+
+instance Show HasConstants where
+   show WithConsts = "+consts"
+   show Normal     = ""
+
+instance Read HasConstants where
+   readsPrec n xs | "+consts" `isPrefixOf` xs
+       = [(WithConsts, drop (length "+consts") xs)]
+                  | otherwise = [(Normal, trim xs)]
+
+boolToHasConstants :: Bool -> HasConstants
+boolToHasConstants True = WithConsts
+boolToHasConstants False = Normal
+
 data Form (s :: Side) where
     Vars        :: Form LHS
     Subscripts  :: Form s
-    Affines     :: Physicality s -> Form s
-    Neighbours  :: Physicality s -> Form s
+    Affines     :: HasConstants -> Physicality s -> Form s
+    Neighbours  :: HasConstants -> Physicality s -> Form s
     IVs         :: Form LHS
 
 deriving instance Eq (Form s)
@@ -77,12 +94,14 @@ instance Read (Form LHS) where
     = [(Subscripts, drop (length "Subscripts") xs)]
 
   readsPrec n xs | "Affines" `isPrefixOf` xs
-    = readsPrec n (drop (length "Affines ") xs)
-          >>= (\(pl, rest) -> [(Affines pl, rest)])
+    = do (consts, rest) <- readsPrec n (drop (length "Affines ") xs)
+         (pl, rest)     <- readsPrec n rest
+         return (Affines consts pl, rest)
 
   readsPrec n xs | "Neighbours" `isPrefixOf` xs
-    = readsPrec n (drop (length "Neighbours ") xs)
-         >>= (\(pl, rest) -> [(Neighbours pl, rest)])
+    = do (consts, rest) <- readsPrec n (drop (length "Neighbours ") xs)
+         (pl, rest)     <- readsPrec n rest
+         return (Neighbours consts pl, rest)
 
   readsPrec n xs | "IVs" `isPrefixOf` xs
     = [(IVs, drop (length "IVs") xs)]
@@ -94,12 +113,14 @@ instance Read (Form RHS) where
     = [(Subscripts, drop (length "Subscripts") xs)]
 
   readsPrec n xs | "Affines" `isPrefixOf` xs
-    = readsPrec n (drop (length "Affines (") xs)
-          >>= (\(pr, ')':rest) -> [(Affines pr, rest)])
+    = do (consts, '(':rest) <- readsPrec n (drop (length "Affines ") xs)
+         (pr, ')':rest)     <- readsPrec n rest
+         return (Affines consts pr, rest)
 
   readsPrec n xs | "Neighbours" `isPrefixOf` xs
-    = readsPrec n (drop (length "Neighbours (") xs)
-         >>= (\(pr, ')':rest) -> [(Neighbours pr, rest)])
+    = do (consts, '(':rest) <- readsPrec n (drop (length "Neighbours ") xs)
+         (pr, ')':rest)     <- readsPrec n rest
+         return (Neighbours consts pr, rest)
 
   readsPrec n xs = []
 
@@ -115,9 +136,9 @@ data Consistency = Consistent  Relativised
 
 instance Read Consistency where
   readsPrec n xs =
-       consistencyRead "Consistent" Consistent 0 xs
+       consistencyRead "Consistent"  Consistent 0 xs
     ++ consistencyRead "Permutation" Permutation 0 xs
-    ++ consistencyRead "LHSsubset" LHSsubset 0 xs
+    ++ consistencyRead "LHSsubset"   LHSsubset 0 xs
     ++ consistencyRead "LHSsuperset" LHSsuperset 0 xs
     ++ consistencyRead "Inconsitent" (\b -> Inconsistent) 0 xs
 
@@ -187,6 +208,9 @@ to2D ([x, y]:xs) = (x, y) : to2D xs
 to3D :: [[Int]] -> [(Int, Int, Int)]
 to3D [] = []
 to3D ([x, y, z]:xs) = (x, y, z) : to3D xs
+-- Indicates a bug in the analysed code
+to3D ([x, y]:xs)    = (x, y, absoluteRep) : to3D xs
+to3D ([x]:xs)       = (x, absoluteRep, absoluteRep) : to3D xs
 
 
 -- Results form a monoid
@@ -351,3 +375,6 @@ reason f reason = \r -> do
 infixr 5 <**>
 (<**>) :: (Result -> IO Bool) -> (Result -> IO Bool) -> (Result -> IO Bool)
 f <**> g = \r -> (f r) >>= (\x -> g r >>= (\y -> return (x && y)))
+
+trim (' ':xs) = trim xs
+trim xs = xs

@@ -70,6 +70,8 @@ import Data.Maybe
 import Data.List
 import Data.Monoid
 import Debug.Trace
+import System.Directory
+import qualified System.IO.Strict as Strict
 
 import Results
 import Indices
@@ -77,16 +79,22 @@ import Indices
 main :: IO ()
 main = do
     args <- getArgs
-    case args of
+    let (restart, args') = case args of
+                             (x:y:args') | x == "RESTART" -> (Just y, args')
+                             _                            -> (Nothing, args)
+    case args' of
       [dir]
-        -> applyAnalysisToDir (head args) False False []
+        -> applyAnalysisToDir restart dir False False []
 
       dir:args@(a1:a2:_)
-        -> applyAnalysisToDir dir (a1 == "-d" || a2 == "-d")
-                                  (a1 == "-b" || a2 == "-b") (filterFlags args)
+        -> applyAnalysisToDir restart dir (a1 == "-d" || a2 == "-d")
+                                          (a1 == "-b" || a2 == "-b")
+                                          (filterFlags args)
 
       dir:args@(a1:_)
-        -> applyAnalysisToDir dir (a1 == "-d") (a1 == "-b") (filterFlags args)
+        -> applyAnalysisToDir restart dir (a1 == "-d")
+                                          (a1 == "-b")
+                                          (filterFlags args)
 
       _ -> putStrLn $ "Please specify a directory on which to apply the\
                      \ analysis followed by any number of file names\
@@ -94,25 +102,42 @@ main = do
   where
     filterFlags = filter (\arg -> arg /= "-d" && arg /= "-b")
 
-applyAnalysisToDir :: String -> Bool -> Bool -> [String] -> IO ()
-applyAnalysisToDir dir debug bins excludes = do
+applyAnalysisToDir :: Maybe String -> String -> Bool -> Bool -> [String] -> IO ()
+applyAnalysisToDir restart dir debug bins excludes = do
     files <- readParseSrcDir dir excludes
-    let debugsAndResults = map applyAnalysisToFile files
-    let (dbg, result)    = mconcat debugsAndResults
-    writeFile (dir ++ ".stencils-analysis") (show result)
+    let resultsFile = dir ++ ".stencil-analysis"
+
+    -- See if we have a 'restarts' file to include
+    result0 <- case restart of
+                 Just restartFile -> do
+                        resultsString <- Strict.readFile (restartFile ++ ".restart")
+                        return $ ((read resultsString) :: Result)
+                 Nothing -> mempty
+
+    (dbg, result) <- foldrM (applyAnalysisToFile dir) ("", result0) files
+
+    writeFile resultsFile (show result)
     if debug then putStrLn $ dbg else return ()
     putStrLn $ prettyResults result bins
     valid <- resultValidation result
     if valid then (putStrLn $ "Results were valid") else (putStrLn "Results were invalid")
 
-applyAnalysisToFile :: (Filename, SourceText, F.ProgramFile A) -> (String, Result)
-applyAnalysisToFile (filename, source, pf) =
-    ("Analysis on file: " ++ filename ++ "\n" ++ dbg, r { numLines = lines })
+applyAnalysisToFile :: String
+                    -> (Filename, SourceText, F.ProgramFile A)
+                    -> (String, Result)
+                    -> IO (String, Result)
+applyAnalysisToFile dir (filename, source, pf) (dbg0, result0) = do
+    -- Write results so far to the restart file
+    writeFile (dir ++ ".restart") (show (result0 `mappend` result'))
+    -- Return results and debugs
+    return (dbg0 ++ dbg', result0 `mappend` result')
   where
     lines = length $ B.lines source
     pf' = FAR.analyseRenames . FA.initAnalysis $ pf
     nameMap = FAR.extractNameMap pf'
-    (dbg, r) = stencilAnalyse nameMap . FAB.analyseBBlocks $ pf'
+    result' = result { numLines = lines }
+    dbg' = "Analysis on file: " ++ filename ++ "\n" ++ dbg
+    (dbg, result) = stencilAnalyse nameMap . FAB.analyseBBlocks $ pf'
 
 -- The core of the analysis works within this monad
 type Analysis = WriterT (String, Result)

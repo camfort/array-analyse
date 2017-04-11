@@ -202,6 +202,7 @@ instance Camfortable (Form LHS) where
 
 instance Camfortable (Form RHS) where
   camfortable (Neighbours _ p) = camfortable p
+  camfortable _                = False
 
 instance Camfortable (Physicality p) where
   camfortable L     = True

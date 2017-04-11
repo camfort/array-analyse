@@ -81,6 +81,53 @@
 
 \maketitle
 
+\begin{abstract}
+  Arrays computations are the workhorse of numerical modelling and
+  computational science.
+  Many practitioners are aware of need to ensure program
+  correctness, yet very few of the techniques from the programming
+  research community are applied by scientists. We aim to change that
+  by providing lightweight verification tools to scientists.
+  We focus on one error-prone aspect of numerical code: the 
+  data access pattern of arrays. 
+  Firstly, we report on a code analysis study on twelve real-world
+  computational science code base, identifying common idioms of array
+  usage and their spatial properties. This provides much needed data
+  on array programming idioms common in science, spanning roughly 1.5
+  million lines of code.
+  From this data, we 
+  designed a lightweight declarative specification language capturing
+  the majority of access patterns for arrays. We details its semantics
+  and algorithms for checking and inference.
+  We detail the design and implementation of a verification tool for
+  our specification language, which both checks and infers
+  specifications.
+  We evaluate our tool on the our previous corpus of scientific code
+  and give verification case studies of bugs that could be detected
+  with our approach. We find roughly 60,000 targets for specification, showing the vast majority
+  of stencil computations indeed have a simple, regular, static shape.
+\end{abstract}
+  
+ %S ubsequently, Fortran continues to be a
+%  popular language choice, due to its focus on arrays and its high
+%  performance.
+
+%  In this paper, we propose an alternate approach:
+%  a specification language and automated tool for verifying the
+%  spatial behaviour of stencils. The specification language is based
+%  on the hypothesis that stencil computations read from arrays with a
+%  regular, fixed pattern which can be captured by a simple
+%  set of abstract combinators. These
+%  specifications can be embedded as annotations in source code,
+%  against which code can be checked for conformance. For legacy code,
+%  spatial specifications can be inferred, providing documentation and
+%  aiding future software maintenance. We evaluate our specification
+%  language and verification tool against
+%  a corpus of numerical Fortran code ($\sim$ 1 million lines) for
+%  which we generate $\sim$60,000 specifications, showing the vast majority
+%  of stencil computations indeed have a simple, regular, static shape.
+%\end{abstract}
+
 \section{Introduction}
 
 \paragraph{Context of this research}
@@ -98,9 +145,39 @@ that are easy to use by scientists, and that integrate with common
 practises and workflows.
 
 
+\subsection{Terminology and notation}
 
+\begin{definition}[Induction variables]
+  An integer variable is a \emph{base induction variable} if it is the control
+  variable of a ``\texttt{for}'' loop, incremented by $1$ per iteration. A variable
+  is interpreted as an induction variable only within the scope of the loop
+  body. Throughout, $i, j, k$ range over induction variables.
 
-\section{An Empirical Study of Stencils in Scientific Fortran code}
+  A \emph{derived induction variable} is an expression of the form $a
+  i + b$, \ie{}, an affine expression on an induction variable $i$.
+\end{definition}
+
+\begin{definition}[Array subscripts and indices]
+  An \emph{array subscript}, denoted $a(\bar{e})$, is an expression
+  which reads from an array $a$ at an \emph{index} specified by a
+  comma-separated sequence of integer expressions denoted $\bar{e}$ or
+  in expanded form as $(e_1, \ldots, e_n)$. An index $e_i$ is called
+  \emph{relative} if the expression involves an induction variable.
+  An \emph{absolute index} is a integer expression which is constant
+  relative to the enclosing loop.
+\end{definition}
+
+\begin{definition}[Neighbourhood index]
+\label{def:neighbour}
+  For an array subscript $a(\bar{e})$ an index $e \in \bar{e}$ is a
+  \emph{neighbourhood index} if $e$ is of the form $e \equiv i$, $e \equiv i +
+  c$, or $e \equiv i - c$, where $c$ is an integer constant. That is, a
+  neighbourhood index is a constant translation of an induction variable. (The
+  relation $\equiv$ identifies terms up-to commutativity of $+$ and the inverse
+  relationship of $+$ and $-$ \eg{}, $(-b) + i \equiv i - b$).
+\end{definition}
+
+\section{An Empirical Study of Array Computations in Scientific Fortran code}
 
 
 
@@ -161,6 +238,17 @@ further detail on these packages.
 \caption{Specification syntax (EBNF grammar)}
 \label{fig:syntax}
 \end{figure}
+
+\subsection{Specification syntax}
+\label{subsec:syntax}
+
+\Cref{fig:syntax} gives the syntax of stencil specifications, which is
+detailed below. The entry point is the \nonterm{specification} production which
+splits into either a \emph{region declaration} or a \emph{specification
+declaration}.
+Regions comprise \emph{region constants} which are
+combined via region operators \term{+} and \term{*}.
+
 
 \section{Analysis, Checking, and Inference}
 

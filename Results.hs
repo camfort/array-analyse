@@ -142,7 +142,7 @@ instance Read Consistency where
     ++ consistencyRead "Permutation" Permutation 0 xs
     ++ consistencyRead "LHSsubset"   LHSsubset 0 xs
     ++ consistencyRead "LHSsuperset" LHSsuperset 0 xs
-    ++ consistencyRead "Inconsitent" (\b -> Inconsistent) 0 xs
+    ++ consistencyRead "Inconsistent" (\b -> Inconsistent) 0 xs
 
 consistencyRead consString cons n xs =
     if consString `isPrefixOf` xs

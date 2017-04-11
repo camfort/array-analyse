@@ -117,14 +117,14 @@ applyAnalysisToDir restart dir debug bins excludes = do
                         resultsString <- Strict.readFile (restartFile ++ ".restart")
                         return $ ((read resultsString) :: Result)
                  Nothing -> mempty
-    result1 <- return $ result0 { dirs = [dir] }
+    let result1 = result0 `mappend` mempty { dirs = [dir] }
     (dbg, result) <- foldrM (applyAnalysisToFile dir) ("", result1) files
 
     writeFile resultsFile (show result)
     if debug then putStrLn $ dbg else return ()
     putStrLn $ prettyResults result bins
-    valid <- resultValidation result
-    if valid then (putStrLn $ "Results were valid") else (putStrLn "Results were invalid")
+    --valid <- resultValidation result
+    --if valid then (putStrLn $ "Results were valid") else (putStrLn "Results were invalid")
 
 applyAnalysisToFile :: String
                     -> (Filename, SourceText, F.ProgramFile A)

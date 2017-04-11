@@ -219,7 +219,16 @@ ixToAffine ivmap f@(F.IxSingle _ _ _ exp) =
     insl = FA.insLabel . F.getAnnotation $ f
     insl' = fromJust insl
     ivsList = S.toList $ fromMaybe S.empty $ IM.lookup insl' ivmap
-
+ixToAffine ivmap (F.IxRange _ _ Nothing Nothing Nothing) =
+    return (1, "", 0)
+ixToAffine ivmap (F.IxRange _ _ Nothing Nothing
+                  (Just (F.ExpValue _ _ (F.ValInteger "1")))) =
+    return (1, "", 0)
+ixToAffine ivmap (F.IxRange {}) =
+   -- Dealing with general array ranges requires much more semantic interpretation
+   -- so for the moment, we don't deal with it
+    "NON-HANDLED-RANGE" `trace` Nothing
+ixToAffine _ _ = Nothing
 
 matchAffine :: [Variable]
             -> F.Expression (FA.Analysis Annotation)

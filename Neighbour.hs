@@ -25,12 +25,15 @@ shapeAndPosition ivs =
           classifyIntervalRegions (inferMinimalVectorRegions intIvs)
 
 classifyIntervalRegions :: [Span (Vec n Int)] -> (Shape, Position)
+classifyIntervalRegions [] = error "classifyIntervalRegions []"
 classifyIntervalRegions [x] =
     (Orthotope, intervalToPosition x)
 classifyIntervalRegions xs =
     (SumOfOrthotope, foldr1 joinPosition . map intervalToPosition $ xs)
 
-intervalToPosition = foldr1 joinPosition . map positionInterval . toList . transposeVecInterval
+intervalToPosition = foldr1 joinPosition . reportEmptyError . map positionInterval . toList . transposeVecInterval
+reportEmptyError [] = error "intervalToPosition []"
+reportEmptyError xs = xs
 
 toList :: Vec n a -> [a]
 toList Nil = []

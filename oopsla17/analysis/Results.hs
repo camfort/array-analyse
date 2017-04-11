@@ -181,9 +181,49 @@ joinConsistency _               _               = Inconsistent
 -- Overall categorisation
 type Cat = (Form LHS, Form RHS, Consistency)
 
+-- Predicate on whether a particular category is something
+-- we think we might target with CamFort
+class Camfortable t where
+  camfortable :: t -> Bool
+
+instance Camfortable (Form LHS, Form RHS, Consistency) where
+  camfortable (l, r, c) = camfortable l && camfortable r && camfortable c
+
+instance Camfortable Consistency where
+  camfortable (Consistent _)  = True
+  camfortable (LHSsuperset _) = True
+  camfortable _               = False
+
+instance Camfortable (Form LHS) where
+  camfortable Vars = True
+  camfortable (Neighbours _ L) = True
+  camfortable IVs = True
+  camfortable _   = False
+
+instance Camfortable (Form RHS) where
+  camfortable (Neighbours _ p) = camfortable p
+
+instance Camfortable (Physicality p) where
+  camfortable L     = True
+  camfortable (R p) = camfortable p
+
+instance Camfortable (Shape, Position, Contig, Reuse) where
+  camfortable (s, p, _, _) = camfortable s && camfortable p
+
+instance Camfortable Shape where
+  camfortable Orthotope = True
+  camfortable SumOfOrthotope = True
+  camfortable _              = False
+
+instance Camfortable Position where
+  camfortable OverOrigin     = True
+  camfortable StraddleOrigin = True
+  camfortable _              = False
+
 -- Results data type
 data Result = Result {
-    numLines              :: Int
+    dirs                  :: [String]
+  , numLines              :: Int
   , counts                :: M.Map Cat Int
   ------------------------------------
   -- Histograms
@@ -197,6 +237,15 @@ data Result = Result {
   , patternBin2D         :: M.Map [(Int,Int)] Int
   , patternBin3D         :: M.Map [(Int, Int, Int)] Int
   } deriving (Show, Read)
+
+camfortableResult :: HistogramShow t => M.Map Cat t -> M.Map String t
+camfortableResult =
+       M.fromList
+     . (\(a, b) -> [("Camfort", a), ("Other", b)])
+     . (foldr histZip histEmpty >< foldr histZip histEmpty)
+     . ((map snd) >< (map snd))
+     . partition (\(k, _) -> camfortable k)
+     . M.assocs
 
 -- pre-condition: list of 1-dimensional offsets
 to1D :: [[Int]] -> [Int]
@@ -217,10 +266,11 @@ to3D ([x]:xs)       = (x, absoluteRep, absoluteRep) : to3D xs
 
 -- Results form a monoid
 instance Monoid Result where
-  mempty = Result 0 M.empty M.empty M.empty M.empty [] [] [] M.empty M.empty M.empty
+  mempty = Result [] 0 M.empty M.empty M.empty M.empty [] [] [] M.empty M.empty M.empty
 
   mappend r1 r2 = Result
-     { numLines = numLines r1 + numLines r2
+     { dirs = dirs r1 ++ dirs r2
+     , numLines = numLines r1 + numLines r2
      , counts = M.unionWith (+) (counts r1) (counts r2)
 
      , histDimensionality = M.unionWith histZip (histDimensionality r1)
@@ -237,19 +287,13 @@ instance Monoid Result where
      , patternBin3D = M.unionWith (+) (patternBin3D r1) (patternBin3D r2)
      }
 
--- Combine histograms
-histZip :: [Int] -> [Int] -> [Int]
-histZip [] xs = xs
-histZip xs [] = xs
-histZip (x:xs) (y:ys) = (x+y):(histZip xs ys)
-
 -- Histogram manipulation
 flag True = 1
 flag False = 0
 
 -- Generate a singleton histogram for value 'n'
 toHist :: Int -> [Int]
-toHist n = (replicate n 0) ++ [1]
+toHist n = (replicate (abs n) 0) ++ [1]
 
 -- 'zip' together a list of histograms
 concatHist :: [[Int]] -> [Int]
@@ -266,6 +310,7 @@ mkHist cat x = M.fromList [(cat, x)]
 
 prettyResults r bins =
     "Results: \n"
+ ++ "   On directories: " ++ (concat $ intersperse ", " (dirs r)) ++ "\n"
  ++ rline "Source lines parsed" (numLines r)
  ++ mapView "Counts" (counts r)
  ++ mapView "Dimensionality" (histDimensionality r)
@@ -274,11 +319,20 @@ prettyResults r bins =
  ++ rline' "Number of arrays read"    (hview . histNumArraysRead $ r)
  ++ rline' "Length of dataflow path"  (hview . histLengthOfDataflow $ r)
  ++ rline' "Scale of affine indexing" (hview . histAffineScale $ r)
- ++ if bins
-    then binView "1D patterns" (patternBin1D r)
-      ++ binView "2D patterns" (patternBin2D r)
-      ++ binView "3D patterns" (patternBin3D r)
-    else ""
+ ++ (if bins
+     then binView "1D patterns" (patternBin1D r)
+       ++ binView "2D patterns" (patternBin2D r)
+       ++ binView "3D patterns" (patternBin3D r)
+     else "")
+ ++ "\n" ++ prettyResultsCamfort r
+
+prettyResultsCamfort r =
+    "Camfortable results: \n"
+ ++ mapView' "Counts" (camfortableResult . counts $ r)
+ ++ mapView' "Dimensionality" (camfortableResult . histDimensionality $ r)
+ ++ mapView' "Max depth" (camfortableResult . histMaxDepth $ r)
+ ++ mapView' "Number of indexing expressions" (camfortableResult . histNumIndexExprs $ r)
+
 rline msg num = "   " ++ msg ++ ":" ++ (replicate (90 - (length msg)) ' ') ++ (show num) ++ "\n"
 rline' msg dat = "   " ++ msg ++ ":" ++ (replicate (90 - (length msg)) ' ') ++ dat ++ "\n"
 
@@ -291,19 +345,33 @@ mapView msg map =
        "   " ++ msg ++ ":\n"
     ++ rline' ((replicate 5 ' ') ++ "Total") (show' . histTotal $ M.elems map)
     ++ concatMap (\(cat, dat) -> hline' cat (show' dat)) (M.assocs map)
-    ++ "\n"
+
+mapView' msg map =
+       "   " ++ msg ++ ":\n"
+    ++ concatMap (\(cat, dat) -> hline' cat (show' dat)) (M.assocs map)
 
 class HistogramShow t where
   show'     :: t -> String
   histTotal :: [t] -> t
+  histTotal = foldr histZip histEmpty
+  histZip   :: t -> t -> t
+  histEmpty :: t
 
 instance HistogramShow Int where
   show'     = show
-  histTotal = sum
+  histZip   = (+)
+  histEmpty = 0
 
 instance HistogramShow [Int] where
   show'     = hview
-  histTotal = foldr histZip []
+
+  -- Combine histograms
+  histZip [] xs = xs
+  histZip xs [] = xs
+  histZip (x:xs) (y:ys) = (x+y):(histZip xs ys)
+
+  histEmpty = []
+
 
 hline' cat dat =
   rline' ((replicate 5 ' ') ++ (show cat)) dat
@@ -380,3 +448,6 @@ f <**> g = \r -> (f r) >>= (\x -> g r >>= (\y -> return (x && y)))
 
 trim (' ':xs) = trim xs
 trim xs = xs
+
+(><) :: (a -> b) -> (c -> d) -> (a, c) -> (b, d)
+f >< g = \(x, y) -> (f x, g y)

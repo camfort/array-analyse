@@ -117,8 +117,8 @@ applyAnalysisToDir restart dir debug bins excludes = do
                         resultsString <- Strict.readFile (restartFile ++ ".restart")
                         return $ ((read resultsString) :: Result)
                  Nothing -> mempty
-
-    (dbg, result) <- foldrM (applyAnalysisToFile dir) ("", result0) files
+    result1 <- return $ result0 { dirs = [dir] }
+    (dbg, result) <- foldrM (applyAnalysisToFile dir) ("", result1) files
 
     writeFile resultsFile (show result)
     if debug then putStrLn $ dbg else return ()

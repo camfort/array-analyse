@@ -37,7 +37,6 @@ import Debug.Trace
 import Neighbour
 import Results
 
-
 -- Main function for classifying array statements
 classify :: FAD.InductionVarMapByASTBlock
          -> F.Expression (FA.Analysis A)
@@ -53,16 +52,13 @@ classify ivs lhs rhses = (debug, resultN)
              then mempty
              else foldr1 mappend (map (classifyArrayCode ivs lhs) (M.elems rhses))
 
-(><) :: (a -> b) -> (c -> d) -> (a, c) -> (b, d)
-f >< g = \(x, y) -> (f x, g y)
-
 -- LHS are neighbours
 classifyArrayCode ivs lhs rhses =
     (show cat ++ "\n", result)
   where
     cat    = (lhsForm, rhsForm, consistency)
-    result1 = mempty { histMaxDepth = M.fromList [(cat, toHist maxDepth),
-                                                  (cat, toHist minDepth)]
+    result1 = mempty { histMaxDepth = M.fromList [(cat, toHist maxDepth `histZip`
+                                                          toHist minDepth)]
                      , histDimensionality = mkHist cat dim
                      , histNumIndexExprs  = mkHist cat . toHist . length $ rhses
                      , counts             = mkHist cat 1 }

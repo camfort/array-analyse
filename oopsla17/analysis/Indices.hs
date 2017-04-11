@@ -51,7 +51,9 @@ classify ivs lhs rhses = (debug, resultN)
     numArrays = length . M.keys $ rhses
 
     resultN = result { histNumArraysRead = toHist numArrays }
-    result = foldr1 mappend (map (classifyArrayCode ivs lhs) (M.elems rhses))
+    result = if null $ M.elems rhses
+             then mempty
+             else foldr1 mappend (map (classifyArrayCode ivs lhs) (M.elems rhses))
 
 (><) :: (a -> b) -> (c -> d) -> (a, c) -> (b, d)
 f >< g = \(x, y) -> (f x, g y)
@@ -117,7 +119,9 @@ classifyArrayCode ivs lhs rhses =
     rhsOffsets = map (fromJust . mapM neighbourToOffset) neighbourisedRhs
 
     -- Max and min depth
-    (maxDepth, minDepth) = (maximum' >< minimum') . unzip . map (maxMin . filter (/= absoluteRep)) $ rhsOffsets
+    (maxDepth, minDepth) = (maximum' >< minimum')
+                         . unzip
+                         . map (maxMin . filter (/= absoluteRep)) $ rhsOffsets
     maxMin x = (maximum' x, minimum' x)
 
     maximum' :: (Ord a, Bounded a) => [a] -> a

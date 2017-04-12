@@ -71,7 +71,7 @@ instance Show HasConstants where
 
 instance Read HasConstants where
    readsPrec n xs | "+consts" `isPrefixOf` xs
-       = [(WithConsts, drop (length "+consts") xs)]
+       = [(WithConsts, drop (length "+consts ") xs)]
                   | otherwise = [(Normal, trim xs)]
 
 boolToHasConstants :: Bool -> HasConstants

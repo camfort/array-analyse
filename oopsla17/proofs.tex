@@ -1,0 +1,60 @@
+\newcommand{\off}{S}
+\newcommand{\offP}{T}
+
+\vectorIntersect*
+
+\begin{proof}
+  \begin{align*}
+    \off \; \cap \; \offP &
+    = \{x \mid \bigwedge_{1 \leq i \leq N } x_i \in \pi_i(\off) \}
+      \;\cap\;
+      \{x \mid \bigwedge_{1 \leq i \leq N } x_i \in \pi_i(\offP) \} \\
+    & = \{x \mid \bigwedge_{1 \leq i \leq N }
+      (x_i \in \pi_i(\off) \wedge x_i \in \pi_i(\offP)) \} \\
+    & = \prod_{i = 1}^{N} \pi_i(\off) \cap \pi_i(\offP)
+  \end{align*}
+\end{proof}
+
+\vectorUnion*
+
+\begin{proof}
+  \begin{align*}
+    \off \; \cup \; \offP &
+    = \{x \mid
+      \bigwedge_{1 \leq i \leq N } x_i \in \pi_i(\off) \}
+      \;\cup\;
+      \{x \mid
+          \bigwedge_{1 \leq i \leq N } x_i \in \pi_i(\offP) \} \\
+    & = \{x \mid
+          \bigwedge_{\substack{1 \leq i \leq N \\ i \neq k}}
+            x_i \in \pi_i(\off) \wedge x_k \in \pi_k(\off) \vee
+          \bigwedge_{\substack{1 \leq i \leq N \\ i \neq k}} x_i \in
+            \pi_i(\offP) \wedge x_k \in \pi_k(\offP)
+        \} \\
+    & = \{x \mid
+          \bigwedge_{\substack{1 \leq i \leq N \\ i \neq k}} x_i \in
+            \pi_i(\off) \wedge
+            x_k \in \pi_k(\off) \cup \pi_k(\offP)
+        \} \\
+        & = \pi_1(\off) \times \cdots \times
+        (\pi_k(\off) \cup \pi_k(\offP)) \times \cdots \times
+        \pi_N(\off)
+  \end{align*}
+\end{proof}
+
+\intervalIdentities*
+
+\begin{proof}
+  We give the proof of the first identity and the second one is similar.
+  \begin{align*}
+    \interv{a}{b}{c} \cap \interv{d}{e}{f} = &
+      \; \{ n \;|\; a \leq n \leq b \wedge (\neg c \implies n \neq 0) \}
+      \;\cap \\
+      & \; \{ n \;|\; d \leq n \leq e \wedge (\neg f \implies n \neq 0) \}
+      \\
+    = & \; \{ n \;|\; \max \{a,d\} \leq n \leq \min \{b,e\} \wedge (\neg c
+      \vee \neg f \implies n \neq 0) \} \\
+    = & \; \interv{\max{\{a,d\}}}{\min{\{b,e\}}}{c \wedge f}
+  \end{align*}
+\end{proof}
+

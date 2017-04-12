@@ -28,6 +28,10 @@
 \usepackage{minted}
 \usepackage{etoolbox}
 
+\usepackage{thmtools}
+\usepackage{thm-restate}
+
+
 \usepackage{stencilmacros}
 
 %% Bibliography style
@@ -219,8 +223,8 @@ further detail on these packages.
 
 We used Wheeler's \emph{SLOCCount} to get a count of the physical
 source lines (excluding comments and blank
-lines)~\cite{wheeler2001sloccount}; including them our corpus
-totals
+lines)~\cite{wheeler2001sloccount}; including non-physical lines
+ our corpus totals \dnote{insert}.
 
 
 \begin{itemize}
@@ -481,23 +485,23 @@ code (\S\ref{sec:fromcode}).
 \subsection{Lattice model of regions}
 \label{sec:domain} 
 
-\begin{defn}[Extended integers]
-  We define the set \zinf{} as
-  $\mathbb{Z}$ extended with $\infty$ and $-\infty$. For any $a$ in
-  \zinf{}, we have $-\infty \leq a \leq \infty$. The resulting set is
-  a total order with top and bottom elements $-\infty$ and
-  $\infty$ respectively.
-\end{defn}
+%\begin{defn}[Extended integers]
+%  We define the set \zinf{} as
+%  $\mathbb{Z}$ extended with $\infty$ and $-\infty$. For any $a$ in
+%  \zinf{}, we have $-\infty \leq a \leq \infty$. The resulting set is
+%  a total order with top and bottom elements $-\infty$ and
+%  $\infty$ respectively.
+%\end{defn}
 
 \begin{defn}[Index scheme]
   An $N$-dimensional \emph{index scheme} is a vector of length $N$ of
-  extended integer sets, \ie{}, a member of $\mathcal{P}(\zinf)^{N}$.
+  extended integer sets, \ie{}, a member of $\mathcal{P}(\bz)^{N}$.
   An alternate (equivalent) view is of a $N$-times finite Cartesian
-  product on subsets of $\zinf$.  We use $S, T, U$ to denote index
+  product on subsets of $\bz$.  We use $S, T, U$ to denote index
   schemes.
 
 Index schemes can be \emph{projected} in the $i^{\textit{th}}$ dimension by
-  $\pi_i : {\mathcal{P}(\zinf{})}^N \to \mathcal{P}(\zinf{})$ where $1 \leq i
+  $\pi_i : {\mathcal{P}(\bz{})}^N \to \mathcal{P}(\bz{})$ where $1 \leq i
   \leq N$. For an index scheme $I$, we refer to $\pi_i(S)$ as the
   \emph{$i^{th}$ component} of $S$.
 \end{defn}
@@ -506,42 +510,71 @@ Index schemes can be \emph{projected} in the $i^{\textit{th}}$ dimension by
 %$N$-dimensional index schemes form a lattice where join and m
 %\end{theorem}
 
-\begin{lem}{}\label{lem:vector-intersect}
+\begin{restatable}{lem}{vectorIntersect}
+\label{lem:vector-intersect}
   Intersection distributes over $N$-dimensional index schemes. 
-  That is, for index schemes $I, J \in \mathcal{P}(\zinf)^N$ then:
+  That is, for index schemes $S, T \in \mathcal{P}(\bz)^N$
 %
   \begin{equation*}
-    I \cap J = \prod_{i = 1}^{N} \pi_i(I) \cap \pi_i(J)
+    S \cap T = \prod_{i = 1}^{N} \pi_i(S) \cap \pi_i(T)
   \end{equation*}
-\end{lem}
+\end{restatable}
 
  Union does not distribute over $N$-dimensional index schemes--
  however, a more restricted property holds.
 
-\begin{lem}{}\label{lem:vector-union}
-Let $I, J$ be $N$-dimensional index schemes such that
-$\pi_i(I) = \pi_i(J)$ for all $1 \leq i \leq N$ apart 
-from some dimension $k$ where $\pi_k(I) \neq \pi_k(J)$,
+\begin{restatable}{lem}{vectorUnion}
+\label{lem:vector-union}
+Let $S, T$ be $N$-dimensional index schemes such that
+$\pi_i(S) = \pi_i(T)$ for all $1 \leq i \leq N$ apart 
+from some dimension $k$ where $\pi_k(S) \neq \pi_k(T)$,
 then:
 %
   \begin{equation*}
-    I \; \cup \; J
+    S \; \cup \; T
     =
-    \pi_1(I) \times \cdots \times
-    (\pi_k(I) \cup \pi_k(J)) \times \cdots \times
-    \pi_N(I)
+    \pi_1(S) \times \cdots \times
+    (\pi_k(S) \cup \pi_k(T)) \times \cdots \times
+    \pi_N(S)
   \end{equation*}
 %
-\end{lem}
+\end{restatable}
 %
-\paragraph{Intervals}
 
-We define an extended notion of closed interval on 
+\begin{defn}
+  We define an extended notion of closed interval on $\bz{}$ which may contain
+  a \emph{hole} at the origin, written \interv{a}{b}{c} where $a$ and $b$ are
+  drawn from \bz{} with $a \leq 0 \leq b$
+   and $c$ is drawn from $\mathbb{B} = \{ \mathsf{true}, \mathsf{false}
+  \}$. Intervals are interpreted as sets as follows:
+%
+  \begin{equation*}
+    \interv{a}{b}{c} \triangleq
+      \{ n \mid a \leq n \leq b \wedge (\neg c \implies n \neq 0) \}
+  \end{equation*}
+%
+  We denote the set of all such intervals (sets) as
+   $\textit{Interval}$. If the superscript is
+  omitted it is treated as $\mathsf{true}$.
+\end{defn}
+
+\begin{restatable}{lem}{intervalIdentities}
+ \label{lem:interval-identities}
+  We have the following dual identities for \bz{} intervals:
+%
+  \begin{align*}
+    \interv{a}{b}{c} \cap \interv{d}{e}{f} & =
+      \interv{\max \{a,d\}}{\min \{b,e\}}{c \wedge f} \\
+    \interv{a}{b}{c} \cup \interv{d}{e}{f} & =
+      \interv{\min \{a,d\}}{\max \{b,e\}}{c \vee f}
+  \end{align*}
+\end{restatable}
+%
 
 \begin{defn}{(\emph{Interval subspace})}
-  An interval subspace is a finite Cartesian product of intervals on \zinf{},
-  denoted by the set $\textit{Interval}^N$ for a product of $N$ intervals. An
-  interval subspace is an offset subspace.
+  An interval subspace is a finite Cartesian product of intervals on
+  \bz{} or \bz itself, 
+  denoted by the set $\textit{Interval}^N$ for a product of $N$ intervals.
 \end{defn}
 
 
@@ -564,7 +597,7 @@ from an array subscript into a $n$-dimensional (closed) interval:
 \qquad
 \textit{interval}_I(e) = \begin{cases}
 [c, c] & e = i \pm c \, \wedge \, i \in I \\
-[-\infty, \infty] & FV(e) \cap I = \emptyset
+\bz & FV(e) \cap I = \emptyset
 \end{cases}
 \end{align*}
 Note that \textit{inveral} may be undefined (it is a partial function)

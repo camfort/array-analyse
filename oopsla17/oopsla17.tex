@@ -217,6 +217,12 @@ ARPACK-NG~\cite{arpackng}, and
 SPECFEM3D~\cite{specfem3d}. Appendix~\ref{app:corpus} provides
 further detail on these packages.
 
+We used Wheeler's \emph{SLOCCount} to get a count of the physical
+source lines (excluding comments and blank
+lines)~\cite{wheeler2001sloccount}; including them our corpus
+totals
+
+
 \begin{itemize}
 % (Vars, ...)
 \item An assignment to a variable, with an RHS comprising some array
@@ -433,20 +439,23 @@ precisely in our syntax. For example:
 b(i) = a(i) + a(i+4)
 \end{minted}
 
-\subsection{Semantic model}
-\label{sec:semantics}
+\section{Semantic model}
+\label{sec:model}
 
 \noindent
-We define a simple set-theoretic denotational model of the semantics
-of our specification language. This has a number of purposes:
+We define a simple set-theoretic model of array access patterns
+which serves as both a denotational model of the semantics
+of our specification language and an abstract interpretation
+domain for source code. This model has a number of uses: 
 (1) it serves to explain the meaning of our specifications
 (2) it is used in the inference and checking algorithms
 (\Cref{sec:analysis}); (3) justifies an equational theory for
 specifications in the next section; and (4) can be used to guide
 correct implementations.
 
-As an initial informal intuition, consider the following simple
-stencil computation.
+The model is defined over vectors of sets of integers which we call
+\emph{index schemes}.  As an initial informal example, consider the
+following simple stencil computation:
 %
 \begin{minted}{fortran}
 do i = 1, n
@@ -454,31 +463,95 @@ do i = 1, n
 end do
 \end{minted}
 %
-This is modelled by a vector of integer sets: $\langle{\{0, 1\},
-  \mathbb{Z}\}}\rangle$ describing that in the first dimension
-the array is read from at offsets of $0$ and $1$ from an induction
-variable, and in the second dimension the array reads are
-unconstrained. \dnote{Don't like this explanation.}
+The access pattern on array \term{a}, relative
+to induction variable \term{i}, is captured
+by a vector of length 2 containing integer sets $\langle{\{0, 1\},
+  \mathbb{Z}\}}\rangle$. This describes that, in the first dimension,
+the array is read at offsets of $0$ and $1$ from an induction
+variable. In the second dimension, the index is unconstrained
+as it is a constant.
 
-we model neighbourhood array subscripts
-in the context of a loop by vectors of sets 
+Index schemes form a lattice which provides a rich set of equations
+and properties, which we exploit. We first set up the 
+domain of the model (\S\ref{sec:domain}), using it to define a semantics
+for our specification language (\S\ref{sec:semantics}) and then as
+the target for an abstract interpretation on imperative
+code (\S\ref{sec:fromcode}).
 
-The model domain is over vectors of sets 
-which we call \emph{index schemes}.
+\subsection{Lattice model of regions}
+\label{sec:domain} 
 
 \begin{defn}[Extended integers]
   We define the set \zinf{} as
   $\mathbb{Z}$ extended with $\infty$ and $-\infty$. For any $a$ in
   \zinf{}, we have $-\infty \leq a \leq \infty$. The resulting set is
-  a total order with top and bottom elements by $-\infty$ and
-  $\infty$.
+  a total order with top and bottom elements $-\infty$ and
+  $\infty$ respectively.
 \end{defn}
 
 \begin{defn}[Index scheme]
-  An \emph{index scheme} is a vector of extended integer sets,
-  that is, an index scheme of size $n$ is a value
-  $\mathcal{P}(\zinf)^{n}$.
+  An $N$-dimensional \emph{index scheme} is a vector of length $N$ of
+  extended integer sets, \ie{}, a member of $\mathcal{P}(\zinf)^{N}$.
+  An alternate (equivalent) view is of a $N$-times finite Cartesian
+  product on subsets of $\zinf$.  We use $S, T, U$ to denote index
+  schemes.
+
+Index schemes can be \emph{projected} in the $i^{\textit{th}}$ dimension by
+  $\pi_i : {\mathcal{P}(\zinf{})}^N \to \mathcal{P}(\zinf{})$ where $1 \leq i
+  \leq N$. For an index scheme $I$, we refer to $\pi_i(S)$ as the
+  \emph{$i^{th}$ component} of $S$.
 \end{defn}
+
+%\begin{theorem}
+%$N$-dimensional index schemes form a lattice where join and m
+%\end{theorem}
+
+\begin{lem}{}\label{lem:vector-intersect}
+  Intersection distributes over $N$-dimensional index schemes. 
+  That is, for index schemes $I, J \in \mathcal{P}(\zinf)^N$ then:
+%
+  \begin{equation*}
+    I \cap J = \prod_{i = 1}^{N} \pi_i(I) \cap \pi_i(J)
+  \end{equation*}
+\end{lem}
+
+ Union does not distribute over $N$-dimensional index schemes--
+ however, a more restricted property holds.
+
+\begin{lem}{}\label{lem:vector-union}
+Let $I, J$ be $N$-dimensional index schemes such that
+$\pi_i(I) = \pi_i(J)$ for all $1 \leq i \leq N$ apart 
+from some dimension $k$ where $\pi_k(I) \neq \pi_k(J)$,
+then:
+%
+  \begin{equation*}
+    I \; \cup \; J
+    =
+    \pi_1(I) \times \cdots \times
+    (\pi_k(I) \cup \pi_k(J)) \times \cdots \times
+    \pi_N(I)
+  \end{equation*}
+%
+\end{lem}
+%
+\paragraph{Intervals}
+
+We define an extended notion of closed interval on 
+
+\begin{defn}{(\emph{Interval subspace})}
+  An interval subspace is a finite Cartesian product of intervals on \zinf{},
+  denoted by the set $\textit{Interval}^N$ for a product of $N$ intervals. An
+  interval subspace is an offset subspace.
+\end{defn}
+
+
+\subsection{Denotational semantics for specifications}
+\label{sec:semantics}
+
+
+
+\subsection{Abstract interpretation}
+\label{sec:fromcode}
 
 \begin{defn}
 The function $\textit{schematic}_I$ parameterised by

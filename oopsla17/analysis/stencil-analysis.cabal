@@ -1,6 +1,6 @@
 name:                stencil-analysis
 version:             0.1.0.0
-synopsis:            Analyse stencil computation patterns in a Fortran code
+synopsis:            Analyse array computation patterns in a Fortran code
 description:         Built on the CamFort framework
 homepage:            https://github.com/camfort/stencil-analysis
 license:             Apache-2.0
@@ -30,6 +30,7 @@ executable stencil-analysis
                        directory >= 1.3,
                        strict >= 0.3.2,
                        deepseq >= 1.4,
+                       process >= 1.4.3.0, 
                        bytestring >= 0.10
   hs-source-dirs:      .
   default-language:    Haskell2010

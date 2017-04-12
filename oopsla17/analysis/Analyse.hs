@@ -71,6 +71,8 @@ import Data.Maybe
 import Data.List
 import Data.Monoid
 import Data.Traversable
+import System.Process
+
 
 import Debug.Trace
 import System.Directory
@@ -147,7 +149,11 @@ applyAnalysisToDir restart mode dir debug bins excludes = do
     if debug then putStrLn $ dbg else return ()
 
     case mode of
-        ViewMode -> putStrLn $ prettyResults result True
+        ViewMode -> do
+               putStrLn $ prettyResults result True
+               -- Use sloccount to give a total of the physical lines
+               sloccount <- readProcess "sloccount" (dirs result) ""
+               putStrLn sloccount
 
         NormalMode -> do
                let resultsFile = dir ++ ".stencil-analysis"

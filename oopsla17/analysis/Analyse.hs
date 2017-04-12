@@ -80,62 +80,104 @@ import Control.DeepSeq
 import Results
 import Indices
 
+data Mode = SingleFile | ViewMode | NormalMode
+
 main :: IO ()
 main = do
     args <- getArgs
-    let (restart, args') = case args of
-                             (x:y:args') | x == "RESTART" -> (Just y, args')
-                             _                            -> (Nothing, args)
-    case args' of
-      [dir]
-        -> applyAnalysisToDir restart dir False False []
+    if null args then do
+       putStrLn "Example usages:"
+       putStrLn "    stencil-analysis dir-or-file [excluded-files]"
+       putStrLn "    stencil-analysis [-b] [-d] dir-or-file [excluded-files]"
+       putStrLn " (where -b means to print pattern bins, and -d is debug mode)"
+       putStrLn "    stencil-analysis RESTART rfile [-b] [-d] dir-or-file [excluded-files]"
+       putStrLn " (restart the analysis with rfile.restart)"
+       putStrLn "    stencil-analysis SINGLE rfile [-b] [-d] dir-or-file [excluded-files]"
+       putStrLn " (restart the analysis with rfile.restart and suprise the final file)"
+       putStrLn "    stencil-analysis VIEW rfile"
+    else do
+       let (restart, args', mode) =
+            case args of
+               (x:y:args') | x == "RESTART" -> (Just y, args', NormalMode)
+                           | x == "SINGLE"  -> (Just y, args', SingleFile)
+                           | x == "VIEW"    -> (Just y, [],    ViewMode)
+                           | otherwise      -> (Nothing, args, NormalMode)
+       case args' of
+          [] -> applyAnalysisToDir restart mode "" False False []
+          [dir]
+             -> applyAnalysisToDir restart mode dir False False []
 
-      dir:args@(a1:a2:_)
-        -> applyAnalysisToDir restart dir (a1 == "-d" || a2 == "-d")
+          dir:args@(a1:a2:_)
+             -> applyAnalysisToDir restart mode dir (a1 == "-d" || a2 == "-d")
                                           (a1 == "-b" || a2 == "-b")
                                           (filterFlags args)
 
-      dir:args@(a1:_)
-        -> applyAnalysisToDir restart dir (a1 == "-d")
+          dir:args@(a1:_)
+             -> applyAnalysisToDir restart mode dir (a1 == "-d")
                                           (a1 == "-b")
                                           (filterFlags args)
 
-      _ -> putStrLn $ "Please specify a directory on which to apply the\
-                     \ analysis followed by any number of file names\
-                     \ to be excluded."
-  where
-    filterFlags = filter (\arg -> arg /= "-d" && arg /= "-b")
+          _ -> putStrLn $ "Please specify a directory on which to apply the\
+                       \ analysis followed by any number of file names\
+                       \ to be excluded."
+   where
+      filterFlags = filter (\arg -> arg /= "-d" && arg /= "-b")
 
-applyAnalysisToDir :: Maybe String -> String -> Bool -> Bool -> [String] -> IO ()
-applyAnalysisToDir restart dir debug bins excludes = do
-    files <- readParseSrcDir dir excludes
-    let resultsFile = dir ++ ".stencil-analysis"
+applyAnalysisToDir :: Maybe String -> Mode -> String -> Bool -> Bool -> [String] -> IO ()
+applyAnalysisToDir restart mode dir debug bins excludes = do
 
     -- See if we have a 'restarts' file to include
     result0 <- case restart of
                  Just restartFile -> do
-                        resultsString <- Strict.readFile (restartFile ++ ".restart")
-                        return $ ((read resultsString) :: Result)
+                        present <- doesFileExist (restartFile ++ ".restart")
+                        if present then do
+                           resultsString <- Strict.readFile (restartFile ++ ".restart")
+                           return $ ((read resultsString) :: Result)
+                        else return mempty
                  Nothing -> mempty
-    let result1 = result0 `mappend` mempty { dirs = [dir] }
-    (dbg, result) <- foldrM (applyAnalysisToFile dir) ("", result1) files
 
-    writeFile resultsFile (show result)
+    (dbg, result) <-
+      case mode of
+         ViewMode
+            -> return ("", result0)
+         _  -> do files <- readParseSrcDir dir excludes
+                  let result1 = result0 `mappend` mempty { dirs = [dir] }
+                  foldrM (applyAnalysisToFile (mode, restart) dir) ("", result1) files
+
     if debug then putStrLn $ dbg else return ()
-    putStrLn $ prettyResults result bins
+
+    case mode of
+        ViewMode -> putStrLn $ prettyResults result True
+
+        NormalMode -> do
+               let resultsFile = dir ++ ".stencil-analysis"
+               writeFile resultsFile (show result)
+               putStrLn $ prettyResults result bins
+
+        SingleFile -> return ()
+
     --valid <- resultValidation result
     --if valid then (putStrLn $ "Results were valid") else (putStrLn "Results were invalid")
 
-applyAnalysisToFile :: String
+applyAnalysisToFile :: (Mode, Maybe String)
+                    -> String
                     -> (Filename, SourceText, F.ProgramFile A)
                     -> (String, Result)
                     -> IO (String, Result)
-applyAnalysisToFile dir (filename, source, pf) (dbg0, result0) = do
+applyAnalysisToFile (mode, restart) dir (filename, source, pf) (dbg0, result0) = do
     -- Write results so far to the restart file
-    dbg' `deepseq` writeFile (dir ++ ".restart") (show (result0 `mappend` result'))
+    case mode of
+      SingleFile -> do
+           putStrLn $ prettyResults finalResult False
+           writeFile (fromJust restart ++ ".restart") (show finalResult)
+      _          ->
+           dbg' `deepseq` writeFile (dir ++ ".restart") (show finalResult)
+
     -- Return results and debugs
-    return (dbg0 ++ dbg', result0 `mappend` result')
+    return (finalDebugs, finalResult)
   where
+    finalDebugs = dbg0 ++ dbg'
+    finalResult = result0 `mappend` result'
     lines = length $ B.lines source
     pf' = FAR.analyseRenames . FA.initAnalysis $ pf
     nameMap = FAR.extractNameMap pf'

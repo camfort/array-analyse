@@ -276,30 +276,20 @@ and meet respectively. Let \textcap{R} and \textcap{S} be regions.
     \interp{\textcap{R}}_N \wedge \interp{\textcap{S}}_N
 \end{align*}
 
-Third, we need to mark presence of modifiers such as \texttt{readOnce} and
-\texttt{atMost} as introduced in \Cref{}. In the context of
-multiplicity modifiers we have the following semantics:
-%
-\begin{align*}
-  \interp{\texttt{readOnce}} & = \mathsf{mult} &
-  \llbracket\epsilon\rrbracket & = \mathsf{once}
-\end{align*}
-
-In the context of approximation modifiers, we have
-%
-\begin{align*}
-  \interp{\texttt{atLeast}} & = \mathsf{lower} &
-  \interp{\texttt{atMost}} & = \mathsf{upper} &
-  \llbracket \epsilon \rrbracket = \mathsf{exact}
-\end{align*}
+We mark the presence of modifiers such as \texttt{readOnce} and
+\texttt{atMost} as introduced in \Cref{}. Multiplicity
+modifiers are interpreted as injections in the $\mathsf{Mult}$
+variant by $\interpMult{}$ in Fig~\ref{fig:semantics}.
+In a similar way, approximation modifiers are interpreted
+as injections into the $\mathsf{Approx}$ variant by $\interpApprox{}$.
 
 Finally, we can give full semantics of a stencil specification:
 %
 \begin{equation*}
-  \interp{\texttt{stencil \textcap{Mult}, \textcap{Appr}, \textcap{Region}}}_N =
-    \interp{\textcap{Mult}}
-           {(\interp{\textcap{Appr}}
-                    {(\interp{\textcap{Region}}_N)})}
+  \interp{\texttt{stencil \textcap{mult}, \textcap{approx}, \textcap{region}}}_N =
+    \interpMult{\textcap{mult}}
+           {(\interpMax{\textcap{approx}}
+                    {(\interp{\textcap{region}}_N)})}
 \end{equation*}
 
 \section{Equational \& approximation theories}

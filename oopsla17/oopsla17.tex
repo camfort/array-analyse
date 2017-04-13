@@ -6,7 +6,6 @@
 \usepackage{subcaption} %% For complex figures with subfigures/subcaptions
                         %% http://ctan.org/pkg/subcaption
 
-
 \usepackage{hyperref}
 \usepackage{natbib}
 \usepackage{amsmath}
@@ -646,21 +645,119 @@ We define two subsets of index scheme: \emph{subscript} schemes and
 \label{sec:semantics}
 
 \noindent
-An interpretation function $\interp{-}_N$ provides a semantics to
-specifications as a member of $\textsf{Mult} (\textsf{Approx} (\mathcal{P}{\bz}^N)))$
-(where $n$ is the maximum dimensionality of the specification being
-modelled) mapping closed\footnote{That is, we assume there are no
-  occurrences of \textit{rvar} in a specification being modelled.  Any
-  \emph{open} specification containing region variables can be made
-  closed by straightforward syntactic substitution with a (closed)
-  \textit{region}.} specifications to sets of
-$n$-dimensional index schemes. The interpretation is overloaded on
-\emph{regions} in \Cref{fig:region-model} and on the top-level
-of a specification \textit{spec} in \Cref{fig:spatial-model}.
-Various intermediate notions are used.
+An interpretation function $\interp{-}_N$ maps closed\footnote{That
+  is, we assume there are no occurrences of \textit{rvar} in a
+  specification being modelled.  Any \emph{open} specification
+  containing region variables can be made closed by straightforward
+  syntactic substitution with a (closed) \textit{region}.}
+specifications to sets of $N$-dimensional index schemes with modifier
+information, \ie{} specifications are mapped to
+$\textsf{Mult} (\textsf{Approx} (\mathcal{P}({\bz})^N))$ where $N$ is
+the maximum dimensionality of the specification being modelled.
+
+The interpretation is overloaded on \emph{regions} in
+\Cref{subfig:region-model}. Various intermediate notions are used.
+
+\begin{defn}
+Let $\textit{promote}_N : \mathbb{N}^+ \times \textit{Interval} \to
+\textit{Interval}^N$ be a function generating an $N$-dimensional 
+interval such that $\pi_i(\vecgen{N}{i}{\interv{a}{b}{c}}) = 
+\interv{a}{b}{c}$ and $\pi_j(\vecgen{N}{i}{\interv{a}{b}{c}}) = 
+\bz{}$ in all other dimensions $j$. 
+\end{defn}
+
+%
+\begin{figure}[!t]
+\begin{subfigure}[t]{0.5\textwidth}
+\begin{align*}
+\interp{-}_N & : \textit{region} \rightarrow \mathcal{P}(\bz)^N \\
+  \interp{\stencil{p}{$i$}{}{}}_N & =
+    \vecgen{N}{i}{\interv{0}{0}{\mathsf{true}}}\\
+%
+  \interp{\stencil{c}{$i$}{$k$}{\textcap{p}}}_N & =
+    \vecgen{N}{i}{\interv{-k}{k}{\interp{\textcap{p}}}} \\
+%
+  \interp{\stencil{f}{$i$}{$k$}{\textcap{p}}}_N & =
+    \vecgen{N}{i}{\interv{0}{k}{\interp{\textcap{p}}}} \\
+%
+  \interp{\stencil{b}{$i$}{$k$}{\textcap{p}}}_N & =
+  \vecgen{N}{i}{\interv{-k}{0}{\interp{\textcap{p}}}}
+\\
+  \interp{\texttt{\textcap{r} + \textcap{s}}}_N & =
+    \interp{\textcap{r}}_N \vee \interp{\textcap{s}}_N
+\\
+  \interp{\texttt{\textcap{r} * \textcap{s}}}_N & =
+    \interp{\textcap{r}}_N \wedge \interp{\textcap{s}}_N \\[-1em]
+\end{align*}
+\caption{Interpretation of regions}
+\label{subfig:region-model}
+\end{subfigure}
+\hspace{1em}
+\begin{subfigure}[t]{0.4\textwidth}
+\begin{align*}
+\interpApprox{-} & : \textit{approx} \rightarrow (A \rightarrow
+  \textsf{Approx} \, A) \\
+\interpApprox{\texttt{atLeast}} & = \mathsf{lower} \\
+  \interpApprox{\texttt{atMost}} & = \mathsf{upper} \\
+  \interpApprox{\epsilon} & = \mathsf{exact} \\ \\
+  \interpMult{-} & : \textit{mult} \rightarrow (A \rightarrow
+  \textsf{Mult} \, A) \\
+  \interpMult{\texttt{readOnce}} & = \mathsf{once} \\
+  \interpMult{\epsilon} & = \mathsf{mult}
+\end{align*}
+\caption{Interpretation of modifiers}
+\label{subfig:modifier-model}
+\end{subfigure}
+\label{fig:semantics}
+\caption{Semantic model of specifications}
+\end{figure}
 
 
+The first four equations of \Cref{subfig:region-model} model region 
+contants. The final two equations model the \term{+} and \term{*}
+operators in terms of the join (union) and meet (intersection)
+of interval schemes. Thus regions are modelled as members
+of $\mathcal{P}(\bz)^N$. 
 
+We mark in our model the presence of modifiers such as
+\texttt{readOnce} and \texttt{atMost} as introduced in \Cref{}.
+Approximation modifiers are interpreted as injections into the
+$\mathsf{Approx}$ variant by $\interpApprox{}$ in
+\Cref{subfig:modifier-model}.  The $\textsf{Approx}$ type corresponds
+to the presence or absence of the spatial approximation modifier, with
+\textsf{exact} when there is no such modifier and \textsf{lower} and
+\textsf{upper} for \term{atLeast} and \term{atMost}. In a similar way,
+multiplicity modifiers are interpreted as injections in the
+$\mathsf{Mult}$ variant by $\interpMult{}$, corresponding to the to
+the presence or absence of the \term{readOnce} modifier as shown in
+\Cref{subfig:modifier-model}.
+
+\begin{defn}[Semantics of specifications]
+The intermediate interpretations of \Cref{fig:semantics}
+are composed to give a model for the top-level specification
+syntax as:
+%
+\begin{equation*}
+  \interp{\texttt{stencil \textcap{mult}, \textcap{approx}, \textcap{region}}}_N =
+    \interpMult{\textcap{mult}} \;
+           {(\interpApprox{\textcap{approx}} \;
+                    {\interp{\textcap{region}}_N)}}
+\end{equation*}
+\end{defn}
+%
+\begin{thm}
+The semantic model $\interp{-}_N$ of $N$-dimensional specifications
+is sound with respects to the equational theory of the language,
+that is:
+%
+\begin{equation*}
+\forall S, T, N . \quad
+S \equiv T \; \Rightarrow \;
+\interp{S}_N = \interp{T}_N
+\end{equation*}
+%
+We define the equational theory in \Cref{sec:equational-theory}.
+\end{thm}
 
 \subsection{Abstract interpretation}
 \label{sec:fromcode}

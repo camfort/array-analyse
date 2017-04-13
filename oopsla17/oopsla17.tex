@@ -610,24 +610,55 @@ We define two subsets of index scheme: \emph{subscript} schemes and
   \end{enumerate}
 \end{defn}
 
-\begin{prop}{}
-  $(\region{N},\subseteq)$ is a distributive lattice.
-\end{prop}
+\begin{restatable}{prop}{regionLattice}
+  \label{prop:regionLattice}
+  $(\region{N},\cup,\cap,\subseteq)$ is a bounded distributive lattice with top
+  $\top = \bz{}^N$ and bottom $\bot = \emptyset$.
+\end{restatable}
 %
-\begin{proof}(sketch)
-%  Any sublattice of a distributive lattice is a distributive lattice. Power sets
-%  partially ordered with subset relation are distributive lattices. \region{N}
-%  is a subset of $\mathcal{P}{(\bz{})^N}$ since all interval schemes are
-%  subsets of this power set and; union and intersection cannot add an element
-%  that is not already in the powerset. The inductive definition ensures that
-%  \region{N} is closed under these operations. Therefore, \region{N} is a
-%  distributive sublattice of $(\mathcal{P}{(\bz{})^N}, \subseteq)$.
+\begin{proof}
+  Straightforward, since $\cup$ and $\cap$ are on sets (and therefore commutative,
+  associative, and absorptive with each
+  other). Furthermore, $\mathbb{Z}^N \cap R = R$ and $\empty \cup R =
+  R$ giving the bounds. Furthermore, the lattice is distributive since
+ union distributes over intersection and vice versa
 \end{proof}
 
-
+\begin{defn}{}
+  $\mathsf{Mult}$ and $\mathsf{Approx}$ are parametric labelled variant types
+  with injections given by their definition:
+%
+  \begin{align*}
+    \mathsf{Mult} \;\; a \;\; &
+      \triangleq \mathsf{mult} \; a \;\mid\; \mathsf{only} \; a \\
+    \mathsf{Approx} \;\; a \;\; &
+      \triangleq \mathsf{exact} \; a \;\mid\; \mathsf{lower} \; a \;\mid\;
+        \mathsf{upper} \; a
+  \end{align*}
+%
+  \eg{}, $\mathsf{lower}$ is an injection $\mathsf{lower} : a \to \mathsf{Approx}
+  \; a$ etc.
+  These will be used in the following subsection to give meaning to the
+  specification modifiers for approximation and multiplicity.
+\end{defn}
 
 \subsection{Denotational semantics for specifications}
 \label{sec:semantics}
+
+\noindent
+An interpretation function $\interp{-}_N$ provides a semantics to
+specifications as a member of $\textsf{Mult} (\textsf{Approx} (\mathcal{P}{\bz}^N)))$
+(where $n$ is the maximum dimensionality of the specification being
+modelled) mapping closed\footnote{That is, we assume there are no
+  occurrences of \textit{rvar} in a specification being modelled.  Any
+  \emph{open} specification containing region variables can be made
+  closed by straightforward syntactic substitution with a (closed)
+  \textit{region}.} specifications to sets of
+$n$-dimensional index schemes. The interpretation is overloaded on
+\emph{regions} in \Cref{fig:region-model} and on the top-level
+of a specification \textit{spec} in \Cref{fig:spatial-model}.
+Various intermediate notions are used.
+
 
 
 

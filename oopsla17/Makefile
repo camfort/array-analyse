@@ -11,3 +11,6 @@ lattice-model.pdf: lattice-model.tex stencilmacros.sty
 
 inference.pdf: inference.tex stencilmacros.sty
 	pdflatex inference
+
+quick:
+	pdflatex -shell-escape oopsla17

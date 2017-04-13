@@ -48,13 +48,24 @@
 
 %%
 
+%OLDER
+%\newcommand{\SSgeosChemFiles}{604}
+%\newcommand{\SSgeosChemLoC}{467472}
+%\newcommand{\SSgeosChemLoCRaw}{848647}
+
+%\newcommand{\SSgeosChemFilesParsed}{196}
+%\newcommand{\SSgeosChemLoCParsed}{213387}
+%\newcommand{\SSgeosChemLoCParsedRaw}{263694}
+
+
 \newcommand{\SSgeosChemFiles}{604}
-\newcommand{\SSgeosChemLoC}{467472}
+\newcommand{\SSgeosChemLoC}{445660}
 \newcommand{\SSgeosChemLoCRaw}{848647}
 
-\newcommand{\SSgeosChemFilesParsed}{196}
-\newcommand{\SSgeosChemLoCParsed}{213387}
-\newcommand{\SSgeosChemLoCParsedRaw}{263694}
+\newcommand{\SSgeosChemFilesParsed}{336}
+\newcommand{\SSgeosChemLoCParsed}{269674}
+\newcommand{\SSgeosChemLoCParsedRaw}{410654}
+
 
 %%
 
@@ -65,6 +76,16 @@
 \newcommand{\SShybridFilesParsed}{29}
 \newcommand{\SShybridLoCParsed}{4831}
 \newcommand{\SShybridLoCParsedRaw}{8361}
+
+%%
+
+\newcommand{\SSmudpackFiles}{88}
+\newcommand{\SSmudpackLoC}{54753}
+\newcommand{\SSmudpackLoCRaw}{78652}
+
+\newcommand{\SSmudpackFilesParsed}{88}
+\newcommand{\SSmudpackLoCParsed}{54753}
+\newcommand{\SSmudpackLoCParsedRaw}{78652}
 
 %%
 
@@ -83,8 +104,8 @@
 \newcommand{\SSspecfemLoCRaw}{232356}
 
 \newcommand{\SSspecfemFilesParsed}{475}
-\newcommand{\SSspecfemLoCParsed}{178317}
-\newcommand{\SSspecfemLoCParsedRaw}{103328}
+\newcommand{\SSspecfemLoCParsed}{103328}
+\newcommand{\SSspecfemLoCParsedRaw}{178317}
 
 
 %%
@@ -99,14 +120,15 @@
 
 %% Totals
 
-\newcommand{\SSFiles}{\the\numexpr(\SSArpackFiles+\SSBlasFiles+\SSCliffsFiles+\SSCPFiles+\SSEThreeMEFiles+\SSgeosChemFiles+\SShybridFiles+\SSnavierFiles+\SSspecfemFiles+\SSumFiles)}
+\newcommand{\SSFiles}{\the\numexpr(\SSArpackFiles+\SSBlasFiles+\SSCliffsFiles+\SSCPFiles+\SSEThreeMEFiles+\SSgeosChemFiles+\SShybridFiles+\SSnavierFiles+
+\SSmudpackFiles +\SSspecfemFiles+\SSumFiles)}
 
-\newcommand{\SSLoC}{\the\numexpr(\SSArpackLoC+\SSBlasLoC+\SSCliffsLoC+\SSCPLoC+\SSEThreeMELoC+\SSgeosChemLoC+\SShybridLoC+\SSnavierLoC+\SSspecfemLoC+\SSumLoC)}
+\newcommand{\SSLoC}{\the\numexpr(\SSArpackLoC+\SSBlasLoC+\SSCliffsLoC+\SSCPLoC+\SSEThreeMELoC+\SSgeosChemLoC+\SShybridLoC+\SSmudpackLoC+\SSnavierLoC+\SSspecfemLoC+\SSumLoC)}
 
-\newcommand{\SSLoCRaw}{\the\numexpr(\SSArpackLoCRaw+\SSBlasLoCRaw+\SSCliffsLoCRaw+\SSCPLoCRaw+\SSEThreeMELoCRaw+\SSgeosChemLoCRaw+\SShybridLoCRaw+\SSnavierLoCRaw+\SSspecfemLoCRaw+\SSumLoCRaw)}
+\newcommand{\SSLoCRaw}{\the\numexpr(\SSArpackLoCRaw+\SSBlasLoCRaw+\SSCliffsLoCRaw+\SSCPLoCRaw+\SSEThreeMELoCRaw+\SSgeosChemLoCRaw+\SShybridLoCRaw+\SSmudpackLoCRaw+\SSnavierLoCRaw+\SSspecfemLoCRaw+\SSumLoCRaw)}
 
-\newcommand{\SSFilesParsed}{\the\numexpr(\SSArpackFilesParsed+\SSBlasFilesParsed+\SSCliffsFilesParsed+\SSCPFilesParsed+\SSEThreeMEFilesParsed+\SSgeosChemFilesParsed+\SShybridFilesParsed+\SSnavierFilesParsed+\SSspecfemFilesParsed+\SSumFilesParsed)}
+\newcommand{\SSFilesParsed}{\the\numexpr(\SSArpackFilesParsed+\SSBlasFilesParsed+\SSCliffsFilesParsed+\SSCPFilesParsed+\SSEThreeMEFilesParsed+\SSgeosChemFilesParsed+\SShybridFilesParsed+\SSnavierFilesParsed+\SSmudpackFilesParsed+\SSspecfemFilesParsed+\SSumFilesParsed)}
 
-\newcommand{\SSLoCParsed}{\the\numexpr(\SSArpackLoCParsed+\SSBlasLoCParsed+\SSCliffsLoCParsed+\SSCPLoCParsed+\SSEThreeMELoCParsed+\SSgeosChemLoCParsed+\SShybridLoCParsed+\SSnavierLoCParsed+\SSspecfemLoCParsed+\SSumLoCParsed)}
+\newcommand{\SSLoCParsed}{\the\numexpr(\SSArpackLoCParsed+\SSBlasLoCParsed+\SSCliffsLoCParsed+\SSCPLoCParsed+\SSEThreeMELoCParsed+\SSgeosChemLoCParsed+\SShybridLoCParsed+\SSnavierLoCParsed+\SSmudpackLoCParsed+\SSspecfemLoCParsed+\SSumLoCParsed)}
 
-\newcommand{\SSLoCParsedRaw}{\the\numexpr(\SSArpackLoCParsedRaw+\SSBlasLoCParsedRaw+\SSCliffsLoCParsedRaw+\SSCPLoCParsedRaw+\SSEThreeMELoCParsedRaw+\SSgeosChemLoCParsedRaw+\SShybridLoCParsedRaw+\SSnavierLoCParsedRaw+\SSspecfemLoCParsedRaw+\SSumLoCParsedRaw)}
+\newcommand{\SSLoCParsedRaw}{\the\numexpr(\SSArpackLoCParsedRaw+\SSBlasLoCParsedRaw+\SSCliffsLoCParsedRaw+\SSCPLoCParsedRaw+\SSEThreeMELoCParsedRaw+\SSgeosChemLoCParsedRaw+\SShybridLoCParsedRaw+\SSnavierLoCParsedRaw+\SSmudpackLoCParsedRaw+\SSspecfemLoCParsedRaw+\SSumLoCParsedRaw)}

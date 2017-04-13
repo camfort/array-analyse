@@ -31,7 +31,7 @@
 \usepackage{thmtools}
 \usepackage{thm-restate}
 
-
+\errorcontextlines 10000
 \usepackage{stencilmacros}
 
 %% Bibliography style
@@ -60,6 +60,7 @@
 % For evluation and empirical study
 % Defines the commands (headers)
 \input{resultsCmds}
+\input{studyResults}
 % renews the commands with actual data
 % \input{results}
 
@@ -496,7 +497,7 @@ code (\S\ref{sec:fromcode}).
 \begin{defn}[Index scheme]
   An $N$-dimensional \emph{index scheme} is a vector of length $N$ of
   extended integer sets, \ie{}, a member of $\mathcal{P}(\bz)^{N}$.
-  An alternate (equivalent) view is of a $N$-times finite Cartesian
+  An equivalent view of these vectors is as an $N$-times finite Cartesian
   product on subsets of $\bz$.  We use $S, T, U$ to denote index
   schemes.
 
@@ -506,9 +507,6 @@ Index schemes can be \emph{projected} in the $i^{\textit{th}}$ dimension by
   \emph{$i^{th}$ component} of $S$.
 \end{defn}
 
-%\begin{theorem}
-%$N$-dimensional index schemes form a lattice where join and m
-%\end{theorem}
 
 \begin{restatable}{lem}{vectorIntersect}
 \label{lem:vector-intersect}
@@ -531,17 +529,22 @@ from some dimension $k$ where $\pi_k(S) \neq \pi_k(T)$,
 then:
 %
   \begin{equation*}
-    S \; \cup \; T
+    S \cup  T
     =
     \pi_1(S) \times \cdots \times
     (\pi_k(S) \cup \pi_k(T)) \times \cdots \times
     \pi_N(S)
   \end{equation*}
+%  \begin{equation*}
+%    S \cup T
+%    =
+%    (\prod_{i=1}^{k-1} \pi_i(S)) \times (\pi_k(S) \cup \pi_k(T)) \times \prod_{k+1}^{N} \pi_i(S)
+%  \end{equation*}
 %
 \end{restatable}
 %
 
-\begin{defn}
+\begin{defn}[Intervals with an optional hole]
   We define an extended notion of closed interval on $\bz{}$ which may contain
   a \emph{hole} at the origin, written \interv{a}{b}{c} where $a$ and $b$ are
   drawn from \bz{} with $a \leq 0 \leq b$
@@ -571,11 +574,56 @@ then:
 \end{restatable}
 %
 
-\begin{defn}{(\emph{Interval subspace})}
-  An interval subspace is a finite Cartesian product of intervals on
-  \bz{} or \bz itself, 
+We define two subsets of index scheme: \emph{subscript} schemes and
+\emph{interval} schemes:
+
+\begin{defn}[Interval scheme]
+  An interval scheme is a finite Cartesian product of intervals on
+  \bz{} or \bz{} itself, 
   denoted by the set $\textit{Interval}^N$ for a product of $N$ intervals.
 \end{defn}
+
+\begin{defn}[Subscript scheme]
+  A $N$-dimensional \emph{subscript scheme} is an $N$-dimensional
+  interval scheme where:
+  %
+  \begin{equation*}
+    \forall i.\ 1 \leq i \leq N \implies
+      \pi_i (S) = [p, p] 
+      \; \vee \;
+      \pi_i (S) = \bz{}
+    \end{equation*}
+    That is, the $i^{th}$ component of the set is either a singleton
+  in $\mathbb{Z}$ or the infinite interval.
+\end{defn}
+%
+\dnote{May want a predicate as well}
+   
+\begin{defn}{(\emph{Region})}
+  A region \region{N} is an $N$-dimensional index scheme
+  (\ie{}, $\region{N} \subseteq \mathcal{P}(\bz)^N)$ defined as the smallest set satisfying the following:
+%
+  \begin{enumerate}
+    \item If $R$ is in $\textit{Interval}^N$, then $R$ is in \region{N}.
+    \item If $R$ and $S$ are in \region{N}, then so are $R \cap S$ and
+      $R \cup S$.
+  \end{enumerate}
+\end{defn}
+
+\begin{prop}{}
+  $(\region{N},\subseteq)$ is a distributive lattice.
+\end{prop}
+%
+\begin{proof}(sketch)
+%  Any sublattice of a distributive lattice is a distributive lattice. Power sets
+%  partially ordered with subset relation are distributive lattices. \region{N}
+%  is a subset of $\mathcal{P}{(\bz{})^N}$ since all interval schemes are
+%  subsets of this power set and; union and intersection cannot add an element
+%  that is not already in the powerset. The inductive definition ensures that
+%  \region{N} is closed under these operations. Therefore, \region{N} is a
+%  distributive sublattice of $(\mathcal{P}{(\bz{})^N}, \subseteq)$.
+\end{proof}
+
 
 
 \subsection{Denotational semantics for specifications}

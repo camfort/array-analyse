@@ -198,14 +198,20 @@ practises and workflows.
 
 \section{An Empirical Study of Array Computations in Scientific Fortran code}
 
-
-
+Hypotheses:
 \begin{enumerate}
-\item Stencils are ubiquitious;
-\item Most stencils read their data from source arrays with a static pattern
-base on constant offsets from the mid-point;
-\item Most stencils read their data from contiguous \emph{regions} in an array;
-\item Most stencils read each index at most once.
+\item Loops over arrays mainly read from arrays with a static pattern
+based on constant offsets from (base or dervied) induction variables;
+
+\item Most loop-array computations of the previous form read
+from a arrays with a contiguous pattern;
+
+\item Many array computations are \emph{stencil computations},
+with a static access pattern, writing
+to an array at an index based on a constant offset from induction
+variables.
+
+\item Many array computations read from a particular index just once
 \end{enumerate}
 
 \subsection{Study}
@@ -234,6 +240,8 @@ lines)~\cite{wheeler2001sloccount}; including non-physical lines
 the max value in an array).
 
 \end{itemize}
+
+
 
 \section{A Specification Language for Shape}
 

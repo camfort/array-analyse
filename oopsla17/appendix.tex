@@ -5,6 +5,59 @@
 \section{Details of the corpus data set}
 \label{app:corpus}
 
+\begin{table}
+\centering
+\footnotesize
+\begin{tabular}{lS[table-format=4]S[table-format=4]S[table-format=4]S[table-format=4]S[table-format=4]S[table-format=4]}
+\hline
+  & \multicolumn{2}{c}{Number of files}
+  & \multicolumn{2}{c}{Lines of physical code}
+  & \multicolumn{2}{c}{Lines of raw code} \\
+%%
+  Package   & {Total} & {Parsed}& {\hspace{2em}Total} & {Parsed} & {\hspace{2em}Total} & {Parsed}  \\ % braces prevent headers from being formatted as numbers
+  \hline
+%%%
+  ARPACK-NG & \SSArpackFiles & \SSArpackFilesParsed & \SSArpackLoC &
+\SSArpackLoCParsed & \SSArpackLoCRaw & \SSArpackLoCParsedRaw \\
+%%%
+  BLAS & \SSBlasFiles & \SSBlasFilesParsed &
+\SSBlasLoC & \SSBlasLoCParsed & \SSBlasLoCRaw & \SSBlasLoCParsedRaw \\
+%%%
+  Cliffs & \SSCliffsFiles & \SSCliffsFilesParsed & \SSCliffsLoC &
+\SSCliffsLoCParsed & \SSCliffsLoCRaw & \SSCliffsLoCParsedRaw \\
+%%%
+  CP & \SSCPFiles & \SSCPFilesParsed & \SSCPLoC & \SSCPLoCParsed &
+\SSCPLoCRaw & \SSCPLoCParsedRaw \\
+%%%
+  E3MG & \SSEThreeMEFiles & \SSEThreeMEFilesParsed & \SSEThreeMELoC &
+\SSEThreeMELoCParsed & \SSEThreeMELoCRaw & \SSEThreeMELoCParsedRaw \\
+%%%
+  GEOS-Chem &
+\SSgeosChemFiles & \SSgeosChemFilesParsed & \SSgeosChemLoC &
+\SSgeosChemLoCParsed & \SSgeosChemLoCRaw & \SSgeosChemLoCParsedRaw \\
+%%%
+  Hybrid4 & \SShybridFiles & \SShybridFilesParsed & \SShybridLoC &
+\SShybridLoCParsed & \SShybridLoCRaw & \SShybridLoCParsedRaw \\
+%%%
+  Navier & \SSnavierFiles & \SSnavierFilesParsed & \SSnavierLoC &
+\SSnavierLoCParsed & \SSnavierLoCRaw & \SSnavierLoCParsedRaw \\
+%%
+  Specfem3D & \SSspecfemFiles & \SSspecfemFilesParsed & \SSspecfemLoC &
+\SSspecfemLoCParsed & \SSspecfemLoCRaw & \SSspecfemLoCParsedRaw \\
+%%
+  UM &
+\SSumFiles & \SSumFilesParsed & \SSumLoC & \SSumLoCParsed &
+\SSumLoCRaw & \SSumLoCParsedRaw \\ \hline
+%%% TOTAL
+  \textbf{Total} & \SSFiles &
+\SSFilesParsed & \SSLoC & \SSLoCParsed & \SSLoCRaw & \SSLoCParsedRaw
+\end{tabular}
+\caption{Summary of software packages used for
+  evaluation\label{tab:corpus}}
+\vspace{-1em}
+\end{table}
+
+
 \paragraph{Software Corpus}
 Table~\ref{tab:corpus} shows summary statistics of the software
 packages used in our evaluation, all of which are written in Fortran

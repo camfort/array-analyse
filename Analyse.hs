@@ -82,7 +82,8 @@ import Control.DeepSeq
 import Results
 import Indices
 
-data Mode = SingleFile | ViewMode | NormalMode
+data Mode = SingleFile | ViewMode | NormalMode | CombineMode
+  deriving (Eq)
 
 main :: IO ()
 main = do
@@ -103,8 +104,13 @@ main = do
                (x:y:args') | x == "RESTART" -> (Just y, args', NormalMode)
                            | x == "SINGLE"  -> (Just y, args', SingleFile)
                            | x == "VIEW"    -> (Just y, [],    ViewMode)
+                           | x == "COMBINE"  -> (Nothing, (y:args'), CombineMode)
                            | otherwise      -> (Nothing, args, NormalMode)
-       case args' of
+               _ -> (Nothing, args, NormalMode)
+       if mode == CombineMode then
+         combineMode args'
+       else
+         case args' of
           [] -> applyAnalysisToDir restart mode "" False False []
           [dir]
              -> applyAnalysisToDir restart mode dir False False []
@@ -124,6 +130,18 @@ main = do
                        \ to be excluded."
    where
       filterFlags = filter (\arg -> arg /= "-d" && arg /= "-b")
+
+combineMode :: [String] -> IO ()
+combineMode restarts = do
+  files <- mapM readFile restarts
+  let (results :: [Result]) = map read files
+  let result = foldr mappend mempty results
+  writeFile "combined.restart" (show result)
+  putStrLn $ prettyResults result True
+  sloccount <- readProcess "sloccount" (map quotesWhenNeeded $ dirs result) ""
+  putStrLn sloccount
+  putStrLn $ "Files/dirs counted:" ++ (show . length . dirs $ result)
+  putStrLn $ "Raw count (parsed):" ++ (show . numLines $ result)
 
 applyAnalysisToDir :: Maybe String -> Mode -> String -> Bool -> Bool -> [String] -> IO ()
 applyAnalysisToDir restart mode dir debug bins excludes = do
@@ -152,8 +170,10 @@ applyAnalysisToDir restart mode dir debug bins excludes = do
         ViewMode -> do
                putStrLn $ prettyResults result True
                -- Use sloccount to give a total of the physical lines
-               sloccount <- readProcess "sloccount" (dirs result) ""
+               sloccount <- readProcess "sloccount" (map quotesWhenNeeded $ dirs result) ""
                putStrLn sloccount
+               putStrLn $ "Files/dirs counted:" ++ (show . length . dirs $ result)
+               putStrLn $ "Raw count (parsed):" ++ (show . numLines $ result)
 
         NormalMode -> do
                let resultsFile = dir ++ ".stencil-analysis"
@@ -164,6 +184,8 @@ applyAnalysisToDir restart mode dir debug bins excludes = do
 
     --valid <- resultValidation result
     --if valid then (putStrLn $ "Results were valid") else (putStrLn "Results were invalid")
+
+quotesWhenNeeded xs = if ' ' `elem` xs then "\"" ++ xs ++ "\"" else xs
 
 applyAnalysisToFile :: (Mode, Maybe String)
                     -> String

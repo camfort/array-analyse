@@ -34,3 +34,23 @@ executable stencil-analysis
                        bytestring >= 0.10
   hs-source-dirs:      .
   default-language:    Haskell2010
+
+executable study
+  main-is:             Study.hs
+  other-modules:       Indices,
+                       Neighbour,
+                       Results
+  build-depends:       base >=4.9 && <4.10,
+                       camfort >= 0.9.0.2,
+                       fortran-src >= 0.1.0.6,
+                       containers >= 0.5.7.1,
+                       uniplate >= 1.6.12,
+                       mtl >= 2.2.1,
+                       fgl >= 5.5.3,
+                       directory >= 1.3,
+                       strict >= 0.3.2,
+                       deepseq >= 1.4,
+                       process >= 1.4.3.0, 
+                       bytestring >= 0.10
+  hs-source-dirs:      .
+  default-language:    Haskell2010

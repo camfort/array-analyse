@@ -1,5 +1,7 @@
 {-# LANGUAGE GADTs #-}
 {-# LANGUAGE DataKinds #-}
+{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE UndecidableInstances #-}
 
 import qualified Data.Map as M
 import Results
@@ -22,11 +24,25 @@ regroup :: (Ord c, HistogramShow t) => (Cat -> c) -> M.Map Cat t -> M.Map c t
 regroup classifier =
   M.fromListWith histZip . map (\(k, v) -> (classifier k, v)) . M.assocs
 
+resultLine cat dat = showA cat
+           ++ (replicate (35 - (length (show cat))) ' ')
+           ++ " & " ++ dat ++ "  \\\\\n"
+
+class ShowA s where
+  showA :: s -> String
+
+instance {-# OVERLAPS #-} ShowA String where
+  showA = id
+
+instance {-# OVERLAPPABLE #-} Show a => ShowA a where
+  showA = show
+
 mapViewT msg map =
        "   " ++ msg ++ ":\n"
-    ++ rline' ((replicate 5 ' ') ++ "Total") (show' total)
-    ++ concatMap (\(cat, dat) -> hline' cat (showPad dat ++ "("
-                                 ++ (twoDP $ (cast(dat)/cast(total))*100) ++ "%)")) (M.assocs map)
+    ++ concatMap (\(cat, dat) -> resultLine cat (showPad dat ++ "& ("
+    ++ (twoDP $ (cast(dat)/cast(total))*100) ++ "\\%)")) (M.assocs map)
+    ++ resultLine "Total" (showPad total ++ "&")
+    ++ "\n"
   where
     showPad dat = show dat ++ replicate (10 - (length (show dat))) ' '
     twoDP = printf "%.2f"
@@ -61,6 +77,7 @@ hypothesis1finer (_, rhs, _) =
   case rhs of
     Affines    c (R (s, _, _, _)) | s /= Other -> "Affine RHS" ++ hasConst c
     Neighbours c (R (s, _, _, _)) | s /= Other -> "Neigh RHS" ++ hasConst c
+    AllConsts                                  -> "All consts"
     _                                          -> "Other"
 
 hasConst WithConsts = " + constants"
@@ -101,16 +118,19 @@ hypothesis3 (_, rhs, _) =
 -- variables.
 
 interpret4 (0, b, c) = "Other"
-interpret4 (30, b, c) = "lhs(IV), RHS(affine, b, contig,I" ++ showe c ++ "), notinconsistent"
-interpret4 (60, b, c) = "lhs(IV), RHS(neigh, b, contig,I" ++ showe c ++ "), notinconsistent"
-interpret4 (50, b, c) = "lhs(affine" ++ showe b ++ "), RHS(affine, b, contig,I" ++ showe c ++ "), notinconsistent"
-interpret4 (100, b, c) = "lhs(affine" ++ showe b ++ "), RHS(neigh, b, contig,I" ++ showe c ++ "), notinconsistent"
-interpret4 (70, b, c) = "lhs(neigh" ++ showe b ++ "), RHS(affine, b, contig,I" ++ showe c ++ "), notinconsistent"
-interpret4 (140, b, c) = "lhs(neigh" ++ showe b ++ "), RHS(neigh, b, contig,I" ++ showe c ++ "), notinconsistent"
-interpret4 (110, b, c) = "lhs(vars), RHS(affine, b, contig,I" ++ showe c ++ "), notinconsistent"
-interpret4 (220, b, c) = "lhs(vars), RHS(neigh, b, contig,I" ++ showe c ++ "), notinconsistent"
-interpret4 (130, b, c) = "lhs(subs), RHS(affine, b, contig,I" ++ showe c ++ "), notinconsistent"
-interpret4 (260, b, c) = "lhs(subs), RHS(neigh, b, contig,I" ++ showe c ++ "), notinconsistent"
+interpret4 (30, b, c) = "lhs(IV), RHS(affine, b, contig,I" ++ showe c ++ "), *consistent"
+interpret4 (60, b, c) = "lhs(IV), RHS(neigh, b, contig,I" ++ showe c ++ "), *consistent"
+interpret4 (50, b, c) = "lhs(affine" ++ showe b ++ "), RHS(affine, b, contig,I" ++ showe c ++ "), *consistent"
+interpret4 (100, b, c) = "lhs(affine" ++ showe b ++ "), RHS(neigh, b, contig,I" ++ showe c ++ "), *consistent"
+interpret4 (70, b, c) = "lhs(neigh" ++ showe b ++ "), RHS(affine, b, contig,I" ++ showe c ++ "), *consistent"
+interpret4 (140, b, c) = "lhs(neigh" ++ showe b ++ "), RHS(neigh, b, contig,I" ++ showe c ++ "), *consistent"
+interpret4 (110, b, c) = "lhs(vars), RHS(affine, b, contig,I" ++ showe c ++ "), *consistent"
+interpret4 (220, b, c) = "lhs(vars), RHS(neigh, b, contig,I" ++ showe c ++ "), *consistent"
+interpret4 (130, b, c) = "lhs(subs), RHS(affine, b, contig,I" ++ showe c ++ "), *consistent"
+interpret4 (260, b, c) = "lhs(subs), RHS(neigh, b, contig,I" ++ showe c ++ "), *consistent"
+interpret4 (170, b, c) = "lhs(allconst), RHS(affine, b, contig,I" ++ showe c ++ "), *consistent"
+interpret4 (340, b, c) = "lhs(allconst), RHS(neigh, b, contig,I" ++ showe c ++ "), *consistent"
+
 
 showe _ = ""
 
@@ -118,13 +138,15 @@ hypothesis4 :: (Form LHS, Form RHS, Consistency) -> (Int, HasConstants, HasConst
 hypothesis4 (lhs, rhs, const) =
   case lhs of
     (IVs           ) -> (30 * checkRHS, Normal, hasConsts rhs)
-    (Affines   c L) -> (50 * checkRHS, c, hasConsts rhs)
+    (Affines   c L)  -> (50 * checkRHS, c, hasConsts rhs)
     (Neighbours c L) -> (70 * checkRHS, c, hasConsts rhs)
     Vars             -> (110 * checkRHS, Normal, hasConsts rhs)
     Subscripts       -> (130 * checkRHS, Normal, hasConsts rhs)
+    AllConsts        -> (170 * checkRHS, WithConsts, hasConsts rhs)
   where
     hasConsts (Affines c (R (s, p, Contig, _)))  = c
     hasConsts (Neighbours c (R (s, p, Contig, _))) = c
+    hasConsts AllConsts = WithConsts
     hasConsts _ = Normal
     checkRHS =
       case rhs of

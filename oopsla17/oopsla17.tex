@@ -10,6 +10,7 @@
 \usepackage{natbib}
 \usepackage{amsmath}
 \usepackage{amssymb}
+\usepackage{amsthm}
 \usepackage{syntax}
 \usepackage{indentfirst}
 \usepackage{cleveref}
@@ -66,7 +67,13 @@
 % renews the commands with actual data
 % \input{results}
 
-% Essential declarations
+\definecolor{darkgreen}{rgb}{0.0,0.5,0.0}
+\definecolor{darkpurple}{rgb}{0.6,0.0,0.6}
+\definecolor{orange}{rgb}{0.8,0.4,0.0}
+\newcommand{\dnote}[1]{\textcolor{darkpurple}{Dom: #1}}
+\newcommand{\mnote}[1]{\textcolor{darkgreen}{Mistral: #1}}
+\newcommand{\anote}[1]{\textcolor{red}{Andy: #1}}
+
 \theoremstyle{definition}
 \newtheorem{defn}{Definition}
 
@@ -76,14 +83,8 @@
 \newtheorem{prop}{Proposition}
 \newtheorem{case}{Case}
 
-\definecolor{darkgreen}{rgb}{0.0,0.5,0.0}
-\definecolor{darkpurple}{rgb}{0.6,0.0,0.6}
-\definecolor{orange}{rgb}{0.8,0.4,0.0}
-\newcommand{\dnote}[1]{\textcolor{darkpurple}{Dom: #1}}
-\newcommand{\mnote}[1]{\textcolor{darkgreen}{Mistral: #1}}
-\newcommand{\anote}[1]{\textcolor{red}{Andy: #1}}
-
-
+\theoremstyle{remark}
+\newtheorem{remark}{Remark}
 
 \title{Verifying Spatial Properties of Array Computations}
 
@@ -169,27 +170,28 @@ practises and workflows.
 
 \subsection{Terminology and notation}
 
-\begin{definition}[Induction variables]
+\begin{defn}[Induction variables]
   An integer variable is a \emph{base induction variable} if it is the control
   variable of a ``\texttt{for}'' loop, incremented by $1$ per iteration. A variable
   is interpreted as an induction variable only within the scope of the loop
   body. Throughout, $i, j, k$ range over induction variables.
 
-  A \emph{derived induction variable} is an expression of the form $a
-  i + b$, \ie{}, an affine expression on an induction variable $i$.
-\end{definition}
+  A \emph{derived induction variable} is an expression of the form $a \times i
+  + b$, where $a$ and $b$ are constant expressions, \ie{}, an affine expression
+  on an induction variable $i$.
+\end{defn}
 
-\begin{definition}[Array subscripts and indices]
-  An \emph{array subscript}, denoted $a(\bar{e})$, is an expression
-  which reads from an array $a$ at an \emph{index} specified by a
-  comma-separated sequence of integer expressions denoted $\bar{e}$ or
-  in expanded form as $(e_1, \ldots, e_n)$. An index $e_i$ is called
-  \emph{relative} if the expression involves an induction variable.
-  An \emph{absolute index} is a integer expression which is constant
-  relative to the enclosing loop.
-\end{definition}
+\begin{defn}[Array subscripts and indices]
+  An \emph{array subscript}, denoted $a(\bar{e})$, is an expression which reads
+  from an $N$-dimensional array $a$ at an \emph{index} specified by a
+  comma-separated sequence of integer expressions denoted $\bar{e}$ or in
+  expanded form as $(e_1, \ldots, e_N)$. An index $e_i$ is called
+  \emph{relative} if the expression involves an induction variable. An
+  \emph{absolute index} is a integer expression which is constant relative to
+  the enclosing loop.
+\end{defn}
 
-\begin{definition}[Neighbourhood index]
+\begin{defn}[Neighbourhood index]
 \label{def:neighbour}
   For an array subscript $a(\bar{e})$ an index $e \in \bar{e}$ is a
   \emph{neighbourhood index} if $e$ is of the form $e \equiv i$, $e \equiv i +
@@ -197,7 +199,7 @@ practises and workflows.
   neighbourhood index is a constant translation of an induction variable. (The
   relation $\equiv$ identifies terms up-to commutativity of $+$ and the inverse
   relationship of $+$ and $-$ \eg{}, $(-b) + i \equiv i - b$).
-\end{definition}
+\end{defn}
 
 \section{An Empirical Study of Array Computations in Scientific Fortran code}
 \label{sec:study}
@@ -566,7 +568,7 @@ We define two subsets of index scheme: \emph{subscript} schemes and
 %
 \dnote{May want a predicate as well}
    
-\begin{defn}{(\emph{Region})}
+\begin{defn}[Region]
   A region \region{N} is an $N$-dimensional index scheme
   (\ie{}, $\region{N} \subseteq \mathcal{P}(\bz)^N)$ defined as the smallest set satisfying the following:
 %
@@ -591,7 +593,7 @@ We define two subsets of index scheme: \emph{subscript} schemes and
  union distributes over intersection and vice versa
 \end{proof}
 
-\begin{defn}{}
+\begin{defn}
   $\mathsf{Mult}$ and $\mathsf{Approx}$ are parametric labelled variant types
   with injections given by their definition:
 %

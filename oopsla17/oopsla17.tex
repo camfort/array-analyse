@@ -14,6 +14,7 @@
 \usepackage{indentfirst}
 \usepackage{cleveref}
 \usepackage{xcolor}
+\usepackage{multirow}
 \usepackage{siunitx} % For pretty-printing numeric values and SI units
                      % of measure. e.g., the tabular column type S is
                      % used to print nice-looking tables of numbers.
@@ -26,10 +27,11 @@
 
 \usepackage{minted}
 \usepackage{etoolbox}
-
+\usepackage{enumitem}
 \usepackage{thmtools}
 \usepackage{thm-restate}
 
+\newcommand{\fortran}[1]{\mintinline{fortran}{#1}}
 
 \errorcontextlines 10000
 \usepackage{stencilmacros}
@@ -198,74 +200,8 @@ practises and workflows.
 \end{definition}
 
 \section{An Empirical Study of Array Computations in Scientific Fortran code}
-
-Hypotheses:
-\begin{enumerate}
-\item Loops over arrays mainly read from arrays with a static pattern
-based on constant offsets from (base or dervied) induction variables;
-
-\item Most loop-array computations of the previous form read
-from a arrays with a contiguous pattern;
-
-\item Most loop-array computations of the previous form read
-from arrays with a pattern that includes the immediate
-neighbours (i.e., offset 1 from the induction variable);
-
-\item Many array computations are \emph{stencil computations},
-with a static access pattern, writing
-to an array at an index based on a constant offset from induction
-variables.
-
-\item Many array computations read from a particular index just once
-\end{enumerate}
-
-\subsection{Methodology}
-%
-\noindent
-We constructed a corpus of around 1.4 million lines of Fortran code
-(2.4 million including comments and white space) from a \numPackages{}
-scientific computing packages ranging in size and scope: The Unified
-Model (UM)~\cite{um}, E3MG~\cite{RePEc:aen:journl:2006se-a12},
-BLAS~\cite{blas}, Hybrid4~\cite{GBC:GBC635},
-GEOS-Chem~\cite{geos-chem}, Navier (based on
-\cite{griebel1997numerical}), Computational Physics
-2 (CP2) ~\cite{nicholas2006computational}, ARPACK-NG~\cite{arpackng}, and
-SPECFEM3D~\cite{specfem3d}. \dnote{Include the rest}
-Appendix~\ref{app:corpus} provides further detail on these packages.
-Half of the packages come from research groups who 
-are our project partners (\ie{}, they were
-not selected carefully to skew results). BLAS was selected as it is
-a common library in numerical code; similarly CP2 was selected as 
-it presents a set of standard numerical analysis algorithms from a
-popular computational physics textbook. 
-
-We used Wheeler's \emph{SLOCCount} to get a count of the physical
-source lines (excluding comments and blank
-lines)~\cite{wheeler2001sloccount}; including non-physical lines
- our corpus totals \dnote{insert}.
-
-
-
-
-\begin{itemize}
-% (Vars, ...)
-\item An assignment to a variable, with an RHS comprising some array
-  computation, tends to correspond to a reduction (e.g., calculating
-the max value in an array).
-\end{itemize}
-
-\subsection{Results}
-
-\paragraph{Addressing the hypotheses}
-
-\begin{enumerate}
-\item Loops over arrays mainly read from arrays with a static pattern
-based on constant offsets from (base or dervied) induction variables;
-\end{enumerate}
-
-%\begin{tabular}
-%Neighbourhood or Constant Affine RHS &  Total 
-%\end{tabular}
+\label{sec:study}
+\input{study}
 
 \section{A Specification Language for Shape}
 

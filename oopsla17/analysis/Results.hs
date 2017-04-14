@@ -99,7 +99,7 @@ instance Read (Form LHS) where
     = [(Vars, drop (length "Vars") xs)]
 
   readsPrec n xs | "AllConsts" `isPrefixOf` xs
-    = [(Vars, drop (length "AllConsts") xs)]
+    = [(AllConsts, drop (length "AllConsts") xs)]
 
   readsPrec n xs | "Subscripts" `isPrefixOf` xs
     = [(Subscripts, drop (length "Subscripts") xs)]

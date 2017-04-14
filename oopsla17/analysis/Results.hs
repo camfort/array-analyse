@@ -123,6 +123,9 @@ instance Read (Form RHS) where
   readsPrec n xs | "Subscripts" `isPrefixOf` xs
     = [(Subscripts, drop (length "Subscripts") xs)]
 
+  readsPrec n xs | "AllConsts" `isPrefixOf` xs
+    = [(AllConsts, drop (length "AllConsts") xs)]
+
   readsPrec n xs | "Affines" `isPrefixOf` xs
     = do (consts, '(':rest) <- readsPrec n (drop (length "Affines ") xs)
          (pr, ')':rest)     <- readsPrec n rest

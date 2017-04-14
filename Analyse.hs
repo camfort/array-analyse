@@ -164,7 +164,7 @@ applyAnalysisToDir restart mode dir debug bins excludes = do
                   let result1 = result0 `mappend` mempty { dirs = [dir] }
                   foldrM (applyAnalysisToFile (mode, restart) dir) ("", result1) files
 
-    if debug then putStrLn $ dbg else return ()
+    if (debug || mode == SingleFile) then putStrLn $ dbg else return ()
 
     case mode of
         ViewMode -> do

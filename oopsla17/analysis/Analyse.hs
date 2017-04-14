@@ -82,7 +82,7 @@ import Control.DeepSeq
 import Results
 import Indices
 
-data Mode = SingleFile | ViewMode | NormalMode | CombineMode
+data Mode = SingleFile | ViewMode | ViewMode2 | NormalMode | CombineMode
   deriving (Eq)
 
 main :: IO ()
@@ -104,6 +104,7 @@ main = do
                (x:y:args') | x == "RESTART" -> (Just y, args', NormalMode)
                            | x == "SINGLE"  -> (Just y, args', SingleFile)
                            | x == "VIEW"    -> (Just y, [],    ViewMode)
+                           | x == "VIEW2"   -> (Just y, [],    ViewMode2)
                            | x == "COMBINE"  -> (Nothing, (y:args'), CombineMode)
                            | otherwise      -> (Nothing, args, NormalMode)
                _ -> (Nothing, args, NormalMode)
@@ -160,6 +161,8 @@ applyAnalysisToDir restart mode dir debug bins excludes = do
       case mode of
          ViewMode
             -> return ("", result0)
+         ViewMode2
+            -> return ("", result0)
          _  -> do files <- readParseSrcDir dir excludes
                   let result1 = result0 `mappend` mempty { dirs = [dir] }
                   foldrM (applyAnalysisToFile (mode, restart) dir) ("", result1) files
@@ -172,6 +175,12 @@ applyAnalysisToDir restart mode dir debug bins excludes = do
                -- Use sloccount to give a total of the physical lines
                sloccount <- readProcess "sloccount" (map quotesWhenNeeded $ dirs result) ""
                putStrLn sloccount
+               putStrLn $ "Files/dirs counted:" ++ (show . length . dirs $ result)
+               putStrLn $ "Raw count (parsed):" ++ (show . numLines $ result)
+
+        ViewMode2 -> do
+               putStrLn $ prettyResults result True
+               -- Use sloccount to give a total of the physical lines
                putStrLn $ "Files/dirs counted:" ++ (show . length . dirs $ result)
                putStrLn $ "Raw count (parsed):" ++ (show . numLines $ result)
 

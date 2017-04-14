@@ -48,7 +48,7 @@ transposeVecInterval (Cons l ls, Cons u us) = Cons (l, u) intervalVec
 
 positionInterval :: (Int, Int) -> Position
 positionInterval (l, u)
-  | l == -absoluteRep || u == absoluteRep = Elsewhere
+  | l == -absoluteRep || u == absoluteRep = OverOrigin
   | l <= 0 && u >= 0                      = OverOrigin
   | l < 0  && u == (-1)                   = StraddleOrigin
   | l == 1 && u > 0                       = StraddleOrigin
@@ -59,6 +59,7 @@ contiguous :: [[Neighbour]] -> Bool
 contiguous xs = contiguity' xs
   where
     contiguity' [] = True
+    contiguity' [x] = True
     contiguity' (y : ys) | isOrigin y = contiguity' ys
     contiguity' (y : ys) | nextToOrigin y = contiguity' ys
     contiguity' (y : ys) | hasNeighbouringIx y (xs \\ [y]) = contiguity' ys

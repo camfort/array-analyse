@@ -87,11 +87,17 @@ classifyArrayCode ivs lhs rhses =
     lhsForm = case lhsRep of
                 Nothing -> Vars
                 Just Subscript  -> Subscripts
-                Just (Affine as) -> if allIVs as then IVs else Affines (hasConstants as) L
-                Just (Neigh  ns) -> if allIVs ns then IVs else Neighbours (hasConstants ns) L
+                Just (Affine as) | allIVs as -> IVs
+                Just (Affine as) | allConstants as -> AllConsts
+                Just (Affine as) -> Affines (hasConstants as) L
+                Just (Neigh  ns) | allIVs ns -> IVs
+                Just (Neigh  ns) | allConstants ns -> AllConsts
+                Just (Neigh ns) -> Neighbours (hasConstants ns) L
     rhsForm = case rhsRep of
                 Subscript -> Subscripts
+                Affine as | allConstants as -> AllConsts
                 Affine as  -> Affines (hasConstants as) (R rhsPhysical)
+                Neigh ns  | allConstants ns -> AllConsts
                 Neigh  ns  -> Neighbours (hasConstants ns) (R rhsPhysical)
     rhsPhysical = (shape, position, boolToContig contiguity, boolToReuse (not nonLinear))
     ------------
@@ -288,10 +294,12 @@ hasConstants = boolToHasConstants . hasConstantsFlag
 class Subscripts t where
   allIVs :: [t] -> Bool
   hasConstantsFlag :: [t] -> Bool
+  allConstants :: [t] -> Bool
 
 instance Subscripts a => Subscripts [a] where
   allIVs       = and . map allIVs
   hasConstantsFlag = or  . map hasConstantsFlag
+  allConstants = and . map allConstants
 
 instance Subscripts (Int, String, Int) where
   allIVs [] = True
@@ -302,6 +310,10 @@ instance Subscripts (Int, String, Int) where
   hasConstantsFlag ((0, i, 0):xs) = True
   hasConstantsFlag (_:xs) = hasConstantsFlag xs
 
+  allConstants [] = True
+  allConstants ((0, i, 0):xs) = allConstants xs
+  allConstants (_:xs) = False
+
 instance Subscripts Neighbour where
   allIVs [] = True
   allIVs ((Neighbour i 0):xs) = allIVs xs
@@ -310,3 +322,7 @@ instance Subscripts Neighbour where
   hasConstantsFlag [] = False
   hasConstantsFlag ((Constant _):xs) = True
   hasConstantsFlag (_:xs) = hasConstantsFlag xs
+
+  allConstants [] = True
+  allConstants ((Constant _):xs) = allConstants xs
+  allConstants (_:xs) = False

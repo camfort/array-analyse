@@ -78,9 +78,14 @@ boolToHasConstants :: Bool -> HasConstants
 boolToHasConstants True = WithConsts
 boolToHasConstants False = Normal
 
+hasConstantsToBool :: HasConstants -> Bool
+hasConstantsToBool WithConsts = True
+hasConstantsToBool Normal = False
+
 data Form (s :: Side) where
     Vars        :: Form LHS
     Subscripts  :: Form s
+    AllConsts   :: Form s
     Affines     :: HasConstants -> Physicality s -> Form s
     Neighbours  :: HasConstants -> Physicality s -> Form s
     IVs         :: Form LHS
@@ -344,8 +349,10 @@ binView msg bin =
 
 mapView msg map =
        "   " ++ msg ++ ":\n"
-    ++ rline' ((replicate 5 ' ') ++ "Total") (show' . histTotal $ M.elems map)
+    ++ rline' ((replicate 5 ' ') ++ "Total") (show' total)
     ++ concatMap (\(cat, dat) -> hline' cat (show' dat)) (M.assocs map)
+  where
+    total = histTotal $ M.elems map
 
 mapView' msg map =
        "   " ++ msg ++ ":\n"

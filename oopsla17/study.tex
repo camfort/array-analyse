@@ -63,7 +63,7 @@ parsed to an AST and various standard control-flow and data-flow
 analyses are computed, including of key importance for us: induction
 variable identification, and reaching definitions. The resulting AST
 is traversed top-down and assignment statements inside loops are
-analysed and classified. 
+analysed and classified.
 
 \paragraph{Classifications}
 
@@ -73,19 +73,25 @@ sides and right-hand sides are classified in the following way:
 
 \begin{tabular}{l|l|l}
   Shorthand & Classification (of subscripts) & Example \\ \hline
- (\textsf{vars}) & Variables (just left-hand side) & \fortran{x = ...} \\
+ (\textsf{vars}) & Variables (just LHS) & \fortran{x = ...}
+  \\
+ (\textsf{IVs}) & Induction variables (just LHS) & \fortran{a(i, j)} \\
  (\textsf{const}) & Constants & \fortran{a(0, 1)} \\
- (\textsf{IVs}) & Induction variables & \fortran{a(i, j)} \\
  (\textsf{neigh}) & Neighbourhood offsets (of the form
                                                   $i \pm c$) & \fortran{a(i, j-1)} \\
  (\textsf{neigh+c}) & Neighbourhood offsets and constants &
                                                             \fortran{b(i, 0, j+1)} \\
- (\textsf{aff}) & Affine offsets (of the form $a * i \pm b$) & 
-                                     \fortran{x(2*i+1,j)} \\
- (\textsf{aff+c}) & Affine offsets and constants & \fortran{x(i+1, 0, 3*j+2)}
+ (\textsf{aff}) & Affine offsets (of the form $a * i \pm b$) &
+                                     \fortran{a(2*i+1,j)} \\
+ (\textsf{aff+c}) & Affine offsets and constants & \fortran{a(i+1, 0,
+                                                   3*j+2)} \\
+ (\textsf{other}) & Subscript expression not included above &
+\fortran{x(f(i))}, \fortran{a(i `mod` 2)}
 \end{tabular} \\[1em]
 
 \noindent
+Note that the \textsf{vars} and \textsf{IVs} are only give to
+left-hand sides.
 The classification is computed from all information that flows into an
 assignment, for example, the following decomposes a one-dimensional
 three-point pattern across multiple intermediate assignments:
@@ -153,7 +159,7 @@ The two sides are \emph{consistent} if the same induction variables
 appear in each side, used for the same dimension. This is
 weakened to a \emph{permutation} if the roles of the induction
 variables changes. This is weakened further if the left-hand side
-induction variables are either a 
+induction variables are either
 a subset or superset of the induction variables on the right-hand
 side. Otherwise, the two sides are seen as inconsistent:
 
@@ -180,13 +186,47 @@ side. Otherwise, the two sides are seen as inconsistent:
 
 \subsection{Results}
 
-\paragraph{Addressing the hypotheses}
-
-\begin{enumerate}
-\item Loops over arrays mainly read from arrays with a static pattern
-based on constant offsets from (base or dervied) induction variables;
-\end{enumerate}
+%\begin{enumerate}
+%\item Loops over arrays mainly read from arrays with a static pattern
+%based on constant offsets from (base or dervied) induction variables;
+%\end{enumerate}
 
 %\begin{tabular}
-%Neighbourhood or Constant Affine RHS &  Total 
+%Neighbourhood or Constant Affine RHS &  Total
 %\end{tabular}
+
+\noindent
+We identified $108,773$ instances of assignments within loops in
+which an array subscript flows to the right-hand side. We refer
+to each one of these as an \emph{array computation}.
+We performed the classification described in the methodology,
+and then grouped the data by based only on the right-hand side
+classification:
+%%
+\begin{center}
+\begin{tabular}{lrrcc}
+\textbf{RHS classification} & \textbf{Number} & \textbf{\%} &
+\textit{grouping 1} & \textit{grouping 2} \\ \hline
+Affine                          & 34        & 0.03\%  &
+                                                            \multirow{4}{*}{92.61\%}
+  \\ \cline{1-3}\cline{5-5}
+All constant                    & 12160     & 11.18\%  \\ \cline{1-3}\cline{5-5}
+Neighbourhood                   & 65334     & 60.06\% &
+                                                          & \multirow{2}{*}{81.4\%}
+                                                           \\ \cline{1-3}
+Neighbourhood + constants       & 23209     & 21.34\%  \\ \hline
+Other                           & 8036      & 7.39\%  \\ \hline \hline
+Total                           & 108773    &  \\
+\end{tabular}
+\end{center}
+
+\noindent
+Since, affine, consant, and neighbour are all static patterns, we
+group them (\textit{grouping 1}) to see that $92.61\%$ of the array computations have
+a static pattern that are either constants or constant of offsets
+of base/derived induction variables, thus confirming
+\emph{hypothesis 1}. Note that affine (derived induction variables) are very
+rare. Overwhelmingly the main category is neighbourhood offsets
+(\emph{grouping 2})
+(possibly mixed with constants in some dimensions), at $81.4\%$ in
+total. The ``affine + constants'' class is not represented at all.

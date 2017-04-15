@@ -24,6 +24,13 @@ regroup :: (Ord c, HistogramShow t) => (Cat -> c) -> M.Map Cat t -> M.Map c t
 regroup classifier =
   M.fromListWith histZip . map (\(k, v) -> (classifier k, v)) . M.assocs
 
+regroupFilter :: (Ord c, HistogramShow t)
+              => (Cat -> t -> Bool) -> (Cat -> c) -> M.Map Cat t -> M.Map c t
+regroupFilter filter classifier =
+  M.fromListWith histZip . map (\(k, v) -> (classifier k, v))
+                         . M.assocs
+                         . M.filterWithKey filter
+
 resultLine cat dat = showA cat
            ++ (replicate (35 - (length (show cat))) ' ')
            ++ " & " ++ dat ++ "  \\\\\n"
@@ -53,14 +60,21 @@ mapViewT msg map =
 hyps r =
      mapViewT "Hypothesis 1" (countWrapper hypothesis1 r)
   ++ mapViewT "Hypothesis 1 finer" (countWrapper hypothesis1finer r)
-  ++ mapViewT "Hypothesis 2" (countWrapper hypothesis2 r)
-  ++ mapViewT "Hypothesis 3" (countWrapper hypothesis3 r)
+  ++ mapViewT "Hypothesis 2" (countWrapperFilter hypothesis1filter hypothesis2 r)
+  ++ mapViewT "Hypothesis 3" (countWrapperFilter hypothesis1filter hypothesis3 r)
   ++ mapViewT "Hypothesis 4" (countWrapper (interpret4 . hypothesis4) r)
   ++ mapViewT "Hypothesis 4 finer" (countWrapper hypothesis4finer r)
   ++ mapViewT "Hypothesis 5" (countWrapper hypothesis5 r)
 
 countWrapper :: Ord c => (Cat -> c) -> Result -> M.Map c Int
-countWrapper classifier = regroup classifier . counts
+countWrapper classifier =
+    regroup classifier . counts
+
+countWrapperFilter :: (Ord c) => (Cat -> Int -> Bool) -> (Cat -> c)
+                              -> Result
+                              -> M.Map c Int
+countWrapperFilter filter classifier =
+    regroupFilter filter classifier . counts
 
 -- Hypothesis 1 : Loops over arrays mainly read from arrays with a
 -- static pattern based on constant offsets from (base or dervied) induction variables;
@@ -86,6 +100,11 @@ hasConst Normal = " only"
 -- Hypothesis 2 : Most loop-array computations of the previous form read
 -- from a arrays with a contiguous pattern;
 
+hypothesis1filter cat _ =
+  case (hypothesis1finer cat) of
+    "Other" -> False
+    _       -> True
+
 hypothesis2 :: (Form LHS, Form RHS, Consistency) -> String
 hypothesis2 (_, rhs, _) =
   case rhs of
@@ -103,13 +122,17 @@ includesImmediate OverOrigin = True
 includesImmediate StraddleOrigin = True
 includesImmediate _              = False
 
+positionString OverOrigin = "exorigin"
+positionString StraddleOrigin = "exorigin"
+positionString _              = "away"
+
 hypothesis3 :: (Form LHS, Form RHS, Consistency) -> String
 hypothesis3 (_, rhs, _) =
   case rhs of
-    Affines    _ (R (s, p, Contig, _)) | s /= Other && includesImmediate p -> "rhs(aff,contig,I)"
-    Neighbours _ (R (s, p, Contig, _)) | s /= Other && includesImmediate p -> "rhs(neigh,contig,I)"
-    Affines    _ (R (s, _, Contig, _)) | s /= Other -> "rhs(aff,contig)"
-    Neighbours _ (R (s, _, Contig, _)) | s /= Other -> "rhs(neigh,contig)"
+    Affines    _ (R (s, p, Contig, _)) | s /= Other -> "rhs(aff,contig," ++ positionString p ++ ")"
+    Neighbours _ (R (s, p, Contig, _)) | s /= Other -> "rhs(neigh,contig," ++ positionString p ++ ")"
+    Affines    _ (R (s, _, _, _))      | s /= Other -> "rhs(affine,nonContig)"
+    Neighbours _ (R (s, _, _, _))      | s /= Other -> "rhs(neigh,nonContig)"
     _                                               -> "other"
 
 -- Hypothesis 4: Many array computations are \emph{stencil

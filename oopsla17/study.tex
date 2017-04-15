@@ -186,26 +186,22 @@ side. Otherwise, the two sides are seen as inconsistent:
 
 \subsection{Results}
 
-%\begin{enumerate}
-%\item Loops over arrays mainly read from arrays with a static pattern
-%based on constant offsets from (base or dervied) induction variables;
-%\end{enumerate}
-
-%\begin{tabular}
-%Neighbourhood or Constant Affine RHS &  Total
-%\end{tabular}
-
-\noindent
+We first consider the initial hypotheses in turn again the collected data.
+%
+\begin{enumerate}
+\item Loops over arrays mainly read from arrays with a static pattern
+based on constant offsets from (base or dervied) induction variables;
+\end{enumerate}
+%
 We identified $108,773$ instances of assignments within loops in
 which an array subscript flows to the right-hand side. We refer
 to each one of these as an \emph{array computation}.
-We performed the classification described in the methodology,
-and then grouped the data by based only on the right-hand side
-classification:
+We performed the classification described above
+and grouped the data by the right-hand side classification only:
 %%
 \begin{center}
-\begin{tabular}{lrrcc}
-\textbf{RHS classification} & \textbf{Number} & \textbf{\%} &
+\begin{tabular}{lS[table-format=4]S[table-format=2.2]cc}
+\textbf{RHS classification} & \textbf{Number} & \% &
 \textit{grouping 1} & \textit{grouping 2} \\ \hline
 Affine                          & 34        & 0.03\%  &
                                                             \multirow{4}{*}{92.61\%}
@@ -219,14 +215,32 @@ Other                           & 8036      & 7.39\%  \\ \hline \hline
 Total                           & 108773    &  \\
 \end{tabular}
 \end{center}
-
+%
 \noindent
 Since, affine, consant, and neighbour are all static patterns, we
-group them (\textit{grouping 1}) to see that $92.61\%$ of the array computations have
-a static pattern that are either constants or constant of offsets
-of base/derived induction variables, thus confirming
-\emph{hypothesis 1}. Note that affine (derived induction variables) are very
-rare. Overwhelmingly the main category is neighbourhood offsets
-(\emph{grouping 2})
-(possibly mixed with constants in some dimensions), at $81.4\%$ in
-total. The ``affine + constants'' class is not represented at all.
+group them (\textit{grouping 1}) to see that $92.61\%$ of the array
+computations (\numexpr(100,737))
+ have a static pattern that are either constants or
+constant offsets of base/derived induction variables, confirming
+\emph{hypothesis 1}. Note that affine (derived induction variables)
+are rare. Overwhelmingly, the main category is neighbourhood
+offsets (\emph{grouping 2}) (possibly mixed with constants in some
+dimensions), at $81.4\%$ in total. The ``affine + constants'' class is
+not represented at all.
+%
+\begin{enumerate}[resume]
+\item Most loop-array computations of the previous form read
+from arrays with a \emph{contiguous} pattern, \eg{}:
+%
+\begin{minted}{fortran}
+do i = 1, n
+  b(n) = (a(i) + a(i+1)) / 2.0
+\end{minted}
+%
+\item Most loop-array computations of the previous form read
+from arrays with a pattern that includes the immediate
+neighbours (offsets of 1 from the induction variables);
+\end{enumerate}
+%
+Focussing on grouping1 
+\end{enumerate}

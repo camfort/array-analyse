@@ -580,11 +580,18 @@ We define two specialisations (and subset spaces) of index scheme:
 \end{restatable}
 %
 \begin{proof}
-  Straightforward, since $\cup$ and $\cap$ are on sets (and therefore commutative,
-  associative, and absorptive with each
-  other). Furthermore, $\mathbb{Z}^N \cap R = R$ and $\empty \cup R =
-  R$ giving the bounds. Furthermore, the lattice is distributive since
- union distributes over intersection and vice versa
+  Straightforward, the join and meet are mapped to $\cup$ and $\cap$, the set is
+  inductively designed to be closed under these operations. Union and
+  intersection are associative, commutative, and absroptive under closed sets
+  and then they are also for \region{N}. This is enough to show that, it is a
+  lattice.
+
+  Further, we have $\bz{}^N \cap R = R$ and $\emptyset \cup R = R$ with
+  $\bz{}^N$ and $\emptyset$ belonging to \region{N}. This makes the lattice a
+  bounded one.
+
+  Finally, the lattice is distributive since union distributes over intersection
+  and vice versa when the set is closed under these operations.
 \end{proof}
 
 \begin{defn}

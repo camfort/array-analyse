@@ -478,23 +478,21 @@ code (\S\ref{sec:fromcode}).
 
 \begin{restatable}{lem}{vectorIntersect}
 \label{lem:vector-intersect}
-  Intersection distributes over $N$-dimensional index schemes. 
-  That is, for index schemes $S, T \in \mathcal{P}(\bz)^N$
+  Intersection distributes over index schemes. That is, for index schemes $S, T
+  \in \mathcal{P}(\bz)^N$
 %
   \begin{equation*}
     S \cap T = \prod_{i = 1}^{N} \pi_i(S) \cap \pi_i(T)
   \end{equation*}
 \end{restatable}
 
- Union does not distribute over $N$-dimensional index schemes--
- however, a more restricted property holds.
+Union does not distribute over index schemes, however, a more restricted
+property holds.
 
 \begin{restatable}{lem}{vectorUnion}
 \label{lem:vector-union}
-Let $S, T$ be $N$-dimensional index schemes such that
-$\pi_i(S) = \pi_i(T)$ for all $1 \leq i \leq N$ apart 
-from some dimension $k$ where $\pi_k(S) \neq \pi_k(T)$,
-then:
+$S$ and $T$ are index schemes such that $\pi_i(S) = \pi_i(T)$ for all $1 \leq i
+\leq N$ apart from some dimension $k$, then:
 %
   \begin{equation*}
     S \cup  T
@@ -503,12 +501,6 @@ then:
     (\pi_k(S) \cup \pi_k(T)) \times \cdots \times
     \pi_N(S)
   \end{equation*}
-%  \begin{equation*}
-%    S \cup T
-%    =
-%    (\prod_{i=1}^{k-1} \pi_i(S)) \times (\pi_k(S) \cup \pi_k(T)) \times \prod_{k+1}^{N} \pi_i(S)
-%  \end{equation*}
-%
 \end{restatable}
 %
 

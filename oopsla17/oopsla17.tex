@@ -503,24 +503,27 @@ $S$ and $T$ are index schemes such that $\pi_i(S) = \pi_i(T)$ for all $1 \leq i
   \end{equation*}
 \end{restatable}
 %
-
 \begin{defn}[Intervals with an optional hole]
-  We define an extended notion of closed interval on $\bz{}$ which may contain
-  a \emph{hole} at the origin, written \interv{a}{b}{c} where $a$ and $b$ are
-  drawn from \bz{} with $a \leq 0 \leq b$
-   and $c$ is drawn from $\mathbb{B} = \{ \mathsf{true}, \mathsf{false}
-  \}$. Intervals are interpreted as sets as follows:
+  We define an extended notion of closed interval on $\bz{}$ which may contain a
+  \emph{hole} at the origin, written \interv{a}{b}{c} where $a$ and $b$ are
+  drawn from \bz{} with $a \leq 0 \leq b$ and $c$ is drawn from $\mathbb{B} = \{
+  \mathsf{true}, \mathsf{false} \}$. Intervals are interpreted as sets as
+  follows:
 %
   \begin{equation*}
     \interv{a}{b}{c} \triangleq
       \{ n \mid a \leq n \leq b \wedge (\neg c \implies n \neq 0) \}
   \end{equation*}
-%
-  We denote the set of all such intervals (sets) as
-   $\textit{Interval}$. If the superscript is
-  omitted it is treated as $\mathsf{true}$.
-\end{defn}
 
+  We also add the distinguished interval $[-\infty, \infty]$, which is simply an
+  alias for \bz{}, but this notation prevents handling infinite interval
+  separately in the following definitions, theorems, and proofs. Here, $-\infty$
+  and $\infty$ behaves like top and bottom elements to \bz{} respectively.
+
+  We denote the set of all such intervals (sets) as $\textit{Interval}$. If the
+  superscript to the interval is omitted it is treated as $\mathsf{true}$.
+\end{defn}
+%
 \begin{restatable}{lem}{intervalIdentities}
  \label{lem:interval-identities}
   We have the following dual identities for \bz{} intervals:
@@ -534,8 +537,8 @@ $S$ and $T$ are index schemes such that $\pi_i(S) = \pi_i(T)$ for all $1 \leq i
 \end{restatable}
 %
 
-We define two subsets of index scheme: \emph{subscript} schemes and
-\emph{interval} schemes:
+We define two specialisations (and subset spaces) of index scheme:
+\emph{subscript scheme} and \emph{interval scheme}:
 
 \begin{defn}[Interval scheme]
   An interval scheme is a finite Cartesian product of intervals on

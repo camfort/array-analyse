@@ -639,7 +639,8 @@ The interpretation is overloaded on \emph{regions} in
 \begin{figure}[!t]
 \begin{subfigure}[t]{0.5\textwidth}
 \begin{align*}
-\interp{-}_N & : \textit{region} \rightarrow \mathcal{P}(\bz)^N \\
+  \interp{-}_N & : \textit{region} \rightarrow \region{N} \\
+%
   \interp{\stencil{p}{$i$}{}{}}_N & =
     \vecgen{N}{i}{\interv{0}{0}{\mathsf{true}}}\\
 %
@@ -686,7 +687,7 @@ The first four equations of \Cref{subfig:region-model} model region
 contants. The final two equations model the \term{+} and \term{*}
 operators in terms of the join (union) and meet (intersection)
 of interval schemes. Thus regions are modelled as members
-of $\mathcal{P}(\bz)^N$. 
+of $\region{N}$.
 
 We mark in our model the presence of modifiers such as
 \texttt{readOnce} and \texttt{atMost} as introduced in \Cref{}.

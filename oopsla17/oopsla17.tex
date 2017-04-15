@@ -562,8 +562,9 @@ We define two specialisations (and subset spaces) of index scheme:
 \dnote{May want a predicate as well}
    
 \begin{defn}[Region]
-  A region \region{N} is an $N$-dimensional index scheme
-  (\ie{}, $\region{N} \subseteq \mathcal{P}(\bz)^N)$ defined as the smallest set satisfying the following:
+  A region is an index scheme and \region{N} is the set of all regions (\ie{},
+  $\region{N} \subseteq \mathcal{P}(\bz)^N)$. The set of all regions is  defined
+  as the smallest set satisfying the following:
 %
   \begin{enumerate}
     \item If $R$ is in $\textit{Interval}^N$, then $R$ is in \region{N}.
@@ -571,7 +572,7 @@ We define two specialisations (and subset spaces) of index scheme:
       $R \cup S$.
   \end{enumerate}
 \end{defn}
-
+%
 \begin{restatable}{prop}{regionLattice}
   \label{prop:regionLattice}
   $(\region{N},\cup,\cap,\subseteq)$ is a bounded distributive lattice with top

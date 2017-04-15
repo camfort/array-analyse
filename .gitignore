@@ -3,6 +3,8 @@
 *.out
 *.bbl
 *.blg
+*.pdf
+!final/*.pdf
 _minted*
 *~
 .DS_Store

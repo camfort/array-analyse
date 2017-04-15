@@ -417,15 +417,13 @@ b(i) = a(i) + a(i+4)
 \label{sec:model}
 
 \noindent
-We define a simple set-theoretic model of array access patterns
-which serves as both a denotational model of the semantics
-of our specification language and an abstract interpretation
-domain for source code. This model has a number of uses: 
-(1) it serves to explain the meaning of our specifications
-(2) it is used in the inference and checking algorithms
-(\Cref{sec:analysis}); (3) justifies an equational theory for
-specifications in the next section; and (4) can be used to guide
-correct implementations.
+We define a lattice model of array access patterns which serves as both a
+denotational model of the semantics of our specification language and an
+abstract interpretation domain for source code. This model (1) serves to
+explain the meaning of our specifications; (2) is used in the inference and
+checking algorithms (\Cref{sec:analysis}); (3) justifies an equational theory
+for specifications in the next section; (4) is used to optimise specifications
+using lattice identities; and (5) can be used to guide correct implementations.
 
 The model is defined over vectors of sets of integers which we call
 \emph{index schemes}.  As an initial informal example, consider the
@@ -465,37 +463,36 @@ code (\S\ref{sec:fromcode}).
 
 \begin{defn}[Index scheme]
   An $N$-dimensional \emph{index scheme} is a vector of length $N$ of
-  extended integer sets, \ie{}, a member of $\mathcal{P}(\bz)^{N}$.
-  An equivalent view of these vectors is as an $N$-times finite Cartesian
-  product on subsets of $\bz$.  We use $S, T, U$ to denote index
-  schemes.
+  integer sets, \ie{}, a member of $\mathcal{P}(\bz)^{N}$.
+%  An equivalent view of these vectors is as an $N$-times finite Cartesian
+%  product on subsets of $\bz$.
+  We use $S, T, U$ to denote index schemes. Henceforth, we assume index schemes
+  are all $N$-dimensional for some $N$.
 
-Index schemes can be \emph{projected} in the $i^{\textit{th}}$ dimension by
-  $\pi_i : {\mathcal{P}(\bz{})}^N \to \mathcal{P}(\bz{})$ where $1 \leq i
-  \leq N$. For an index scheme $I$, we refer to $\pi_i(S)$ as the
-  \emph{$i^{th}$ component} of $S$.
+  Index schemes can be \emph{projected} in the $i^{\textit{th}}$ dimension by
+  $\pi_i : {\mathcal{P}(\bz{})}^N \to \mathcal{P}(\bz{})$. For an index scheme
+  $I$, we refer to $\pi_i(S)$ as the \emph{$i^{th}$ component} of $S$. We assume
+  that $i$, when used for projection, always lies between $1$ and $N$.
 \end{defn}
 
 
 \begin{restatable}{lem}{vectorIntersect}
 \label{lem:vector-intersect}
-  Intersection distributes over $N$-dimensional index schemes. 
-  That is, for index schemes $S, T \in \mathcal{P}(\bz)^N$
+  Intersection distributes over index schemes. That is, for index schemes $S, T
+  \in \mathcal{P}(\bz)^N$
 %
   \begin{equation*}
     S \cap T = \prod_{i = 1}^{N} \pi_i(S) \cap \pi_i(T)
   \end{equation*}
 \end{restatable}
 
- Union does not distribute over $N$-dimensional index schemes--
- however, a more restricted property holds.
+Union does not distribute over index schemes, however, a more restricted
+property holds.
 
 \begin{restatable}{lem}{vectorUnion}
 \label{lem:vector-union}
-Let $S, T$ be $N$-dimensional index schemes such that
-$\pi_i(S) = \pi_i(T)$ for all $1 \leq i \leq N$ apart 
-from some dimension $k$ where $\pi_k(S) \neq \pi_k(T)$,
-then:
+$S$ and $T$ are index schemes such that $\pi_i(S) = \pi_i(T)$ for all $1 \leq i
+\leq N$ apart from some dimension $k$, then:
 %
   \begin{equation*}
     S \cup  T
@@ -504,12 +501,6 @@ then:
     (\pi_k(S) \cup \pi_k(T)) \times \cdots \times
     \pi_N(S)
   \end{equation*}
-%  \begin{equation*}
-%    S \cup T
-%    =
-%    (\prod_{i=1}^{k-1} \pi_i(S)) \times (\pi_k(S) \cup \pi_k(T)) \times \prod_{k+1}^{N} \pi_i(S)
-%  \end{equation*}
-%
 \end{restatable}
 %
 

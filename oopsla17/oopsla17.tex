@@ -191,8 +191,7 @@ practises and workflows.
   the enclosing loop.
 \end{defn}
 
-\begin{defn}[Neighbourhood index]
-\label{def:neighbour}
+\begin{defn}[Neighbourhood index]\label{def:neighbour-ix}
   For an array subscript $a(\bar{e})$ an index $e \in \bar{e}$ is a
   \emph{neighbourhood index} if $e$ is of the form $e \equiv i$, $e \equiv i +
   c$, or $e \equiv i - c$, where $c$ is an integer constant. That is, a
@@ -734,11 +733,14 @@ We define the equational theory in \Cref{sec:equational-theory}.
 
 \begin{defn}
   Recall array subscript terms of the form $a(\bar{e})$ from
-  \Cref{def:array-subs}. We interpret these terms with
-  $\interp{-}^{\mathit{aexp}} : \textit{array-exp} \to \mathcal{P}(\bz{})^N$.
+  \Cref{def:array-subs}. We interpret these terms with the partial
+  interpretation $\interp{-}^{\mathit{aterm}} : \textit{array-term}
+  \prightarrow{} \mathcal{P}(\bz{})^N$. The interpretation is defined when
+  all indices are either constant or neighbourhood indices as defined in
+  \Cref{def:neighbour-ix}.
 %
   \begin{align*}
-    \interp{a(\bar{e})}^{\mathit{aexp}} =
+    \interp{a(\bar{e})}^{\mathit{aterm}} =
       \prod_{1 \leq i \leq N} \mathit{subscript}(\bar{e}_i) & &
   %
     \textit{subscript}(e) = \begin{cases}

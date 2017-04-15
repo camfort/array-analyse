@@ -45,7 +45,7 @@ import qualified Camfort.Specification.Stencils.Grammar as Gram
 import qualified Camfort.Specification.Stencils.Synthesis as Synth
 import Camfort.Analysis.Annotations
 import Camfort.Helpers.Vec hiding (length)
-import Camfort.Helpers (Filename, SourceText, collect)
+import Camfort.Helpers (Filename, SourceText, collect, descendReverseM, descendBiReverseM)
 import Camfort.Input
 import qualified Camfort.Output as O
 
@@ -61,7 +61,6 @@ import qualified Language.Fortran.Util.SecondParameter as FUS
 import Data.Data
 import Data.Foldable
 import Data.Generics.Uniplate.Operations
-import qualified Data.Generics.Str as Str
 import Data.Graph.Inductive.Graph hiding (isEmpty)
 import qualified Data.Map as M
 import qualified Data.IntMap as IM
@@ -309,9 +308,9 @@ perBlock True b@(F.BlStatement ann span@(FU.SrcSpan lp up) _ stmnt) = do
     -- On all StExpressionAssign that occur in a stmt within a DO
     let lhses = [lhs | (F.StExpressionAssign _ _ lhs _)
                            <- universe stmnt :: [F.Statement (FA.Analysis A)]]
-    (ivs, visistedStmts) <- get
+    (ivs, visitedStmts) <- get
     let label = fromMaybe (-1) (FA.insLabel ann)
-    if (label `elem` visistedStmts) then
+    if (label `elem` visitedStmts) then
       -- This statement has been part of an existing dataflow path
       return b
 
@@ -328,33 +327,6 @@ perBlock inDo b = do
     -- Go inside child blocks
     b' <- descendReverseM (descendBiReverseM (perBlock inDo)) b
     return b'
-
--- Custom version of descend that process tree in reverse order
-
-descendReverseM :: (Data on, Monad m) => (on -> m on) -> on -> m on
-descendReverseM f x =
-    liftM generate . fmap unwrapReverse . traverse f . Reverse $ current
-  where (current, generate) = uniplate x
-
-descendBiReverseM :: (Data from, Data to, Monad m) => (to -> m to) -> from -> m from
-descendBiReverseM f x =
-    liftM generate . fmap unwrapReverse . traverse f . Reverse $ current
-  where (current, generate) = biplate x
-
-data Reverse f a = Reverse { unwrapReverse :: f a }
-
-instance Functor (Reverse Str.Str) where
-    fmap f (Reverse s) = Reverse (fmap f s)
-
-instance Foldable (Reverse Str.Str) where
-    foldMap f (Reverse x) = foldMap f x
-
-instance Traversable (Reverse Str.Str) where
-    traverse f (Reverse Str.Zero) = pure $ Reverse Str.Zero
-    traverse f (Reverse (Str.One x)) = (Reverse . Str.One) <$> f x
-    traverse f (Reverse (Str.Two x y)) = (\y x -> Reverse $ Str.Two x y)
-                             <$> (fmap unwrapReverse . traverse f . Reverse $ y)
-                             <*> (fmap unwrapReverse . traverse f . Reverse $ x)
 
 -- Analyse the RHS of any array subscripts in a block
 analyseRHS :: [F.Block (FA.Analysis A)]
@@ -373,13 +345,3 @@ analyseRHS blocks = do
     return $ ("Read arrays: " ++ show (M.keys subscripts') ++ "\n"
              , subscripts'
              , lenDataflowPath) -- dataflow
-
--- Filter out any variable names which do not appear in the name map or
--- which in appear in the name map with the same name, indicating they
--- are an instric function, e.g., abs
-filterOutFuns nameMap m =
-  M.filterWithKey (\k _ ->
-     case k `M.lookup` nameMap of
-        Nothing           -> False
-        Just k' | k == k' -> False
-        _                 -> True) m

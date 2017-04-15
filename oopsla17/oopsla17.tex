@@ -541,23 +541,22 @@ We define two specialisations (and subset spaces) of index scheme:
 \emph{subscript scheme} and \emph{interval scheme}:
 
 \begin{defn}[Interval scheme]
-  An interval scheme is a finite Cartesian product of intervals on
-  \bz{} or \bz{} itself, 
+  An interval scheme is a finite Cartesian product of intervals on \bz{},
   denoted by the set $\textit{Interval}^N$ for a product of $N$ intervals.
 \end{defn}
 
 \begin{defn}[Subscript scheme]
-  A $N$-dimensional \emph{subscript scheme} is an $N$-dimensional
-  interval scheme where:
+  A \emph{subscript scheme} is an index scheme scheme where:
   %
   \begin{equation*}
     \forall i.\ 1 \leq i \leq N \implies
-      \pi_i (S) = [p, p] 
+      \pi_i (S) = \{ p \}
       \; \vee \;
-      \pi_i (S) = \bz{}
+      \pi_i (S) = [-\infty, \infty]
     \end{equation*}
-    That is, the $i^{th}$ component of the set is either a singleton
-  in $\mathbb{Z}$ or the infinite interval.
+%
+  That is, the $i^{th}$ component of the set is either a singleton in \bz{} or
+  the infinite interval.
 \end{defn}
 %
 \dnote{May want a predicate as well}

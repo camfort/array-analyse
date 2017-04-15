@@ -18,10 +18,11 @@ do i = 1, n
 from arrays with a pattern that includes the immediate
 neighbours (offsets of 1 from the induction variables);
 
-\item Many array computations are \emph{stencil computations},
-with a static access pattern as described in Hypothesis 2, writing
-to an array at an index based on a (possibly constant offset from induction
-variables, \eg{}, the classic five-point stencil;
+\item Many array computations are \emph{stencil computations}: an
+  assignment whose right-hand side comprises array subscripts with
+  neighbourhood indices and whose left-hand side is an
+  neighbourhood-indexed array subscript (\eg{}, the classic five-point
+  stencil);
 
 \item Many array computations read from each particular index just once.
 \end{enumerate}
@@ -244,12 +245,11 @@ We grouped the data based on subclassifications of \emph{grouping 1}
 in terms of contiguity and positioning.
 %Focussing on grouping 1.
 \begin{center}
-\begin{tabular}{lS[table-format=4]S[table-format=2.2]S[table-format=2.2]lS[table-format=4]S[table-format=2.2]S[table-format=2.2]}
+\begin{tabular}{lS[table-format=4]S[table-format=2.2]lS[table-format=4]S[table-format=2.2]}
 \textbf{RHS classification} & \textbf{Number} & \% {(of whole)}
-                                              & \% {(of group)}
-&\textbf{Position} & \textbf{Number} & \% {(whole)} & \% {(group)} \\ \hline
+&\textbf{Position} & \textbf{Number} & \% {(of whole)} \\ \hline
 Affine, contiguous
-& 31 & 0.03\% & 0.03\% \\ \hline
+& 31 & 0.03\% \\ \hline
 %\multirow{3}{*}{Affine, contiguous}
 % & %\multirow{3}{*}{31}
 % & %\multirow{3}{*}{0.03\%}
@@ -258,23 +258,36 @@ Affine, contiguous
 %&&& \textsf{straddle} & 12 & 0.01\% \\ \hline
 Affine, non-contiguous
  & 3
- & 0.00\% & 0.00\% \\ \hline
+ & 0.00\% & \\ \hline
 \multirow{3}{*}{Neighbour, contiguous}
  & %\multirow{3}{*}{83689}
  & %\multirow{3}{*}{83.08\%}
-& & \textsf{away} & 152 & 0.14\% & 0.17 \% \\
-& 83689 & 76.94\% & 94.48\% & \textsf{origin} & 81309 & 74.75\% & 91.79\% \\
-&&&& \textsf{straddle} & 2228 & 2.05\% & 2.52\% \\ \hline
+ & \textsf{away} & 152 & 0.14\% \\
+& 83689 & 76.94\% & \textsf{origin} & 81309 & 74.75\% \\
+&&& \textsf{straddle} & 2228 & 2.05\% \\ \hline
 Neighbour, non-contiguous
  & 4854
- & 4.46\% & 5.48\%  \\ \hline \hline
+ & 4.46\% \\ \hline
+Other & 20196 & 18.57\%  \\
+ \hline
 \textbf{Total}  & 88577    &  \\
 \end{tabular}
 \end{center}
 %%
-Thus, $76.94\%$ of array computations have only contiguous
-neighbour indices (which may include constants in some indices)
-in a contiguous pattern on the right hand side, with $76.80\%$
-either at the origin ($74.75\%$) or offset by a distance of 1 from the origin
+Thus, $76.94\%$ of array computations have only contiguous neighbour
+indices (which may include constants in some indices) in a contiguous
+pattern on the right hand side, with $76.80\%$ either at the origin
+($74.75\%$) or offset by a distance of 1 from the origin
 ($2.05\%$). This confirms both hypotheses 2 and 3. Only 152 instances
-were found of index patterns not immediate next to or over the origin.
+of index patterns not immediately next to or over the origin were
+found.  There is a non trivial amount of non-contiguous arrays access,
+but it is a much smaller proportion of the whole.
+
+\begin{enumerate}[resume]
+\item Many array computations are \emph{stencil computations}:
+an assignment whose
+ right-hand side comprises array subscripts with neighbourhood indices
+and whose left-hand side is an neighbourhood-indexed array subscript
+(\eg{}, the classic five-point stencil);
+\end{enumerate}
+

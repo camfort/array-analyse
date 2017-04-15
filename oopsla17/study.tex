@@ -226,6 +226,14 @@ are rare. Overwhelmingly, the main category is neighbourhood
 offsets (possibly mixed with constants in some
 dimensions). The ``affine + constants'' class is
 not represented at all.
+\mnote{(1) State that constant here includes variables that are constant with
+respect to the current loop scope.}
+\mnote{(2) Mention what sort of things are
+included in other.}
+\mnote{(3) Add a remark about lack of affine indices to be
+perhaps programmers relying on compiler more regarding optimisations than hand
+optimising. We can later use this to justify our inability to handle affine
+indices.}
 %
 \begin{enumerate}[resume]
 \item Most loop-array computations of the previous form read

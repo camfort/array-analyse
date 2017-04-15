@@ -1,4 +1,7 @@
-At the beginning of this project, we had the following hypotheses:
+%\setlength{\tabcolsep}{8pt}
+
+At the beginning of this project, we made the following hypotheses
+about array programming idioms:
 \begin{enumerate}
 \item Loops over arrays mainly read from arrays with a static pattern
 based on constant offsets from (base or dervied) induction variables;
@@ -23,13 +26,13 @@ variables, \eg{}, the classic five-point stencil;
 \item Many array computations read from each particular index just once.
 \end{enumerate}
 %
-From these hypotheses, we conjectured that the common programming
-patterns captured above could be specified declaratively with a small
-set of combinators capture the shape of data access patterns based on
+From these hypotheses, we conjecture that the above programming idioms
+can be specified declaratively via a small
+set of combinators, capturing data access patterns based on
 overlapping (hyper)rectangles. We performed a large scale source-code
 analysis to validate these hypotheses and guide the design of our
-language. We believe these results are also of wider value.
-\dnote{Explain why: what else do they tell us?}
+language. These results are also of wider value to others, such as
+designers of array/stencil DSLs or autotuners.
 
 \subsection{Methodology}
 %
@@ -49,48 +52,47 @@ GEOS-Chem the largest at $\approx$630kloc and $\approx$450kloc respectively. We 
 Wheeler's \emph{SLOCCount} to get a count of the physical source lines
 (excluding comments and blank lines)~\cite{wheeler2001sloccount}.
 
-Half of the packages come from active research teams who are our
-project partners (\ie{}, they were not selected carefully to skew
-results). BLAS was selected as it is a common numerical library;
+Half the packages come from active research teams who are our
+project partners (\ie{}, they were not selected carefully to
+fit our hypotheses). BLAS was selected as it is a common numerical library;
 similarly CP2 was selected as it gives standard numerical
 analysis algorithms from a popular computational physics textbook.
 The smallest project Navier ($\approx$500loc) is based on a standard textbook on
 computational fluid dynamics.
 
-We built a code analysis tool based on CamFort, an open-source analysis
-tool for Fortran programs~\cite{camfort}. Fortran source files are
-parsed to an AST and various standard control-flow and data-flow
-analyses are computed, including of key importance for us: induction
-variable identification, and reaching definitions. The resulting AST
-is traversed top-down and assignment statements inside loops are
-analysed and classified.
+We built a code analysis tool based on CamFort, an open-source Fortran
+analyser~\cite{camfort}. Fortran source files are parsed to an AST and
+ standard control-flow and data-flow analyses are computed,
+including of key importance for us: induction variable identification
+and reaching definitions. The resulting AST is traversed top-down and
+assignment statements inside loops are analysed and classified.
 
 \paragraph{Classifications}
 
-We focus on assignment statements where
-the right-hand side reads from one or more arrays. Left-hand
-sides and right-hand sides are classified in the following way:
+We focus on assignment statements in loops where the right-hand side
+expression reads from one or more arrays.  Left-hand sides and
+right-hand sides are classified in the following way:
 
-\begin{tabular}{l|l|l}
-  Shorthand & Classification (of subscripts) & Example \\ \hline
- (\textsf{vars}) & Variables (just LHS) & \fortran{x = ...}
+\begin{tabular}{l|l|l|l}
+  Shorthand & Classification (of subscripts) & Applies to & Example \\ \hline
+ (\textsf{vars}) & Variables & LHS & \fortran{x = ...}
   \\
- (\textsf{IVs}) & Induction variables (just LHS) & \fortran{a(i, j)} \\
- (\textsf{const}) & Constants & \fortran{a(0, 1)} \\
+ (\textsf{IVs}) & Induction variables & LHS & \fortran{a(i, j)} \\
  (\textsf{neigh}) & Neighbourhood offsets (of the form
-                                                  $i \pm c$) & \fortran{a(i, j-1)} \\
- (\textsf{neigh+c}) & Neighbourhood offsets and constants &
+                                                  $i \pm c$) & LHS/RHS
+                                                               & \fortran{a(i, j-1)} \\
+ (\textsf{neigh+c}) & Neighbourhood offsets and constants & LHS/RHS &
                                                             \fortran{b(i, 0, j+1)} \\
- (\textsf{aff}) & Affine offsets (of the form $a * i \pm b$) &
+ (\textsf{aff}) & Affine offsets (of the form $a * i \pm b$) & LHS/RHS &
                                      \fortran{a(2*i+1,j)} \\
- (\textsf{aff+c}) & Affine offsets and constants & \fortran{a(i+1, 0,
+ (\textsf{aff+c}) & Affine offsets and constants & LHS/RHS & \fortran{a(i+1, 0,
                                                    3*j+2)} \\
- (\textsf{other}) & Subscript expression not included above &
-\fortran{x(f(i))}, \fortran{a(i `mod` 2)}
+ (\textsf{other}) & Subscript expression not included above & LHS/RHS &
+\fortran{x(f(i))}, \fortran{a(i*i)}
 \end{tabular} \\[1em]
 
 \noindent
-Note that the \textsf{vars} and \textsf{IVs} are only give to
+Note \textsf{vars} and \textsf{IVs} classifications apply only to
 left-hand sides.
 The classification is computed from all information that flows into an
 assignment, for example, the following decomposes a one-dimensional
@@ -153,7 +155,7 @@ right-hand side, in each dimension: \\
 \end{tabular} \\[1em]
 
 \noindent
-Finally, we categorised the relationship between the left-hand side
+Finally, we categorise the relationship between the left-hand side
 and right-hand side, in terms of the use of induction variables.
 The two sides are \emph{consistent} if the same induction variables
 appear in each side, used for the same dimension. This is
@@ -186,7 +188,8 @@ side. Otherwise, the two sides are seen as inconsistent:
 
 \subsection{Results}
 
-We first consider the initial hypotheses in turn again the collected data.
+\noindent
+We revist each hypothesis and show the related data and conclusions.
 %
 \begin{enumerate}
 \item Loops over arrays mainly read from arrays with a static pattern
@@ -200,31 +203,27 @@ We performed the classification described above
 and grouped the data by the right-hand side classification only:
 %%
 \begin{center}
-\begin{tabular}{lS[table-format=4]S[table-format=2.2]cc}
+\begin{tabular}{lS[table-format=4]@{\extracolsep{5pt}}S[table-format=2.2]c}
 \textbf{RHS classification} & \textbf{Number} & \% &
-\textit{grouping 1} & \textit{grouping 2} \\ \hline
-Affine                          & 34        & 0.03\%  &
-                                                            \multirow{4}{*}{92.61\%}
-  \\ \cline{1-3}\cline{5-5}
-All constant                    & 12160     & 11.18\%  \\ \cline{1-3}\cline{5-5}
-Neighbourhood                   & 65334     & 60.06\% &
-                                                          & \multirow{2}{*}{81.4\%}
-                                                           \\ \cline{1-3}
+\textit{grouping 1} \\ \hline
+Affine                          & 34        & 0.03\%
+& \multirow{3}{*}{81.43\%} \\ \cline{1-3}
+Neighbourhood                   & 65334     & 60.06 \%  \\ \cline{1-3}
 Neighbourhood + constants       & 23209     & 21.34\%  \\ \hline
-Other                           & 8036      & 7.39\%  \\ \hline \hline
+Other                           & 20196     & 18.57 \%  \\ \hline \hline
 Total                           & 108773    &  \\
 \end{tabular}
 \end{center}
 %
 \noindent
-Since, affine, consant, and neighbour are all static patterns, we
-group them (\textit{grouping 1}) to see that $92.61\%$ of the array
-computations (100,737) have a static pattern that are either constants or
+Since, affine and neighbour patterns are static, we
+group them (\textit{grouping 1}) to see that $81.43\%$ of the array
+computations (88,577) have a static pattern that are either constants or
 constant offsets of base/derived induction variables, confirming
 \emph{hypothesis 1}. Note that affine (derived induction variables)
 are rare. Overwhelmingly, the main category is neighbourhood
-offsets (\emph{grouping 2}) (possibly mixed with constants in some
-dimensions), at $81.4\%$ in total. The ``affine + constants'' class is
+offsets (possibly mixed with constants in some
+dimensions). The ``affine + constants'' class is
 not represented at all.
 %
 \begin{enumerate}[resume]
@@ -241,4 +240,41 @@ from arrays with a pattern that includes the immediate
 neighbours (offsets of 1 from the induction variables);
 \end{enumerate}
 %
+We grouped the data based on subclassifications of \emph{grouping 1}
+in terms of contiguity and positioning.
 %Focussing on grouping 1.
+\begin{center}
+\begin{tabular}{lS[table-format=4]S[table-format=2.2]S[table-format=2.2]lS[table-format=4]S[table-format=2.2]S[table-format=2.2]}
+\textbf{RHS classification} & \textbf{Number} & \% {(of whole)}
+                                              & \% {(of group)}
+&\textbf{Position} & \textbf{Number} & \% {(whole)} & \% {(group)} \\ \hline
+Affine, contiguous
+& 31 & 0.03\% & 0.03\% \\ \hline
+%\multirow{3}{*}{Affine, contiguous}
+% & %\multirow{3}{*}{31}
+% & %\multirow{3}{*}{0.03\%}
+% & \textsf{away} & 4 & 0.00\% \\
+%& 31 & 0.03\% & \textsf{origin} & 15 & 0.01\% \\
+%&&& \textsf{straddle} & 12 & 0.01\% \\ \hline
+Affine, non-contiguous
+ & 3
+ & 0.00\% & 0.00\% \\ \hline
+\multirow{3}{*}{Neighbour, contiguous}
+ & %\multirow{3}{*}{83689}
+ & %\multirow{3}{*}{83.08\%}
+& & \textsf{away} & 152 & 0.14\% & 0.17 \% \\
+& 83689 & 76.94\% & 94.48\% & \textsf{origin} & 81309 & 74.75\% & 91.79\% \\
+&&&& \textsf{straddle} & 2228 & 2.05\% & 2.52\% \\ \hline
+Neighbour, non-contiguous
+ & 4854
+ & 4.46\% & 5.48\%  \\ \hline \hline
+\textbf{Total}  & 88577    &  \\
+\end{tabular}
+\end{center}
+%%
+Thus, $76.94\%$ of array computations have only contiguous
+neighbour indices (which may include constants in some indices)
+in a contiguous pattern on the right hand side, with $\76.80\%$
+either at the origin ($74.75\%$) or offset by a distance of 1 from the origin
+($2.05\%$). This confirms both hypotheses 2 and 3. Only 152 instances
+were found of index patterns not immediate next to or over the origin.

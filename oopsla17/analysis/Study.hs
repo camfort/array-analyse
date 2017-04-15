@@ -46,8 +46,8 @@ instance {-# OVERLAPPABLE #-} Show a => ShowA a where
 
 mapViewT msg map =
        "   " ++ msg ++ ":\n"
-    ++ concatMap (\(cat, dat) -> resultLine cat (showPad dat ++ "& ("
-    ++ (twoDP $ (cast(dat)/cast(total))*100) ++ "\\%)")) (M.assocs map)
+    ++ concatMap (\(cat, dat) -> resultLine cat (showPad dat ++ "& "
+    ++ (twoDP $ (cast(dat)/cast(total))*100) ++ "\\%")) (M.assocs map)
     ++ resultLine "Total" (showPad total ++ "&")
     ++ "\n"
   where
@@ -60,8 +60,11 @@ mapViewT msg map =
 hyps r =
      mapViewT "Hypothesis 1" (countWrapper hypothesis1 r)
   ++ mapViewT "Hypothesis 1 finer" (countWrapper hypothesis1finer r)
+  ++ mapViewT "Hypothesis 1 finer - all consts" (countWrapper hypothesis1finerA r)
   ++ mapViewT "Hypothesis 2" (countWrapperFilter hypothesis1filter hypothesis2 r)
+  ++ mapViewT "Hypothesis 2 - unfiltered" (countWrapper hypothesis2 r)
   ++ mapViewT "Hypothesis 3" (countWrapperFilter hypothesis1filter hypothesis3 r)
+  ++ mapViewT "Hypothesis 3 - unfiltered" (countWrapper hypothesis3 r)
   ++ mapViewT "Hypothesis 4" (countWrapper (interpret4 . hypothesis4) r)
   ++ mapViewT "Hypothesis 4 finer" (countWrapper hypothesis4finer r)
   ++ mapViewT "Hypothesis 5" (countWrapper hypothesis5 r)
@@ -94,15 +97,28 @@ hypothesis1finer (_, rhs, _) =
     AllConsts                                  -> "All consts"
     _                                          -> "Other"
 
+hypothesis1finerA :: (Form LHS, Form RHS, Consistency) -> String
+hypothesis1finerA (_, rhs, _) =
+  case rhs of
+    Affines    c (R (s, _, _, _)) | s /= Other -> "Affine RHS" ++ hasConst c
+    Neighbours c (R (s, _, _, _)) | s /= Other -> "Neigh RHS" ++ hasConst c
+    _                                          -> "Other"
+
 hasConst WithConsts = " + constants"
 hasConst Normal = " only"
 
 -- Hypothesis 2 : Most loop-array computations of the previous form read
 -- from a arrays with a contiguous pattern;
 
+notAllConsts cat _ =
+  case cat of
+    (_, AllConsts, _) -> False
+    _                 -> True
+
 hypothesis1filter cat _ =
   case (hypothesis1finer cat) of
     "Other" -> False
+    "All consts" -> False
     _       -> True
 
 hypothesis2 :: (Form LHS, Form RHS, Consistency) -> String
@@ -122,8 +138,8 @@ includesImmediate OverOrigin = True
 includesImmediate StraddleOrigin = True
 includesImmediate _              = False
 
-positionString OverOrigin = "exorigin"
-positionString StraddleOrigin = "exorigin"
+positionString OverOrigin = "origin"
+positionString StraddleOrigin = "straddle"
 positionString _              = "away"
 
 hypothesis3 :: (Form LHS, Form RHS, Consistency) -> String

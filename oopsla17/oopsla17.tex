@@ -181,7 +181,7 @@ practises and workflows.
   on an induction variable $i$.
 \end{defn}
 
-\begin{defn}[Array subscripts and indices]
+\begin{defn}[Array subscripts and indices]\label{def:array-subs}
   An \emph{array subscript}, denoted $a(\bar{e})$, is an expression which reads
   from an $N$-dimensional array $a$ at an \emph{index} specified by a
   comma-separated sequence of integer expressions denoted $\bar{e}$ or in
@@ -729,32 +729,24 @@ S \equiv T \; \Rightarrow \;
 We define the equational theory in \Cref{sec:equational-theory}.
 \end{thm}
 
-\subsection{Abstract interpretation}
+\subsection{Denotational semantics for array subscripts}
 \label{sec:fromcode}
 
 \begin{defn}
-The function $\textit{schematic}_I$ parameterised by
-a set of induction variables $I$, which maps
-from an array subscript into a $n$-dimensional (closed) interval:
+  Recall array subscript terms of the form $a(\bar{e})$ from
+  \Cref{defarray-subs}. We interpret these terms with
+  $\interp{-}^{\mathit{aexp}} : \textit{array-exp} \to \mathcal{P}(\bz{})^N$.
 %
-\begin{align*}
-\textit{schematic}_I(\bar{e}) & =
-\prod_{i \in |\bar{e}|} \textit{interval}(e_i)
-\qquad
-\textit{interval}_I(e) = \begin{cases}
-[c, c] & e = i \pm c \, \wedge \, i \in I \\
-\bz & FV(e) \cap I = \emptyset
-\end{cases}
-\end{align*}
-Note that \textit{inveral} may be undefined (it is a partial function)
-in which case \textit{schematic} is undefined if any of its
-components are undefined.
+  \begin{align*}
+    \interp{a(\bar{e})}^{\mathit{aexp}} =
+      \prod_{1 \leq i \leq N} \mathit{subscript}(\bar{e}_i) & &
+  %
+    \textit{subscript}(e) = \begin{cases}
+      \{ c \} & e \equiv i \pm c \\
+      \bz & e \; \mbox{is constant}
+    \end{cases}
+  \end{align*}
 \end{defn}
-
-
-
-  
-
 
 \section{Analysis, Checking, and Inference}
 

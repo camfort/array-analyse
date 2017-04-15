@@ -629,11 +629,10 @@ The interpretation is overloaded on \emph{regions} in
 \Cref{subfig:region-model}. Various intermediate notions are used.
 
 \begin{defn}
-Let $\textit{promote}_N : \mathbb{N}^+ \times \textit{Interval} \to
-\textit{Interval}^N$ be a function generating an $N$-dimensional 
-interval such that $\pi_i(\vecgen{N}{i}{\interv{a}{b}{c}}) = 
-\interv{a}{b}{c}$ and $\pi_j(\vecgen{N}{i}{\interv{a}{b}{c}}) = 
-\bz{}$ in all other dimensions $j$. 
+  Let $\textit{promote}_N : \mathbb{N}^+ \times \textit{Interval} \to
+  \textit{Interval}^N$ be a function generating an interval scheme such that if
+  $v$ is $\vecgen{N}{i}{\interv{a}{b}{c}}$, then $\pi_i(v) = \interv{a}{b}{c}$
+  and $\pi_j(v) = \bz{}$ in all other dimensions $j$.
 \end{defn}
 
 %

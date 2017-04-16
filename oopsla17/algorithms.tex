@@ -14,6 +14,33 @@ of the checking and inference procedures. At the moment, the analysis
 is largely \emph{syntactic}, with only a small amount of
 semantic interpretation of the code.
 
+\subsection{Union Normal Form}\label{subsec:union-normal-form}
+
+We need to address the problem of representation in the model both for observed
+array terms converted into subscripts schemes and for specifications converted
+into interval schemes. In each case, the objects are sets and union and
+intersection are the combinators. However, they are often infinite sets due to
+infinite interval and constant indices being converted to \bz{}. This calls for
+a finite (and ideally compact) representation for indices.
+
+First recall \Cref{lem:vector-intersect}, which states that intersection of
+indexing schemes is still an indexing scheme. When combined with
+\Cref{lem:interval-identities}, we can extend this closure to interval schemes.
+Subscripts schemes do not enjoy the same propery as intersection of two
+singleton sets might easily be empty, which disqualifies it from being a
+subscript index. In the following section we will not rely on intersection of
+subscript indices, so that is okay.
+
+Union is, however, not as flexible as intersection. \Cref{lem:vector-union} does
+not form a closure for indexing schemes in general. For this reason, we
+represent collection of all forms of indexing schemes as unevaluated unions.
+Since the model forms a distributive lattice as established in
+\Cref{prop:region-lattice}, the intersections can be pushed in using the
+distributive law leaving only unions. We further exploit associativity of union
+to put unions into a cons tree making the unions effectively a non-empty list.
+We do not, however, attempt to canonicalise the representation.
+
+
 \subsection{Analysis of array accesses}
 \label{subsec:analysis}
 
@@ -35,6 +62,58 @@ The analysis builds on standard program analyses:
 
 \subsection{Checking code against specifications}
 \label{subsec:checking}
+
+In the model, we can regard both array indices and specifications as groups of
+points in $N$-dimensional space. Notion of consistency is then intuitively
+whether these two (potentially infinite) sets of points in space match or not.
+This leads to a simple set based consistency function defined as
+%
+\begin{align*}
+  \mathit{consistent} & :
+    \mathsf{Mult}(\mathcal{P}(\mathcal{P}(\bz{})^N)) \times
+    \mathsf{Mult}(\mathsf{Approx}(\region{N})) \to \mathbb{B} & \\
+%
+  \mathit{consistent}(\mathit{ix}, \mathit{model}) & = \begin{cases}
+    \mathsf{false} & \mathit{model} = \mathsf{once}(x) \wedge ix = \mathsf{mult}(y) \\
+    \mathit{consistent'}(\mathit{peel}(ix), \mathit{peel}(model)) & \textit{otherwise}
+  \end{cases} \\
+%
+  \mathit{consistent'} & :
+    \mathcal{P}(\mathcal{P}(\bz{})^N) \times
+    \mathsf{Approx}(\region{N}) \to \mathbb{B} & \\
+%
+  \mathit{consistent'}(\mathit{ix}, \mathit{model}) & = \begin{cases}
+    m = \mathit{ix} & \mathit{model} = \mathsf{exact}(m) \\
+    m \supseteq \mathit{ix} & \mathit{model} = \mathsf{upper}(m) \\
+    m \subseteq \mathit{ix} & \mathit{model} = \mathsf{lower}(m)
+  \end{cases}
+\end{align*}
+%
+The first function, $\mathit{consistent}$, checks whether the linearity of the
+specification matches that of the indices, \ie{} if the specification allows
+indices to be repeated or not.Then it delegates to $\mathit{consistent'}$
+function which checks if the points observed in the array expression matches
+the space defined by the specification. Lower bounds, marked by \texttt{atLeast}
+modifier, require the space defined by the specification to remain inside the
+set of indices, while an upper bound, market by \texttt{atMost} modifier,
+requires the opposite: enclosure. In the absence of such modifiers, we expect
+the space defined by observed indices correspond exactly those defined by the
+region in the specification, hence requiring set equality.
+
+Reader will realise that since index schemes allows infinite intervals in the
+product, set equality cannot be done by exhaustively checking the points of one
+are inside the other. Instead, we compile the region into interval constraints
+and subscript schemes into membership constraints and pass it to
+\textsc{Z3}~\citep{de2008z3} SMT solver to see if they are equal. The query
+belongs to to quantifier free linear arithmetic, which is a decidable theory.
+Performance of consistency checking using SMT solver is irrelevant as the number
+of interval constraints and the number of indices that can reasonably appear in
+an assignment is too small restricting the size of the formula being checked.
+
+\mnote{It would be great if we had data on number of indexing expressions that
+occur (counting the ones that flow in) and also the length of specifications
+(which I think we do generate). This would justify my efficiency claims}.
+
 
 \subsection{Infering specification automatically}
 \label{subsec:inference}

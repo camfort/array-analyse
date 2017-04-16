@@ -65,8 +65,16 @@ hyps r =
   ++ mapViewT "Hypothesis 2 - unfiltered" (countWrapper hypothesis2 r)
   ++ mapViewT "Hypothesis 3" (countWrapperFilter hypothesis1filter hypothesis3 r)
   ++ mapViewT "Hypothesis 3 - unfiltered" (countWrapper hypothesis3 r)
-  ++ mapViewT "Hypothesis 4" (countWrapper (interpret4 . hypothesis4) r)
-  ++ mapViewT "Hypothesis 4 finer" (countWrapper hypothesis4finer r)
+
+--  ++ mapViewT "Hypothesis 4" (countWrapper (interpret4 . hypothesis4) r)
+--  ++ mapViewT "Hypothesis 4 finer" (countWrapper hypothesis4finer r)
+
+  ++ mapViewT "Hypothesis 4A" (countWrapper hypothesis4A r)
+  ++ mapViewT "Hypothesis 4A" (countWrapper hypothesis4AInconsistents r)
+  ++ mapViewT "Hypothesis 4B" (countWrapper hypothesis4B r)
+  ++ mapViewT "Hypothesis 4 contig" (countWrapper hypothesis4contig r)
+  ++ mapViewT "Hypothesis 4 consistency" (countWrapper hypothesis4consistency r)
+
   ++ mapViewT "Hypothesis 5" (countWrapper hypothesis5 r)
 
 countWrapper :: Ord c => (Cat -> c) -> Result -> M.Map c Int
@@ -173,6 +181,93 @@ interpret4 (340, b, c) = "lhs(allconst), RHS(neigh, b, contig,I" ++ showe c ++ "
 
 showe _ = ""
 
+hypothesis4A :: (Form LHS, Form RHS, Consistency) -> String
+hypothesis4A (Subscripts, _, _) = "other"
+hypothesis4A (AllConsts, _, _) = "other"
+hypothesis4A (lhs, rhs, const) =
+  if classRhs rhs == "other" then
+    "other"
+  else
+    "LHS " ++ classLhs ++ ", RHS " ++ (classRhs rhs)
+  where
+    classConst = show const
+    classLhs =
+      case lhs of
+        Neighbours _ _ -> "neigh"
+        Affines    _ _ -> "affine"
+        _              -> show lhs
+    classRhs
+      (Affines c (R (s, p, con, _))) | s /= Other = "affines"
+    classRhs
+      (Neighbours c (R (s, p, con, _))) | s /= Other = "neigh"
+    classRhs
+      _ = "other"
+
+hypothesis4AInconsistents :: (Form LHS, Form RHS, Consistency) -> String
+hypothesis4AInconsistents (Subscripts, _, _) = "other"
+hypothesis4AInconsistents (AllConsts, _, _) = "other"
+hypothesis4AInconsistents (lhs, rhs, const) =
+  if classRhs rhs == "other" then
+    "other"
+  else
+    "LHS " ++ classLhs ++ ", RHS " ++ classRhs rhs ++ classConst const
+  where
+    classConst Inconsistent = ", inconsistent"
+    classConst _            = ", *consistent"
+    classLhs =
+      case lhs of
+        Neighbours _ _ -> "neigh"
+        Affines    _ _ -> "affine"
+        _              -> show lhs
+    classRhs
+      (Affines c (R (s, p, con, _))) | s /= Other = "affines"
+    classRhs
+      (Neighbours c (R (s, p, con, _))) | s /= Other = "neigh"
+    classRhs
+      _ = "other"
+
+hypothesis4B :: (Form LHS, Form RHS, Consistency) -> String
+hypothesis4B (Subscripts, _, _) = "other"
+hypothesis4B (AllConsts, _, _) = "other"
+hypothesis4B (lhs, rhs, const) =
+  if classRhs rhs == "other" || const == Inconsistent then
+    "other"
+  else
+    classLhs ++ ", " ++ (classRhs rhs) ++ ", " ++ classConst
+  where
+    classConst = show const
+    classLhs =
+      case lhs of
+        Neighbours _ _ -> "neigh"
+        Affines    _ _ -> "affine"
+        _              -> show lhs
+    classRhs
+      (Affines c (R (s, p, con, _))) | s /= Other = "affines"
+    classRhs
+      (Neighbours c (R (s, p, con, _))) | s /= Other = "neigh"
+    classRhs
+      _ = "other"
+
+hypothesis4contig :: (Form LHS, Form RHS, Consistency) -> String
+hypothesis4contig cat@(_, rhs, const) =
+  if const /= Inconsistent && hypothesis4A cat /= "other" then
+    contiguity rhs
+  else
+    "other"
+  where
+    contiguity
+      (Affines c (R (s, p, con, _))) | s /= Other = show con
+    contiguity
+      (Neighbours c (R (s, p, con, _))) | s /= Other = show con
+    contiguity _ = ""
+
+hypothesis4consistency :: (Form LHS, Form RHS, Consistency) -> String
+hypothesis4consistency cat@(_, rhs, const) =
+  if const /= Inconsistent && hypothesis4A cat /= "other" then
+    show const
+  else
+    "other"
+
 hypothesis4 :: (Form LHS, Form RHS, Consistency) -> (Int, HasConstants, HasConstants)
 hypothesis4 (lhs, rhs, const) =
   case lhs of
@@ -228,15 +323,9 @@ hypothesis4finer (lhs, rhs, const) =
 -- Hypothesis 5: Many array computations of the regular form
 -- read from a particular index just once
 
-interpret5 (d@(0, _, _), c) = interpret4 d
-interpret5 (d, True) = interpret4 d ++ ", linear"
-interpret5 (d, False) = interpret4 d ++ ", nonlinear"
-
-
 hypothesis5 :: (Form LHS, Form RHS, Consistency) -> String
-hypothesis5 cat@(lhs, rhs, const) = interpret5 $
-  (hypothesis4 cat,
-      case rhs of
-            (Neighbours _ (R (_, _, _, Linear))) -> True
-            (Affines    _ (R (_, _, _, Linear))) -> True
-            _ -> False)
+hypothesis5 cat@(lhs, rhs, const) =
+  case rhs of
+            (Neighbours _ (R (_, _, _, l))) -> "neigh/affine " ++ show l
+            (Affines    _ (R (_, _, _, l))) -> "neigh/affine " ++ show l
+            _ -> "other"

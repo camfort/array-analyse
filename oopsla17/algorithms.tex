@@ -1,0 +1,91 @@
+\begin{equation*}
+\texttt{a} \mapsto \{[0,0]\times[0,0], \;\; [-1,0]\times[0,0], \;\;
+[0,0]\times[-1,0], \;\; [0,0]\times[1,0], \;\; [0,1]\times[0,0]\}
+\end{equation*}
+%
+We outline here the procedures for checking conformance
+of source code against specifications (\Cref{subsec:checking})
+and for inferring specifications from code (\Cref{subsec:inference}).
+Both rely on a program analysis that converts array subscripts
+ into sets of index schemes. We outline this analysis
+first (\cref{subsec:analysis}). Note that the analysis
+can be made arbitrarily more complex and wide-ranging independent
+of the checking and inference procedures. At the moment, the analysis
+is largely \emph{syntactic}, with only a small amount of
+semantic interpretation of the code.
+
+\subsection{Analysis of array accesses}
+\label{subsec:analysis}
+
+\newcommand{\neigh}{\textsf{neigh}}
+
+The analysis builds on standard program analyses:
+%
+\textbf{(1)} basic blocks (CFG);
+\textbf{(2)} induction variables per basic block;
+\textbf{(3)} (interprocedural) data-flow analysis, providing a \emph{flows to}
+  graph (as shorthand, the function
+  $\mathsf{flowTo}$ is used, implicitly parameterised by this graph,
+  mapping an expression to the set of all expressions
+  with forwards data-flow to this expression, based on the transitive
+  closure of the flows graph);
+\textbf{(4)} type information per variable.% where we use the predicate
+%\arrayTy{} to classify variables of array type.
+
+
+\subsection{Checking code against specifications}
+\label{subsec:checking}
+
+\subsection{Infering specification automatically}
+\label{subsec:inference}
+
+We provide an inference procedure for generating specifications from
+code, which are inserted automatically as comments. This helps support
+maintenance of legacy code, and aids understanding of our
+specification language. We illustrate inference using the
+five-point stencil of \Cref{exm:checking}.
+
+The preceding source code analysis converts the concrete syntax of array
+subscripts into a subscript space in $\mathcal{P}(\bz)^N$.
+Let $U$ range over finite maps from array variables to sets of
+of subscript schemes.
+
+ The
+inference then attempts to construct a $\emph{Region}_N$ from this.
+
+ For
+each array variable $a \in \mathsf{dom}(U)$, the algorithm constructs a set of
+$n$-dimensional rectangles covering all contiguous groups of schemes
+in $U(a)$.
+
+
+\begin{enumerate}[leftmargin=1.5em]
+A covering of (possibly overlapping) regions is computed iteratively
+by the following steps until a fixed-point is reached:
+
+\begin{enumerate}
+
+\item \textbf{Coalesce intervals}
+Intervals which are adjacent (contiguous in one dimension) are
+coalesced.
+
+\begin{defn}{(Adjacent)}
+  A subscript $S$ is said to be \emph{adjacent at index $j$} of another
+  subscript $S'$ if for every index $i$ except $j$, $\pi_i(S) = \pi_i(S')$ but
+  at $j$ then $\pi_j(S) \neq \pi_j(S')$ such that $|S| = |S'| + 1$.
+\end{defn}
+%
+
+
+\begin{definition}[Contiguous]
+
+\end{definition}
+
+
+\item \textbf{Remove completely overlapped intervals}
+
+
+
+
+\item \textbf{Covering}
+

@@ -139,32 +139,23 @@ in $U(a)$.
 
 
 \begin{enumerate}[leftmargin=1.5em]
+\item
 A covering of (possibly overlapping) regions is computed iteratively
 by the following steps until a fixed-point is reached:
 
 \begin{enumerate}
-
 \item \textbf{Coalesce intervals}
 Intervals which are adjacent (contiguous in one dimension) are
 coalesced.
 
-\begin{defn}{(Adjacent)}
+\begin{defn}{[Contiguous]}
+  An index scheme
   A subscript $S$ is said to be \emph{adjacent at index $j$} of another
   subscript $S'$ if for every index $i$ except $j$, $\pi_i(S) = \pi_i(S')$ but
   at $j$ then $\pi_j(S) \neq \pi_j(S')$ such that $|S| = |S'| + 1$.
 \end{defn}
 %
-
-
-\begin{definition}[Contiguous]
-
-\end{definition}
-
-
 \item \textbf{Remove completely overlapped intervals}
-
-
-
-
 \item \textbf{Covering}
-
+\end{enumerate}
+\end{enumerate}

@@ -169,13 +169,13 @@ side. Otherwise, the two sides are seen as inconsistent:
 \begin{tabular}{l|l|l}
   (\textsf{const}) & Consistent & \fortran{a(i, j) = b(i, j) +
                                   b(i+1,j+1)} \\
-  (\textsf{perm} & Permutation & \fortran{a(i, j) = c(j, i)} or \fortran{a(i,
+  (\textsf{perm}) & Permutation & \fortran{a(i, j) = c(j, i)} or \fortran{a(i,
                                                                0) =
                                  b(0, i)} \\
-  (\textsf{LHSsub} & LHS subset & \fortran{a(i) = b(i, j) + b(i, j-1)}
+  (\textsf{LHSsub}) & LHS subset & \fortran{a(i) = b(i, j) + b(i, j-1)}
   \\
-  (\textsf{LHSsup} & LHS superset & \fortran{a(i, j) = b(i)} \\
-  (\textsf{inconst} & Inconsistent & \fortran{a(i) = b(j)}
+  (\textsf{LHSsup}) & LHS superset & \fortran{a(i, j) = b(i)} \\
+  (\textsf{inconst}) & Inconsistent & \fortran{a(i) = b(j)}
 \end{tabular} \\[1em]
 %
 
@@ -204,7 +204,7 @@ We performed the classification described above
 and grouped the data by the right-hand side classification only:
 %%
 \begin{center}
-\begin{tabular}{lS[table-format=4]@{\extracolsep{5pt}}S[table-format=2.2]c}
+\begin{tabular}{l|S[table-format=4]@{\extracolsep{5pt}}S[table-format=2.2]c}
 \textbf{RHS classification} & \textbf{Number} & \% &
 \textit{grouping 1} \\ \hline
 Affine                          & 34        & 0.03\%
@@ -212,7 +212,7 @@ Affine                          & 34        & 0.03\%
 Neighbourhood                   & 65334     & 60.06 \%  \\ \cline{1-3}
 Neighbourhood + constants       & 23209     & 21.34\%  \\ \hline
 Other                           & 20196     & 18.57 \%  \\ \hline \hline
-Total                           & 108773    &  \\
+\textbf{Total}                  & 108773    &  \\
 \end{tabular}
 \end{center}
 %
@@ -253,7 +253,7 @@ We grouped the data based on subclassifications of \emph{grouping 1}
 in terms of contiguity and positioning.
 %Focussing on grouping 1.
 \begin{center}
-\begin{tabular}{lS[table-format=4]S[table-format=2.2]lS[table-format=4]S[table-format=2.2]}
+\begin{tabular}{l|S[table-format=4]S[table-format=2.2]lS[table-format=4]S[table-format=2.2]}
 \textbf{RHS classification} & \textbf{Number} & \% {(of whole)}
 &\textbf{Position} & \textbf{Number} & \% {(of whole)} \\ \hline
 Affine, contiguous
@@ -277,7 +277,7 @@ Neighbour, non-contiguous
  & 4854
  & 4.46\% \\ \hline
 Other & 20196 & 18.57\%  \\
- \hline
+ \hline \hline
 \textbf{Total}  & 88577    &  \\
 \end{tabular}
 \end{center}
@@ -298,4 +298,119 @@ an assignment whose
 and whose left-hand side is an neighbourhood-indexed array subscript
 (\eg{}, the classic five-point stencil);
 \end{enumerate}
+%
+We subclassified the data based on the right-hand side
+and left-hand side categories
+being either a variable, or induction-variable indexed,
+neighbour-indexed or affined-indexed array. We additionally
+included an orthogonal classification of whether
+left-hand and right-hand sides are consistent (have a common subset
+of induction variables) or not.
+%
+\begin{center}
+\begin{tabular}{ll|S[table-format=4]S[table-format=2.2]S[table-format=4]S[table-format=2.2]c}
+\multicolumn{2}{l|}{\textbf{LHS and RHS classification}}
+& \textbf{\# inconsistent}
+& \% {(whole)}
+& \textbf{\# consistent}
+& \% {(whole)}
+& \textit{stencils} \\ \hline
+%
+LHS Vars & RHS neigh & 0 & 0.00\% & 4591      & 4.22\%
+ & \multirow{7}{*}{66.01\%} \\\cline{1-6}
+%
+%
+%
+LHS IVs & RHS neigh   &  4560      & 4.19\%  & 50861     & 46.76\% \\\cline{1-6}
+%
+%
+LHS neigh & RHS neigh & 2358      & 2.17\% & 16336     & 15.02\%   \\\cline{1-6}
+%
+LHS Vars & RHS affines & 0 & 0.00\%  & 4         & 0.00\% \\\cline{1-6}
+%
+LHS IVs, & RHS affines & 7 & 0.01\% & 0 & 0.00\%  \\\cline{1-6}
+%
+LHS affine & RHS affines & 0 & 0.00\% &  6         & 0.01\% \\\hline
+%
+LHS neigh & RHS affines & 8         & 0.01\% & 0 & 0.00\%  \\\hline
+%%
+LHS affine & RHS neigh  & 23        & 0.02\% & 0 & 0.00\% \\\hline \hline
+%
+other       &                      & 30019     & 27.60\%  & &  \\\hline%\hline
+%Total        &                      & 108773    &
+%  LHS var, & RHS affine             & 4         & 0.00\%
+% & \multirow{7}{*}{72.37\%} \\\cline{1-3}
+%  LHS var, & RHS neighbour          & 4591      & 4.22\%  \\\cline{1-3}
+%  LHS IVs, &RHS affine             & 7         & 0.01\%  \\\cline{1-3}
+%  LHS IVs, &RHS neighbour          & 55421     & 50.95\% \\\cline{1-3}
+%  LHS neighbour, &RHS neighbour    & 18694     & 17.19\% \\\cline{1-3}
+%  LHS affine, &RHS affine          & 6         & 0.01\%  \\\hline
+%  LHS affine, &RHS neighbour       & 23        & 0.02\%  \\\hline
+%  LHS neighbour, &RHS affine       & 8         & 0.01\%  \\\hline
+%  other   & other                   & 30019     & 27.60\%  %\\\hline\hline
+%  Total                           & 108773    &  \\
+\end{tabular}
+\end{center}
+%
+The most common category has an l.h.s array subscript
+indexed by induction variables, and a right-hand side comprising
+neighbourhood offsets. Next most common is to have neighbourhood
+offsets on the left-hand and right-hand sides. Notably
+there are two categories always seen as inconsistent:
+``LHS affine, RHS neighbour'' and ``LHS neighbour, RHS affine''
+since they comprise different indexing schemes
+on each side of the assignment, e.g. $a(i + 1) = b(2*i + 1)$. These
+appear very rarely. Thus, we find that $66.01\%$ of array computations
+have a static pattern on the left and right-hand side that is either
+affine or a constant translation. Thus, the data support ours
+hypothesis that stencis are common. Based on this grouping, we
+considered the two subclassifications of different kinds of
+left-right-hand side relationship and contiguity:
+%%
+\begin{center}
+\begin{minipage}{1\linewidth}
+\begin{tabular}{l|S[table-format=4]S[table-format=2.2]}
+\textbf{Contiguity} & \textbf{Number} & \% {(whole)} \\\hline
+Contiguous stencil         & 68246     & 62.74\%  \\\hline
+Non-contiguous stencil     & 3552      & 3.27\%  \\\hline
+other                      & 36975     & 33.99\% \\\hline
+%\textbf{Total}             & 108773    &  \\
+\end{tabular}
+\hspace{1em}
+\begin{tabular}{l|S[table-format=4]S[table-format=2.2]S[table-format=4]S[table-format=2.2]}
+\textbf{Consistency} & \textbf{Number} & \% & \textbf{relativised \#} & \% \\\hline
+Direct                            & 47448     & 43.62\% & 636       & 0.58\%  \\\hline
+LHSsubset                         & 9812      & 9.02\% & 65        & 0.06\%  \\\hline
+LHSsuperset                       & 10110     & 9.29\%  & 84        & 0.08\%  \\\hline
+Permutation                       & 3604      & 3.31\%  & 39        & 0.04\%  \\\hline
+other                             & 36975     & 33.99\% \\\hline
+\end{tabular}
+\end{minipage}
+\end{center}
+%%
+Most stencils are contiguous, but there is a non trivial
+amount of non-contiguity. Most stencils have matching induction
+variables on the left and right-hand sides but again there
+are non-trivial amounts of other kinds of relationship.
+%%
+\begin{enumerate}[resume]
+\item Many array computations read from each particular index just
+  once.
+\end{enumerate}
+%
+We classified right-hand sides which are neighbourhood offsets (or
+affine) and subclassified this by whether array subscripts were
+unique or repeated:
 
+\begin{center}
+\begin{tabular}{l|S[table-format=4]S[table-format=2.2]S[table-format=4]}
+\textbf{RHS form and reuse} & \textbf{Number} & \% \\ \hline
+RHS neighbour/affine unique indices      & 78349     & 72.03\%  \\\hline
+RHS neighbour/affine repeated indices   & 10228     & 9.40\%  \\\hline
+other                             & 20196     & 18.57\%  \\\hline\hline
+Total                             & 108773    &
+\end{tabular}
+\end{center}
+%
+Thus, hypothesis 5 is confirmed, the majority of array computations
+have access patterns with linear usage of array subscripts.

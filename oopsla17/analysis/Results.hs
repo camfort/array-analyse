@@ -346,6 +346,12 @@ prettyResultsCamfort r =
  ++ mapView' "Dimensionality" (camfortableResult . histDimensionality $ r)
  ++ mapView' "Max depth" (camfortableResult . histMaxDepth $ r)
  ++ mapView' "Number of indexing expressions" (camfortableResult . histNumIndexExprs $ r)
+ ++ "\nDims result total: " ++ show (tally $ histDimensionality r)
+ ++ "\nMax depth result total: " ++ show (tally $ histMaxDepth r)
+ ++ "\nNumber of indexing expr total: " ++ show (tally $ histNumIndexExprs r)
+  where
+    tally h = sum $ ((M.!) (camfortableResult h) "Camfort")
+
 
 rline msg num = "   " ++ msg ++ ":" ++ (replicate (90 - (length msg)) ' ') ++ (show num) ++ "\n"
 rline' msg dat = "   " ++ msg ++ ":" ++ (replicate (90 - (length msg)) ' ') ++ dat ++ "\n"

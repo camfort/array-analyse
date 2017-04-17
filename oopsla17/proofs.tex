@@ -74,3 +74,147 @@
   Finally, the lattice is distributive since union distributes over intersection
   and vice versa when the set is closed under these operations.
 \end{proof}
+
+  \centeredApprox*
+
+\begin{proof}
+  Proof of the first inequality:
+  \begin{align*}
+    \stencil[s]{f}{$n$}{$k$}{\textcap{p}}
+      & \preceq
+        \stencil[s]{f}{$n$}{$k$}{\textcap{p}}
+        \;\texttt{+}\;
+        \stencil[s]{b}{$n$}{$k$}{\textcap{p}}
+      & (\textbf{Combined}) \\
+    & \equiv \stencil[s]{c}{$n$}{$k$}{\textcap{p}} & (\textbf{Centered})
+  \end{align*}
+
+  Proof of the second inequality:
+  \begin{align*}
+    \stencil[s]{b}{$n$}{$k$}{\textcap{p}}
+      & \preceq
+        \stencil[s]{f}{$n$}{$k$}{\textcap{p}}
+        \;\texttt{+}\;
+        \stencil[s]{b}{$n$}{$k$}{\textcap{p}}
+      & (\textbf{Combined}) \\
+    & \equiv \stencil[s]{c}{$n$}{$k$}{\textcap{p}} & (\textbf{Centered})
+  \end{align*}
+\end{proof}
+
+\pointApprox*
+
+\begin{proof}
+  Proof of the first inequality:
+  \begin{align*}
+    \stencil[s]{p}{$n$}{}{}
+      & \preceq \stencil{R}{$n$}{$k$}{nonpointed}
+                \;\texttt{+}\;
+                \stencil[s]{p}{$n$}{}{}
+      & (\textbf{Combined}) \\
+    & \equiv \stencil{R}{$n$}{$k$}{} & (\textbf{Overlapping pointed})
+  \end{align*}
+
+  Proof of the second inequality:
+  \begin{align*}
+    \stencil{R}{$n$}{$k$}{nonpointed}
+      & \preceq \stencil{R}{$n$}{$k$}{nonpointed}
+                \;\texttt{+}\;
+                \stencil[s]{p}{$n$}{}{}
+      & (\textbf{Combined}) \\
+    & \equiv \stencil{R}{$n$}{$k$}{} & (\textbf{Overlapping pointed})
+  \end{align*}
+\end{proof}
+
+\equationalSoundness*
+
+\begin{proof}
+  Both $\equiv$ and $=$ are equivalence relations. We only need to show that
+  each property associated with specifications equivalence holds as an equality
+  in the model.
+%
+  \begin{description}
+    \item[Basic \& Subsumption] These follow from basic properties of lattices.
+%
+    \item[Dist] This is immediate from the definition of distributive
+      lattice which the model is one.
+%
+    \item[Overlapping pointed] Counterparts of individual regions for some
+      Boolean $p$ are given below:
+%
+      \begin{align*}
+        \interp{\stencil{\textcap{R}}{$n$}{$k$}{\texttt{nonpointed}}}_N
+        & = \vecgen{N}{n}{\interv{-k}{k}{\mathsf{false}}} \\
+%
+        \interp{\stencil{p}{$n$}{}{}}_N
+        &= \vecgen{N}{n}{\interv{0}{0}{\mathsf{true}}} \\
+%
+        \interp{\stencil{\textcap{R}}{$n$}{$k$}{}}_N
+        &= \vecgen{N}{n}{\interv{-k}{k}{\mathsf{true}}}
+      \end{align*}
+
+      Using \Cref{lem:vector-union}, it is sufficient to show
+      $ \interv{-k}{k}{p} \;\cup\; \interv{0}{0}{\mathsf{true}} =
+        \interv{-k}{k}{\mathsf{true}} $ holds. This immediately follows from
+      \Cref{lem:zinf-identities}.
+%
+    \item[Centered] Let $\interp{\textcap{p1}}$, $\interp{\textcap{p2}}$, and
+      $\interp{\textcap{p3}}$ be $p1$, $p2$, and $p3$ respectively. We
+      know that $p1$ is $p2 \vee p3$ from (\textbf{Centered}) detinition. Then
+      we get the following interpretation for region constants involved in the
+      equivalence:
+%
+      \begin{align*}
+        \interp{\stencil{c}{$k$}{$n$}{$p1$}}_N
+          &= \vecgen{N}{n}{\interv{-k}{k}{p2 \vee p3}} \\
+%
+        \interp{\stencil{f}{$k$}{$n$}{$p2$}}_N
+          &= \vecgen{N}{n}{\interv{0}{k}{p2} }\\
+%
+        \interp{\stencil{b}{$k$}{$n$}{$p3$}}_N
+          &= \vecgen{N}{n}{\interv{0}{k}{p3}}
+      \end{align*}
+%
+      Using \Cref{lem:vector-union}, it is sufficient to show $\interv{-k}{k}{p2
+      \vee p3} = \interv{0}{k}{p2} \cup \interv{-k}{0}{p3}$ holds. This
+      immediately follows from \Cref{lem:zinf-identities}.
+  \end{description}
+\end{proof}
+
+\approxSoundness*
+
+\begin{proof}
+  Both $\preceq$ and $\subseteq$ are partial orders on sets. We only need to
+  show that each inequality holds in the model.
+%
+  \begin{description}
+    \item[Equivalence] Region equavilance is modeled with set equality and the
+      partial order on regions is modeled with subset relation. Partial orders
+      are reflexive and the model of eqivalence agrees with that of the partial
+      order, so this rule holds.
+%
+    \item[Combined] \texttt{*} and \texttt{+} maps to meet and join operations
+      in the lattice. All meets and joins in a lattice satisfy these
+      inequalities.
+
+    \item[Depth] When $m$ is $k$ and $l$ in
+      $\stencil{\textcap{R}}{$n$}{$m$}{\textcap{p}}$, we obtain the
+      interpretations $\vecgen{N}{n}{\textit{int}_k}$ and
+      $\vecgen{N}{n}{\textit{int}_l}$ for some $N$ as interpretations of
+      regions. Call these \textit{ks} and \textit{ls} respectively. One way to
+      show $\textit{ks} \subseteq \textit{ls}$ is to show that the intersection
+      of \textit{ks} and \textit{ls} is \textit{ks}.
+
+      To show that the intersection is \textit{ks}, we use
+      \Cref{lem:vector-intersect} which reduces the problem to showing that the
+      intersection of $\textit{int}_k$ and $\textit{int}_l$ is the former since
+      at every point except $n$ the intervals agree, hence the intersection
+      remains the same at these dimensions. Then we use
+      \Cref{lem:zinf-identities} to calculate the intersection. By assumption we
+      have $k \leq l$, so the maximum of the lower bounds is $-k$ and the
+      minimum of lower bounds is $k$ this is same as interval $\textit{int}_k$.
+      Note that pointedness is the same for both intervals and depths are
+      positive integers, so the pointedness is preserved under intersection.
+      This shows the intersection of \textit{ls} and \textit{ks} is indeed
+      \textit{ks} and concludes the proof.
+  \end{description}
+\end{proof}

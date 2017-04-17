@@ -289,20 +289,6 @@ syntax as:
                     {\interp{\textcap{region}}_N)}}
 \end{equation*}
 \end{defn}
-%
-\begin{thm}
-The semantic model $\interp{-}_N$ of $N$-dimensional specifications
-is sound with respects to the equational theory of the language,
-that is:
-%
-\begin{equation*}
-\forall S, T, N . \quad
-S \equiv T \; \Rightarrow \;
-\interp{S}_N = \interp{T}_N
-\end{equation*}
-%
-We define the equational theory in \Cref{sec:equational-theory}.
-\end{thm}
 
 \subsection{Denotational semantics for array subscripts}
 \label{sec:fromcode}
@@ -325,6 +311,26 @@ We define the equational theory in \Cref{sec:equational-theory}.
     \end{cases}
   \end{align*}
 \end{defn}
+
+\subsection{Soundness of model with respect to equational and approximation theories}
+
+\begin{restatable}[Equational soundness]{thm}{equationalSoundness}
+  Lattice model is sound with respect to the equational theory. Let $R$ and $S$
+  be $N$ dimensional regions, then we have
+%
+  \begin{equation*}
+    \forall R, S, N. \; R \equiv S \implies \interp{R}_N = \interp{S}_N
+  \end{equation*}
+\end{restatable}
+
+\begin{restatable}[Approximation soundness]{thm}{approxSoundness}
+  Lattice model is sound with respect to the theory of approximation. Let $R$
+  and $S$ be $N$ dimensional regions, then we have
+%
+  \begin{equation*}
+    \forall R, S, N. \; R \preceq S \implies \interp{R}_N \subseteq \interp{S}_N
+  \end{equation*}
+\end{restatable}
 
 %%% Local Variables:
 %%% mode: latex

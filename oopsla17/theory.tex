@@ -1,0 +1,102 @@
+We now introduce the equational and approximation theory of stencil
+specifications based on $\equiv$ and $\preceq$ in the following two subsections.
+
+\subsection{Equivalences}
+
+We define an equivalence relation, $\equiv$. The purpose of this relation is to
+allow programmers to write specifications with greater flexibility. It allows
+specifications to be written in various levels of compactness allowing
+optimising for space and better documentation. The relation is defined on
+regions as follows:
+
+\begin{description}
+  \item[Basic] \texttt{*} and \texttt{+} are both idempotent, commutative, and
+    associative;
+%
+  \item[Subsumption] If $S$ and $R$ are regions with $S \preceq R$, then
+    $S \texttt{+} R \equiv R$ and $S \texttt{*} R \equiv S$.
+%
+  \item[Dist] \texttt{*} distributed over \texttt{+} and dually
+    \texttt{+} distributes over \texttt{*}, meaning if \textcap{R}, \textcap{S},
+    and \textcap{T} are regions, then we have the following dual equivalences:
+%
+    \begin{align*}
+      \texttt{\textcap{R}*(\textcap{S}+\textcap{T})} & \equiv
+        \texttt{(\textcap{R}*\textcap{S})+(\textcap{R}*\textcap{T})} &
+      \texttt{\textcap{R}+(\textcap{S}*\textcap{T})} & \equiv
+        \texttt{(\textcap{R}+\textcap{S})*(\textcap{R}+\textcap{T})}
+    \end{align*}
+%
+  \item[Overlapping pointed] If \textcap{R} is one of \texttt{forward},
+    \texttt{backward}, or \texttt{centered}, then we have
+%
+    \begin{equation*}
+      \stencil{\textcap{R}}{$n$}{$k$}{\texttt{nonpointed}} \;\texttt{+}\;
+      \stencil{p}{$n$}{}{} \equiv
+      \stencil{\textcap{R}}{$n$}{$k$}{}
+    \end{equation*}
+%
+  \item[Centered] The region constants \texttt{forward} and \texttt{backward}
+    are two halves of \texttt{centered} specifications:
+%
+    \begin{align*}
+      \stencil[s]{c}{$n$}{$k$}{\textcap{p1}} \equiv
+        \stencil[s]{f}{$n$}{$k$}{\textcap{p2}} \texttt{+}
+        \stencil[s]{b}{$n$}{$k$}{\textcap{p3}}
+    \end{align*}
+%
+    Here \textcap{p1} is \texttt{nonpointed} if both \textcap{p2} and
+    \textcap{p3} are \texttt{nonpointed} and \texttt{pointed} otherwise.
+\end{description}
+
+\subsection{Approximations}
+
+We define a partial of order of approximations, $\preceq$. The relation is used
+in equational theory and provides means of writing more compact lower and upper
+bound specifications. The relation is defined as follows:
+
+\begin{description}
+  \item[Equivalence] If $S$ and $R$ are regions and $S \equiv R$, then we have
+    $S \preceq R$.
+%
+  \item[Combined] If $S$ and $R$ are regions, then we have
+    $S \preceq S \texttt{+} R$ and $S \texttt{*} R \preceq S$.
+%
+  \item[Depth] Let $k$ and $l$ be in positive integers and $k \leq l$, $n$ some
+    fixed dimension, and \textcap{p} either \texttt{pointed} or
+    \texttt{nonpointed}. Further, let \textcap{R} be one of \texttt{centered},
+    \texttt{forward}, and \texttt{backward}. We then have
+%
+    \begin{equation*}
+      \stencil{R}{$n$}{$k$}{\textcap{p}} \preceq \stencil{R}{$n$}{$l$}{\textcap{p}}
+    \end{equation*}
+%
+\end{description}
+
+We present few inequalities that can be derived from the axioms and are useful
+when writing specifications without inference:
+
+\begin{restatable}[Centered approximation]{prop}{centeredApprox}
+  For any dimension $n$, depth $k$, and pointed attribute $p$,
+  we have
+%
+  \begin{align*}
+    \stencil{f}{$n$}{$k$}{\textcap{p}} & \preceq
+      \stencil{c}{$n$}{$k$}{\textcap{p}} \\
+%
+    \stencil{b}{$n$}{$k$}{\textcap{p}} & \preceq
+      \stencil{c}{$n$}{$k$}{\textcap{p}}
+  \end{align*}
+\end{restatable}
+
+\begin{restatable}[Point approximation]{prop}{pointApprox}
+  Let \textcap{R} be one of \texttt{forward}, \texttt{backward}, and
+  \texttt{centered}, $n$ a fixed dimension, and $k$ a fixed depth, then we have
+%
+  \begin{align*}
+    \stencil{p}{$n$}{}{} & \preceq \stencil{R}{$n$}{$k$}{} \\
+%
+    \stencil{R}{$n$}{$k$}{\texttt{nonpointed}} & \preceq
+      \stencil{R}{$n$}{$k$}{}
+  \end{align*}
+\end{restatable}

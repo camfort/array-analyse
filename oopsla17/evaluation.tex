@@ -1,0 +1,56 @@
+\input{results}
+
+To study the effectiveness of our approach,
+we built a corpus of over 1 million lines of Fortran code from a
+range of scientific computing packages: The Unified Model (UM)~\cite{um},
+E3ME~\cite{RePEc:aen:journl:2006se-a12}, BLAS~\cite{blas},
+Hybrid4~\cite{GBC:GBC635}, GEOS-Chem~\cite{geos-chem}, Navier (based
+on \cite{griebel1997numerical}), Computational Physics
+ed. 1~\cite{giordano1997computational},
+ARPACK-NG~\cite{arpackng}, MUDPACK~\cite{MUD}, Cliffs~\cite{Cliffs}, and
+SPECFEM3D~\cite{specfem3d}.
+
+We first examined how frequently stencil computations occur. We parsed
+\num{\overalllinesParsed} lines of Fortran code and found that \overalltickAssignPercent\%
+(\num{\overalltickAssign}) of statements have a left-hand side as an
+array subscript on neighbourhood indices. This supports the idea that
+stencil-like computations are common in scientific code.  We then used
+the inference procedure of the previous section to generate
+specifications for stencils in the corpus to assess the design of the
+language.
+
+We would not expect to infer a stencil for each array statement we
+found because our analysis restricts the array-subscript-statements
+that we classify as a stencil. In fact, we were able to infer a
+stencil from \overalltickAssignSuccessPercentOfTickAssign\% of these
+statements. A single statement can involve multiple arrays and we
+ended up with \num{\overallnumStencilSpecs} specifications. This shows
+that we can express a large number of stencil shapes within our
+high-level abstraction and validates our initial hypothesis that many
+stencil computations have a regular shape.
+
+The majority of specifications generated were relatively simple but we
+found significant numbers of more complex shapes. We grouped common
+patterns into categories:
+
+\textbf{All pointed} \num{\overalljustPointed} of the stencils we
+found involved only pointed regions.
+% 39,681 of these were pointed in all dimensions.
+Common examples of this were pointwise transformations on data (such
+as scaling).
+
+\textbf{Single-action} specifications comprise one
+forward, backward, or centered region constant combined via \term{+}
+or \term{*} with any number of pointed regions. We identified \num{\overallsingleAction} single-action
+specifications, of which \num{\overallsingleActionIrr} were single-action with a
+\texttt{nonpointed} modifier.
+
+\textbf{Multi-action} specifications comprise at least two
+ forward, backward, or centered regions, combined with
+any number of pointed regions. We identified \num{\overallmultiAction} multi-action
+specifications out of which \num{\overallmultiActionMulOnly} had regions combined only with
+$\term{*}$ and \num{\overallmultiActionPlusAndMul} combined with a mix of $\term{*}$ and \term{+}.
+
+\textbf{Bounded} specifications occured with \num{\overallatMost}
+\texttt{atMost} bounds and \num{\overallatLeast} \texttt{atLeast}, the latter of which were
+always also paired with an upper bound.

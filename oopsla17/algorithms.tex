@@ -50,7 +50,7 @@ The analysis builds on standard program analyses:
 \textbf{(2)} induction variables per basic block;
 \textbf{(3)} (interprocedural) data-flow analysis, providing a \emph{flows to}
   graph (as shorthand, the function
-  $\mathsf{flowTo}$ is used, implicitly parameterised by this graph,
+  $\mathit{flowTo}$ is used, implicitly parameterised by this graph,
   mapping an expression to the set of all expressions
   with forwards data-flow to this expression, based on the transitive
   closure of the flows graph);
@@ -156,7 +156,7 @@ A covering of (possibly overlapping) intervals is calculated as a
 value of \region{N} by coalescing \emph{contiguous} index schemes
 until a fixed-point is reached.
 
-\newcommand{\contig}[2]{\mathsf{contig}(#1, #2)}
+\newcommand{\contig}[2]{\mathit{contig}(#1, #2)}
 \begin{defn}[Contiguity]
   \label{def:contiguity}
   Two index schemes $S$ and $T$ are \emph{contiguous} written
@@ -168,21 +168,21 @@ until a fixed-point is reached.
 A coalesced set of index schemes is computed by:%
 %
 \begin{align*}
-  \mathsf{coalesce}(\mathcal{S}) = \; & \;\;
+  \mathit{coalesce}(\mathcal{S}) = \; & \;\;
   \{\,S \cup T \mid S \in \mathcal{S}, T \in \mathcal{S} \, \wedge \,
                                         \contig{S}{T} \}
   \;\;\; \cup \;\;\;
   \{\,S \in \mathcal{S} \mid \neg \exists T \in \mathcal{S} . \; \contig{S}{T}\}
 \end{align*}
 %
-Thus, $\mathsf{coalesce}(\mathcal{S})$
+Thus, $\mathit{coalesce}(\mathcal{S})$
 comprises the union of the set of coalesced pairs of contiguous
 schemes and the set of index schemes for which there is no other
 contiguous scheme.
 %
 \begin{lemma}[Closure]
   For a set of index schemes $\mathcal{S}$, then
-  $\mathsf{coalesce}(\mathcal{S})$ is well-defined and is a set of
+  $\mathit{coalesce}(\mathcal{S})$ is well-defined and is a set of
   index schemes.
 \end{lemma}
 \begin{proof}
@@ -190,18 +190,19 @@ contiguous scheme.
   index scheme if all components are equal except at most one
   component. Contiguity (\Cref{def:contiguity}) matches
   this precondition, thus the first part of the union in
-  \textsf{coalesce} produces a set of index schemes. The second part
+  $\mathit{coalesce}$ produces a set of index schemes. The second part
   comprises a subset of the original index schemes.
 \end{proof}
 %
-For our example, the fixed-pointed of \textsf{coalesce} is reached within two steps:
+For our example, the fixed-pointed of $\mathit{coalesce}$ is reached within two
+steps:
 %
 \begin{align*}
-  \textsf{coalesce}(\mathcal{S}_0) & =
+  \mathit{coalesce}(\mathcal{S}_0) & =
   \{[-1,0] \times [0,0],\,[0,0] \times [-1, 0],\,[0,0] \times
     [0,1],\,[0,1] \times [0,0]\} \\
-  \textsf{coalesce}^2(\mathcal{S}_0) & =
-  \{[-1, 1] \times [0, 0],\,[0, 0] \times [-1, 1]\} = \textsf{coalesce}^3(\mathcal{S}_0)
+  \mathit{coalesce}^2(\mathcal{S}_0) & =
+  \{[-1, 1] \times [0, 0],\,[0, 0] \times [-1, 1]\} = \mathit{coalesce}^3(\mathcal{S}_0)
 \end{align*}
 %
 \todo{Prove that this is in $Region_N$}

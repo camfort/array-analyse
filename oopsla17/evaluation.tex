@@ -18,3 +18,13 @@ stencil-like computations are common in scientific code.  We then used
 the inference procedure of the previous section to generate
 specifications for stencils in the corpus to assess the design of the
 language.
+
+We would not expect to infer a stencil for each array statement we
+found because our analysis restricts the array-subscript-statements
+that we classify as a stencil. In fact, we were able to infer a
+stencil from \overalltickAssignSuccessPercentOfTickAssign\% of these
+statements. A single statement can involve multiple arrays and we
+ended up with \num{\overallnumStencilSpecs} specifications. This shows
+that we can express a large number of stencil shapes within our
+high-level abstraction and validates our initial hypothesis that many
+stencil computations have a regular shape.

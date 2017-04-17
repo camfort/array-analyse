@@ -157,29 +157,26 @@ coalesced.
 
 \newcommand{\contig}[2]{\mathsf{contig}(#1, #2)}
 \begin{defn}{[Contiguous]}
-Two index schemes $S$ and $T$ are \emph{contiguous}
-written $\contig{S}{T}$,
-iff $\pi_i(S) = \pi_i(T)$
-for all $1 \leq i \leq N$ apart from some dimension $k$ such that
-$\pi_k(S) = [a, b]$ and $\pi_k(T) = [b+1, c]$.
+  Two index schemes $S$ and $T$ are \emph{contiguous} written
+  $\contig{S}{T}$, iff $\pi_i(S) = \pi_i(T)$ for all $1 \leq i \leq N$
+  apart from some dimension $k$ such that $\pi_k(S) = [a, b]$ and
+  $\pi_k(T) = [b+1, c]$.
 \end{defn}
 %
 A coalesced set of index schemes is computed by:%
+%
 \begin{align*}
-\mathsf{coalesce1}(S, \mathcal{S}) & =
- \{\,S \cup T \mid
-T \in \mathcal{S} \, \wedge \,
-\contig{S}{T} \} \\
-\mathsf{coalesce}(\mathcal{S}) & =
-\bigcup_{S \in \mathcal{S}} \mathsf{coalesce}(
-\mathsf{coalesce1}(S, \mathcal{S})
-\cup (\mathcal{S} - \{S\})) \\
-\mathsf{coalesceTop}(\mathcal{S}) & =
- \mathsf{coalesce}(\mathcal{S})
-\; \cup \;
-\{ S \in \mathcal{S} \mid \neg \exists T \in \mathcal{S} . \; \contig{S}{T}\}
+  \mathsf{coalesce1}(\mathcal{S}) & =
+                                    \{\,S \cup T \mid S \in \mathcal{S}, 
+                                    T \in \mathcal{S} \, \wedge \,
+                                    \contig{S}{T} \} \\
+  \mathsf{coalesce}(\mathcal{S}) & =
+                                   \mathsf{coalesce}(\mathsf{coalesce1}(\mathcal{S}) \cup \mathcal{S})
+                                   \; \cup \;
+                                   \{ S \in \mathcal{S} \mid \neg \exists T \in \mathcal{S} . \; \contig{S}{T}\}
 \end{align*}
-\dnote{May need to prove that this is total}
+%
+\dnote{TODO: prove closure under index schemes and prove totality}
 %\begin{align*}
 %\mathsf{coalesce}(\mathcal{S}) = \; &
 %\{\,S \cup T \mid

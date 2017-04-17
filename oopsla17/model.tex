@@ -1,0 +1,340 @@
+
+\noindent
+We define a lattice model of array access patterns which serves as both a
+denotational model of the semantics of our specification language and an
+abstract interpretation domain for source code. This model (1) serves to
+explain the meaning of our specifications; (2) is used in the inference and
+checking algorithms (\Cref{sec:analysis}); (3) justifies an equational theory
+for specifications in the next section; (4) is used to optimise specifications
+using lattice identities; and (5) can be used to guide correct implementations.
+
+The model is defined over vectors of sets of integers which we call
+\emph{index schemes}.  As an initial informal example, consider the
+following simple stencil computation:
+%
+\begin{minted}{fortran}
+do i = 1, n
+  b(i) = a(i,0) + a(i+1,0)
+end do
+\end{minted}
+%
+The access pattern on array \term{a}, relative
+to induction variable \term{i}, is captured
+by a vector of length 2 containing integer sets $\langle{\{0, 1\},
+  \mathbb{Z}\}}\rangle$. This describes that, in the first dimension,
+the array is read at offsets of $0$ and $1$ from an induction
+variable. In the second dimension, the index is unconstrained
+as it is a constant.
+
+Index schemes form a lattice which provides a rich set of equations
+and properties, which we exploit. We first set up the 
+domain of the model (\S\ref{sec:domain}), using it to define a semantics
+for our specification language (\S\ref{sec:semantics}) and then as
+the target for an abstract interpretation on imperative
+code (\S\ref{sec:fromcode}).
+
+\subsection{Lattice model of regions}
+\label{sec:domain} 
+
+%\begin{defn}[Extended integers]
+%  We define the set \zinf{} as
+%  $\mathbb{Z}$ extended with $\infty$ and $-\infty$. For any $a$ in
+%  \zinf{}, we have $-\infty \leq a \leq \infty$. The resulting set is
+%  a total order with top and bottom elements $-\infty$ and
+%  $\infty$ respectively.
+%\end{defn}
+
+\begin{defn}[Index scheme]
+  An $N$-dimensional \emph{index scheme} is a vector of length $N$ of
+  integer sets, \ie{}, a member of $\mathcal{P}(\bz)^{N}$.
+%  An equivalent view of these vectors is as an $N$-times finite Cartesian
+%  product on subsets of $\bz$.
+  We use $S, T, U$ to denote index schemes. Henceforth, we assume index schemes
+  are all $N$-dimensional for some $N$.
+
+  Index schemes can be \emph{projected} in the $i^{\textit{th}}$ dimension by
+  $\pi_i : {\mathcal{P}(\bz{})}^N \to \mathcal{P}(\bz{})$. For an index scheme
+  $I$, we refer to $\pi_i(S)$ as the \emph{$i^{th}$ component} of $S$. We assume
+  that $i$, when used for projection, always lies between $1$ and $N$.
+\end{defn}
+
+
+\begin{restatable}{lem}{vectorIntersect}
+\label{lem:vector-intersect}
+  Intersection distributes over index schemes. That is, for index schemes $S, T
+  \in \mathcal{P}(\bz)^N$
+%
+  \begin{equation*}
+    S \cap T = \prod_{i = 1}^{N} \pi_i(S) \cap \pi_i(T)
+  \end{equation*}
+\end{restatable}
+
+Union does not distribute over index schemes, however, a more restricted
+property holds.
+
+\begin{restatable}{lem}{vectorUnion}
+\label{lem:vector-union}
+$S$ and $T$ are index schemes such that $\pi_i(S) = \pi_i(T)$ for all $1 \leq i
+\leq N$ apart from some dimension $k$, then:
+%
+  \begin{equation*}
+    S \cup  T
+    =
+    \pi_1(S) \times \cdots \times
+    (\pi_k(S) \cup \pi_k(T)) \times \cdots \times
+    \pi_N(S)
+  \end{equation*}
+\end{restatable}
+%
+\begin{defn}[Intervals with an optional hole]
+  We define an extended notion of closed interval on $\bz{}$ which may contain a
+  \emph{hole} at the origin, written \interv{a}{b}{c} where $a$ and $b$ are
+  drawn from \bz{} with $a \leq 0 \leq b$ and $c$ is drawn from $\mathbb{B} = \{
+  \mathsf{true}, \mathsf{false} \}$. Intervals are interpreted as sets as
+  follows:
+%
+  \begin{equation*}
+    \interv{a}{b}{c} \triangleq
+      \{ n \mid a \leq n \leq b \wedge (\neg c \implies n \neq 0) \}
+  \end{equation*}
+
+  We also add the distinguished interval $\interv{-\infty}{\infty}{}$, which is simply an
+  alias for \bz{}, but this notation prevents handling infinite interval
+  separately in the following definitions, theorems, and proofs. Here, $-\infty$
+  and $\infty$ behaves like top and bottom elements to \bz{} respectively.
+
+  We denote the set of all such intervals (sets) as $\textit{Interval}$. If the
+  superscript to the interval is omitted it is treated as $\mathsf{true}$.
+\end{defn}
+%
+\begin{restatable}{lem}{intervalIdentities}
+ \label{lem:interval-identities}
+  We have the following dual identities for \bz{} intervals:
+%
+  \begin{align*}
+    \interv{a}{b}{c} \cap \interv{d}{e}{f} & =
+      \interv{\max \{a,d\}}{\min \{b,e\}}{c \wedge f} \\
+    \interv{a}{b}{c} \cup \interv{d}{e}{f} & =
+      \interv{\min \{a,d\}}{\max \{b,e\}}{c \vee f}
+  \end{align*}
+\end{restatable}
+%
+
+We define two specialisations (and subset spaces) of index scheme:
+\emph{subscript scheme} and \emph{interval scheme}:
+
+\begin{defn}[Interval scheme]
+  An interval scheme is a finite Cartesian product of intervals on \bz{},
+  denoted by the set $\textit{Interval}^N$ for a product of $N$ intervals.
+\end{defn}
+
+\begin{defn}[Subscript scheme]
+  A \emph{subscript scheme} is an index scheme scheme where:
+  %
+  \begin{equation*}
+    \forall i.\ 1 \leq i \leq N \implies
+      \pi_i (S) = \{ p \}
+      \; \vee \;
+      \pi_i (S) = \interv{-\infty}{\infty}{}
+    \end{equation*}
+%
+  That is, the $i^{th}$ component of the set is either a singleton in \bz{} or
+  the infinite interval.
+\end{defn}
+%
+\dnote{May want a predicate as well}
+   
+\begin{defn}[Region]
+  A region is an index scheme and \region{N} is the set of all regions (\ie{},
+  $\region{N} \subseteq \mathcal{P}(\bz)^N)$. The set of all regions is  defined
+  as the smallest set satisfying the following:
+%
+  \begin{enumerate}
+    \item If $R$ is in $\textit{Interval}^N$, then $R$ is in \region{N}.
+    \item If $R$ and $S$ are in \region{N}, then so are $R \cap S$ and
+      $R \cup S$.
+  \end{enumerate}
+\end{defn}
+%
+\begin{restatable}{prop}{regionLattice}
+  \label{prop:regionLattice}
+  $(\region{N},\cup,\cap,\subseteq)$ is a bounded distributive lattice with top
+  $\top = \bz{}^N$ and bottom $\bot = \emptyset$.
+\end{restatable}
+%
+\begin{proof}
+  Straightforward, the join and meet are mapped to $\cup$ and $\cap$, the set is
+  inductively designed to be closed under these operations. Union and
+  intersection are associative, commutative, and absroptive under closed sets
+  and then they are also for \region{N}. This is enough to show that, it is a
+  lattice.
+
+  Further, we have $\bz{}^N \cap R = R$ and $\emptyset \cup R = R$ with
+  $\bz{}^N$ and $\emptyset$ belonging to \region{N}. This makes the lattice a
+  bounded one.
+
+  Finally, the lattice is distributive since union distributes over intersection
+  and vice versa when the set is closed under these operations.
+\end{proof}
+
+\begin{defn}
+  $\mathsf{Mult}$ and $\mathsf{Approx}$ are parametric labelled variant types
+  with injections given by their definition:
+%
+  \begin{align*}
+    \mathsf{Mult} \;\; a \;\; &
+      \triangleq \mathsf{mult} \; a \;\mid\; \mathsf{only} \; a \\
+    \mathsf{Approx} \;\; a \;\; &
+      \triangleq \mathsf{exact} \; a \;\mid\; \mathsf{lower} \; a \;\mid\;
+        \mathsf{upper} \; a
+  \end{align*}
+%
+  \eg{}, $\mathsf{lower}$ is an injection $\mathsf{lower} : a \to \mathsf{Approx}
+  \; a$ etc.
+  These will be used in the following subsection to give meaning to the
+  specification modifiers for approximation and multiplicity.
+\end{defn}
+
+\subsection{Denotational semantics for specifications}
+\label{sec:semantics}
+
+\noindent
+An interpretation function $\interp{-}_N$ maps closed\footnote{That
+  is, we assume there are no occurrences of \textit{rvar} in a
+  specification being modelled.  Any \emph{open} specification
+  containing region variables can be made closed by straightforward
+  syntactic substitution with a (closed) \textit{region}.}
+specifications to sets of $N$-dimensional index schemes with modifier
+information, \ie{} specifications are mapped to
+$\textsf{Mult} (\textsf{Approx} (\region{N}))$.
+
+The interpretation is overloaded on \emph{regions} in
+\Cref{subfig:region-model}. Various intermediate notions are used.
+
+\begin{defn}
+  Let $\textit{promote}_N : \mathbb{N}^+ \times \textit{Interval} \to
+  \textit{Interval}^N$ be a function generating an interval scheme such that if
+  $v$ is $\vecgen{N}{i}{\interv{a}{b}{c}}$, then $\pi_i(v) = \interv{a}{b}{c}$
+  and $\pi_j(v) = \bz{}$ in all other dimensions $j$.
+\end{defn}
+
+%
+\begin{figure}[!t]
+\begin{subfigure}[t]{0.5\textwidth}
+\begin{align*}
+  \interp{-}_N & : \textit{region} \rightarrow \region{N} \\
+%
+  \interp{\stencil{p}{$i$}{}{}}_N & =
+    \vecgen{N}{i}{\interv{0}{0}{\mathsf{true}}}\\
+%
+  \interp{\stencil{c}{$i$}{$k$}{\textcap{p}}}_N & =
+    \vecgen{N}{i}{\interv{-k}{k}{\interp{\textcap{p}}}} \\
+%
+  \interp{\stencil{f}{$i$}{$k$}{\textcap{p}}}_N & =
+    \vecgen{N}{i}{\interv{0}{k}{\interp{\textcap{p}}}} \\
+%
+  \interp{\stencil{b}{$i$}{$k$}{\textcap{p}}}_N & =
+  \vecgen{N}{i}{\interv{-k}{0}{\interp{\textcap{p}}}}
+\\
+  \interp{\texttt{\textcap{r} + \textcap{s}}}_N & =
+    \interp{\textcap{r}}_N \vee \interp{\textcap{s}}_N
+\\
+  \interp{\texttt{\textcap{r} * \textcap{s}}}_N & =
+    \interp{\textcap{r}}_N \wedge \interp{\textcap{s}}_N \\[-1em]
+\end{align*}
+\caption{Interpretation of regions}
+\label{subfig:region-model}
+\end{subfigure}
+\hspace{1em}
+\begin{subfigure}[t]{0.4\textwidth}
+\begin{align*}
+\interpApprox{-} & : \textit{approx} \rightarrow (A \rightarrow
+  \textsf{Approx} \, A) \\
+\interpApprox{\texttt{atLeast}} & = \mathsf{lower} \\
+  \interpApprox{\texttt{atMost}} & = \mathsf{upper} \\
+  \interpApprox{\epsilon} & = \mathsf{exact} \\ \\
+  \interpMult{-} & : \textit{mult} \rightarrow (A \rightarrow
+  \textsf{Mult} \, A) \\
+  \interpMult{\texttt{readOnce}} & = \mathsf{once} \\
+  \interpMult{\epsilon} & = \mathsf{mult}
+\end{align*}
+\caption{Interpretation of modifiers}
+\label{subfig:modifier-model}
+\end{subfigure}
+\label{fig:semantics}
+\caption{Semantic model of specifications}
+\end{figure}
+
+
+The first four equations of \Cref{subfig:region-model} model region 
+contants. The final two equations model the \term{+} and \term{*}
+operators in terms of the join (union) and meet (intersection)
+of interval schemes. Thus regions are modelled as members
+of $\region{N}$.
+
+We mark in our model the presence of modifiers such as
+\texttt{readOnce} and \texttt{atMost} as introduced in \Cref{}.
+Approximation modifiers are interpreted as injections into the
+$\mathsf{Approx}$ variant by $\interpApprox{}$ in
+\Cref{subfig:modifier-model}.  The $\textsf{Approx}$ type corresponds
+to the presence or absence of the spatial approximation modifier, with
+\textsf{exact} when there is no such modifier and \textsf{lower} and
+\textsf{upper} for \term{atLeast} and \term{atMost}. In a similar way,
+multiplicity modifiers are interpreted as injections in the
+$\mathsf{Mult}$ variant by $\interpMult{}$, corresponding to the to
+the presence or absence of the \term{readOnce} modifier as shown in
+\Cref{subfig:modifier-model}.
+
+\begin{defn}[Semantics of specifications]
+The intermediate interpretations of \Cref{fig:semantics}
+are composed to give a model for the top-level specification
+syntax as:
+%
+\begin{equation*}
+  \interp{\texttt{stencil \textcap{mult}, \textcap{approx}, \textcap{region}}}_N =
+    \interpMult{\textcap{mult}} \;
+           {(\interpApprox{\textcap{approx}} \;
+                    {\interp{\textcap{region}}_N)}}
+\end{equation*}
+\end{defn}
+%
+\begin{thm}
+The semantic model $\interp{-}_N$ of $N$-dimensional specifications
+is sound with respects to the equational theory of the language,
+that is:
+%
+\begin{equation*}
+\forall S, T, N . \quad
+S \equiv T \; \Rightarrow \;
+\interp{S}_N = \interp{T}_N
+\end{equation*}
+%
+We define the equational theory in \Cref{sec:equational-theory}.
+\end{thm}
+
+\subsection{Denotational semantics for array subscripts}
+\label{sec:fromcode}
+
+\begin{defn}
+  Recall array subscript terms of the form $a(\bar{e})$ from
+  \Cref{def:array-subs}. We interpret these terms with the partial
+  interpretation $\interp{-}^{\mathit{aterm}} : \textit{array-term}
+  \prightarrow{} \mathcal{P}(\bz{})^N$. The interpretation is defined when
+  all indices are either constant or neighbourhood indices as defined in
+  \Cref{def:neighbour-ix}.
+%
+  \begin{align*}
+    \interp{a(\bar{e})}^{\mathit{aterm}} =
+      \prod_{1 \leq i \leq N} \mathit{subscript}(\bar{e}_i) & &
+  %
+    \textit{subscript}(e) = \begin{cases}
+      \{ c \} & e \equiv i \pm c \\
+      \bz & e \; \mbox{is constant}
+    \end{cases}
+  \end{align*}
+\end{defn}
+
+%%% Local Variables:
+%%% mode: latex
+%%% TeX-master: t
+%%% End:

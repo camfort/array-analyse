@@ -54,3 +54,42 @@ $\term{*}$ and \num{\overallmultiActionPlusAndMul} combined with a mix of $\term
 \textbf{Bounded} specifications occured with \num{\overallatMost}
 \texttt{atMost} bounds and \num{\overallatLeast} \texttt{atLeast}, the latter of which were
 always also paired with an upper bound.
+
+% \begin{figure}[t]\begin{minted}[fontsize=\scriptsize,breakindent=0em,linenos=false,xleftmargin=0em,breakafter=)]{fortran}
+% !=stencil readOnce,(forward(depth=1,dim=3,nonpointed))*(backward(depth=1,dim=1))*(backward(depth=1,dim=2))+(forward(depth=1,dim=3))*(backward(depth=1,dim=1))*(pointed(dim=2))+(forward(depth=1,dim=3))*(backward(depth=1,dim=1,nonpointed))*(backward(depth=1,dim=2,nonpointed))+(forward(depth=1,dim=3))*(backward(depth=1,dim=2))*(pointed(dim=1))+(backward(depth=1,dim=1))*(backward(depth=1,dim=2,nonpointed))*(pointed(dim=3))+(backward(depth=1,dim=1,nonpointed))*(backward(depth=1,dim=2))*(pointed(dim=3))::x
+% \end{minted}
+% \caption{Complex specification inferred from
+%   \textbf{UM}\label{fig:smagorinsky}}
+% \vspace{-1em}
+% \end{figure}
+
+% The single- and multi-action classes represent more complex stencils
+% with a real possibility for programmer error. As an extreme example, the Unified
+% Model has an implementation of the Smagorinsky subgrid-scale model for
+% calculating turbulence on which our inference yields 39 specs from 340
+% lines of code. This is a large reduction given
+% the complexity of the algorithm.  We show one example
+% in~\Cref{fig:smagorinsky} which specifies the access pattern to
+% a 3-dimensional array (which we have renamed to
+% \texttt{x}) arising from a kernel of 93 lines of code involving 142
+% array subscripts. The specification was the most complex
+% seen in our corpus, yet it still represents a significant abstraction
+% of the spatial behaviour given size and complexity of the kernel it describes.
+
+We measured the frequency at which individual specifications involved
+multiple occurences of \term{*}
+ % and \term{+}:
+\begin{center}
+\vspace{0.25em}
+\setlength{\tabcolsep}{0.57em}
+{\small{
+\hspace{-1em}\begin{tabular}{c|cccccccc}
+& 0 & 1 & 2 & 3 & 4 & 5 & 6  \\ \hline
+\term{*} & \num{\overallmulOpszero} & \num{\overallmulOpsone} & \num{\overallmulOpstwo} & \num{\overallmulOpsthree} & \num{\overallmulOpsfour} & \num{0} & \num{\overallmulOpssix}
+\end{tabular}}}
+\vspace{0.2em}
+\end{center}
+\noindent
+% \eg{}, roughly half the specifications did not involve $\term{*}$,
+% a quarter use one $\term{*}$ and just under a quarter
+% use two $\term{*}$ operators.

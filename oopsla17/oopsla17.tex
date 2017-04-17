@@ -152,53 +152,8 @@
 \maketitle
 
 \section{Introduction}
-
-\paragraph{Context of this research}
-
-There is an increasing awareness of the need for program verification
-techniques in
-science~\cite{post2005computational,oberkampf2010verification,orchard2014computational}.
-Whilst there are various kinds of automated and semi-automated
-verification tools available, they see little use in science. This is
-partly due to a lack of training and a lack of awareness. But its also
-due to a lack of targetting. This paper is part of a line of research
-to provide lightweight verification tools targetting
-programming patterns common in computational science code, 
-that are easy to use by scientists, and that integrate with common
-practises and workflows.
-
-
-\subsection{Terminology and notation}
-
-\begin{defn}[Induction variables]
-  An integer variable is a \emph{base induction variable} if it is the control
-  variable of a ``\texttt{for}'' loop, incremented by $1$ per iteration. A variable
-  is interpreted as an induction variable only within the scope of the loop
-  body. Throughout, $i, j, k$ range over induction variables.
-
-  A \emph{derived induction variable} is an expression of the form $a \times i
-  + b$, where $a$ and $b$ are constant expressions, \ie{}, an affine expression
-  on an induction variable $i$.
-\end{defn}
-
-\begin{defn}[Array subscripts and indices]\label{def:array-subs}
-  An \emph{array subscript}, denoted $a(\bar{e})$, is an expression which reads
-  from an $N$-dimensional array $a$ at an \emph{index} specified by a
-  comma-separated sequence of integer expressions denoted $\bar{e}$ or in
-  expanded form as $(e_1, \ldots, e_N)$. An index $e_i$ is called
-  \emph{relative} if the expression involves an induction variable. An
-  \emph{absolute index} is a integer expression which is constant relative to
-  the enclosing loop.
-\end{defn}
-
-\begin{defn}[Neighbourhood index]\label{def:neighbour-ix}
-  For an array subscript $a(\bar{e})$ an index $e \in \bar{e}$ is a
-  \emph{neighbourhood index} if $e$ is of the form $e \equiv i$, $e \equiv i +
-  c$, or $e \equiv i - c$, where $c$ is an integer constant. That is, a
-  neighbourhood index is a constant translation of an induction variable. (The
-  relation $\equiv$ identifies terms up-to commutativity of $+$ and the inverse
-  relationship of $+$ and $-$ \eg{}, $(-b) + i \equiv i - b$).
-\end{defn}
+\label{sec:introduction}
+\input{introduction}
 
 \section{An Empirical Study of Array Computations in Scientific Fortran code}
 \label{sec:study}

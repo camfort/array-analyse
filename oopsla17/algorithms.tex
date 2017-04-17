@@ -161,7 +161,7 @@ A coalesced set of index schemes is computed by:%
 \begin{align*}
 \mathsf{coalesce1}(S, \mathcal{S}) & =
  \{\,S \cup T \mid
-\forall T \in \mathcal{S}. \;
+T \in \mathcal{S} \, \wedge \,
 \contig{S}{T} \} \\
 \mathsf{coalesce}(\mathcal{S}) & =
 \bigcup_{S \in \mathcal{S}} \mathsf{coalesce}(
@@ -170,8 +170,7 @@ A coalesced set of index schemes is computed by:%
 \mathsf{coalesceTop}(\mathcal{S}) & =
  \mathsf{coalesce}(\mathcal{S})
 \; \cup \;
-\{ S \mid \forall S \in \mathcal{S},
-\; \not \exists T \in \mathcal{S} . \; \contig{S}{T}\}
+\{ S \mid S \in \mathcal{S} \; \wedge \; \not \exists T \in \mathcal{S} . \; \contig{S}{T}\}
 \end{align*}
 \dnote{May need to prove that this is total}
 %\begin{align*}

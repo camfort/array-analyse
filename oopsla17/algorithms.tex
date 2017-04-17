@@ -170,7 +170,7 @@ T \in \mathcal{S} \, \wedge \,
 \mathsf{coalesceTop}(\mathcal{S}) & =
  \mathsf{coalesce}(\mathcal{S})
 \; \cup \;
-\{ S \mid S \in \mathcal{S} \; \wedge \; \not \exists T \in \mathcal{S} . \; \contig{S}{T}\}
+\{ S \in \mathcal{S} \mid \neg \exists T \in \mathcal{S} . \; \contig{S}{T}\}
 \end{align*}
 \dnote{May need to prove that this is total}
 %\begin{align*}
@@ -184,7 +184,7 @@ T \in \mathcal{S} \, \wedge \,
 %\; \not \exists T \in \mathcal{S} . \; \contig{S}{T}\}
 %\end{align*}
 %
-That is, the new set of index schemes $\mathsf{coalesc}(\mathcal{S})$
+That is, the new set of index schemes $\mathsf{coalesce}(\mathcal{S})$
 comprises the union of the set of coalesced pairs of contiguous
 schemes and the set of index schemes for which there is no other
 contiguous scheme.

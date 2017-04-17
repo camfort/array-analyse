@@ -93,3 +93,50 @@ multiple occurences of \term{*}
 % \eg{}, roughly half the specifications did not involve $\term{*}$,
 % a quarter use one $\term{*}$ and just under a quarter
 % use two $\term{*}$ operators.
+
+\paragraph{Limitations}
+
+There were various reasons why we did not infer
+specifications on every looped array computation: \\
+\noindent
+1) \textbf{Non-subset induction variables} occur when the
+induction variables on the RHS are not a subset of those in the LHS. These
+cases are not stencils by our definition. The degenerate case of this
+is to have only constant indices on the LHS. We see lots of examples
+of this in loops as accumulators \eg{} computing the sum over an array; \\
+\noindent
+2) \textbf{Derived induction variables} where an
+index (\mintinline{fortran}{x}) is derived from an
+induction variable (\mintinline{fortran}{i}) as in
+\mintinline{fortran}{x = len - i};  \\
+\noindent
+3) \textbf{Inconsistent induction dimensions} occur when
+an induction variable is used to specify more than one array dimension
+on the RHS or multiple induction variables are used for the same
+dimension on the RHS. These are common in matrix operations such as
+LU-decomposition with assignments such as
+\mintinline{fortran}{a(l) = a(l) - a(m) * b(l, m)}.
+
+
+\subsection{Detecting errors in the 2-D Jacobi iteration}
+\label{sec:jacobi}
+One common example of a stencil computation is the two-dimensional
+Jacobi iteration that repeatedly goes through each cell in a matrix
+and computes the average value of the four adjacent cells. The kernel
+is given by:
+\begin{minted}{fortran}
+  a(i,j) = (a(i-1,j)+a(i+1,j)+a(i,j+1)+a(i,j-1))/4
+\end{minted}
+We infer a precise specification of its shape as:
+\begin{minted}[breakafter=+:,breakindent=-0.6em,breaksymbolsep=0.4em,linenos=false,xleftmargin=-0.5em]{fortran}
+  != stencil pointed(dim=1)*centered(depth=1,dim=2,nonpointed)+pointed(dim=2)*centered(depth=1,dim=1,nonpointed)::a
+\end{minted}
+%
+To test our implementation,
+we examined whether programmer errors would be detected by replacing
+the array index offsets with $-1$, $0$, or $1$ and running our
+verification algorithm. Our checking procedure correctly reported a verification
+failure in each of 6,537 permutations corresponding to an error.
+The iteration computes the average of four adjacent
+cells so $24$ ($4$ factorial) of the possible array index perturbations
+are correct, all of which are accepted by our checker.

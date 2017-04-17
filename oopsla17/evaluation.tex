@@ -1,6 +1,6 @@
 \input{results}
 
-To study the effectiveness of our approach, 
+To study the effectiveness of our approach,
 we built a corpus of over 1 million lines of Fortran code from a
 range of scientific computing packages: The Unified Model (UM)~\cite{um},
 E3ME~\cite{RePEc:aen:journl:2006se-a12}, BLAS~\cite{blas},
@@ -39,14 +39,18 @@ found involved only pointed regions.
 Common examples of this were pointwise transformations on data (such
 as scaling).
 
-\textbf{Single-action} specifications comprise one 
-forward, backward, or centered region constant combined via \term{+} 
+\textbf{Single-action} specifications comprise one
+forward, backward, or centered region constant combined via \term{+}
 or \term{*} with any number of pointed regions. We identified \num{\overallsingleAction} single-action
 specifications, of which \num{\overallsingleActionIrr} were single-action with a
 \texttt{nonpointed} modifier.
 
-\textbf{Multi-action} specifications comprise at least two 
+\textbf{Multi-action} specifications comprise at least two
  forward, backward, or centered regions, combined with
 any number of pointed regions. We identified \num{\overallmultiAction} multi-action
 specifications out of which \num{\overallmultiActionMulOnly} had regions combined only with
 $\term{*}$ and \num{\overallmultiActionPlusAndMul} combined with a mix of $\term{*}$ and \term{+}.
+
+\textbf{Bounded} specifications occured with \num{\overallatMost}
+\texttt{atMost} bounds and \num{\overallatLeast} \texttt{atLeast}, the latter of which were
+always also paired with an upper bound.

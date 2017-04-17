@@ -1,4 +1,4 @@
-\noindent
+s\noindent
 In the sciences, complex models are now almost always expressed as
 computer programs. But how can a scientist have confidence that the
 implementation of their model is as they intended? There is an
@@ -10,7 +10,7 @@ computer science they see little use in the natural and physical
 sciences. This is partly due to a lack of training and awareness, but
 also a lack of tools targeted at the needs of scientists. This
 paper is part of a line of research on providing lightweight, easy-to-ue
-verification tools targeted at common programming patterns in science, 
+verification tools targeted at common programming patterns in science,
 motivated by analysis of real code.
 
 We focus on one common concept: \emph{arrays}, the core data structure
@@ -72,8 +72,8 @@ discarded once the code is shown correct. This is not the only
 information that is discarded. The shape of the indexing pattern
 is usually the result of choices made in the numerical-analysis
 procedure to discretise some continuous equations. Rarely are these decisions captured in the source code,
-yet the derived shape is usually uniform with a 
-clear and concise description \eg{}, 
+yet the derived shape is usually uniform with a
+clear and concise description \eg{},
 \emph{centered space, of depth 1} referring to indexing
 terms \texttt{a(i)}, \texttt{a(i-1)} and
 \texttt{a(i+1)}~\cite{recktenwald2004finite}.
@@ -118,17 +118,17 @@ verification tools such as ACSL~\citet{baudin2008acsl}, where
 specifications about array computations must also be expressed in
 terms of array-indexing expressions. Thus, any low-level mistakes that
 could be made whilst programming complex indexing code could also be
-made when writing its specification. Our specifications are 
+made when writing its specification. Our specifications are
 abstract to avoid the error-prone nature of index manipulation; our
 specifications are more lightweight to aid its adoption in science.
-  
+
 We implemented a verification tool for our specification language as
 an extension to CamFort~\cite{camfort}, an open-source program
 analysis tool for Fortran. Specifications are associated to code via
 comments, against which the tool checks the code for conformance. This
 specify-and-check approach reduces testing effort and future-proofs
 against bugs introduced during refactoring and maintenance. A
-specification also concisely captures the array access pattern 
+specification also concisely captures the array access pattern
 and provides documentation. We also provide an inference procedure
 which efficiently produces specifications with no programmer
 intervention, automatically inserting specifications at appropriate
@@ -159,8 +159,7 @@ latter correct) or would have assisted in an array refactoring task
 
 \paragraph{Terminology and notation}
 
-We fix some terminology used throughout to describe
-syntactic constructs.
+We fix some terminology for syntactic constructs in our target language.
 
 \begin{defn}[Induction variables]
   An integer variable is a \emph{base induction variable} if it is the

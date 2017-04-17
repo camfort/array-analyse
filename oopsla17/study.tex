@@ -1,65 +1,91 @@
 %\setlength{\tabcolsep}{8pt}
 
 \noindent
-At the beginning of this project, we made the following hypotheses
-about array programming idioms:
+We start with the following hypotheses about array programming idioms
+in scientific code, formed from our observations and conversations
+with scientists:
 \begin{enumerate}[leftmargin=2em]
 \item Computations involving loops over arrays are common, where an
   arrays are read from with a static pattern based on constant offsets
   from (base or dervied) induction variables;
 
-\item Most loop-array computations of the previous form read
-from arrays with a \emph{contiguous} pattern, \eg{}:
+\item Most loop-array computations of the previous form read from
+  arrays with a \emph{contiguous} pattern, \eg{}:
 %
 \begin{minted}{fortran}
   b(n) = a(i-1) + a(i) + a(i+1)
 \end{minted}
 %
-\item Most loop-array computations of the previous form read
-from arrays with a pattern that includes the origin index
-or its immediate neighbours (offsets of 1 from the induction variables);
+\item Most loop-array computations of the previous form read from
+  arrays with a pattern that includes the origin index or its
+  immediate neighbours (offsets of 1 from the induction variables);
 
 \item Many array computations are \emph{stencil computations}: an
   assignment whose right-hand side comprises array subscripts with
   neighbourhood indices and whose left-hand side is an
   neighbourhood-indexed array subscript (\eg{}, the Laplace operator);
 
-\item Many array computations read from each particular index just once.
+\item Many array computations read from each particular array index just
+  once. The significance of this hypothesis is that, if true, it would
+  be useful to provide a specification of index uniqueness, so accidental
+  repetition of subscripts in complex code can be detected.
 \end{enumerate}
 %
-From these hypotheses, we conjecture that the above programming idioms
-can be specified declaratively via a small
-set of combinators, capturing data access patterns based on
-overlapping (hyper)rectangles. We performed a large scale source-code
-analysis to validate these hypotheses and guide the design of our
-language. These results are also of wider value to others, such as
-designers of array/stencil DSLs or autotuners.
+From these hypotheses, we conjecture that the spatial properties of
+the above programming idioms can be specified declaratively via a
+small set of combinators, capturing data access patterns.% based on
+%overlapping (hyper)rectangles.
+We performed a large scale source-code analysis to validate these
+hypotheses and guide the design of our language. These results are
+potentially of interest to others, such as designers of array/stencil DSLs
+or autotuners.
 
 \subsection{Methodology}
 %
 \noindent
-We constructed a corpus of \numPackages{} scientific computing
-packages written in Fortran ranging in size and scope: The Unified
-Model (UM)~\cite{um}, E3MG~\cite{RePEc:aen:journl:2006se-a12},
-BLAS~\cite{blas}, Hybrid4~\cite{GBC:GBC635},
-GEOS-Chem~\cite{geos-chem}, Navier (based on
-\cite{griebel1997numerical}), Computational Physics 2 (CP2)
-~\cite{nicholas2006computational}, ARPACK-NG~\cite{arpackng}, and
-SPECFEM3D~\cite{specfem3d}. \dnote{Include the rest} This covers
-approximately 1.4 million lines of physical Fortran code (2.4 million
-including comments and white space).  Appendix~\ref{app:corpus}
-provides further detail on these packages and their sizes, with UM and
-GEOS-Chem the largest at $\approx$630kloc and $\approx$450kloc respectively. We used
-Wheeler's \emph{SLOCCount} to get a count of the physical source lines
-(excluding comments and blank lines)~\cite{wheeler2001sloccount}.
+We constructed a corpus of eleven scientific computing packages
+written in Fortran ranging in size and scope:
+%
+\begin{enumerate}[leftmargin=1.5em]
+\item The Unified Model (UM) developed by the UK Met Office
+for weather modelling~\cite{um};
+\item E3ME, a mixed economic/energy impact predication
+  model~\cite{RePEc:aen:journl:2006se-a12}
 
-Half the packages come from active research teams who are our
-project partners (\ie{}, they were not selected carefully to
-fit our hypotheses). BLAS was selected as it is a common numerical library;
-similarly CP2 was selected as it gives standard numerical
-analysis algorithms from a popular computational physics textbook.
-The smallest project Navier ($\approx$500loc) is based on a standard textbook on
-computational fluid dynamics.
+\item Hybrid4, a global scale ecosystem model~\cite{GBC:GBC635};
+
+\item GEOS-Chem, troposhperic chemstry model~\cite{geos-chem};
+
+\item Navier, a small-size Navier-Stokes fluid model (based
+  on \cite{griebel1997numerical};
+
+\item Computational Physics (CP), programs from a popular
+ textbook~\cite{giordano1997computational};
+
+\item BLAS, a common linear-algebra
+  library used in modelling~\cite{blas};
+
+\item ARPACK-NG, an open-source library for solving large-scale
+eigenvalue problems~\cite{arpackng};
+
+\item SPECFEM3D, global seismic wave models~\cite{specfem3d};
+
+\item MUDPACK, a general multi-grid solver for elliptical
+partial differentials~\cite{MUD};
+
+\item Cliffs, a tsunami model~\cite{tolkova2014land}
+\end{enumerate}
+%
+These cover approximately 1.4 million lines of physical Fortran code
+(2.4 million including comments and white space).  The UM and
+GEOS-Chem packages are the largest at $\approx$630kloc and
+$\approx$450kloc respectively.  Appendix~\ref{app:corpus} provides
+further detail on these packages and their sizes.  We used Wheeler's
+\emph{SLOCCount} to get a count of the physical source lines
+(excluding comments and blank lines)~\cite{wheeler2001sloccount}.
+A third of the packages come from active research teams who are our project
+partners (\ie{}, they were not selected carefully to fit our
+hypotheses).
 
 We built a code analysis tool based on CamFort, an open-source Fortran
 analyser~\cite{camfort}. Fortran source files are parsed to an AST and
@@ -68,35 +94,42 @@ including of key importance for us: induction variable identification
 and reaching definitions. The resulting AST is traversed top-down and
 assignment statements inside loops are analysed and classified.
 
-\paragraph{Classifications}
-
-We focus on assignment statements in loops where the right-hand side
-expression reads from one or more arrays.  Left-hand sides and
-right-hand sides are classified in the following way:
-
-\begin{tabular}{l|l|l|l}
-  Shorthand & Classification (of subscripts) & Applies to & Example \\ \hline
- (\textsf{vars}) & Variables & LHS & \fortran{x = ...}
+%\paragraph{Classifications}
+Left-hand sides and right-hand sides of assignments are classified
+based on their array subscripting expressions:
+%
+\begin{center}
+\begin{tabular}{l|l|l}
+ % Shorthand &
+ Classification (of subscripts) & Applies to & Example \\ \hline
+ %(\textsf{vars}) &
+ Just a variable & LHS & \fortran{x = ...}
   \\
- (\textsf{IVs}) & Induction variables & LHS & \fortran{a(i, j)} \\
- (\textsf{neigh}) & Neighbourhood offsets (of the form
+ %(\textsf{IVs}) &
+ Induction variables & LHS & \fortran{a(i, j)} \\
+ %(\textsf{neigh}) &
+ Neighbourhood offsets (of the form
                                                   $i \pm c$) & LHS/RHS
                                                                & \fortran{a(i, j-1)} \\
- (\textsf{neigh+c}) & Neighbourhood offsets and constants & LHS/RHS &
+ %(\textsf{neigh+c}) &
+ Neighbourhood offsets and absolutes & LHS/RHS &
                                                             \fortran{b(i, 0, j+1)} \\
- (\textsf{aff}) & Affine offsets (of the form $a * i \pm b$) & LHS/RHS &
+ %(\textsf{aff}) &
+ Affine offsets (of the form $a * i \pm b$) & LHS/RHS &
                                      \fortran{a(2*i+1,j)} \\
- (\textsf{aff+c}) & Affine offsets and constants & LHS/RHS & \fortran{a(i+1, 0,
+ %(\textsf{aff+c}) &
+ Affine offsets and absolutes & LHS/RHS & \fortran{a(i+1, 0,
                                                    3*j+2)} \\
- (\textsf{other}) & Subscript expression not included above & LHS/RHS &
-\fortran{x(f(i))}, \fortran{a(i*i)}
-\end{tabular} \\[1em]
-
-\noindent
-Note \textsf{vars} and \textsf{IVs} classifications apply only to
-left-hand sides.
-The classification is computed from all information that flows into an
-assignment, for example, the following decomposes a one-dimensional
+ %(\textsf{other}) &
+ Subscript expression not included above & LHS/RHS &
+\fortran{x(f(i))}, \fortran{a(i*i)}, \fortran{a(0,1)}
+\end{tabular}
+\end{center}
+%
+%Note \textsf{vars} and \textsf{IVs} classifications apply only to
+%left-hand sides.
+Classifications are computed from all information that flows into an
+assignment. For example, the following decomposes a one-dimensional
 three-point pattern across multiple intermediate assignments:
 %%
 \begin{minted}{fortran}
@@ -110,14 +143,15 @@ end do
 Our analysis recognises this as one array computation (rather than three), starting at
 line 4, and reading from subscripts \fortran{a(i)}, \fortran{a(i+1)},
 \fortran{a(i-1)}. We thus traverse the body of a loop in reverse,
-using reaching-definitions to calculate of the array reads that flow
+using reaching-definitions to calculate the array reads that flow
 to a particular assignment. Since \fortran{x} and \fortran{y} flow to
-the line 4, line 2 and line 3 are not classified, though multiple
+the line 4, line 2 and line 3 are not classified separately, though multiple
 assignments can flow to multiple classified statements.
 
 We further sub-classify sets of array subscripts
-on the right-hand side based on their spatial properties: \\
+on the right-hand side based on their spatial properties: 
 
+\begin{center}
 \begin{tabular}{l||l|p{0.28\linewidth}|l}
   Property   & Shorthand & Classifications (of RHS pattern) & Example \\ \hline
 %%%%%%
@@ -125,37 +159,32 @@ on the right-hand side based on their spatial properties: \\
                                                                 \fortran{a(i) + a(i+1) + a(i+2)} \\
   & (\textsf{disjoint}) & Non-contiguous & \fortran{a(i) + a(i+2)} \\ \hline
 %%%%%%
-\multirow{2}{*}{Shape} & (\textsf{rect}) & (Hyper)rectangle &
- \fortran{a(i,j) + a(i+1,j) + a(i,j+1) + a(i+1,j+1)} \\
-           & (\textsf{sumRect}) & Composed (hyper)rectangles &
-  \fortran{a(i,j) + a(i,j-1) + a(i-1,j) + a(i+1,j) + a(i,j+1)} \\ \hline
+%\multirow{2}{*}{Shape} & (\textsf{rect}) & (Hyper)rectangle &
+% \fortran{a(i,j) + a(i+1,j) + a(i,j+1) + a(i+1,j+1)} \\
+%           & (\textsf{sumRect}) & Composed (hyper)rectangles &
+%  \fortran{a(i,j) + a(i,j-1) + a(i-1,j) + a(i+1,j) + a(i,j+1)} \\ \hline
 %%%%%%
   \multirow{2}{*}{Reuse} & (\textsf{readonce}) & Unique subscripts
-                                         & \eg{} \fortran{b(i) = a(i) + a(i+1)} \\
+                                         & \fortran{b(i) = a(i) + a(i+1)} \\
   & (\textsf{mult}) & Repeated subscripts &
-\eg{}  \fortran{b(i) = a(i)  + a(i)}
-\end{tabular} \\[1em]
-
-\noindent
-To assess the hypothesis that
-arrays are mostly read in a pattern that includes the immediate neighbours
-to the ``origin'', we categorised the position of subscript patterns for each
-right-hand side, in each dimension: \\
-
-\begin{tabular}{l||l|p{0.33\linewidth}|l}
-  Property   & Shorthand & Classification (indices per
-                           dimension) & Example \\ \hline
-%%%%%%
+ \fortran{b(i) = a(i)  + a(i)} \\ \hline
   \multirow{2}{*}{Positioning} & (\textsf{origin}) & Includes origin
 & \fortran{a(i)} or \fortran{a(i+1, j)} (in $2^{\textit{nd}}$
   dimension) \\
              & (\textsf{straddle}) & Within distance 1 of origin &
-\fortran{a(i+1), a(i-1)} \\
+\fortran{a(i+1,j) + a(i-1,j)} \\
              & (\textsf{away}) & Away from the origin
                                           & \fortran{a(i+2), a(i+3)}
-\end{tabular} \\[1em]
-
-\noindent
+\end{tabular}
+\end{center}
+%
+%To assess the hypothesis that
+%arrays are mostly read in a pattern that includes the immediate neighbours
+%to the ``origin'', we categorised the position of subscript patterns for each
+%right-hand side, in each dimension: \\
+%
+%\noindent
+%
 Finally, we categorise the relationship between the left-hand side
 and right-hand side, in terms of the use of induction variables.
 The two sides are \emph{consistent} if the same induction variables
@@ -165,8 +194,10 @@ variables changes. This is weakened further if the left-hand side
 induction variables are either
 a subset or superset of the induction variables on the right-hand
 side. Otherwise, the two sides are seen as inconsistent:
-
+%
+\begin{center}
 \begin{tabular}{l|l|l}
+  Shorthand & Classification & Example \\ \hline
   (\textsf{const}) & Consistent & \fortran{a(i, j) = b(i, j) +
                                   b(i+1,j+1)} \\
   (\textsf{perm}) & Permutation & \fortran{a(i, j) = c(j, i)} or \fortran{a(i,
@@ -176,7 +207,8 @@ side. Otherwise, the two sides are seen as inconsistent:
   \\
   (\textsf{LHSsup}) & LHS superset & \fortran{a(i, j) = b(i)} \\
   (\textsf{inconst}) & Inconsistent & \fortran{a(i) = b(j)}
-\end{tabular} \\[1em]
+\end{tabular}
+\end{center}
 %
 
 
@@ -190,11 +222,12 @@ side. Otherwise, the two sides are seen as inconsistent:
 \subsection{Results}
 
 \noindent
-We revist each hypothesis and show the related data and conclusions.
+We revisit each hypothesis and show the related data and conclusions.
 %
 \begin{enumerate}
-\item Loops over arrays mainly read from arrays with a static pattern
-based on constant offsets from (base or dervied) induction variables;
+\item Computations involving loops over arrays are common, where an
+  arrays are read from with a static pattern based on constant offsets
+  from (base or dervied) induction variables;
 \end{enumerate}
 %
 We identified $108,773$ instances of assignments within loops in
@@ -210,7 +243,7 @@ and grouped the data by the right-hand side classification only:
 Affine                          & 34        & 0.03\%
 & \multirow{3}{*}{81.43\%} \\ \cline{1-3}
 Neighbourhood                   & 65334     & 60.06 \%  \\ \cline{1-3}
-Neighbourhood + constants       & 23209     & 21.34\%  \\ \hline
+Neighbourhood + absolute       & 23209     & 21.34\%  \\ \hline
 Other                           & 20196     & 18.57 \%  \\ \hline \hline
 \textbf{Total}                  & 108773    &  \\
 \end{tabular}
@@ -219,12 +252,13 @@ Other                           & 20196     & 18.57 \%  \\ \hline \hline
 \noindent
 Since, affine and neighbour patterns are static, we
 group them (\textit{grouping 1}) to see that $81.43\%$ of the array
-computations (88,577) have a static pattern that are either constants or
-constant offsets of base/derived induction variables, confirming
+computations (88,577) have a static pattern that comprises
+constant offsets of base/derived induction variables (potential with
+some absolute indices), confirming
 \emph{hypothesis 1}. Note that affine (derived induction variables)
 are rare. Overwhelmingly, the main category is neighbourhood
 offsets (possibly mixed with constants in some
-dimensions). The ``affine + constants'' class is
+dimensions). The ``affine + absolute'' class is
 not represented at all.
 \mnote{(1) State that constant here includes variables that are constant with
 respect to the current loop scope.}

@@ -183,6 +183,12 @@ We fix some terminology for syntactic constructs in our target language.
   which is constant relative to the enclosing loop.
 \end{defn}
 
+\begin{defn}[Origin index]\label{def:origin}
+  An array subscript $a(\bar{e})$ has an \emph{origin index} if
+  all $e \in \bar{e}$ are induction variables, \eg{}, \fortran{a(i,
+    j)}.
+\end{defn}
+
 \begin{defn}[Neighbourhood index]\label{def:neighbour-ix}
   For an array subscript $a(\bar{e})$ an index $e \in \bar{e}$ is a
   \emph{neighbourhood index} if $e$ is of the form $e \equiv i$, $e \equiv i +

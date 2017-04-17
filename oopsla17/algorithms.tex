@@ -68,7 +68,7 @@ This leads to a simple set based consistency function defined as
 %
 \begin{align*}
   \mathit{consistent} & :
-    \mathsf{Mult}(\mathcal{P}(\mathcal{P}(\bz{})^N)) \times
+    \mathsf{Mult}(\mathcal{P}(\bz{}^N) \times
     \mathsf{Mult}(\mathsf{Approx}(\region{N})) \to \mathbb{B} & \\
 %
   \mathit{consistent}(\mathit{ix}, \mathit{model}) & = \begin{cases}
@@ -76,11 +76,11 @@ This leads to a simple set based consistency function defined as
     \mathit{consistent'}(\mathit{peel}(ix), \mathit{peel}(model)) & \textit{otherwise}
   \end{cases} \\
 %
-  \mathit{consistent'} & :
-    \mathcal{P}(\mathcal{P}(\bz{})^N) \times
+  \textit{consistent'} & :
+    \mathcal{P}(\bz{}^N) \times
     \mathsf{Approx}(\region{N}) \to \mathbb{B} & \\
 %
-  \mathit{consistent'}(\mathit{ix}, \mathit{model}) & = \begin{cases}
+  \textit{consistent'}(\mathit{ix}, \mathit{model}) & = \begin{cases}
     m = \mathit{ix} & \mathit{model} = \mathsf{exact}(m) \\
     m \supseteq \mathit{ix} & \mathit{model} = \mathsf{upper}(m) \\
     m \subseteq \mathit{ix} & \mathit{model} = \mathsf{lower}(m)
@@ -145,7 +145,7 @@ to specifications.
 
 \subsubsection{Covering}
 A covering of (possibly overlapping) the subscript space
-is calculated as a value of $Region_N$. This is computed iteratively
+is calculated as a value of \region{N}. This is computed iteratively
 by the following steps until a fixed-point is reached:
 
 \begin{description}[leftmargin=0.5em]
@@ -230,6 +230,6 @@ For our example:
 The fixed-pointed is reached within two applications of
 \textsf{coalesce} for our example.
 \dnote{We probably need to say something about classifying index
-schemes are \textit{Region$_N$}?}
+schemes are \region{N}?}
 
 \subsubsection{Index schemes to syntax}

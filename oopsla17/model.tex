@@ -1,24 +1,18 @@
 
 \noindent
-We define a lattice model of array access patterns which serves as both a
-denotational model of the semantics of our specification language and an
-abstract interpretation domain for source code. This model (1) serves to
-explain the meaning of our specifications; (2) is used in the inference and
-checking algorithms (\Cref{sec:analysis}); (3) justifies an equational theory
-for specifications in the next section; (4) is used to optimise specifications
-using lattice identities; and (5) can be used to guide correct implementations.
+We define a lattice model of array access patterns which serves as
+a semantic model of our specification language and model of array
+access patterns in source code. This model (1) used to explain the
+meaning of our specifications; (2) as a basis for the inference and
+checking algorithms (\Cref{sec:analysis}); (3) justifies an equational
+theory for specifications in the next section; (4) is used to optimise
+specifications using lattice identities; and (5) can be used to guide
+correct implementations.
 
 The model is defined over vectors of sets of integers which we call
 \emph{index schemes}.  As an initial informal example, consider the
-following simple stencil computation:
-%
-\begin{minted}{fortran}
-do i = 1, n
-  b(i) = a(i,0) + a(i+1,0)
-end do
-\end{minted}
-%
-The access pattern on array \term{a}, relative
+a stencil computation with loop body \fortran{y(i) = x(i,0) + x(i+1,0)}.
+The access pattern on array \term{x}, relative
 to induction variable \term{i}, is captured
 by a vector of length 2 containing integer sets $\langle{\{0, 1\},
   \mathbb{Z}\}}\rangle$. This describes that, in the first dimension,
@@ -30,8 +24,9 @@ Index schemes form a lattice which provides a rich set of equations
 and properties, which we exploit. We first set up the 
 domain of the model (\S\ref{sec:domain}), using it to define a semantics
 for our specification language (\S\ref{sec:semantics}) and then as
-the target for an abstract interpretation on imperative
-code (\S\ref{sec:fromcode}).
+the target for an interpretation on imperative code (\S\ref{sec:fromcode}).
+We state various results in this section, for which the proofs are
+provided in \Cref{sec:proofs}.
 
 \subsection{Lattice model of regions}
 \label{sec:domain} 
@@ -47,10 +42,12 @@ code (\S\ref{sec:fromcode}).
 \begin{defn}[Index scheme]
   An $N$-dimensional \emph{index scheme} is a vector of length $N$ of
   integer sets, \ie{}, a member of $\mathcal{P}(\bz)^{N}$.
-%  An equivalent view of these vectors is as an $N$-times finite Cartesian
-%  product on subsets of $\bz$.
+  An equivalent view of these vectors is as an $N$-times Cartesian
+  product on subsets of $\bz$.
   We use $S, T, U$ to denote index schemes. Henceforth, we assume index schemes
-  are all $N$-dimensional for some $N$.
+  are all $N$-dimensional\footnote{The particular
+    dimensionality is derived from array types when the model is
+    used.} for some $N$.
 
   Index schemes can be \emph{projected} in the $i^{\textit{th}}$ dimension by
   $\pi_i : {\mathcal{P}(\bz{})}^N \to \mathcal{P}(\bz{})$. For an index scheme
@@ -73,8 +70,8 @@ Union does not distribute over index schemes, however, a more restricted
 property holds.
 
 \begin{restatable}{lem}{vectorUnion}
-\label{lem:vector-union}
-$S$ and $T$ are index schemes such that $\pi_i(S) = \pi_i(T)$ for all $1 \leq i
+\label{lem:vector-union} If
+$S$ and $T$ are index schemes where $\pi_i(S) = \pi_i(T)$ for all $1 \leq i
 \leq N$ apart from some dimension $k$, then:
 %
   \begin{equation*}
@@ -97,14 +94,15 @@ $S$ and $T$ are index schemes such that $\pi_i(S) = \pi_i(T)$ for all $1 \leq i
     \interv{a}{b}{c} \triangleq
       \{ n \mid a \leq n \leq b \wedge (\neg c \implies n \neq 0) \}
   \end{equation*}
-
+  %
+  If the
+  superscript to the interval is omitted it is treated as $\mathsf{true}$.
   We also add the distinguished interval $\interv{-\infty}{\infty}{}$, which is simply an
   alias for \bz{}, but this notation prevents handling infinite interval
-  separately in the following definitions, theorems, and proofs. Here, $-\infty$
-  and $\infty$ behaves like top and bottom elements to \bz{} respectively.
+  separately in the following definitions, lemmas, and proofs. Here, $-\infty$
+  and $\infty$ behave as top and bottom elements to \bz{} respectively.
 
-  We denote the set of all such intervals (sets) as $\textit{Interval}$. If the
-  superscript to the interval is omitted it is treated as $\mathsf{true}$.
+  We denote the set of all such intervals as $\textit{Interval}$. 
 \end{defn}
 %
 \begin{restatable}{lem}{intervalIdentities}
@@ -120,12 +118,13 @@ $S$ and $T$ are index schemes such that $\pi_i(S) = \pi_i(T)$ for all $1 \leq i
 \end{restatable}
 %
 
-We define two specialisations (and subset spaces) of index scheme:
-\emph{subscript scheme} and \emph{interval scheme}:
+We define two specialisations of index schemes:
+\emph{subscript scheme} and \emph{interval scheme}.
 
 \begin{defn}[Interval scheme]\label{def:interval-scheme}
-  An interval scheme is a finite Cartesian product of intervals on \bz{},
-  denoted by the set $\textit{Interval}^N$ for a product of $N$ intervals.
+  An interval scheme is an $N$-length vector ($N$-ways Cartesian
+  product) of intervals on \bz{}, denoted by the set
+  $\textit{Interval}^N$ for a product of $N$ intervals.
 \end{defn}
 
 \begin{defn}[Subscript scheme]
@@ -160,37 +159,26 @@ We define two specialisations (and subset spaces) of index scheme:
   $\top = \bz{}^N$ and bottom $\bot = \emptyset$.
 \end{restatable}
 %
-\begin{proof}
-  Straightforward, the join and meet are mapped to $\cup$ and $\cap$, the set is
-  inductively designed to be closed under these operations. Union and
-  intersection are associative, commutative, and absroptive under closed sets
-  and then they are also for \region{N}. This is enough to show that, it is a
-  lattice.
-
-  Further, we have $\bz{}^N \cap R = R$ and $\emptyset \cup R = R$ with
-  $\bz{}^N$ and $\emptyset$ belonging to \region{N}. This makes the lattice a
-  bounded one.
-
-  Finally, the lattice is distributive since union distributes over intersection
-  and vice versa when the set is closed under these operations.
-\end{proof}
+The set of regions $\region{N}$ is target of our specification
+language model, and of the code analysis. We further wrap this in a
+labelled variant which provides information on multiplicity and approximation.
 
 \begin{defn}
   $\mathsf{Mult}$ and $\mathsf{Approx}$ are parametric labelled variant types
   with injections given by their definition:
 %
   \begin{align*}
-    \mathsf{Mult} \;\; a \;\; &
-      \triangleq \mathsf{mult} \; a \;\mid\; \mathsf{only} \; a \\
-    \mathsf{Approx} \;\; a \;\; &
-      \triangleq \mathsf{exact} \; a \;\mid\; \mathsf{lower} \; a \;\mid\;
+    \mathsf{Mult} \;\; a \;\,
+      \triangleq \;\, \mathsf{mult} \; a \;\mid\; \mathsf{only} \; a \qquad\quad
+    \mathsf{Approx} \;\; a \;\,
+      \triangleq \;\, \mathsf{exact} \; a \;\mid\; \mathsf{lower} \; a \;\mid\;
         \mathsf{upper} \; a
   \end{align*}
 %
   \eg{}, $\mathsf{lower}$ is an injection $\mathsf{lower} : a \to \mathsf{Approx}
   \; a$ etc.
-  These will be used in the following subsection to give meaning to the
-  specification modifiers for approximation and multiplicity.
+%  These will be used in the following subsection to give meaning to the
+%  specification modifiers for approximation and multiplicity.
 \end{defn}
 
 \subsection{Denotational semantics for specifications}
@@ -218,33 +206,39 @@ The interpretation is overloaded on \emph{regions} in
 
 %
 \begin{figure}[!t]
-\begin{subfigure}[t]{0.5\textwidth}
+\begin{subfigure}[t]{0.4\textwidth}
 \begin{align*}
   \interp{-}_N & : \textit{region} \rightarrow \region{N} \\
-%
-  \interp{\stencil{p}{$i$}{}{}}_N & =
-    \vecgen{N}{i}{\interv{0}{0}{\mathsf{true}}}\\
-%
-  \interp{\stencil{c}{$i$}{$k$}{\textcap{p}}}_N & =
-    \vecgen{N}{i}{\interv{-k}{k}{\interp{\textcap{p}}}} \\
-%
-  \interp{\stencil{f}{$i$}{$k$}{\textcap{p}}}_N & =
-    \vecgen{N}{i}{\interv{0}{k}{\interp{\textcap{p}}}} \\
-%
-  \interp{\stencil{b}{$i$}{$k$}{\textcap{p}}}_N & =
-  \vecgen{N}{i}{\interv{-k}{0}{\interp{\textcap{p}}}}
-\\
-  \interp{\texttt{\textcap{r} + \textcap{s}}}_N & =
+  %
+   \interp{\texttt{\textcap{r} + \textcap{s}}}_N & =
     \interp{\textcap{r}}_N \vee \interp{\textcap{s}}_N
 \\
   \interp{\texttt{\textcap{r} * \textcap{s}}}_N & =
-    \interp{\textcap{r}}_N \wedge \interp{\textcap{s}}_N \\[-1em]
+   \interp{\textcap{r}}_N \wedge \interp{\textcap{s}}_N \\
+%%
+  \interp{\texttt{\textcap{rconst}}}_N & =
+    \vecgen{N}{i}{\interp{\texttt{\textcap{rconst}}}^{\mathsf{c}}}
+  \\[1em]
+  %%
+  \interp{-}^{\mathsf{c}} & : \textit{rconst} \rightarrow
+                            \region{} \\
+  \interp{\stencil{p}{$i$}{}{}}^{\mathsf{c}} & =
+    {\interv{0}{0}{\mathsf{true}}}\\
+%
+  \interp{\stencil{c}{$i$}{$k$}{\textcap{p}}}^{\mathsf{c}} & =
+    {\interv{-k}{k}{\interp{\textcap{p}}}} \\
+%
+  \interp{\stencil{f}{$i$}{$k$}{\textcap{p}}}^{\mathsf{c}} & =
+    {\interv{0}{k}{\interp{\textcap{p}}}} \\
+%
+  \interp{\stencil{b}{$i$}{$k$}{\textcap{p}}}^{\mathsf{c}} & =
+    {\interv{-k}{0}{\interp{\textcap{p}}}}
 \end{align*}
 \caption{Interpretation of regions}
 \label{subfig:region-model}
 \end{subfigure}
 \hspace{1em}
-\begin{subfigure}[t]{0.4\textwidth}
+\begin{subfigure}[t]{0.3\textwidth}
 \begin{align*}
 \interpApprox{-} & : \textit{approx} \rightarrow (A \rightarrow
   \textsf{Approx} \, A) \\
@@ -267,7 +261,7 @@ The interpretation is overloaded on \emph{regions} in
 The first four equations of \Cref{subfig:region-model} model region 
 contants. The final two equations model the \term{+} and \term{*}
 operators in terms of the join (union) and meet (intersection)
-of interval schemes. Thus regions are modelled as members
+of interval schemes. Thus the syntax of regions is modelled as members 
 of $\region{N}$.
 
 We mark in our model the presence of modifiers such as

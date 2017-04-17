@@ -17,16 +17,13 @@
 \nonterm{mult} ::= & \term{readOnce} \\
 \nonterm{approx} ::= & \term{atMost} \; \mid \; \term{atLeast} \\[0.1em]
 \nonterm{region} ::= & \nonterm{rvar} \; \mid \;
-                       \stencil{p}{\dimTy}{}{} \; \\
-& {\qquad\; \mid \; \stencil{f}{\dimTy}{\depthRange}{\;[, \nonpointed]}} \\
-& {\qquad\; \mid \; \stencil{b}{\dimTy}{\depthRange}{\;[, \nonpointed]}} \\
-& {\qquad\; \mid \; \stencil{c}{\dimTy}{\depthRange}{\;[, \nonpointed]}} \\
-& {\qquad\; \mid \; \nonterm{region} \, \term{+}
-  \, \nonterm{region} \; \mid \; \nonterm{region} \; \term{*} \; \nonterm{region}} \\[0.25em]
-%\multicolumn{2}{l}{\qquad\qquad \mid \; \nonterm{rvar}}
-%\\[0.5em]
-%\nonterm{temporal} ::= \; & \term{dependency} \; (v \; \{ , v \}) [, \texttt{mutual}]
-%  \\[0.5em]
+   \nonterm{rconst} \; \mid \; \nonterm{region} \, \term{+}
+  \, \nonterm{region} \; \mid \; \nonterm{region} \; \term{*} \;
+    \nonterm{region} \\
+\nonterm{rconst} ::= & \stencil{p}{\dimTy}{}{} \; \\
+\mid \; & \stencil{f}{\dimTy}{\depthRange}{\;[, \nonpointed]} \\
+\mid \; & \stencil{b}{\dimTy}{\depthRange}{\;[, \nonpointed]} \\
+\mid \; & \stencil{c}{\dimTy}{\depthRange}{\;[, \nonpointed]} \\[0.25em]
 \nonterm{rvar} ::= \; & [\text{\term{a}-\term{z}$\,$\term{A}-\term{Z}$\,$\term{0}-\term{9}}]+\\[-1em]
 \end{array}
 \end{align*}
@@ -157,10 +154,10 @@ This reflects the symmetry under rotation of the five-point stencil.
 
 \paragraph{Region declarations and variables}
 
-Region specifications can be assigned to region variables via
-region declarations. For example, the shape of a
-``\emph{Roberts cross}'' edge-detection convolution~\cite{davis1975survey}
-can be stated:
+Region specifications can be assigned to region variables
+(\emph{rvar}) via region declarations. For example, the shape of a
+``\emph{Roberts cross}'' edge-detection
+convolution~\cite{davis1975survey} can be stated:
 %%
 \begin{minted}{fortran}
 != region :: r1 = forward(depth=1, dim=1)

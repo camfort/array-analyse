@@ -58,3 +58,19 @@
   \end{align*}
 \end{proof}
 
+\regionLattice*
+
+\begin{proof}
+  Straightforward, the join and meet are mapped to $\cup$ and $\cap$, the set is
+  inductively designed to be closed under these operations. Union and
+  intersection are associative, commutative, and absroptive under closed sets
+  and then they are also for \region{N}. This is enough to show that, it is a
+  lattice.
+
+  Further, we have $\bz{}^N \cap R = R$ and $\emptyset \cup R = R$ with
+  $\bz{}^N$ and $\emptyset$ belonging to \region{N}. This makes the lattice a
+  bounded one.
+
+  Finally, the lattice is distributive since union distributes over intersection
+  and vice versa when the set is closed under these operations.
+\end{proof}

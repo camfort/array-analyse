@@ -12,30 +12,32 @@ semantic interpretation of the code.
 
 \subsection{Union Normal Form}\label{subsec:union-normal-form}
 
-We need to address the problem of representation in the model both for observed
-array terms converted into subscripts schemes and for specifications converted
-into interval schemes. In each case, the objects are sets and union and
-intersection are the combinators. However, they are often infinite sets due to
-infinite interval and constant indices being converted to \bz{}. This calls for
-a finite (and ideally compact) representation for indices.
+We need to address the problem of representation in the model for index schemes.
+In each case, the objects are sets and union and intersection are the
+combinators. However, they are often infinite sets due to \bz{} in Cartesian
+product. This happens when constant indices of array terms are converted to
+\bz{} in subscript schemes and when infinite interval is generated in interval
+schemes. This calls for a finite (and ideally compact) representation for
+indices.
 
 First recall \Cref{lem:vector-intersect}, which states that intersection of
 indexing schemes is still an indexing scheme. When combined with
 \Cref{lem:interval-identities}, we can extend this closure to interval schemes.
 Subscripts schemes do not enjoy the same propery as intersection of two
 singleton sets might easily be empty, which disqualifies it from being a
-subscript index. In the following section we will not rely on intersection of
-subscript indices, so that is okay.
+subscript index. In the following sections we will not rely on intersection of
+subscript indices, so that is not a problem.
 
-Union is, however, not as flexible as intersection. \Cref{lem:vector-union} does
+Union, however, is not as flexible as intersection. \Cref{lem:vector-union} does
 not form a closure for indexing schemes in general. For this reason, we
 represent collection of all forms of indexing schemes as unevaluated unions.
 Since the model forms a distributive lattice as established in
 \Cref{prop:region-lattice}, the intersections can be pushed in using the
 distributive law leaving only unions. We further exploit associativity of union
 to put unions into a cons tree making the unions effectively a non-empty list.
-We do not, however, attempt to canonicalise the representation.
-
+We do not, however, attempt to canonicalise the representation. Later on
+\Cref{lem:vector-union} and index scheme subset are used to reduce the size of
+union normal form.
 
 \subsection{Analysis of array accesses}
 \label{subsec:analysis}

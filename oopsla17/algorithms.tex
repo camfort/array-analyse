@@ -122,6 +122,7 @@ number of array terms that flows into such an assignment is Y. In
 \subsection{Infering specification automatically}
 \label{subsec:inference}
 %
+\noindent
 We provide an inference procedure for generating specifications from
 code, which are inserted automatically as comments. This helps support
 maintenance of legacy code, and aids understanding of our
@@ -130,7 +131,7 @@ five-point stencil of \Cref{exm:checking}.
 
 The preceding source code analysis converts the concrete syntax of
 array subscripts into a set of subscript schemes in
-$\mathcal{P}(\bz)^N$. These subscripts are then coalesced interatively
+$\mathcal{P}(\bz)^N$. These subscripts are then coalesced iteratively
 into sets of index schemes. We denote sets of index schemes by
 $\mathcal{S}$, and initial set of subscript schemes from the analysis
 as $\mathcal{S}_0$. For our example:
@@ -139,103 +140,72 @@ as $\mathcal{S}_0$. For our example:
 \mathcal{S}_0 = \{\{0\} \times \{0\}, \{-1\} \times \{0\},
 \{0\} \times \{-1\}, \{0\} \times \{1\}, \{1\} \times \{0\}\}
 \end{equation*}
-
+%
 %For each array variable $a \in \mathsf{dom}(U)$, the algorithm
 %constructs a set of $n$-dimensional rectangles covering all contiguous
 %groups of schemes in $U(a)$.
-
-We explain the algorithm in two parts. First, we show how \emph{adjacent} index
-schemes are coalesced into smaller index schemes while remaining in union normal
-form. Then, we explain how this smaller unioned indexing schemes are converted
-to specifications.
+%
+We explain the algorithm in two parts. First, we show how
+\emph{contiguous} index schemes are coalesced into a smaller set of
+index schemes while remaining in union normal form. Then, we explain
+how this smaller unioned indexing schemes are converted to
+specifications.
 
 \subsubsection{Covering}
-A covering of (possibly overlapping) the subscript space
-is calculated as a value of \region{N}. This is computed iteratively
-by the following steps until a fixed-point is reached:
-
-\begin{description}[leftmargin=0.5em]
-
-\item[Coalesce intervals]
-%
-Index schemes which are \emph{contiguous} in one dimension are
-coalesced.
+A covering of (possibly overlapping) intervals is calculated as a
+value of \region{N} by coalescing \emph{contiguous} index schemes
+until a fixed-point is reached.
 
 \newcommand{\contig}[2]{\mathsf{contig}(#1, #2)}
-\begin{defn}{[Contiguous]}
-Two index schemes $S$ and $T$ are \emph{contiguous}
-written $\contig{S}{T}$,
-iff $\pi_i(S) = \pi_i(T)$
-for all $1 \leq i \leq N$ apart from some dimension $k$ such that
-$\pi_k(S) = [a, b]$ and $\pi_k(T) = [b+1, c]$.
+\begin{defn}[Contiguity]
+  \label{def:contiguity}
+  Two index schemes $S$ and $T$ are \emph{contiguous} written
+  $\contig{S}{T}$, iff $\pi_i(S) = \pi_i(T)$ for all $1 \leq i \leq N$
+  apart from some dimension $k$ such that $\pi_k(S) = [a, b]$ and
+  $\pi_k(T) = [b+1, c]$.
 \end{defn}
 %
 A coalesced set of index schemes is computed by:%
-\begin{align*}
-\mathsf{coalesce1}(S, \mathcal{S}) & =
- \{\,S \cup T \mid
-T \in \mathcal{S} \, \wedge \,
-\contig{S}{T} \} \\
-\mathsf{coalesce}(\mathcal{S}) & =
-\bigcup_{S \in \mathcal{S}} \mathsf{coalesce}(
-\mathsf{coalesce1}(S, \mathcal{S})
-\cup (\mathcal{S} - \{S\})) \\
-\mathsf{coalesceTop}(\mathcal{S}) & =
- \mathsf{coalesce}(\mathcal{S})
-\; \cup \;
-\{ S \in \mathcal{S} \mid \neg \exists T \in \mathcal{S} . \; \contig{S}{T}\}
-\end{align*}
-\dnote{May need to prove that this is total}
-%\begin{align*}
-%\mathsf{coalesce}(\mathcal{S}) = \; &
-%\{\,S \cup T \mid
-%\forall S \in \mathcal{S}, \;
-%\forall T \in \mathcal{S}. \;
-%\contig{S}{T} \} \\
-%\cup \; &
-%\{ \,\;\;\; S \;\;\; \mid \forall S \in \mathcal{S},
-%\; \not \exists T \in \mathcal{S} . \; \contig{S}{T}\}
-%\end{align*}
 %
-That is, the new set of index schemes $\mathsf{coalesce}(\mathcal{S})$
+\begin{align*}
+  \mathsf{coalesce}(\mathcal{S}) = \; & \;\;
+  \{\,S \cup T \mid S \in \mathcal{S}, T \in \mathcal{S} \, \wedge \,
+                                        \contig{S}{T} \}
+  \;\;\; \cup \;\;\;
+  \{\,S \in \mathcal{S} \mid \neg \exists T \in \mathcal{S} . \; \contig{S}{T}\}
+\end{align*}
+%
+Thus, $\mathsf{coalesce}(\mathcal{S})$
 comprises the union of the set of coalesced pairs of contiguous
 schemes and the set of index schemes for which there is no other
 contiguous scheme.
-
-\item[Remove redundant schemes]
-Any indexing schemes which are subsumed by another are filtered out:
+%
+\begin{lemma}[Closure]
+  For a set of index schemes $\mathcal{S}$, then
+  $\mathsf{coalesce}(\mathcal{S})$ is well-defined and is a set of
+  index schemes.
+\end{lemma}
+\begin{proof}
+  By \Cref{lem:vector-union}, the union of two index schemes is an
+  index scheme if all components are equal except at most one
+  component. Contiguity (\Cref{def:contiguity}) matches
+  this precondition, thus the first part of the union in
+  \textsf{coalesce} produces a set of index schemes. The second part
+  comprises a subset of the original index schemes.
+\end{proof}
+%
+For our example, the fixed-pointed of \textsf{coalesce} is reached within two steps:
 %
 \begin{align*}
-\textsf{nonOverlap}(\mathcal{S}) =
-\{S \mid \forall S \in \mathcal{S}, \; \neg \exists T \in (\mathcal{S} -
-  \{S\}), \; \forall i . \; \pi_i(S) \subseteq \pi_i(T) \}
+  \textsf{coalesce}(\mathcal{S}_0) & =
+  \{[-1,0] \times [0,0],\,[0,0] \times [-1, 0],\,[0,0] \times
+    [0,1],\,[0,1] \times [0,0]\} \\
+  \textsf{coalesce}^2(\mathcal{S}_0) & =
+  \{[-1, 1] \times [0, 0],\,[0, 0] \times [-1, 1]\} = \textsf{coalesce}^3(\mathcal{S}_0)
 \end{align*}
 %
-\dnote{I'm starting to suspect that this step is actually redundant
-  now- but I will need to do some math to check}
-%\item \textbf{Covering}
-\end{description}
+\todo{Prove that this is in $Region_N$}
 
-The least fixed-point of $\textsf{nonOverlap} \circ \textsf{coalesce}$
-is computed, providing a minimal indexing scheme covering the space.
-\dnote{Proof?}
 
-For our example:
-%
-\begin{align*}
-\textsf{coalesce}(\mathcal{S}_0) & =
-\{[-1,0] \times [0,0],\,[0,0] \times [-1, 0],\,[0,0] \times [0,1],\,[0,1]
-  \times [0,0]\} \\
-%\textsf{nonOverlap}(\textsf{coalesce}(\mathcal{S}_0)) & =
-%                                                        \textsf{coalesce}(\mathcal{S}_0)
-%  \\
-\textsf{coalesce}^2(\mathcal{S}_0) & =
-\{[-1, 1] \times [0, 0],\,[0, 0] \times [-1, 1]\}
-\end{align*}
-%
-The fixed-pointed is reached within two applications of
-\textsf{coalesce} for our example.
-\dnote{We probably need to say something about classifying index
-schemes are \region{N}?}
 
 \subsubsection{Index schemes to syntax}

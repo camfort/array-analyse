@@ -159,15 +159,31 @@ $\pi_k(S) = [a, b]$ and $\pi_k(T) = [b+1, c]$.
 %
 A coalesced set of index schemes is computed by:%
 \begin{align*}
-\mathsf{coalesce}(\mathcal{S}) = \; &
-\{\,S \cup T \mid
-\forall S \in \mathcal{S}, \;
+\mathsf{coalesce1}(S, \mathcal{S}) & =
+ \{\,S \cup T \mid
 \forall T \in \mathcal{S}. \;
 \contig{S}{T} \} \\
-\cup \; &
-\{ \,\;\;\; S \;\;\; \mid \forall S \in \mathcal{S},
+\mathsf{coalesce}(\mathcal{S}) & =
+\bigcup_{S \in \mathcal{S}} \mathsf{coalesce}(
+\mathsf{coalesce1}(S, \mathcal{S})
+\cup (\mathcal{S} - \{S\})) \\
+\mathsf{coalesceTop}(\mathcal{S}) & =
+ \mathsf{coalesce}(\mathcal{S})
+\; \cup \;
+\{ S \mid \forall S \in \mathcal{S},
 \; \not \exists T \in \mathcal{S} . \; \contig{S}{T}\}
 \end{align*}
+\dnote{May need to prove that this is total}
+%\begin{align*}
+%\mathsf{coalesce}(\mathcal{S}) = \; &
+%\{\,S \cup T \mid
+%\forall S \in \mathcal{S}, \;
+%\forall T \in \mathcal{S}. \;
+%\contig{S}{T} \} \\
+%\cup \; &
+%\{ \,\;\;\; S \;\;\; \mid \forall S \in \mathcal{S},
+%\; \not \exists T \in \mathcal{S} . \; \contig{S}{T}\}
+%\end{align*}
 %
 That is, the new set of index schemes $\mathsf{coalesc}(\mathcal{S})$
 comprises the union of the set of coalesced pairs of contiguous

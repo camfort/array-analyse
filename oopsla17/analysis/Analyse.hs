@@ -81,7 +81,8 @@ import Control.DeepSeq
 import Results
 import Indices
 
-data Mode = SingleFile | ViewMode | ViewMode2 | NormalMode | CombineMode
+data Mode = SingleFile | ViewMode | ViewMode2 | NormalMode
+                       | CombineMode | DirMode
   deriving (Eq)
 
 main :: IO ()
@@ -97,6 +98,8 @@ main = do
        putStrLn "    stencil-analysis SINGLE rfile [-b] [-d] dir-or-file [excluded-files]"
        putStrLn " (restart the analysis with rfile.restart and suprise the final file)"
        putStrLn "    stencil-analysis VIEW rfile"
+       putStrLn " (show just the files that were analysed)"
+       putStrLn "    stencil-analysis DIRS rfile"
     else do
        let (restart, args', mode) =
             case args of
@@ -105,11 +108,17 @@ main = do
                            | x == "VIEW"    -> (Just y, [],    ViewMode)
                            | x == "VIEW2"   -> (Just y, [],    ViewMode2)
                            | x == "COMBINE"  -> (Nothing, (y:args'), CombineMode)
+                           | x == "DIRS"     -> (Just y, [], DirMode)
                            | otherwise      -> (Nothing, args, NormalMode)
                _ -> (Nothing, args, NormalMode)
-       if mode == CombineMode then
-         combineMode args'
-       else
+       case mode of
+        CombineMode -> combineMode args'
+        DirMode     -> do
+            file <- readFile (fromJust restart)
+            let (result :: Result) = read file
+            mapM putStrLn $ (dirs result)
+            return ()
+        _ ->
          case args' of
           [] -> applyAnalysisToDir restart mode "" False False []
           [dir]

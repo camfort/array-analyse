@@ -1,8 +1,11 @@
 %\setlength{\tabcolsep}{8pt}
 
-At the beginning of this project, we made the following hypotheses
-about array programming idioms:
-\begin{enumerate}
+\noindent
+We start with the following hypotheses about array programming idioms
+in scientific code, formed from our observations and conversations
+with scientists:
+%
+\begin{enumerate}[leftmargin=2em]
 \item Loops over arrays mainly read from arrays with a static pattern
 based on constant offsets from (base or dervied) induction variables;
 
@@ -10,7 +13,6 @@ based on constant offsets from (base or dervied) induction variables;
 from arrays with a \emph{contiguous} pattern, \eg{}:
 %
 \begin{minted}{fortran}
-do i = 1, n
   b(n) = (a(i) + a(i+1)) / 2.0
 \end{minted}
 %
@@ -24,7 +26,10 @@ neighbours (offsets of 1 from the induction variables);
   neighbourhood-indexed array subscript (\eg{}, the classic five-point
   stencil);
 
-\item Many array computations read from each particular index just once.
+\item Many array computations read from each particular index just
+once. The significance of this hypothesis is that, if true, it would
+be useful to provide a specification of this so accidental repetition
+of subscripts in complex code can be detected.
 \end{enumerate}
 %
 From these hypotheses, we conjecture that the above programming idioms
@@ -125,10 +130,10 @@ on the right-hand side based on their spatial properties: \\
                                                                 \fortran{a(i) + a(i+1) + a(i+2)} \\
   & (\textsf{disjoint}) & Non-contiguous & \fortran{a(i) + a(i+2)} \\ \hline
 %%%%%%
-\multirow{2}{*}{Shape} & (\textsf{rect}) & (Hyper)rectangle &
- \fortran{a(i,j) + a(i+1,j) + a(i,j+1) + a(i+1,j+1)} \\
-           & (\textsf{sumRect}) & Composed (hyper)rectangles &
-  \fortran{a(i,j) + a(i,j-1) + a(i-1,j) + a(i+1,j) + a(i,j+1)} \\ \hline
+%\multirow{2}{*}{Shape} & (\textsf{rect}) & (Hyper)rectangle &
+% \fortran{a(i,j) + a(i+1,j) + a(i,j+1) + a(i+1,j+1)} \\
+%           & (\textsf{sumRect}) & Composed (hyper)rectangles &
+%  \fortran{a(i,j) + a(i,j-1) + a(i-1,j) + a(i+1,j) + a(i,j+1)} \\ \hline
 %%%%%%
   \multirow{2}{*}{Reuse} & (\textsf{readonce}) & Unique subscripts
                                          & \eg{} \fortran{b(i) = a(i) + a(i+1)} \\

@@ -60,10 +60,10 @@ The analysis builds on standard program analyses:
 
 \subsection{Checking code against specifications}
 \label{subsec:checking}
-
-In the model, we can regard both array indices and specifications as groups of
-points in $N$-dimensional space. Notion of consistency is then intuitively
-whether these two (potentially infinite) sets of points in space match or not.
+%
+In the model, we can regard both array indices and specifications as sets of
+points in $N$-dimensional space. The notion of consistency is then intuitively
+whether these two (potentially infinite) sets of points match or not.
 This leads to a simple set based consistency function defined as
 %
 \begin{align*}
@@ -72,7 +72,9 @@ This leads to a simple set based consistency function defined as
     \mathsf{Mult}(\mathsf{Approx}(\region{N})) \to \mathbb{B} & \\
 %
   \mathit{consistent}(\mathit{ix}, \mathit{model}) & = \begin{cases}
-    \mathsf{false} & \mathit{model} = \mathsf{once}(x) \wedge ix = \mathsf{mult}(y) \\
+    \mathsf{false} & \mathit{model} = \mathsf{once}(x) \wedge ix =
+    \mathsf{mult}(y) \\
+    \mathsf{false} & \mathit{model} = \mathsf{mult}(x) \wedge ix = \mathsf{once}(y) \\
     \mathit{consistent'}(\mathit{peel}(ix), \mathit{peel}(model)) & \textit{otherwise}
   \end{cases} \\
 %
@@ -91,25 +93,24 @@ The first function, $\mathit{consistent}$, checks whether the linearity of the
 specification matches that of the indices, \ie{} if the specification allows
 indices to be repeated or not. Then it delegates to $\mathit{consistent'}$
 function to check if the points observed in the array terms match the space
-defined by the specification. Lower bounds, marked by \texttt{atLeast}
+defined by the specification. Lower bounds, marked by the \texttt{atLeast}
 modifier, require the space defined by the specification to remain inside the
-set of indices, while an upper bound, market by \texttt{atMost} modifier,
+set of indices, while an upper bound, market by \texttt{atMost},
 requires the opposite: enclosure. In the absence of such modifiers, we expect
-the space defined by observed indices correspond exactly those defined by the
+the space defined by observed indices corresponds exactly with those defined by the
 region in the specification, hence requiring set equality.
 
 As explained in \Cref{subsec:union-normal-form}, the sets being compared are
 potentially infinite and set comparisons cannot be done by exhaustively
 comparing the points of one with the other. Instead, we compile the region into
 interval constraints and subscript schemes into membership constraints and pass
-it to \textsc{Z3}~\citep{de2008z3} SMT solver to see if they are equal. The
-query belongs to to quantifier free linear arithmetic, which is a decidable
-theory.
+these to the \textsc{Z3} SMT solver~\citep{de2008z3} to see if they are equal. The
+query is expressed in quantifier free linear arithmetic, which is decidable.
 
 Although satisfiability is super-exponential with the length of the formula in
-the worst case~\cite{fischer1974super}. Performance of consistency checking
-using satisfiability is irrelevant as the the length of the formula is linearly
-related with two factors: (1) dimensionality times number of regions conntected
+the worst case~\cite{fischer1974super}, performance of consistency checking
+using satisfiability is fast in practice as the length of the formula is linearly
+related with two factors: (1) dimensionality times number of regions connected
 with \texttt{+} and (2) dimensionality times the number of array terms flowing
 into an assignment assignment. In \Cref{sec:study}, we establish dimensonality
 99\% of all array variables that we can assign a specification is X, and 99\% of
@@ -282,4 +283,3 @@ specification:
   \stencil[s]{c}{1}{1}{} \texttt{*} \stencil[s]{p}{2}{}{} \; \texttt{+} \;
   \stencil[s]{p}{1}{}{}  \texttt{*} \stencil[s]{c}{2}{1}{}
 \end{equation*}
-

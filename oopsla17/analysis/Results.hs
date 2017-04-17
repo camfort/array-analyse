@@ -202,18 +202,19 @@ instance Camfortable (Form LHS, Form RHS, Consistency) where
   camfortable (l, r, c) = camfortable l && camfortable r && camfortable c
 
 instance Camfortable Consistency where
-  camfortable (Consistent _)  = True
-  camfortable (LHSsuperset _) = True
-  camfortable _               = False
+  camfortable Inconsistent  = False
+  camfortable _             = True
 
 instance Camfortable (Form LHS) where
   camfortable Vars = True
   camfortable (Neighbours _ L) = True
+  camfortable (Affines _ L)    = True
   camfortable IVs = True
   camfortable _   = False
 
 instance Camfortable (Form RHS) where
   camfortable (Neighbours _ p) = camfortable p
+  camfortable (Affines _ p) = camfortable p
   camfortable _                = False
 
 instance Camfortable (Physicality p) where

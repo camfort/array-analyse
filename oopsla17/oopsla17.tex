@@ -120,8 +120,8 @@
 
 
 \begin{abstract}
-  Arrays computations are the workhorse of numerical modelling and
-  computational science. However, low-level manipulation of array
+  Arrays computations are at the core of numerical modelling and
+  computational science applications. However, low-level manipulation of array
   indices is a source of program error.  Many practitioners are aware
   of the need to ensure program correctness, yet very few of the
   techniques from the programming research community are applied by
@@ -140,7 +140,7 @@
   specifications.  We evaluate our tool on our corpus of scientific
   code and give verification case studies of bug fixes that are
   detected by our approach. We found roughly 60,000 targets for
-  specification across roughly 1.2 million lines of code, showing the
+  specification across roughly 1.4 million lines of code, showing the
   vast majority of array computations read from arrays in a pattern with
   a simple, regular, static shape.
 \end{abstract}
@@ -159,7 +159,8 @@
 \label{sec:study}
 \input{study}
 
-\section{A Specification Language for Shape}
+\section{A Specification Language for the Shape of Array Patterns}
+\label{sec:lang}
 
 \begin{figure}[t]
 \begin{align*}
@@ -711,6 +712,15 @@ We define the equational theory in \Cref{sec:equational-theory}.
 
 \section{Evaluation}
 \label{sec:evaluation}
+
+\subsection{Verification case studies}
+\label{sec:case-studies}
+
+\subsubsection{Catching bugs}
+
+\subsubsection{Aiding refactoring}
+
+\subsubsection{Stress-testing Camfort}
 
 
 \bibliography{references}

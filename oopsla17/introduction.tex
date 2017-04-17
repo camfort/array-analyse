@@ -1,39 +1,187 @@
-\paragraph{Context of this research}
+\noindent
+In the sciences, complex models are now almost always expressed as
+computer programs. But how can a scientist have confidence that the
+implementation of their model is as they intended? There is an
+increasing awareness of the need for program verification in science
+and the possibility of using (semi-)automated
+tools~\cite{post2005computational,oberkampf2010verification,orchard2014computational}.
+However, whilst program verification approaches are slowly maturing in
+computer science they see little use in the natural and physical
+sciences. This is partly due to a lack of training and awareness, but
+also a lack of tools targeted at the needs of scientists. This
+paper is part of a line of research on providing lightweight, easy-to-ue
+verification tools targeted at common programming patterns in science, 
+motivated by analysis of real code.
 
-There is an increasing awareness of the need for program verification
-techniques in
-science~\cite{post2005computational,oberkampf2010verification,orchard2014computational}.
-Whilst there are various kinds of automated and semi-automated
-verification tools available, they see little use in science. This is
-partly due to a lack of training and a lack of awareness. But its also
-due to a lack of targetting. This paper is part of a line of research
-to provide lightweight verification tools targetting
-programming patterns common in computational science code, 
-that are easy to use by scientists, and that integrate with common
-practises and workflows.
+We focus on one common concept: \emph{arrays}, the core data structure
+in numerical modelling code, typically representing discrete
+approximations of physical space or data sets. A common programming
+pattern, sometimes referred to as the \emph{structured grid}
+pattern~\cite{Asanovic2006}, traverses the index space of one or more
+arrays via a loop, computing elements of another array or reducing the
+elements to a single value. For example, the following Fortran code
+computes the one-dimensional discrete Laplace transform approximating
+a derivative:
+%
+\begin{minted}{fortran}
+do i = 1, (n-1)
+      b(i) = a(i-1) - 2*a(i) + a(i+1)
+end do
+\end{minted}
+%
+This is a \emph{stencil} computation, a programming idiom
+where the elements of an array at each index $i$ from a
+\emph{neighbourhood} of values around $i$ in some input array(s). This
+pattern is common in scientific, graphical, and numerical
+code, \eg{}, convolutions in image processing, approximations
+to differential equations, cellular automata.
 
+Such array computations are prone to error in their indexing
+terms. For example, a logical off-by-one-error might manifest itself
+as writing $\texttt{a(i)}$ instead of $\texttt{a(i-1)}$ (we revisit an
+example we found of this in \Cref{sec:case-studies}).
+Errors also arise by simple lexical mistakes when large amounts of
+fine-grained indexing are involved in a single expression. For
+example, the following snippet from a Navier-Stokes
+fluid model~\citet{griebel1997numerical} has two arrays are
+read with different data access patterns, across two dimensions, with
+dense index-manipulation code:
+%%
+\begin{minted}[firstnumber=20,xleftmargin=2em]{fortran}
+du2dx = ((u(i,j)+u(i+1,j))*(u(i,j)+u(i+1,j))+gamma*abs(u(i,j)+u(i+1,j))*(u(i,j)-u(i+1,j))- &
+  (u(i-1,j)+u(i,j))*(u(i-1,j)+u(i,j))-gamma*abs(u(i-1,j)+u(i,j))*(u(i-1,j)-u(i,j))) /(4.0*delx)
 
-\subsection{Terminology and notation}
+duvdy = ((v(i,j)+v(i+1,j))*(u(i,j)+u(i,j+1))+gamma*abs(v(i,j)+v(i+1,j))*(u(i,j)-u(i,j+1))- &
+  (v(i,j-1)+v(i+1,j-1))*(u(i,j-1)+u(i,j))-gamma*abs(v(i,j-1)+v(i+1,j-1))*(u(i,j-1)- u(i,j))) / (4.0*dely)
+
+laplu = (u(i+1,j)-2.0*u(i,j)+u(i-1,j))/delx/delx+(u(i,j+1)-2.0*u(i,j)+u(i,j-1))/dely/dely
+f(i,j) = u(i,j)+del_t*(laplu/Re-du2dx-duvdy)
+\end{minted}
+%
+This miasma of indexing expressions is hard to read and
+prone to simple textual input mistakes, \eg{}, swapping \texttt{-} and
+\texttt{+}, missing an indexing term, or transforming the wrong
+variable \eg{} \texttt{(i+1,j)} instead of \texttt{(i,j+1)}.
+
+In practice, the typical development procedure for complex stencil
+computations involves some ad hoc testing to ensure that no
+mistakes have been made \eg{}, by visual inspections on data,
+or comparison against manufactured or analytical
+solutions~\cite{farrell2010automated}. Such testing is often
+discarded once the code is shown correct. This is not the only
+information that is discarded. The shape of the indexing pattern
+is usually the result of choices made in the numerical-analysis
+procedure to discretise some continuous equations. Rarely are these decisions captured in the source code,
+yet the derived shape is usually uniform with a 
+clear and concise description \eg{}, 
+\emph{centered space, of depth 1} referring to indexing
+terms \texttt{a(i)}, \texttt{a(i-1)} and
+\texttt{a(i+1)}~\cite{recktenwald2004finite}.
+
+To support correct array programming, we propose a simple,
+abstract specification language for the data access pattern of
+array-loop computations. This provides a way to rule out bugs due to
+indexing errors. The language design is informed by an initial
+empirical study of array computations in a corpus real-world
+scientific code base, totally 1.4 million lines of
+code (\Cref{sec:study}). We confirm our initial hypotheses of the
+ubiquity of looped array computations, but also that they have a
+common form, reading from arrays in a fixed neighbourhood of
+contiguous elements with a simple static pattern. From this we
+designed a simple set of combinators to express common array patterns (\Cref{sec:lang}).
+As an example, the Laplace program is specified in our language by:
+%
+\begin{minted}[linenos=false]{fortran}
+!=  stencil centered(depth=1, dim=1) :: a
+\end{minted}
+%
+That is, \texttt{a} is accessed with a symmetrical pattern in its
+first dimension (``centered'') to a depth of one in each direction and
+its result contributes to an array
+write.  The Navier-Stokes example has two specifications:
+%
+\begin{minted}[linenos=false,xleftmargin=0em,xrightmargin=0.8em,breakindent=1.9em]{fortran}
+!= stencil centered(depth=1,dim=1)*pointed(dim=2) + centered(depth=1,dim=2)*pointed(dim=1) :: u
+!= stencil forward(depth=1,dim=1)*backward(depth=1,dim=2) :: v
+\end{minted}
+%
+The specifications requires that \texttt{u}
+is accessed with a centered pattern to depth of 1 in both dimensions
+(this is known as the \emph{five-point stencil}) and \texttt{v} is
+accessed in a neighbourhood bounded forwards to depth of $1$ in the
+first dimension and backward to a depth of $1$ in the second
+dimension. The specification is relatively small and abstract compared
+with the code, with a small number of combinators that \emph{do not
+  involve any indexing expressions}, \eg{} \texttt{a(i+1,j-1)}. This
+contrasts with other specification approaches, \eg{}, deductive
+verification tools such as ACSL~\citet{baudin2008acsl}, where
+specifications about array computations must also be expressed in
+terms of array-indexing expressions. Thus, any low-level mistakes that
+could be made whilst programming complex indexing code could also be
+made when writing its specification. Our specifications are 
+abstract to avoid the error-prone nature of index manipulation; our
+specifications are more lightweight to aid its adoption in science.
+  
+We implemented a verification tool for our specification language as
+an extension to CamFort~\cite{camfort}, an open-source program
+analysis tool for Fortran. Specifications are associated to code via
+comments, against which the tool checks the code for conformance. This
+specify-and-check approach reduces testing effort and future-proofs
+against bugs introduced during refactoring and maintenance. A
+specification also concisely captures the array access pattern 
+and provides documentation. We also provide an inference procedure
+which efficiently produces specifications with no programmer
+intervention, automatically inserting specifications at appropriate
+places in the source code. This aids adoption of our approach to
+existing legacy code base.
+
+The checking and inference algorithms (\Cref{sec:algorithms}) are
+derived from a model of array access patterns, which is also used to
+give a denotational model of our specification language
+(\Cref{sec:semantics}).
+
+Using the inference-mode of the tool, we applied our tool to our
+original corpus (\Cref{sec:evaluation}). Our tool identifies and
+infers specifications for roughly 60,000 array computations in the
+corpus. Approximately 5,000 of the computations we found are non-trivial,
+corresponding to code which is a possible source of errors. This
+validates the design of our language in its capability to capture many
+core patterns.
+
+Our approach is not targeting a class of bugs that can be detected
+automatically (\emph{push-button verification}). Instead, array
+indexing bugs must be identified relative to a specification of the
+intended access pattern.  Nevertheless, we report on instances of code
+revisions from the commit histories of our corpus where a
+correct specification would have either spotted an error (which was
+latter correct) or would have assisted in an array refactoring task
+(\Cref{sec:case-studies}).
+
+\paragraph{Terminology and notation}
+
+We fix some terminology used throughout to describe
+syntactic constructs.
 
 \begin{defn}[Induction variables]
-  An integer variable is a \emph{base induction variable} if it is the control
-  variable of a ``\texttt{for}'' loop, incremented by $1$ per iteration. A variable
-  is interpreted as an induction variable only within the scope of the loop
-  body. Throughout, $i, j, k$ range over induction variables.
+  An integer variable is a \emph{base induction variable} if it is the
+  control variable of a ``\texttt{for}'' loop (\texttt{do} in
+  Fortran), incremented by $1$ per iteration. A variable is
+  interpreted as an induction variable only within the scope of the
+  loop body. Throughout, $i, j, k$ range over induction variables.
 
-  A \emph{derived induction variable} is an expression of the form $a \times i
-  + b$, where $a$ and $b$ are constant expressions, \ie{}, an affine expression
-  on an induction variable $i$.
+  A \emph{derived induction variable} is an expression of the form
+  $a \ast i + b$, where $a$ and $b$ are constant expressions, \ie{},
+  an affine expression on an induction variable $i$.
 \end{defn}
 
 \begin{defn}[Array subscripts and indices]\label{def:array-subs}
-  An \emph{array subscript}, denoted $a(\bar{e})$, is an expression which reads
-  from an $N$-dimensional array $a$ at an \emph{index} specified by a
-  comma-separated sequence of integer expressions denoted $\bar{e}$ or in
-  expanded form as $(e_1, \ldots, e_N)$. An index $e_i$ is called
-  \emph{relative} if the expression involves an induction variable. An
-  \emph{absolute index} is a integer expression which is constant relative to
-  the enclosing loop.
+  An \emph{array subscript}, denoted $a(\bar{e})$, is an expression
+  which indicates the element of an $N$-dimensional array $a$ at the
+  \emph{index} $\bar{e}$, specified by a comma-separated sequence of
+  integer expressions, in expanded form as $(e_1, \ldots, e_N)$. An
+  index $e_i$ is called \emph{relative} if the expression involves an
+  induction variable. An \emph{absolute index} is a integer expression
+  which is constant relative to the enclosing loop.
 \end{defn}
 
 \begin{defn}[Neighbourhood index]\label{def:neighbour-ix}
@@ -44,6 +192,7 @@ practises and workflows.
   relation $\equiv$ identifies terms up-to commutativity of $+$ and the inverse
   relationship of $+$ and $-$ \eg{}, $(-b) + i \equiv i - b$).
 \end{defn}
+
 
 %%% Local Variables:
 %%% mode: latex

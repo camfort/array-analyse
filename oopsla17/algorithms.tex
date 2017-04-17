@@ -76,11 +76,11 @@ This leads to a simple set based consistency function defined as
     \mathit{consistent'}(\mathit{peel}(ix), \mathit{peel}(model)) & \textit{otherwise}
   \end{cases} \\
 %
-  \textit{consistent'} & :
+  \mathit{consistent'} & :
     \mathcal{P}(\bz{}^N) \times
     \mathsf{Approx}(\region{N}) \to \mathbb{B} & \\
 %
-  \textit{consistent'}(\mathit{ix}, \mathit{model}) & = \begin{cases}
+  \mathit{consistent'}(\mathit{ix}, \mathit{model}) & = \begin{cases}
     m = \mathit{ix} & \mathit{model} = \mathsf{exact}(m) \\
     m \supseteq \mathit{ix} & \mathit{model} = \mathsf{upper}(m) \\
     m \subseteq \mathit{ix} & \mathit{model} = \mathsf{lower}(m)
@@ -89,29 +89,35 @@ This leads to a simple set based consistency function defined as
 %
 The first function, $\mathit{consistent}$, checks whether the linearity of the
 specification matches that of the indices, \ie{} if the specification allows
-indices to be repeated or not.Then it delegates to $\mathit{consistent'}$
-function which checks if the points observed in the array expression matches
-the space defined by the specification. Lower bounds, marked by \texttt{atLeast}
+indices to be repeated or not. Then it delegates to $\mathit{consistent'}$
+function to check if the points observed in the array terms match the space
+defined by the specification. Lower bounds, marked by \texttt{atLeast}
 modifier, require the space defined by the specification to remain inside the
 set of indices, while an upper bound, market by \texttt{atMost} modifier,
 requires the opposite: enclosure. In the absence of such modifiers, we expect
 the space defined by observed indices correspond exactly those defined by the
 region in the specification, hence requiring set equality.
 
-Reader will realise that since index schemes allows infinite intervals in the
-product, set equality cannot be done by exhaustively checking the points of one
-are inside the other. Instead, we compile the region into interval constraints
-and subscript schemes into membership constraints and pass it to
-\textsc{Z3}~\citep{de2008z3} SMT solver to see if they are equal. The query
-belongs to to quantifier free linear arithmetic, which is a decidable theory.
-Performance of consistency checking using SMT solver is irrelevant as the number
-of interval constraints and the number of indices that can reasonably appear in
-an assignment is too small restricting the size of the formula being checked.
+As explained in \Cref{subsec:union-normal-form}, the sets being compared are
+potentially infinite and set comparisons cannot be done by exhaustively
+comparing the points of one with the other. Instead, we compile the region into
+interval constraints and subscript schemes into membership constraints and pass
+it to \textsc{Z3}~\citep{de2008z3} SMT solver to see if they are equal. The
+query belongs to to quantifier free linear arithmetic, which is a decidable
+theory.
 
-\mnote{It would be great if we had data on number of indexing expressions that
-occur (counting the ones that flow in) and also the length of specifications
-(which I think we do generate). This would justify my efficiency claims}.
+Although satisfiability is super-exponential with the length of the formula in
+the worst case~\cite{fischer1974super}. Performance of consistency checking
+using satisfiability is irrelevant as the the length of the formula is linearly
+related with two factors: (1) dimensionality times number of regions conntected
+with \texttt{+} and (2) dimensionality times the number of array terms flowing
+into an assignment assignment. In \Cref{sec:study}, we establish dimensonality
+99\% of all array variables that we can assign a specification is X, and 99\% of
+number of array terms that flows into such an assignment is Y. In
+\Cref{sec:evaluation}, we show the number of regions that are connected with
+\texttt{+} is Z in 99\% of the cases.
 
+\mnote{DOMINIC fills in X, Y, and Z}
 
 \subsection{Infering specification automatically}
 \label{subsec:inference}

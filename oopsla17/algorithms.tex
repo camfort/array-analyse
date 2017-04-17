@@ -136,14 +136,19 @@ as $\mathcal{S}_0$. For our example:
 %constructs a set of $n$-dimensional rectangles covering all contiguous
 %groups of schemes in $U(a)$.
 
-\begin{enumerate}[leftmargin=1.5em]
-\item (\textbf{Covering})
+We explain the algorithm in two parts. First, we show how \emph{adjacent} index
+schemes are coalesced into smaller index schemes while remaining in union normal
+form. Then, we explain how this smaller unioned indexing schemes are converted
+to specifications.
+
+\subsubsection{Covering}
 A covering of (possibly overlapping) the subscript space
 is calculated as a value of $Region_N$. This is computed iteratively
 by the following steps until a fixed-point is reached:
 
-\begin{enumerate}[leftmargin=0.5em]
-\item (\textbf{Coalesce intervals})
+\begin{description}[leftmargin=0.5em]
+
+\item[Coalesce intervals]
 %
 Index schemes which are \emph{contiguous} in one dimension are
 coalesced.
@@ -188,7 +193,8 @@ That is, the new set of index schemes $\mathsf{coalesce}(\mathcal{S})$
 comprises the union of the set of coalesced pairs of contiguous
 schemes and the set of index schemes for which there is no other
 contiguous scheme.
-\item (\textbf{Remove redundant schemes})
+
+\item[Remove redundant schemes]
 Any indexing schemes which are subsumed by another are filtered out:
 %
 \begin{align*}
@@ -200,7 +206,8 @@ Any indexing schemes which are subsumed by another are filtered out:
 \dnote{I'm starting to suspect that this step is actually redundant
   now- but I will need to do some math to check}
 %\item \textbf{Covering}
-\end{enumerate}
+\end{description}
+
 The least fixed-point of $\textsf{nonOverlap} \circ \textsf{coalesce}$
 is computed, providing a minimal indexing scheme covering the space.
 \dnote{Proof?}
@@ -222,5 +229,5 @@ The fixed-pointed is reached within two applications of
 \textsf{coalesce} for our example.
 \dnote{We probably need to say something about classifying index
 schemes are \textit{Region$_N$}?}
-\item (\textbf{Index schemes to syntax}) \dnote{Mistral todo}
-\end{enumerate}
+
+\subsubsection{Index schemes to syntax}

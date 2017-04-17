@@ -28,3 +28,25 @@ ended up with \num{\overallnumStencilSpecs} specifications. This shows
 that we can express a large number of stencil shapes within our
 high-level abstraction and validates our initial hypothesis that many
 stencil computations have a regular shape.
+
+The majority of specifications generated were relatively simple but we
+found significant numbers of more complex shapes. We grouped common
+patterns into categories:
+
+\textbf{All pointed} \num{\overalljustPointed} of the stencils we
+found involved only pointed regions.
+% 39,681 of these were pointed in all dimensions.
+Common examples of this were pointwise transformations on data (such
+as scaling).
+
+\textbf{Single-action} specifications comprise one 
+forward, backward, or centered region constant combined via \term{+} 
+or \term{*} with any number of pointed regions. We identified \num{\overallsingleAction} single-action
+specifications, of which \num{\overallsingleActionIrr} were single-action with a
+\texttt{nonpointed} modifier.
+
+\textbf{Multi-action} specifications comprise at least two 
+ forward, backward, or centered regions, combined with
+any number of pointed regions. We identified \num{\overallmultiAction} multi-action
+specifications out of which \num{\overallmultiActionMulOnly} had regions combined only with
+$\term{*}$ and \num{\overallmultiActionPlusAndMul} combined with a mix of $\term{*}$ and \term{+}.

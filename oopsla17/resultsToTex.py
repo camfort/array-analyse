@@ -57,3 +57,4 @@ for corpus in corpora.keys():
 print "\\newcommand{\\%s}{%.2g}" % ("overalltickAssignPercent", float(totalTickAssign) / float(totalLoC) * 100)
 print "\\newcommand{\\%s}{%.2g}" % ("overalltickAssignSuccessPercent", float(totalTickAssignSuccess) / float(totalLoC) * 100)
 print "\\newcommand{\\%s}{%.2g}" % ("overalltickAssignSuccessPercentOfTickAssign", float(totalTickAssignSuccess) / float(totalTickAssign) * 100)
+print "\\newcommand{\\%s}{%d}" % ("overallmultiActionPlusAndMul", int(files["overallmultiAction"]) - int(files["overallmultiActionMulOnly"]))

@@ -19,5 +19,5 @@ inference.pdf: inference.tex stencilmacros.sty
 quick:
 	pdflatex -shell-escape oopsla17
 
-results.tex: analysis-2017.txt
+results.tex: analysis-2017.txt resultsToTex.py
 	./resultsToTex.py $< > $@

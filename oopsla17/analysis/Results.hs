@@ -202,18 +202,19 @@ instance Camfortable (Form LHS, Form RHS, Consistency) where
   camfortable (l, r, c) = camfortable l && camfortable r && camfortable c
 
 instance Camfortable Consistency where
-  camfortable (Consistent _)  = True
-  camfortable (LHSsuperset _) = True
-  camfortable _               = False
+  camfortable Inconsistent  = False
+  camfortable _             = True
 
 instance Camfortable (Form LHS) where
   camfortable Vars = True
   camfortable (Neighbours _ L) = True
+  camfortable (Affines _ L)    = True
   camfortable IVs = True
   camfortable _   = False
 
 instance Camfortable (Form RHS) where
   camfortable (Neighbours _ p) = camfortable p
+  camfortable (Affines _ p) = camfortable p
   camfortable _                = False
 
 instance Camfortable (Physicality p) where
@@ -345,6 +346,12 @@ prettyResultsCamfort r =
  ++ mapView' "Dimensionality" (camfortableResult . histDimensionality $ r)
  ++ mapView' "Max depth" (camfortableResult . histMaxDepth $ r)
  ++ mapView' "Number of indexing expressions" (camfortableResult . histNumIndexExprs $ r)
+ ++ "\nDims result total: " ++ show (tally $ histDimensionality r)
+ ++ "\nMax depth result total: " ++ show (tally $ histMaxDepth r)
+ ++ "\nNumber of indexing expr total: " ++ show (tally $ histNumIndexExprs r)
+  where
+    tally h = sum $ ((M.!) (camfortableResult h) "Camfort")
+
 
 rline msg num = "   " ++ msg ++ ":" ++ (replicate (90 - (length msg)) ' ') ++ (show num) ++ "\n"
 rline' msg dat = "   " ++ msg ++ ":" ++ (replicate (90 - (length msg)) ' ') ++ dat ++ "\n"

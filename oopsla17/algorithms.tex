@@ -268,15 +268,17 @@ The extended example does not have such representation problem, so the interval
 schemes are left as they are.
 
 The final stage of inference is simply mapping interval schemes into region
-constants. Each interval scheme is connected with \texttt{+} and each dimension
-of the interval scheme is connected with \texttt{*}. The intervals at each
-dimension are mapped to region constants using the bijection defined in
-\Cref{sec:semantics}.
+constants. Each interval scheme is connected with \texttt{+}. Individual schemes
+are decomposed using \Cref{lem:vector-intersect} such that each of the resulting
+index schemes have all but one dimensions set to \interv{-\infty}{\infty}{}.
+Each of these interval schemes are mapped to region constants using
+\Cref{subfig:region-model} and connected with \texttt{*}.
 
-In the example, $[-1, 1] \times [0, 0]$ is mapped to \texttt{\stencil{c}{1}{1}{}
-* \stencil{p}{2}{}{}} and $[0, 0] \times [-1, 1]$ is mapped to
-\texttt{\stencil{p}{1}{}{} * \stencil{c}{2}{1}{}}, producing the overall
-specification:
+In the example, $[-1, 1] \times [0, 0]$ is decomposed into $\interv{-1}{1}{}
+\times \interv{-\infty}{\infty}{}$ and $\interv{-\infty}{\infty}{} \times
+\interv{0}{0}{}$. These are then mapped to \texttt{\stencil{c}{1}{1}{}
+* \stencil{p}{2}{}{}}. Decomposition of $[0, 0] \times [-1, 1]$ is similar. When
+combined we obtain the following specification:
 %
 \begin{equation*}
   \texttt{stencil readOnce,} \;

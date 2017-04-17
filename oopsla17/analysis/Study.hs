@@ -3,6 +3,8 @@
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE UndecidableInstances #-}
 
+{-# LANGUAGE ScopedTypeVariables #-}
+
 import qualified Data.Map as M
 import Results
 import Data.List
@@ -14,11 +16,21 @@ main = do
   case args of
     [] -> putStrLn "Specify a .restart file to analyse"
     [x] -> putStrLn "Specify an analysis you want to run, e.g., hyps"
-    (file:study:_) -> do
+    (file:study:args) -> do
       resultsString <- readFile file
       let result = ((read resultsString) :: Result)
       case study of
         "hyps" -> putStrLn $ hyps result
+        "histsplot" -> do
+          let camfort h = ((M.!) (camfortableResult h) "Camfort")
+          writeFile "indexExprs.dat" (gnuplotHist (read . head $ args) .  camfort . histNumIndexExprs $ result)
+          writeFile "dimensionality.dat" (gnuplotHist (read . head $ args) . camfort . histDimensionality $ result)
+        "hists" -> do
+          putStrLn $ mapViewTotal "Dimensionality" (histDimensionality result)
+             ++ mapViewTotal "Max depth" (histMaxDepth result)
+             ++ mapViewTotal "Number of indexing expressions" (histNumIndexExprs result)
+             ++ rline' "Length of dataflow path"  (hview . histLengthOfDataflow $ result)
+
 
 regroup :: (Ord c, HistogramShow t) => (Cat -> c) -> M.Map Cat t -> M.Map c t
 regroup classifier =
@@ -155,8 +167,8 @@ hypothesis3 (_, rhs, _) =
   case rhs of
     Affines    _ (R (s, p, Contig, _)) | s /= Other -> "rhs(aff,contig," ++ positionString p ++ ")"
     Neighbours _ (R (s, p, Contig, _)) | s /= Other -> "rhs(neigh,contig," ++ positionString p ++ ")"
-    Affines    _ (R (s, _, _, _))      | s /= Other -> "rhs(affine,nonContig)"
-    Neighbours _ (R (s, _, _, _))      | s /= Other -> "rhs(neigh,nonContig)"
+    Affines    _ (R (s, p, _, _))      | s /= Other -> "rhs(affine,nonContig," ++ positionString p ++ ")"
+    Neighbours _ (R (s, p, _, _))      | s /= Other -> "rhs(neigh,nonContig," ++ positionString p ++ ")"
     _                                               -> "other"
 
 -- Hypothesis 4: Many array computations are \emph{stencil

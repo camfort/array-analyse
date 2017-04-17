@@ -22,7 +22,7 @@ with open(sys.argv[1]) as f:
                 corpus = "overall"
             elif l[0:6] == "corpus":
                 corpus = sanitize(l.split(":")[1])
-            elif l.strip().startswith("numStencilSpecs"):
+            elif l.strip().startswith("numStencilSpecs ("):
                 pass
             else:
                 (key,value) = map(lambda x:x.strip(),l.split(":"))
@@ -56,3 +56,4 @@ for corpus in corpora.keys():
 
 print "\\newcommand{\\%s}{%.2g}" % ("overalltickAssignPercent", float(totalTickAssign) / float(totalLoC) * 100)
 print "\\newcommand{\\%s}{%.2g}" % ("overalltickAssignSuccessPercent", float(totalTickAssignSuccess) / float(totalLoC) * 100)
+print "\\newcommand{\\%s}{%.2g}" % ("overalltickAssignSuccessPercentOfTickAssign", float(totalTickAssignSuccess) / float(totalTickAssign) * 100)

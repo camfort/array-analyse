@@ -222,7 +222,7 @@ instance Camfortable (Physicality p) where
   camfortable (R p) = camfortable p
 
 instance Camfortable (Shape, Position, Contig, Reuse) where
-  camfortable (s, p, _, _) = camfortable s && camfortable p
+  camfortable (s, _, _, _) = s /= Other && camfortable s
 
 instance Camfortable Shape where
   camfortable Orthotope = True
@@ -368,6 +368,12 @@ mapView msg map =
   where
     total = histTotal $ M.elems map
 
+mapViewTotal msg map =
+       "   " ++ msg ++ ":\n"
+    ++ rline' ((replicate 5 ' ') ++ "Total") (show' total)
+  where
+    total = histTotal $ M.elems map
+
 mapView' msg map =
        "   " ++ msg ++ ":\n"
     ++ concatMap (\(cat, dat) -> hline' cat (show' dat)) (M.assocs map)
@@ -393,6 +399,15 @@ instance HistogramShow [Int] where
   histZip (x:xs) (y:ys) = (x+y):(histZip xs ys)
 
   histEmpty = []
+
+
+gnuplotHist :: Int -> [Int] -> String
+gnuplotHist k xs = concat . mapUpTo k gnuplotHist $ zip [0..] xs
+  where
+    mapUpTo k f [] = []
+    mapUpTo k f ((n, v):xs) | k == n = [f (n, sum (v : map snd xs))]
+    mapUpTo k f (x:xs) = f x : (mapUpTo k f xs)
+    gnuplotHist (n, v) = show n ++ " " ++ show n ++ " " ++ show v ++ "\n"
 
 
 hline' cat dat =

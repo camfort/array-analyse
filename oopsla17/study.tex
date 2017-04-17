@@ -1,28 +1,28 @@
 %\setlength{\tabcolsep}{8pt}
 
+\noindent
 At the beginning of this project, we made the following hypotheses
 about array programming idioms:
-\begin{enumerate}
-\item Loops over arrays mainly read from arrays with a static pattern
-based on constant offsets from (base or dervied) induction variables;
+\begin{enumerate}[leftmargin=2em]
+\item Computations involving loops over arrays are common, where an
+  arrays are read from with a static pattern based on constant offsets
+  from (base or dervied) induction variables;
 
 \item Most loop-array computations of the previous form read
 from arrays with a \emph{contiguous} pattern, \eg{}:
 %
 \begin{minted}{fortran}
-do i = 1, n
-  b(n) = (a(i) + a(i+1)) / 2.0
+  b(n) = a(i-1) + a(i) + a(i+1)
 \end{minted}
 %
 \item Most loop-array computations of the previous form read
-from arrays with a pattern that includes the immediate
-neighbours (offsets of 1 from the induction variables);
+from arrays with a pattern that includes the origin index
+or its immediate neighbours (offsets of 1 from the induction variables);
 
 \item Many array computations are \emph{stencil computations}: an
   assignment whose right-hand side comprises array subscripts with
   neighbourhood indices and whose left-hand side is an
-  neighbourhood-indexed array subscript (\eg{}, the classic five-point
-  stencil);
+  neighbourhood-indexed array subscript (\eg{}, the Laplace operator);
 
 \item Many array computations read from each particular index just once.
 \end{enumerate}

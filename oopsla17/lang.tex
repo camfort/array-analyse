@@ -34,20 +34,20 @@
 \subsection{Specification syntax}
 \label{subsec:syntax}
 
+\noindent
 \Cref{fig:syntax} gives the syntax of stencil specifications, which is
-detailed below. The entry point is the \nonterm{specification} production which
-splits into either a \emph{region declaration} or a \emph{specification
-declaration}.
-Regions comprise \emph{region constants} which are
-combined via region operators \term{+} and \term{*}.
+detailed below. The entry point is the \nonterm{specification}
+production which splits into either a \emph{region declaration} or a
+\emph{specification declaration}.  Regions comprise \emph{region
+  constants} which are combined via
+region operators \term{+} and \term{*}.
 
-Region constants specify a finite interval in a 
-single dimension relative to the origin and are either \term{pointed},
+Region constants (non-terminal \textit{rconst}) specify a finite interval in a 
+single dimension starting at the origin and are either \term{pointed},
 \term{forward}, \term{backward}, or \term{centered}. The region names are
 inspired by numerical analysis terminology, \eg{} the standard explicit method for
 approximating PDEs is known as the \emph{Forward Time, Centered Space} (FTCS)
 scheme~\citep{dawson1991finite}.
-
 Each region
 constant has a dimension identifier $d$ given as a positive natural number.
 Each constant except \term{pointed} has a depth

@@ -1,10 +1,10 @@
-%
+\noindent
 We outline here the procedures for checking conformance
 of source code against specifications (\Cref{subsec:checking})
 and for inferring specifications from code (\Cref{subsec:inference}).
 Both rely on a program analysis that converts array subscripts
  into sets of index schemes. We outline this analysis
-first (\cref{subsec:analysis}). Note that the analysis
+first (\Cref{subsec:analysis}). Note that the analysis
 can be made arbitrarily more complex and wide-ranging independent
 of the checking and inference procedures. At the moment, the analysis
 is largely \emph{syntactic}, with only a small amount of
@@ -12,6 +12,7 @@ semantic interpretation of the code.
 
 \subsection{Union Normal Form}\label{subsec:union-normal-form}
 
+\noindent
 We need to address the problem of representation in the model for index schemes.
 In each case, the objects are sets and union and intersection are the
 combinators. However, they are often infinite sets due to \bz{} in Cartesian

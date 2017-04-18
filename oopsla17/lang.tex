@@ -92,20 +92,6 @@ of the origin.  For example, the following is a
 b(i) = a(i-1) + 10*a(i-2)
 \end{minted}
 %
-Not every dimension needs to be specified, \eg{},
-specifications on lines $1$, $3$, and $7$ leave some dimensions
-unspecified which leaves indices in these dimensions unconstrained.
-
-The \term{forward}, \term{backward}, and \term{centered} regions may
-all have an additional attribute \term{nonpointed} which marks absence
-of the origin.  For example, the following is a
-\term{nonpointed} \term{backward} stencil
-%
-\begin{minted}{fortran}
-!= stencil backward(depth=2, dim=1, nonpointed) :: a
-b(i) = a(i-1) + 10*a(i-2)
-\end{minted}
-
 \paragraph{Combining regions}
 
 The region operators \term{+} and \term{*} respectively combine
@@ -114,7 +100,7 @@ $r \term{*} s$ means that any indices in the specified code must be
 consistent with both $r$ and $s$ simultaneously.
  Dually, for the union of two regions
  $r \term{+} s$ means that indices in the specified code must be
- in consistent with one of $r$ or $s$, or both.
+ inconsistent with one of $r$ or $s$, or both.
 For example, the following \emph{nine-point stencil}
 has a specification given by the product of two \texttt{centered}
 regions in each dimension:

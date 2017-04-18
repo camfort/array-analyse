@@ -213,7 +213,7 @@ subscript). For example, for a reduction:
 %%
 \begin{minted}{fortran}
 do i = 1, n
-  != access, pointed(dim=1) :: a
+  != access pointed(dim=1) :: a
   r = max(a(i), r)
 end do
 \end{minted}

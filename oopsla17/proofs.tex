@@ -219,3 +219,14 @@
       \textit{ks} and concludes the proof.
   \end{description}
 \end{proof}
+
+\closureInference*
+
+\begin{proof}
+  By \Cref{lem:vector-union}, the union of two index schemes is an
+  index scheme if all components are equal except at most one
+  component. Contiguity (\Cref{def:contiguity}) matches
+  this precondition, thus the first part of the union in
+  $\mathit{coalesce}$ produces a set of index schemes. The second part
+  comprises a subset of the original index schemes.
+\end{proof}

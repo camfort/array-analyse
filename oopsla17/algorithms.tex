@@ -119,8 +119,8 @@ the space defined by observed indices corresponds exactly with those defined by 
 region in the specification, hence requiring set equality.
 
 As explained in \Cref{subsec:union-normal-form}, the sets being compared are
-potentially infinite thus set comparison cannot be done by exhaustively
-comparing the points of one with the other. Instead, we compile the region into
+potentially infinite thus equality cannot be computed by exhaustively
+comparing elements in each set. Instead, we compile the region into
 interval constraints and subscript schemes into membership constraints and pass
 these to the \textsc{Z3} SMT solver~\citep{de2008z3} to see if they are equal. The
 query is expressed in quantifier free linear arithmetic, which is decidable.
@@ -134,8 +134,8 @@ into an assignment assignment. In \Cref{subsec:additional-data}, we
 established that  99.6\% of array computations have 
 dimensionality of at most four, and 97\% of array computations
 involve at most 4 array subscript terms. In
-\Cref{sec:evaluation}, we show the number of regions that are connected with
-\texttt{+} is Z in 99\% of the cases.
+\Cref{sec:evaluation}, we show the number of regions that are
+connected with no more than two \texttt{+} operations in 100\% of the cases.
 
 
 \subsection{Inferring specification automatically}
@@ -143,92 +143,111 @@ involve at most 4 array subscript terms. In
 %
 \noindent
 We provide an inference procedure for generating specifications from
-code, which are inserted automatically as comments. This helps support
-maintenance of legacy code, and aids understanding of our
-specification language. We illustrate inference using the
-five-point stencil of \Cref{exm:checking}.
+code which are inserted automatically as comments. This supports
+maintenance of legacy code base, and aids understanding of our
+specification language. 
 
 The preceding source code analysis converts the concrete syntax of
-array subscripts into a set of subscript schemes in
-$\mathcal{P}(\bz)^N$. These subscripts are then coalesced iteratively
-into sets of index schemes.
-
-%
-%For each array variable $a \in \mathsf{dom}(U)$, the algorithm
-%constructs a set of $n$-dimensional rectangles covering all contiguous
-%groups of schemes in $U(a)$.
-%
-We explain the algorithm in two parts. First, we show how
-\emph{contiguous} index schemes are coalesced into a smaller set of
-index schemes while remaining in union normal form. Then, we explain
-how this smaller unioned indexing schemes are converted to
-specifications.
+array subscripts into a sets of subscript schemes. Inference then has
+two parts. First, ``adjacent'' index schemes are coalesced into a
+smaller sets of index schemes, remaining in union normal
+form. Secondly, the resulting union normal form is converted to the
+specification syntax.
 
 \subsubsection{Covering}
-A covering of (possibly overlapping) intervals is calculated as a
-value of \region{N} by coalescing \emph{contiguous} index schemes
+A covering of (possibly overlapping) intervals is calculated
+by coalescing \emph{contiguous} index schemes
 until a fixed-point is reached.
 
-\newcommand{\contig}[2]{\mathit{contig}(#1, #2)}
-\begin{defn}[Contiguity]
+\newcommand{\contig}[2]{\mathit{adjacent}(#1, #2)}
+\begin{defn}[Adjacent]
   \label{def:contiguity}
-  Two index schemes $S$ and $T$ are \emph{contiguous} written
+  Two index schemes $S$ and $T$ are \emph{adjacent} written
   $\contig{S}{T}$, iff $\pi_i(S) = \pi_i(T)$ for all $1 \leq i \leq N$
   apart from some dimension $k$ such that $\pi_k(S) = [a, b]$ and
   $\pi_k(T) = [b+1, c]$.
 \end{defn}
 %
-A coalesced set of index schemes is computed by:%
+Given a set of indexing scheme $\mathcal{S}$ and a particular index scheme $S$
+we generate the set of coalescing of $S$ with adjacent index schemes:
+%
+\begin{equation*}
+\mathit{coalesce}(S, \mathcal{S}) = 
+  \{\,S \cup T \mid T \in \mathcal{S} \, \wedge \,
+  \contig{S}{T} \}
+\end{equation*}
+%
+This is then used by the following recursive procedure:
 %
 \begin{align*}
-  \mathit{coalesce}(\mathcal{S}) = \; & \;\;
-  \{\,S \cup T \mid S \in \mathcal{S}, T \in \mathcal{S} \, \wedge \,
-                                        \contig{S}{T} \}
-  \;\;\; \cup \;\;\;
-  \{\,S \in \mathcal{S} \mid \neg \exists T \in \mathcal{S} . \; \contig{S}{T}\}
+  \mathit{coalesceStep}(\mathcal{S}) =
+  \exists T \in \mathcal{S} . 
+  \begin{cases}
+    \{T\} \cup \mathit{coalesceStep}(\mathcal{S} - \{T\}) &
+    \mathit{coalesce}(T, \mathcal{S}) = \emptyset \\
+    \mathit{coalesceStep}(\mathit{coalesce}(T, \mathcal{S}) \cup
+                                        \mathcal{S} - \{T\}) & \textit{otherwise}
+  \end{cases}
 \end{align*}
 %
-Thus, $\mathit{coalesce}(\mathcal{S})$
-comprises the union of the set of coalesced pairs of contiguous
-schemes and the set of index schemes for which there is no other
-contiguous scheme.
+This give a specification rather than an implementation. Our
+implementation represents sets by a list, and so
+$\exists T \in \mathcal{S}$ above corresponds to deconstructing
+the list into its head element $S$ (picking an element from the set).
+If $T$ has no adjacent index schemes, then coalescing is attempted on
+the rest of the set, and $T$ is returned in the result. Otherwise,
+the set of coalesced index scheme is computed and this is passed to
+a recursive called to $\mathit{coalesceStep}$, along with the rest of
+the elements).
+
+The fixed-point of $\textit{coalesceStep}(\mathcal{S})$ is computed to
+give a covering over the initial subscript space.
 %
-\begin{lemma}[Closure]
+\begin{restatable}{lem}{closureInference}
+  \label{lem:closuer-inference}
   For a set of index schemes $\mathcal{S}$, then
-  $\mathit{coalesce}(\mathcal{S})$ is well-defined and is a set of
-  index schemes.
-\end{lemma}
-\begin{proof}
-  By \Cref{lem:vector-union}, the union of two index schemes is an
-  index scheme if all components are equal except at most one
-  component. Contiguity (\Cref{def:contiguity}) matches
-  this precondition, thus the first part of the union in
-  $\mathit{coalesce}$ produces a set of index schemes. The second part
-  comprises a subset of the original index schemes.
-\end{proof}
+  $\mathit{coalesceSet}(\mathcal{S})$ is well-defined and is a set of
+  index schemes in Union Normal Form.
+\end{restatable}
 %
-For our example, the fixed-pointed of $\mathit{coalesce}$ is reached within two
+For our example, the fixed-pointed of $\mathit{coalesceStep}$ is reached within two
 steps:
 %
 \begin{align*}
-  \mathit{coalesce}(\mathcal{S}_0) & =
+  \mathit{coalesceStep}(\mathcal{S}_0) & =
   \{[-1,0] \times [0,0],\,[0,0] \times [-1, 0],\,[0,0] \times
     [0,1],\,[0,1] \times [0,0]\} \\
-  \mathit{coalesce}^2(\mathcal{S}_0) & =
-  \{[-1, 1] \times [0, 0],\,[0, 0] \times [-1, 1]\} = \mathit{coalesce}^3(\mathcal{S}_0)
+  \mathit{coalesceStep}^2(\mathcal{S}_0) & =
+  \{[-1, 1] \times [0, 0],\,[0, 0] \times [-1, 1]\} = \mathit{coalesceStep}^3(\mathcal{S}_0)
 \end{align*}
 %
-\todo{Prove that this is in $Region_N$}
+%\todo{Prove that this is in $Region_N$}
 
 \subsubsection{Index schemes to syntax}
 
-Now we convert coalesced indexing schemes into specifications. This happens in
-three stages. First, we see if there is an all infinite indexing scheme. Second,
-we determine if the indexing schemes are interval schemes so that they can be
-represented exactly and if not how it can be altered into interval schemes to be
-represented as approximations. Third, we split up the interval schemes so that
-the region constants can express them. Finally, we convert the interval schemes
-into a joins of meets of region constants.
+\newcommand{\finalSet}{\mathcal{S}_\omega}
+Let the covering indexing scheme from the fixed point of
+$\mathit{coalesceStep}$ on input $\mathcal{S}_0$ be written as
+$\finalSet{}$.  Next, $\finalSet{}$ the is translated into specification
+syntax. This happens in four stages.
+
+\begin{enumerate}[leftmargin=1.5em]
+  \item We check whether $\finalSet{}$
+  is the top indexing scheme $\bz{}^N$. This occurs if absolute indices
+  occur in each of the dimensions in any of the array subscripts,
+  leading to an unconstrained access pattern, which is not represented
+  in our syntax, ending inference.
+
+  \item Otherwise, we determine if the indexing schemes are interval
+  schemes so that they can be represented exactly. It not, they are
+  altered into interval schemes to be represented as approximations.
+
+  \item We split the interval schemes so that the region constants can
+  express them.
+
+  \item Finally, we convert the interval schemes into a joins of meets
+  of region constants.
+\end{enumerate}
 
 If there is all infinite indexing scheme, then we cannot represent it
 syntactically. This happens when use of constant indices in one or more array

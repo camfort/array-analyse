@@ -20,7 +20,7 @@ documentation. The relation is defined on regions as follows:
   \item[Subsumption] If $S$ and $R$ are regions with $S \preceq R$, then
     $S \texttt{+} R \equiv R$ and $S \texttt{*} R \equiv S$.
 %
-  \item[Distributioneq] \texttt{*} distributed over \texttt{+} and dually
+  \item[Distributioneq] \texttt{*} distributes over \texttt{+} and dually
     \texttt{+} distributes over \texttt{*}, meaning if \textcap{R}, \textcap{S},
     and \textcap{T} are regions, then we have the following dual equivalences:
 %
@@ -55,8 +55,8 @@ documentation. The relation is defined on regions as follows:
 
 \subsection{Approximations}
 %
-We define a partial of order of approximations, $\preceq$. The relation is used
-in equational theory and provides means of writing more compact lower and upper
+We define a partial of order of approximations, $\preceq$. This relation is used
+in the equational theory and provides a means of writing a more compact lower and upper
 bound specifications. The relation is defined as follows:
 
 \begin{description}
@@ -78,7 +78,7 @@ bound specifications. The relation is defined as follows:
 \end{description}
 %
 We present some derivable inequalities that are useful
-when writing specifications without inference:
+when writing specifications:
 
 \begin{restatable}[Centered approximation]{prop}{centeredApprox}
   For any dimension $n$, depth $k$, and pointed attribute $p$,

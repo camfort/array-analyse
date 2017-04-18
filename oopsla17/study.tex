@@ -33,7 +33,7 @@ with scientists:
 %
 From these hypotheses, we conjecture that the spatial properties of
 the above programming idioms can be specified declaratively via a
-small set of combinators, capturing data access patterns.% based on
+small set of combinators, capturing data access patterns. % based on
 %overlapping (hyper)rectangles.
 We performed a large scale source-code analysis to validate these
 hypotheses and guide the design of our language. These results are
@@ -90,7 +90,7 @@ hypotheses).
 We built a code analysis tool based on CamFort, an open-source Fortran
 analyser~\cite{camfort}. Fortran source files are parsed to an AST and
  standard control-flow and data-flow analyses are computed,
-including of key importance for us: induction variable identification
+including some of key importance for us: induction variable identification
 and reaching definitions. The resulting AST is traversed top-down and
 assignment statements inside loops are analysed and classified.
 
@@ -224,7 +224,7 @@ We revisit each hypothesis and show the related data and conclusions.
   from (base or dervied) induction variables;
 \end{enumerate}
 %
-We identified $108,773$ instances of assignments within loops in
+We identified \num{\overalltickAssign} instances of assignments within loops in
 which an array subscript flows to the right-hand side. We refer
 to each one of these as an \emph{array computation}.
 We performed the classification described above

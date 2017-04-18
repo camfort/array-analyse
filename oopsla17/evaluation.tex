@@ -3,24 +3,17 @@
 \newcommand\pointed{\regname{pointed}}
 \newcommand\forward{\regname{forward}}
 
-To study the effectiveness of our approach,
-we built a corpus of over 1 million lines of Fortran code from a
-range of scientific computing packages: The Unified Model (UM)~\cite{um},
-E3ME~\cite{RePEc:aen:journl:2006se-a12}, BLAS~\cite{blas},
-Hybrid4~\cite{GBC:GBC635}, GEOS-Chem~\cite{geos-chem}, Navier (based
-on \cite{griebel1997numerical}), Computational Physics
-ed. 1~\cite{giordano1997computational},
-ARPACK-NG~\cite{arpackng}, MUDPACK~\cite{MUD}, Cliffs~\cite{Cliffs}, and
-SPECFEM3D~\cite{specfem3d}.
-
-We first examined how frequently stencil computations occur. We parsed
-\num{\overalllinesParsed} lines of Fortran code and found that \overalltickAssignPercent\%
-(\num{\overalltickAssign}) of statements have a left-hand side as an
-array subscript on neighbourhood indices. This supports the idea that
-stencil-like computations are common in scientific code.  We then used
-the inference procedure of the previous section to generate
-specifications for stencils in the corpus to assess the design of the
-language.
+To study the effectiveness of our approach, we applied our tool to the
+more than one million lines of source code contained within the corpus
+that we have assembled (\Cref{sec:study}). We first examined how
+frequently stencil computations occur. We parsed
+\num{\overalllinesParsed} lines of Fortran code and found that
+\overalltickAssignPercent\% (\num{\overalltickAssign}) of statements
+have a left-hand side as an array subscript on neighbourhood
+indices. This supports the idea that stencil-like computations are
+common in scientific code.  We then used the inference procedure of
+the previous section to generate specifications for stencils in the
+corpus to assess the design of the language.
 
 We would not expect to infer a stencil for each array statement we
 found because our analysis restricts the array-subscript-statements
@@ -138,7 +131,7 @@ is given by:
 \end{minted}
 We infer a precise specification of its shape as:
 \begin{minted}[breakafter=+:,breakindent=-0.6em,breaksymbolsep=0.4em,linenos=false,xleftmargin=-0.5em]{fortran}
-  != stencil pointed(dim=1)*centered(depth=1,dim=2,nonpointed)+pointed(dim=2)*centered(depth=1,dim=1,nonpointed)::a
+  != stencil pointed(dim=1)*centered(depth=1,dim=2,nonpointed)+pointed(dim=2)*centered(depth=1,dim=1,nonpointed)
 \end{minted}
 %
 To test our implementation,

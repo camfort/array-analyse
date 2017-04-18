@@ -99,12 +99,6 @@ always also paired with an upper bound.
 There were various reasons why we did not infer
 specifications on every looped array computation:
 \begin{itemize}
-\item \textbf{Non-subset induction variables} occur when the
-induction variables on the RHS are not a subset of those in the LHS. These
-cases are not stencils by our definition. The degenerate case of this
-is to have only constant indices on the LHS. We see lots of examples
-of this in loops as accumulators \eg{} computing the sum over an array;
-
 \item \textbf{Derived induction variables} where an
 index (\mintinline{fortran}{x}) is derived from an
 induction variable (\mintinline{fortran}{i}) as in

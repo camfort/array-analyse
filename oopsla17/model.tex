@@ -258,7 +258,6 @@ The interpretation is overloaded on \emph{regions} in
 \caption{Semantic model of specifications}
 \end{figure}
 
-<<<<<<< HEAD
 The intermediate interpretation $\interp{-}^{\mathsf{c}}$ of
 \Cref{subfig:region-model} models region contants. This is lifted by
 $\textit{promote}_N$ to interpret region constants in the last
@@ -268,22 +267,8 @@ interval schemes. Thus the syntax of regions is modelled as members of
 $\region{N}$.
 
 We mark in our model the presence of modifiers such as
-\texttt{readOnce} and \texttt{atMost} as introduced in
-\Cref{defn:modifiers}.  Approximation modifiers are interpreted as
+\texttt{readOnce} and \texttt{atMost}.  Approximation modifiers are interpreted as
 injections into the $\mathsf{Approx}$ variant by $\interpApprox{}$ in
-=======
-
-The first four equations of \Cref{subfig:region-model} model region 
-constants. The final two equations model the \term{+} and \term{*}
-operators in terms of the join (union) and meet (intersection)
-of interval schemes. Thus the syntax of regions is modelled as members 
-of $\region{N}$.
-
-We mark in our model the presence of modifiers such as
-\texttt{readOnce} and \texttt{atMost} as introduced in \Cref{sec:lang}.
-Approximation modifiers are interpreted as injections into the
-$\mathsf{Approx}$ variant by $\interpApprox{}$ in
->>>>>>> 1c5b177ce9376948735768ee704c09d90f961958
 \Cref{subfig:modifier-model}.  The $\textsf{Approx}$ type corresponds
 to the presence or absence of the spatial approximation modifier, with
 \textsf{exact} when there is no such modifier and \textsf{lower} and

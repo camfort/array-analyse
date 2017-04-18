@@ -1,5 +1,9 @@
 \input{results}
 
+\newcommand\regname[1]{\texttt{#1}}
+\newcommand\pointed{\regname{pointed}}
+\newcommand\forward{\regname{forward}}
+
 To study the effectiveness of our approach,
 we built a corpus of over 1 million lines of Fortran code from a
 range of scientific computing packages: The Unified Model (UM)~\cite{um},
@@ -34,20 +38,20 @@ found significant numbers of more complex shapes. We grouped common
 patterns into categories:
 
 \textbf{All pointed} \num{\overalljustPointed} of the stencils we
-found involved only pointed regions.
+found involved only \pointed\ regions.
 % 39,681 of these were pointed in all dimensions.
 Common examples of this were pointwise transformations on data (such
 as scaling).
 
 \textbf{Single-action} specifications comprise one
 forward, backward, or centered region constant combined via \term{+}
-or \term{*} with any number of pointed regions. We identified \num{\overallsingleAction} single-action
+or \term{*} with any number of \pointed\ regions. We identified \num{\overallsingleAction} single-action
 specifications, of which \num{\overallsingleActionIrr} were single-action with a
 \texttt{nonpointed} modifier.
 
 \textbf{Multi-action} specifications comprise at least two
  forward, backward, or centered regions, combined with
-any number of pointed regions. We identified \num{\overallmultiAction} multi-action
+any number of \pointed\ regions. We identified \num{\overallmultiAction} multi-action
 specifications out of which \num{\overallmultiActionMulOnly} had regions combined only with
 $\term{*}$ and \num{\overallmultiActionPlusAndMul} combined with a mix of $\term{*}$ and \term{+}.
 
@@ -140,3 +144,50 @@ failure in each of 6,537 permutations corresponding to an error.
 The iteration computes the average of four adjacent
 cells so $24$ ($4$ factorial) of the possible array index perturbations
 are correct, all of which are accepted by our checker.
+
+\subsection{Verification case studies}
+\label{sec:case-studies}
+
+\subsubsection{Catching bugs}
+
+One problem we face while examining the millions of line of source
+code is that we do not have the original programmer's intention at
+hand. But sometimes we have the next best thing, the log entry in the
+revision control system. Scanning through the UM we identified an
+example of an off-by-1 error that could have been avoided through the
+use of stencil specification. The buggy code was identified as
+\pointed\ in all dimensions:
+
+\begin{minted}[breakafter=+:,breakindent=-0.6em,breaksymbolsep=0.4em,linenos=false,xleftmargin=-0.5em]{fortran}
+  !=stencil readOnce, (pointed(dim=1))*(pointed(dim=2))*(pointed(dim=3))
+\end{minted}
+
+But the programmer made it clear in the comments after the bug fix
+that the intention had been \forward\ in the third dimension:
+
+\begin{minted}[breakafter=+:,breakindent=-0.6em,breaksymbolsep=0.4em,linenos=false,xleftmargin=-0.5em]{fortran}
+  !=stencil readOnce, (forward(depth=1, dim=3, nonpointed))*(pointed(dim=1))*(pointed(dim=2))
+\end{minted}
+
+
+\subsubsection{Aiding refactoring}
+
+One of the initial goals of CamFort was to provide tools that enable
+optimisation and refactoring without changing behaviour, and the
+stencil specification feature was designed with that in mind. But
+while we were perusing real-world source bases, we realised that there
+were also many cases where CamFort could help with refactoring
+precisely because they required changes in behaviour. For example, a
+relatively common change observed in the logs of revision control for
+various projects is the refactoring of array indices. Either
+re-ordering, adding or deleting indices. Any of these, if not
+perfectly propagated throughout all uses, could result in unexpected
+outcomes. However, CamFort will pick up the difference during its
+stencil specification checking. Ideally, an experienced programmer may
+take advantage of the region variable feature of CamFort in order to
+minimise the number of specifications that need changing and gain the
+full time-saving advantage. But even if not, a quick search for the
+specifications can have them updated quickly and then any code that is
+not updated will trigger an error when checked.
+
+% \subsubsection{Stress-testing CamFort}

@@ -12,42 +12,34 @@ semantic interpretation of the code.
 
 \begin{example}
 \label{exm:checking}
-We demonstrate analysis, checking, and inference on the 
+We demonstrate analysis, checking, and inference on the
 five-point stencil example:
 %%
 \begin{minted}{fortran}
-b(i, j) = (a(i, j) + a(i-1, j) +a (i+1, j) + a(i, j-1) + a(i, j + 1)) / 5.0
+b(i, j) = (a(i, j) + a(i-1, j) + a(i+1, j) + a(i, j-1) + a(i, j+1)) / 5.0
 \end{minted}
 \end{example}
 
-\subsection{Analysis of array accesses}
+\subsection{Static analysis of array accesses}
 \label{subsec:analysis}
 
 \newcommand{\neigh}{\textsf{neigh}}
 \noindent
 The analysis builds on standard program analyses:
 %
-\textbf{(1)} basic blocks (CFG);
-\textbf{(2)} induction variables per basic block;
-\textbf{(3)} (interprocedural) data-flow analysis, providing a \emph{flows to}
-  graph (as shorthand, the function
-  $\mathit{flowTo}$ is used, implicitly parameterised by this graph,
-  mapping an expression to the set of all expressions
-  with forwards data-flow to this expression, based on the transitive
-  closure of the flows graph);
-\textbf{(4)} type information per variable.% where we use the predicate
-%\arrayTy{} to classify variables of array type.
-
-The analysis traverses the control-flow graph of a program top-down
-and traverses statements inside of loops bottom-up. The right-hand
-side of any assignment statement in a loop is classified based on
-whether it has array subscripts flowing to it which are neighbourhood
-offsets (or potential absolute in some dimensions). These are then
-converted into our model domain by the interpretation
-$\interp{-}^{\mathit{aterm}}$ (\Cref{defn:subscript}) and grouped
-into a finite map from array variables to set of subscript schemes.
-We denote sets of index/subscripts schemes by
-$\mathcal{S}$.
+\textbf{(1)} basic blocks (CFG); \textbf{(2)} induction variables per
+basic block; \textbf{(3)} (interprocedural) data-flow analysis,
+providing a \emph{flows to} graph (reaching definitions); and
+\textbf{(4)} type information per variable.  The analysis traverses
+the control-flow graph of a program top-down and traverses statements
+inside of loops bottom-up. The right-hand side of any assignment
+statement in a loop is classified based on whether it has array
+subscripts flowing to it which are neighbourhood offsets (or a
+combination of neighbourhood and absolute in some dimensions). These
+are then converted into our model domain by the interpretation
+$\interp{-}^{\mathit{aterm}}$ (\Cref{defn:subscript}) and grouped into
+a finite map from array variables to set of subscript schemes.  We
+denote sets of index/subscripts schemes by $\mathcal{S}$.
 
 For our example, the set of subscript schemes from the analysis is:
 %
@@ -64,9 +56,9 @@ variables to values in $\mathsf{Mult}(\mathcal{P}(\bz)^N)$.
 
 Any assignment statement from which array subscripts flow to the
 current assignment is marked as visited such that the main analysis
-does not classify it as the root of an array computation.  Thus,
-combined with the bottom-up traversal inside of loops, we assign
-specifications only to the leaves of dataflow paths in a loop.
+does not classify it as the root of an array computation.  In the
+inference procedure, we assign specifications only to these array
+computation roots.
 
 \subsection{Checking code against specifications}
 \label{subsec:checking}
@@ -78,32 +70,33 @@ proceeds by generating a model from a specification and generating a
 model from the source code (above), and comparing them for
 consistency.  Since the model of \Cref{sec:model} interprets both
 array indices and specifications as sets of points in $N$-dimensional
-space. The notion of consistency is then intuitively whether these two
+space, the notion of consistency is then intuitively whether these two
 (potentially infinite) sets of points are equal. This leads to a
-simple notion of consistency, where $\mathit{consistent}(M_C, M_S)$
-tests the consistency of a modal $M_C$ of source code against
+simple notion of consistency $\mathit{consistent}(M_C, M_S)$ which
+tests the consistency of a model $M_C$ of source code against
 a model $M_S$ of a specification, where
 $\mathit{consistent} :
     \mathsf{Mult}(\mathcal{P}(\bz{}^N)) \times
     \mathsf{Mult}(\mathsf{Approx}(\region{N})) \to \mathbb{B}$ is defined:
 
 \begin{align*}
-  \mathit{consistent}(\mathit{ix}, \mathit{model}) & = \begin{cases}
+  \mathit{consistent}(\mathit{ixs}, \mathit{model}) & = \begin{cases}
     \mathsf{false} & \mathit{model} = \mathsf{once}(x) \wedge ix =
     \mathsf{mult}(y) \\
     \mathsf{false} & \mathit{model} = \mathsf{mult}(x) \wedge ix = \mathsf{once}(y) \\
     \mathit{consistent'}(\mathit{peel}(ix), \mathit{peel}(model)) & \textit{otherwise}
-  \end{cases} \\
+  \end{cases}
 \end{align*}
+
+with the intermediate
+$\mathit{consistent'} : \mathcal{P}(\bz{}^N) \times
+\mathsf{Approx}(\region{N}) \to \mathbb{B}$ defined as:
+
 \begin{align*}
-  \mathit{consistent'} & :
-    \mathcal{P}(\bz{}^N) \times
-    \mathsf{Approx}(\region{N}) \to \mathbb{B} & \\
-%
-  \mathit{consistent'}(\mathit{ix}, \mathit{model}) & = \begin{cases}
-    m = \mathit{ix} & \mathit{model} = \mathsf{exact}(m) \\
-    m \supseteq \mathit{ix} & \mathit{model} = \mathsf{upper}(m) \\
-    m \subseteq \mathit{ix} & \mathit{model} = \mathsf{lower}(m)
+  \mathit{consistent'}(\mathit{ixs}, \mathit{model}) & = \begin{cases}
+    m = \mathit{ixs} & \mathit{model} = \mathsf{exact}(m) \\
+    m \supseteq \mathit{ixs} & \mathit{model} = \mathsf{upper}(m) \\
+    m \subseteq \mathit{ixs} & \mathit{model} = \mathsf{lower}(m)
   \end{cases}
 \end{align*}
 %
@@ -131,7 +124,7 @@ using satisfiability is fast in practice as the length of the formula is linearl
 related with two factors: (1) dimensionality times the number of regions composed
 with \texttt{+} and (2) dimensionality times the number of array terms flowing
 into an assignment. In \Cref{subsec:additional-data}, we
-established that 99.6\% of array computations have 
+established that 99.6\% of array computations have
 dimensionality at most four and 97\% of array computations
 involve at most 4 array subscript terms. In
 \Cref{sec:evaluation}, we show that all specifications in the corpus
@@ -144,9 +137,9 @@ using Z3 is practical and efficient in all but corner cases.
 %
 \noindent
 We provide an inference procedure for generating specifications from
-code which are inserted automatically as comments. This supports
-maintenance of a legacy code base, and aids adoption of the
-specification language. 
+code which are inserted automatically as comments for the root
+array computations in a loop. This supports maintenance of a legacy
+code base, and aids adoption of the specification language.
 
 The program analysis converts the concrete syntax of
 array subscripts into sets of subscript schemes. Inference then has
@@ -157,7 +150,7 @@ specification syntax.
 
 \subsubsection{Covering}
 A covering of (possibly overlapping) intervals is calculated
-by coalescing \emph{contiguous} index schemes
+by coalescing \emph{adjacent} index schemes
 until a fixed-point is reached.
 
 \newcommand{\contig}[2]{\mathit{adjacent}(#1, #2)}
@@ -173,7 +166,7 @@ Given a set of indexing schemes $\mathcal{S}$ and a particular index scheme $S$
 we generate a set from coalescing $S$ with adjacent index schemes:
 %
 \begin{equation*}
-\mathit{coalesce}(S, \mathcal{S}) = 
+\mathit{coalesce}(S, \mathcal{S}) =
   \{\,S \cup T \mid T \in \mathcal{S} \, \wedge \,
   \contig{S}{T} \}
 \end{equation*}
@@ -182,7 +175,7 @@ This is then used by the following recursive procedure:
 %
 \begin{align*}
   \mathit{coalesceStep}(\mathcal{S}) =
-  \exists T \in \mathcal{S} . 
+  \exists T \in \mathcal{S} .
   \begin{cases}
     \{T\} \cup \mathit{coalesceStep}(\mathcal{S} - \{T\}) &
     \mathit{coalesce}(T, \mathcal{S}) = \emptyset \\
@@ -198,7 +191,7 @@ the list into its head element $S$ (picking an element from the set).
 If $T$ has no adjacent index schemes, then coalescing is attempted on
 the rest of the set, and $T$ is returned in the result. Otherwise,
 the set of coalesced index scheme is computed and this is passed to
-a recursive procedure called to $\mathit{coalesceStep}$, along with the rest of
+a recursive procedure called $\mathit{coalesceStep}$, along with the rest of
 the elements).
 
 The fixed-point of $\textit{coalesceStep}(\mathcal{S})$ is computed to
@@ -208,7 +201,7 @@ give a covering over the initial subscript space.
   \label{lem:closuer-inference}
   For a set of index schemes $\mathcal{S}$, then
   $\mathit{coalesceSet}(\mathcal{S})$ is a set of
-  index schemes in Union Normal Form.
+  index schemes in union normal form.
 \end{restatable}
 %
 For our example, the fixed-pointed of $\mathit{coalesceStep}$ is reached within two
@@ -244,15 +237,16 @@ syntax. This happens in three stages.
   exactly by our syntax. It not, they are altered into interval
   schemes to be represented as approximations.
 
-  \item Interval schemes into a joins of meets
-  of region constants, where some intervals are split into separate
+  \item Interval schemes are mapped into a joins of meets
+  of region constants, where some intervals split into multiple separate
   region constants.
 \end{enumerate}
 %
 An index scheme is an interval scheme (\Cref{def:interval-scheme}) if
 each vector can be represented as a vector of holed intervals
 $\interv{a}{b}{c}$.  Since index schemes of the previous stage are all
-contiguous and form closed intervals, a lower bound $\leq 0$ and an
+adjacent and form closed intervals (in the usual mathematical sense)
+then an interval with a lower bound $\leq 0$ and an
 upper bound $\geq 0$ is sufficient to form an interval scheme.
 Otherwise, an approximate specification is generated.
 
@@ -285,7 +279,7 @@ the lower-bound or upper-bound for \fortran{forward} and
 $-k$ and $k$ lower and upper bounds for \fortran{centered}. We can
 invert this map to generate region constants from holed
 intervals. However, some intervals computed from the above steps
-may not the constraints of this interpretation,
+may not match the constraints of this interpretation,
 \eg{}, $\interv{-2}{1}{} \times \interv{-1}{1}{}$.  By
 \Cref{lem:vector-union}, we can split interval schemes into two into
 the relevant form, for example, producing
@@ -311,7 +305,7 @@ splitting apart interval schemes when necessary:
 This forms a set of interval schemes to which $\interp{-}^{-1}$
 (\Cref{subfig:region-model}) is well-defined for each component.
 
-The final stage of inference, thus maps the component
+The final stage of inference thus maps the component
 of every interval scheme to a region constant via $\interp{-}^{-1}$,
 combining each component with \texttt{*} can combining the
 resulting regions by \texttt{+}, that is:
@@ -330,7 +324,7 @@ resulting regions by \texttt{+}, that is:
 \end{align}
 %
 Where summation is by the syntactic \term{+} and product is by the
-syntactic \term{*}
+syntactic \term{*}.
 
 In the example, $\interv{-1}{1}{} \times \interv{0}{0}{}$ is mapped to
 \texttt{\stencil{c}{1}{1}{} * \stencil{p}{2}{}{}}, and

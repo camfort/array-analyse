@@ -50,13 +50,15 @@ documentation. The relation is defined on regions as follows:
     \end{align*}
 %
     Here \textcap{p1} is \texttt{nonpointed} if both \textcap{p2} and
-    \textcap{p3} are \texttt{nonpointed} and \texttt{pointed} otherwise.
+    \textcap{p3} are \texttt{nonpointed}, otherwise \textcap{p1} is
+    \texttt{pointed}.
 \end{description}
 
 \subsection{Approximations}
-%
+
+\noindent
 We define a partial of order of approximations, $\preceq$. This relation is used
-in the equational theory and provides a means of writing a more compact lower and upper
+in the equational theory and provides a means of writing more compact lower and upper
 bound specifications. The relation is defined as follows:
 
 \begin{description}
@@ -104,3 +106,6 @@ when writing specifications:
       \stencil{R}{$n$}{$k$}{}
   \end{align*}
 \end{restatable}
+%
+If an array computation conforms to a specification $R$ and
+$R \preceq S$ then it conforms also to $\texttt{atMost} \, S$.

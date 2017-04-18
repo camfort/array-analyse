@@ -4,8 +4,8 @@ We define a lattice model of array access patterns which serves as
 a semantic model of our specification language and a model of array
 access patterns in source code. This model (1) is used to explain the
 meaning of our specifications; (2) provides a basis for the inference and
-checking algorithms (\Cref{sec:algorithms}); (3) justifies an equational
-theory for specifications in the next section; (4) is used to optimise
+checking algorithms in \Cref{sec:algorithms}; (3) justifies the equational
+theory for specifications; (4) is used to optimise
 specifications using lattice identities; and (5) can be used to guide
 correct implementations.
 
@@ -18,18 +18,18 @@ by a vector containing two integer sets: $\langle{\{0, 1\},
   \mathbb{Z}\}}\rangle$. This describes that, in the first dimension,
 the array is read at offsets of $0$ and $1$ from an induction
 variable. In the second dimension, the index is unconstrained
-as it is a constant.
+as they are constants.
 
 Index schemes form a lattice which provides a rich set of equations
-and properties, which we exploit. We first set up the 
-domain of the model (\S\ref{sec:domain}), using it to define a semantics
-for our specification language (\S\ref{sec:semantics}) and then as
-the target for an interpretation on imperative code (\S\ref{sec:fromcode}).
-We state various results in this section, for which the proofs are
-provided in \Cref{sec:proofs}.
+and properties, which we exploit. We first set up the domain of the
+model (\S\ref{sec:domain}), using it to define a semantics for our
+specification language (\S\ref{sec:semantics}) and then as the target
+for an interpretation of the sytnax of array subscripts in code
+(\S\ref{sec:fromcode}).  We state various results in this section, for
+which the proofs are provided in \Cref{sec:proofs}.
 
 \subsection{Lattice model of regions}
-\label{sec:domain} 
+\label{sec:domain}
 
 %\begin{defn}[Extended integers]
 %  We define the set \zinf{} as
@@ -51,7 +51,7 @@ provided in \Cref{sec:proofs}.
 
   Index schemes can be \emph{projected} in the $i^{\textit{th}}$ dimension by
   $\pi_i : {\mathcal{P}(\bz{})}^N \to \mathcal{P}(\bz{})$. For an index scheme
-  $I$, we refer to $\pi_i(S)$ as the \emph{$i^{th}$ component} of $S$. We assume
+  $S$, we refer to $\pi_i(S)$ as the \emph{$i^{th}$ component} of $S$. We assume
   that $i$, when used for projection, always lies between $1$ and $N$.
 \end{defn}
 
@@ -84,6 +84,7 @@ $S$ and $T$ are index schemes where $\pi_i(S) = \pi_i(T)$ for all $1 \leq i
 \end{restatable}
 %
 \begin{defn}[Intervals with an optional hole]
+\label{defn:my-interval}
   We define an extended notion of closed interval on $\bz{}$ which may contain a
   \emph{hole} at the origin, written \interv{a}{b}{c} where $a$ and $b$ are
   drawn from \bz{} with $a \leq 0 \leq b$ and $c$ is drawn from $\mathbb{B} = \{
@@ -102,7 +103,7 @@ $S$ and $T$ are index schemes where $\pi_i(S) = \pi_i(T)$ for all $1 \leq i
   in the following definitions, lemmas, and proofs. Here, $-\infty$
   and $\infty$ behave as top and bottom elements to \bz{} respectively.
 
-  We denote the set of all such intervals as $\textit{Interval}$. 
+  We denote the set of all such intervals as $\textit{Interval}$.
 \end{defn}
 %
 \begin{restatable}{lem}{intervalIdentities}
@@ -123,8 +124,9 @@ the \emph{subscript scheme} and the \emph{interval scheme}.
 
 \begin{defn}[Interval scheme]\label{def:interval-scheme}
   An interval scheme is an $N$-length vector ($N$-ways Cartesian
-  product) of intervals on \bz{}, denoted by the set
-  $\textit{Interval}^N$ for a product of $N$ intervals.
+  product) of intervals on \bz{} (as in \Cref{defn:my-interval}),
+  denoted by the set $\textit{Interval}^N$ for a product of $N$
+  intervals.
 \end{defn}
 
 \begin{defn}[Subscript scheme]
@@ -176,9 +178,9 @@ labelled variant which provides information on multiplicity and approximation.
         \mathsf{upper} \; a
   \end{align*}
 %
-  \eg{}, $\mathsf{lower}$ is an injection $\mathsf{lower} : a \to \mathsf{Approx}
-  \; a$ etc.
-st%  These will be used in the following subsection to give meaning to the
+  \eg{}, $\mathsf{lower}$ is an injection into $\mathsf{Approx}$, of
+  type $\mathsf{lower} : a \to \mathsf{Approx} \; a$.
+%  These will be used in the following subsection to give meaning to the
 %  specification modifiers for approximation and multiplicity.
 \end{defn}
 
@@ -213,10 +215,10 @@ The interpretation is overloaded on \emph{regions} in
   \interp{-}_N & : \textit{region} \rightarrow \region{N} \\
   %
    \interp{\texttt{\textcap{r} + \textcap{s}}}_N & =
-    \interp{\textcap{r}}_N \vee \interp{\textcap{s}}_N
+    \interp{\textcap{r}}_N \cup \interp{\textcap{s}}_N
 \\
   \interp{\texttt{\textcap{r} * \textcap{s}}}_N & =
-   \interp{\textcap{r}}_N \wedge \interp{\textcap{s}}_N \\
+   \interp{\textcap{r}}_N \cap \interp{\textcap{s}}_N \\
 %%
   \interp{\texttt{\textcap{rconst}}}_N & =
     \vecgen{N}{i}{\interp{\texttt{\textcap{rconst}}}}
@@ -263,7 +265,7 @@ The intermediate interpretation $\interp{-}$ of
 $\textit{promote}_N$ to interpret region constants in the last
 equation of $\interp{-}_N$. The \term{+} and \term{*} operators are
 modelled in terms of the join (union) and meet (intersection) of
-interval schemes. Thus the syntax of regions is modelled as members of
+regions. Thus the syntax of regions is modelled by members of
 $\region{N}$.
 
 We mark in our model the presence of modifiers such as
@@ -302,7 +304,7 @@ syntax as:
 
 \begin{restatable}[Approximation soundness]{thm}{approxSoundness}
   The lattice model is sound with respect to the theory of approximation. Let $R$
-  and $S$ be $N$ dimensional regions, then we have
+  and $S$ be $N$-dimensional regions, then we have
 %
   \begin{equation*}
     \forall R, S, N. \; R \preceq S \implies \interp{R}_N \subseteq \interp{S}_N
@@ -339,7 +341,7 @@ bottom element of the lattice.
 Note that this produces subscript schemes (a form of index scheme), but
 these are not members of \textit{Interval} or $\textit{Region}_N$. In
 the next section, we use this interpretation on array subscripts in
-the static analysis producer preceding checking and inference.
+the static analysis preceding checking and inference.
 
 \subsection{Union Normal Form}\label{subsec:union-normal-form}
 
@@ -356,22 +358,23 @@ intersection of index schemes is an index scheme. When
 combined with \Cref{lem:interval-identities} (union and intersection
 on holed intervals), we can extend this closure to \emph{interval} schemes.
 Subscripts schemes do not enjoy the same closure property as the intersection of
-two singleton sets may be empty, disqualifying the result from 
+two singleton sets may be empty, disqualifying the result from
 being a subscript index. In the following sections, we do not take
 intersection of subscript indices.
 
-Union is not as flexible as
-intersection. \Cref{lem:vector-union} does not form a closure for
-indexing schemes in general. For this reason, we represent sets of
-indexing schemes as unevaluated union terms, or \emph{union normal
-  form}.  Since the model forms a distributive lattice as established
-in \Cref{prop:region-lattice}, the intersections can be pushed inwards
-using the distributive law leaving only unions at the outer-level. We
-further exploit associativity of union to put unions into a cons-tree
-making the unions effectively a non-empty list.  We do not, however,
-attempt to canonicalise the representation. Later on
-\Cref{lem:vector-union} and the index scheme subset are used to reduce the
-size of union normal form.
+Union is not as flexible as intersection; it is not closed over
+indexing schemes, only on indexing schemes which are equal in all
+components but one (\Cref{lem:vector-union}). For this reason, we
+represent sets of indexing schemes as unevaluated union terms, or
+\emph{union normal form}.  Since the model forms a distributive
+lattice as established in \Cref{prop:region-lattice}, intersections
+can be pushed inwards using the distributive law leaving only unions
+at the outer-level. We further exploit associativity of union to put
+unions into a cons-tree effectively representing union normal form as
+a non-empty list.  We do not, however, attempt to canonicalise the
+representation. However, at the end of the inference procedure,
+\Cref{lem:vector-union} and index scheme subset are used to reduce the
+size of union normal form as a way of simplifying specifications.
 
 %%% Local Variables:
 %%% mode: latex

@@ -410,6 +410,9 @@ gnuplotHist k xs = concat . mapUpTo k gnuplotHist $ zip [0..] xs
     gnuplotHist (n, v) = show n ++ " " ++ show n ++ " " ++ show v ++ "\n"
 
 
+cropHistogram :: Int -> [Int] -> [Int]
+cropHistogram n xs = take n xs ++ [sum (drop n xs)]
+
 hline' cat dat =
   rline' ((replicate 5 ' ') ++ (show cat)) dat
 

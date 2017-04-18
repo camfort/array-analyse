@@ -8,8 +8,9 @@ tools~\cite{post2005computational,oberkampf2010verification,orchard2014computati
 However, whilst program verification approaches are slowly maturing in
 computer science they see little use in the natural and physical
 sciences. This is partly due to a lack of training and awareness, but
-also a lack of tools targeted at the needs of scientists. This
-paper is part of a line of research on providing lightweight, easy-to-ue
+also a lack of tools targeted at the needs of scientists. We aim to
+change that. This
+paper is part of a line of research providing lightweight, easy-to-use
 verification tools targeted at common programming patterns in science,
 motivated by analysis of real code.
 
@@ -29,17 +30,17 @@ do i = 1, (n-1)
 end do
 \end{minted}
 %
-This is a \emph{stencil} computation, a programming idiom
-where the elements of an array at each index $i$ from a
-\emph{neighbourhood} of values around $i$ in some input array(s). This
-pattern is common in scientific, graphical, and numerical
+This is a \emph{stencil} computation, an idiom
+where elements of an array at each index $i$ are computed from a
+\emph{neighbourhood} of values around $i$ in some input array(s). Stencils
+are common in scientific, graphical, and numerical
 code, \eg{}, convolutions in image processing, approximations
 to differential equations, cellular automata.
 
 Such array computations are prone to error in their indexing
 terms. For example, a logical off-by-one-error might manifest itself
-as writing $\texttt{a(i)}$ instead of $\texttt{a(i-1)}$ (we revisit an
-example we found of this in \Cref{sec:case-studies}).
+as writing $\texttt{a(i)}$ instead of $\texttt{a(i-1)}$ (we revisit
+examples we found of this in \Cref{sec:case-studies}).
 Errors also arise by simple lexical mistakes when large amounts of
 fine-grained indexing are involved in a single expression. For
 example, the following snippet from a Navier-Stokes
@@ -86,9 +87,9 @@ scientific code base, totaling 1.4 million lines of
 code (\Cref{sec:study}). We confirm our initial hypotheses of the
 ubiquity of looped array computations, but also that they have a
 common form, reading from arrays in a fixed neighbourhood of
-contiguous elements with a simple static pattern. From this we
+contiguous elements with simple static patterns. From this we
 designed a simple set of combinators to express common array patterns (\Cref{sec:lang}).
-As an example, the Laplace program is specified in our language by:
+As an example, the one-dimensional Laplace program is specified in our language by:
 %
 \begin{minted}[linenos=false,xleftmargin=0em,xrightmargin=0.8em,breakindent=1.9em]{fortran}
 != stencil centered(depth=1, dim=1) :: a
@@ -118,8 +119,8 @@ specifications about array computations must also be expressed in
 terms of array-indexing expressions. Thus, any low-level mistakes that
 could be made whilst programming complex indexing code could also be
 made when writing its specification. Our specifications are
-abstract to avoid the error-prone nature of index manipulation; our
-specifications are more lightweight to aid its adoption in science.
+abstract to avoid the error-prone nature of index manipulation and
+are lightweight to aid their adoption by scientists.
 
 We implemented a verification tool for our specification language as
 an extension to CamFort~\cite{camfort}, an open-source program
@@ -153,12 +154,12 @@ indexing bugs must be identified relative to a specification of the
 intended access pattern.  Nevertheless, we report on instances of code
 revisions from the commit histories of our corpus where a
 correct specification would have spotted an error (which was
-latter corrected) or would have assisted in refactoring 
+latter corrected) or would have assisted in refactoring
 (\Cref{sec:case-studies}).
 
 \paragraph{Terminology and notation}
 
-In the remainder of this paper we apply the following terminology for syntactic constructs in our target language.
+We use the following terminology for syntactic constructs in our target language.
 
 \begin{defn}[Induction variables]
   An integer variable is a \emph{base induction variable} if it is the
@@ -179,7 +180,7 @@ In the remainder of this paper we apply the following terminology for syntactic 
   integer expressions, in expanded form as $(e_1, \ldots, e_N)$. An
   index $e_i$ is called \emph{relative} if the expression involves an
   induction variable. An \emph{absolute index} is a integer expression
-  which is constant relative to the enclosing loop.
+  which is constant with respect to the enclosing loop.
 \end{defn}
 
 \begin{defn}[Origin]\label{def:origin}
@@ -190,10 +191,11 @@ In the remainder of this paper we apply the following terminology for syntactic 
 
 \begin{defn}[Neighbourhood index]\label{def:neighbour-ix}
   For an array subscript $a(\bar{e})$ an index $e \in \bar{e}$ is a
-  \emph{neighbourhood index} if $e$ is of the form $e \equiv i$, $e \equiv i +
-  c$, or $e \equiv i - c$, where $c$ is an integer constant. That is, a
-  neighbourhood index is a constant translation of an induction variable. (The
-  relation $\equiv$ identifies terms up-to commutativity of $+$ and the inverse
+  \emph{neighbourhood index} (or \emph{neighbour}) if $e$ is of the
+  form $e \equiv i$, $e \equiv i + c$, or $e \equiv i - c$, where $c$
+  is an integer constant. That is, a neighbourhood index is a constant
+  translation of an induction variable. (The relation $\equiv$
+  identifies terms up-to commutativity of $+$ and the inverse
   relationship of $+$ and $-$ \eg{}, $(-b) + i \equiv i - b$).
 \end{defn}
 

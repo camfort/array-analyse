@@ -56,7 +56,7 @@ for weather modelling~\cite{um};
 
 \item GEOS-Chem, troposhperic chemstry model~\cite{geos-chem};
 
-\item Navier, a small-size Navier-Stokes fluid model (based
+\item Navier, a small-size Navier-Stokes fluid model, based
   on \cite{griebel1997numerical};
 
 \item Computational Physics (CP), programs from a popular
@@ -194,7 +194,7 @@ on the right-hand side based on their spatial properties:
 Finally, we classify the relationship between the LHS
 and RHS in terms of the use of induction variables.
 The two sides are \emph{directly consistent} if the same induction variables
-appear in each side, used for the same dimension. This is
+appear in each side, used for the same dimensions. This is
 weakened to a \emph{permutation} if the roles of the induction
 variables changes. This is weakened further if the LHS
 induction variables are either
@@ -256,13 +256,13 @@ Other                           & 20196     & 18.57 \%  \\ \hline \hline
 \noindent
 Since, affine and neighbour patterns are static, we group them
 (\textit{Grouping 1}) to see that $81.43\%$ of the array computations
-(88,577) have a static pattern that neighbourhood or affine subscript
-expressions (potential with some absolute
+(88,577) have a static pattern comprising neighbourhood or affine subscript
+expressions (potentially with some absolute
 indices), confirming \emph{Hypothesis 1}. Note that affine subscripts
 are rare, perhaps due to programmers relying on compilers for
 optimisation rather than hand optimising (which tends to lead to
 affine indices).  Overwhelmingly, the main category is neighbourhood
-offsets (possibly mixed with constants in some dimensions). The
+offsets (possibly mixed with absolute indices in some dimensions). The
 ``affine + absolute'' class is not represented at all. %\marginpar{\mnote{(2)
 %  Mention what sort of things are included in other.}}
 
@@ -299,9 +299,13 @@ Affine, non-contiguous
  & \textsf{away} & 152 & 0.14\% \\
 & 83689 & 76.94\% & \textsf{origin} & 81309 & 74.75\% \\
 &&& \textsf{straddle} & 2228 & 2.05\% \\ \hline
-Neighbour, non-contiguous
- & 4854
- & 4.46\% \\ \hline
+\multirow{3}{*}{Neighbour, non-contiguous}
+& & & \textsf{away}         & 2         & 0.00\%  \\
+& 4854 & 4.46\% & \textsf{origin}       & 4836      & 4.45\%  \\
+& & & \textsf{straddle}     & 16        & 0.01\%  \\ \hline
+%Neighbour, non-contiguous
+% & 4854
+% & 4.46\% \\ \hline
 Other & 20196 & 18.57\%  \\
  \hline \hline
 \textbf{Total}  & 108773    & 100.00\% \\
@@ -315,7 +319,8 @@ pattern on the right hand side, with $76.80\%$ either including the origin
 ($2.05\%$). This confirms both Hypothesis 2 and Hypothesis 3. Only 152 instances
 of index patterns not immediately next-to or over the origin were
 found.  There is a non trivial amount of non-contiguous arrays access,
-but it is a much smaller proportion of the whole.
+but it is a much smaller proportion of the whole, and mostly contains
+the origin.
 
 \begin{enumerate}[resume]
 \item Many array computations are \emph{stencil computations}:
@@ -324,8 +329,8 @@ an assignment whose
 and whose left-hand side is a neighbourhood array subscript.
 \end{enumerate}
 %
-We subclassified our data by r.h.s
-and l.h.s categories
+We subclassified our data by RHS
+and LHS categories
 being either a variable, or induction-variable indexed,
 neighbour-indexed or affine-indexed array. We additionally
 included the orthogonal classification of whether
@@ -337,13 +342,13 @@ otherwise (have a common subset of induction variables).
 \multicolumn{2}{l|}{\textbf{LHS and RHS classification}}
 & \textbf{\# inconsistent}
 & \% {(whole)}
-& \textbf{\# Consistent}
+& \textbf{\# consistent}
 & \% {(whole)}
 & \textit{stencils} \\ \hline
 %
 LHS Vars & RHS neigh & 0 & 0.00\% & 4591      & 4.22\%
          & \\\hline
-  LHS Vars & RHS affines & 0 & 0.00\%  & 4         & 0.00\% & 
+  LHS Vars & RHS affines & 0 & 0.00\%  & 4         & 0.00\% &
   \\\hline
 %
  %
@@ -382,7 +387,7 @@ other       &                      & 30019     & 27.60\%  & &
 \end{tabular}
 \end{center}
 %
-The most common category has an LHS array subscript
+The most common category is an LHS array subscript
 indexed by induction variables, and an RHS comprising
 neighbourhood offsets. Next most common is to have neighbourhood
 offsets on the left-hand and right-hand sides. Notably
@@ -425,7 +430,6 @@ other                             & 36975     & 33.99\% \\\hline
 The additional column in the right table (relativised) counts the
 number of specifications where the left-hand side has neighbourhood
 offsets, \eg{}, \fortran{a(i+1) = b(i)}.
-
 Most stencils are contiguous, but there is some
 non-contiguity. Most stencils have matching induction
 variables on the left and right-hand sides but again there
@@ -457,13 +461,13 @@ unique use of array subscripts, confirming Hypothesis 5.
 \label{subsec:additional-data}
 
 \noindent
-For each of the $108,773$ array computations, we recorded four
-additional properties: the max dimensionality of array
+For each of the $108,773$ array computations, we recorded three
+additional properties: the dimensionality of array
 subscripts involved, %the maximum depth of neighbourhood offsets,
-the number of subscript terms involved in the computation, and the
+the number of subscript terms contributing to the computation, and the
 length of the dataflow path (\ie{}, how many intermediate assignments
-contribute to the array computation). The following gives the data
-as histograms:
+contribute to the array computation):%The following gives the data
+%as histograms:
 
 \setlength{\tabcolsep}{0.25em}
 \begin{center}
@@ -490,7 +494,7 @@ as histograms:
    Count & 0 & 84,690 & 14,377 & 4,234 & 2,367 & 881 & 607 & 192 & 457 & 284 & 207 & 45 & 72 & 33 & 16 & 41 & 40 & 27 & 15 & 4  & 184
    \end{tabular}
 \end{center}
-   
+
  \begin{center}
 \begin{tabular}{l|ccccccccccccccccccccc}
   \textbf{Dataflow length}: & 0      & 1     & 2    & 3
@@ -500,12 +504,12 @@ as histograms:
 \end{tabular}
 \end{center}
 %
-The histogram of ``number of subscripts'' shows that most
-computations are relatively simple, with only 1-3 array subscripts.
-However, some are complex, with 184 with over 20 indexing terms. We had one example with 96
-contributing array subscripts. Thus, we see that there are many cases
-in practice with complex patterns, that we aim to provide support for
-with our specification language.
+The data for ``number of subscripts'' shows that most computations are
+relatively simple, with only 1-3 array subscripts.  However, some are
+complex, with 184 with over 20 indexing terms. We had one example with
+96 contributing array subscripts. Thus, we see that there are many
+cases in practice with complex patterns. We aim to provide
+support for such code with our specification language.
 
 The rest of the data here is of use later when considering the
 performance of our checking procedure (\Cref{subsec:checking}).
@@ -521,27 +525,26 @@ of their implementation (and associated programming errors). We made the followi
 %
 \begin{itemize}[leftmargin=1.5em]
 \item The core support should be for neighbourhood offsets on
-right-hand side of assignments in loops ($81.43\%$
-of our array computations);
+  right-hand side of assignments in loops ($81.43\%$ of our array
+  computations);
 
-\item Access patterns are mostly contiguous ($76.94\%$) and cross or
-straddle the origin ($75.75\%$), thus we can represent patterns by
-\emph{finite intervals} that meet at, or are next to, the origin.
-These intervals will be given declaratively and abstractly, avoiding
-replicating indexing terms at the specification level.
+\item Access patterns are mostly contiguous ($76.94\%$ of all array
+  computations) and cross or straddle the origin ($75.75\%$), thus we
+  can represent patterns by \emph{finite intervals} that meet at, or
+  are next to, the origin.  These intervals will be given
+  declaratively and abstractly, avoiding replicating indexing terms at
+  the specification level.
 
-\item We will support only consistent left and right-hand sides
-(where there are common induction variables on each side) ($66.01\%$)
+\item We will support only consistent left and right-hand sides (where
+  there are common induction variables on each side) ($66.01\%$)
 
 \item Stencils will be the primary focus $(61.79\%)$ but we will also
-allow specifications on assignments where the l.h.s is a variable
-(\eg{}, in a reduction) ($4.22\%$).
+  allow specifications on assignments where the LHS is a variable
+  (\eg{}, in a reduction) ($4.22\%$).
 
-\item There is some non-contiguity ($4.46\%$) which we will specify
-by finite intervals given as approximations that cover a non-contiguous pattern.
+\item There is some non-contiguity ($4.46\%$) which we will specify by
+  finite intervals given as approximations that cover a non-contiguous
+  pattern.
 
 \item Affine indexing is very rare $<0.03\%$ so we do not consider it.
 \end{itemize}
-%
-
-

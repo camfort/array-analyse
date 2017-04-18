@@ -46,7 +46,7 @@ or autotuners.
 We constructed a corpus of eleven scientific computing packages
 written in Fortran ranging in size and scope:
 %
-\begin{enumerate}[leftmargin=1.5em]
+\begin{enumerate}[leftmargin=1.76em]
 \item The Unified Model (UM) developed by the UK Met Office
 for weather modelling~\cite{um};
 \item E3ME, a mixed economic/energy impact predication
@@ -196,28 +196,26 @@ a subset or superset of the induction variables on the right-hand
 side. Otherwise, the two sides are seen as inconsistent:
 %
 \begin{center}
-\begin{tabular}{l|l}
+\begin{tabular}{l|l|l}
   %Shorthand &
-  Classification & Example \\ \hline
+  Classification & Sub Classification & Example \\ \hline
   %(\textsf{const}) &
-  Consistent & \fortran{a(i, j) = b(i, j) +
+  Consistent & Direct & \fortran{a(i, j) = b(i, j) +
                                   b(i+1,j+1)} \\
   %(\textsf{perm})
-  Permutation & \fortran{a(i, j) = c(j, i)} or \fortran{a(i,
+  & Permutation & \fortran{a(i, j) = c(j, i)} or \fortran{a(i,
                                                                0) =
                                  b(0, i)} \\
   %(\textsf{LHSsub}) &
-  LHS subset & \fortran{a(i) = b(i, j) + b(i, j-1)}
+  & LHS subset & \fortran{a(i) = b(i, j) + b(i, j-1)}
   \\
   %(\textsf{LHSsup}) &
-  LHS superset & \fortran{a(i, j) = b(i)} \\
+  & LHS superset & \fortran{a(i, j) = b(i)} \\ \hline
   %(\textsf{inconst}) &
-  Inconsistent & \fortran{a(i) = b(j)}
+  \multicolumn{2}{l|}{Inconsistent} & \fortran{a(i) = b(j)}
 \end{tabular}
 \end{center}
 %
-If an assignment is not inconsistent, but is one of the other four
-categories, we refer to it as *consistent.
 
 \subsection{Results}
 
@@ -333,7 +331,7 @@ otherwise (have a common subset of induction variables).
 \multicolumn{2}{l|}{\textbf{LHS and RHS classification}}
 & \textbf{\# inconsistent}
 & \% {(whole)}
-& \textbf{\# *consistent}
+& \textbf{\# Consistent}
 & \% {(whole)}
 & \textit{stencils} \\ \hline
 %
@@ -379,7 +377,7 @@ other       &                      & 30019     & 27.60\%  & &
 \end{center}
 %
 The most common category has an LHS array subscript
-indexed by induction variables, and a right-hand side comprising
+indexed by induction variables, and an RHS comprising
 neighbourhood offsets. Next most common is to have neighbourhood
 offsets on the left-hand and right-hand sides. Notably
 there are two categories always seen as inconsistent:
@@ -387,8 +385,8 @@ there are two categories always seen as inconsistent:
 since they comprise different indexing schemes
 on each side of the assignment, e.g. $a(i + 1) = b(2*i + 1)$. These
 appear very rarely. Thus, we find that $66.01\%$ of array computations
-have a static pattern on the left- and right-hand side that is either
-a neighbour or affine, and $61.79\%$ we classify as \emph{stencils},
+have a static pattern on the LHS and RHS that is either
+a neighbourhood or affine, and $61.79\%$ are \emph{stencils},
 writing to an array subscript on the left. Thus, the data supports our
 hypothesis that stencis are common. Based on this grouping, we
 considered two subclassifications of different kinds of
@@ -446,7 +444,6 @@ other                             & 20196     & 18.57\%  %\\\hline\hline
 \end{tabular}
 \end{center}
 %
-
 Thus most array computations have access patterns with
 unique use of array subscripts, confirming Hypothesis 5.
 

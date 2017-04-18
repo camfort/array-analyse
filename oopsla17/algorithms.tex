@@ -110,7 +110,7 @@ a model $M_S$ of a specification:
 The first function, $\mathit{consistent}$, checks whether the linearity of the
 specification matches that of the indices, \ie{} if the specification allows
 indices to be repeated or not. Then it delegates to $\mathit{consistent'}$
-function to check if the points observed in the array terms match the space
+to check if the points observed in the array terms match the space
 defined by the specification. Lower bounds, marked by the \texttt{atLeast}
 modifier, require the space defined by the specification to remain inside the
 set of indices, while an upper bound, market by \texttt{atMost},
@@ -123,14 +123,14 @@ potentially infinite thus equality cannot be computed by exhaustively
 comparing elements in each set. Instead, we compile the region into
 interval constraints and subscript schemes into membership constraints and pass
 these to the \textsc{Z3} SMT solver~\citep{de2008z3} to see if they are equal. The
-query is expressed in quantifier free linear arithmetic, which is decidable.
+query is expressed in quantifier-free linear arithmetic, which is decidable.
 
 Although satisfiability is super-exponential with the length of the formula in
-the worst case~\cite{fischer1974super}, performance of consistency checking
+the worst case~\cite{fischer1974super}, the performance of consistency checking
 using satisfiability is fast in practice as the length of the formula is linearly
-related with two factors: (1) dimensionality times number of regions connected
+related with two factors: (1) dimensionality times the number of regions connected
 with \texttt{+} and (2) dimensionality times the number of array terms flowing
-into an assignment assignment. In \Cref{subsec:additional-data}, we
+into an assignment. In \Cref{subsec:additional-data}, we
 established that  99.6\% of array computations have 
 dimensionality of at most four, and 97\% of array computations
 involve at most 4 array subscript terms. In
@@ -144,11 +144,11 @@ connected with no more than two \texttt{+} operations in 100\% of the cases.
 \noindent
 We provide an inference procedure for generating specifications from
 code which are inserted automatically as comments. This supports
-maintenance of legacy code base, and aids understanding of our
+maintenance of a legacy code base, and aids adoption of the
 specification language. 
 
 The preceding source code analysis converts the concrete syntax of
-array subscripts into a sets of subscript schemes. Inference then has
+array subscripts into sets of subscript schemes. Inference then has
 two parts. First, ``adjacent'' index schemes are coalesced into a
 smaller sets of index schemes, remaining in union normal
 form. Secondly, the resulting union normal form is converted to the
@@ -168,8 +168,8 @@ until a fixed-point is reached.
   $\pi_k(T) = [b+1, c]$.
 \end{defn}
 %
-Given a set of indexing scheme $\mathcal{S}$ and a particular index scheme $S$
-we generate the set of coalescing of $S$ with adjacent index schemes:
+Given a set of indexing schemes $\mathcal{S}$ and a particular index scheme $S$
+we generate a set from coalescing $S$ with adjacent index schemes:
 %
 \begin{equation*}
 \mathit{coalesce}(S, \mathcal{S}) = 
@@ -190,7 +190,7 @@ This is then used by the following recursive procedure:
   \end{cases}
 \end{align*}
 %
-This give a specification rather than an implementation. Our
+This gives a specification rather than an implementation. Our
 implementation represents sets by a list, and so
 $\exists T \in \mathcal{S}$ above corresponds to deconstructing
 the list into its head element $S$ (picking an element from the set).
@@ -205,7 +205,7 @@ give a covering over the initial subscript space.
 %
 \begin{restatable}{lem}{closureInference}
   \label{lem:closuer-inference}
-  For a set of index schemes $\mathcal{S}$, then
+  For a set of index schemes $\mathcal{S}$,
   $\mathit{coalesceSet}(\mathcal{S})$ is well-defined and is a set of
   index schemes in Union Normal Form.
 \end{restatable}
@@ -228,7 +228,7 @@ steps:
 \newcommand{\finalSet}{\mathcal{S}_\omega}
 Let the covering indexing scheme from the fixed point of
 $\mathit{coalesceStep}$ on input $\mathcal{S}_0$ be written as
-$\finalSet{}$.  Next, $\finalSet{}$ the is translated into specification
+$\finalSet{}$.  Next, $\finalSet{}$ is translated into specification
 syntax. This happens in four stages.
 
 \begin{enumerate}[leftmargin=1.5em]
@@ -249,22 +249,22 @@ syntax. This happens in four stages.
   of region constants.
 \end{enumerate}
 
-If there is all infinite indexing scheme, then we cannot represent it
+If the result is an all infinite indexing scheme, then we cannot represent it
 syntactically. This happens when use of constant indices in one or more array
 terms causes the offsets to be subsumed. The simplest case is when there is an
 array term with all of its indices constant.
 
 In our example, there are no constant indices, so we proceed.
 
-After handling the trivial case, correct approximation is chosen. Recall
+After handling the trivial case, the correct approximation is chosen. Recall
 \Cref{def:interval-scheme}, an indexing scheme is an interval scheme if each of
 the sets in products are holed intervals. If that is the case, we trivially
-convert the sets in each dimension of indexing schemes to holed interval
+convert the sets in each dimension of the indexing schemes to a holed interval
 representation and proceed to the next stage and output an exact specification
 at the end. If not, then the output will definitely have an upper bound and
 potentially a lower bound.
 
-Upper bound is established by \emph{elongating} index schemes in multiple
+The upper bound is established by \emph{elongating} index schemes in multiple
 dimensions such that they become interval schemes. The elongation function is
 given as
 %
@@ -275,14 +275,14 @@ given as
   \end{cases}
 \end{align*}
 
-Since index schemes of the previous stage are all contiguous and form closed
+Since the index schemes from the previous stage are all contiguous and form closed
 intervals, 0 lying between the lower and upper bounds of intervals is sufficient
 to form an interval scheme. If any dimension of an index scheme is elongated,
 then the whole index scheme is elongated. In the initial set of index schemes,
 all schemes that were already interval schemes form a lower bound, while those
 schemes and the new interval schemes generated by elongation form the upper
-bound. The reason a lower bound may not be generated is all indexing schemes
-with might need elongation.
+bound. The reason a lower bound may not be generated is that all indexing schemes
+might need elongation.
 
 The index schemes in the example are all interval schemes, so we proceed to the
 next stage noting the output will be exact.
@@ -291,8 +291,8 @@ There is no direct translation from an interval scheme such as $\interv{-2}{1}{}
 \times \interv{-1}{1}{}$ to region constants. The reason is region constants
 \texttt{forward} and \texttt{backward} require upper and lower bounds to be 0
 respectively and \texttt{centered} requires the upper bound to be the negation
-of the lower bound. The solution is to use \Cref{lem:vector-union} to break up
-interval schemes into two producing $\interv{-2}{0}{} \times \interv{-1}{1}{}$
+of the lower bound. The solution is to use \Cref{lem:vector-union} to break this
+interval scheme into two producing $\interv{-2}{0}{} \times \interv{-1}{1}{}$
 and $\interv{0}{1}{} \times \interv{-1}{1}{}$.
 
 The extended example does not have such representation problem, so the interval
@@ -308,7 +308,7 @@ Each of these interval schemes are mapped to region constants using
 In the example, $\interv{-1}{1}{} \times \interv{0}{0}{}$ is decomposed into
 $\interv{-1}{1}{} \times \interv{-\infty}{\infty}{}$ and
 $\interv{-\infty}{\infty}{} \times \interv{0}{0}{}$. These are then mapped to
-\texttt{\stencil{c}{1}{1}{} * \stencil{p}{2}{}{}}. Decomposition of
+\texttt{\stencil{c}{1}{1}{} * \stencil{p}{2}{}{}}. The decomposition of
 $\interv{0}{0}{} \times \interv{-1}{1}{}$ is similar. When combined we obtain the
 following specification:
 %

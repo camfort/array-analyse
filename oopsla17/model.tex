@@ -2,8 +2,8 @@
 \noindent
 We define a lattice model of array access patterns which serves as
 a semantic model of our specification language and a model of array
-access patterns in source code. This model (1) used to explain the
-meaning of our specifications; (2) as a basis for the inference and
+access patterns in source code. This model (1) is used to explain the
+meaning of our specifications; (2) provides a basis for the inference and
 checking algorithms (\Cref{sec:algorithms}); (3) justifies an equational
 theory for specifications in the next section; (4) is used to optimise
 specifications using lattice identities; and (5) can be used to guide
@@ -11,10 +11,10 @@ correct implementations.
 
 The model is defined over vectors of sets of integers which we call
 \emph{index schemes}.  As an initial informal example, consider the
-a stencil computation with loop body \fortran{y(i) = x(i,0) + x(i+1,0)}.
+ stencil kernel \fortran{y(i) = x(i,0) + x(i+1,0)}.
 The access pattern on array \term{x}, relative
 to induction variable \term{i}, is captured
-by a vector of length 2 containing integer sets $\langle{\{0, 1\},
+by a vector containing two integer sets: $\langle{\{0, 1\},
   \mathbb{Z}\}}\rangle$. This describes that, in the first dimension,
 the array is read at offsets of $0$ and $1$ from an induction
 variable. In the second dimension, the index is unconstrained
@@ -40,7 +40,7 @@ provided in \Cref{sec:proofs}.
 %\end{defn}
 
 \begin{defn}[Index scheme]
-  An $N$-dimensional \emph{index scheme} is a vector of length $N$ of
+  An $N$-dimensional \emph{index scheme} is a vector containing $N$
   integer sets, \ie{}, a member of $\mathcal{P}(\bz)^{N}$.
   An equivalent view of these vectors is as an $N$-times Cartesian
   product on subsets of $\bz$.
@@ -96,10 +96,10 @@ $S$ and $T$ are index schemes where $\pi_i(S) = \pi_i(T)$ for all $1 \leq i
   \end{equation*}
   %
   If the
-  superscript to the interval is omitted it is treated as $\mathsf{true}$.
+  superscript to the interval is omitted it is treated as $\mathsf{true}$ (no hole).
   We also add the distinguished interval $\interv{-\infty}{\infty}{}$, which is simply an
-  alias for \bz{}, but this notation prevents handling infinite interval
-  separately in the following definitions, lemmas, and proofs. Here, $-\infty$
+  alias for \bz{}, but this notation avoids separate handling of the infinite interval
+  in the following definitions, lemmas, and proofs. Here, $-\infty$
   and $\infty$ behave as top and bottom elements to \bz{} respectively.
 
   We denote the set of all such intervals as $\textit{Interval}$. 
@@ -119,7 +119,7 @@ $S$ and $T$ are index schemes where $\pi_i(S) = \pi_i(T)$ for all $1 \leq i
 %
 
 We define two specialisations of index schemes:
-\emph{subscript scheme} and \emph{interval scheme}.
+the \emph{subscript scheme} and the \emph{interval scheme}.
 
 \begin{defn}[Interval scheme]\label{def:interval-scheme}
   An interval scheme is an $N$-length vector ($N$-ways Cartesian
@@ -159,7 +159,7 @@ We define two specialisations of index schemes:
   $\top = \bz{}^N$ and bottom $\bot = \emptyset$.
 \end{restatable}
 %
-The set of regions $\region{N}$ is target of our specification
+The set of regions $\region{N}$ is the target of our specification
 language model, and of the code analysis. We further wrap this in a
 labelled variant which provides information on multiplicity and approximation.
 
@@ -272,7 +272,7 @@ injections into the $\mathsf{Approx}$ variant by $\interpApprox{-}$ in
 \Cref{subfig:modifier-model}.  The $\textsf{Approx}$ type corresponds
 to the presence or absence of the spatial approximation modifier, with
 \textsf{exact} when there is no such modifier and \textsf{lower} and
-\textsf{upper} for \term{atLeast} and \term{atMost}. In a similar way,
+\textsf{upper} for \term{atLeast} and \term{atMost} respectively. In a similar way,
 multiplicity modifiers are interpreted as injections in the
 $\mathsf{Mult}$ variant by $\interpMult{-}$, corresponding to
 the presence or absence of the \term{readOnce} modifier as shown in
@@ -336,8 +336,8 @@ bottom element of the lattice.
   \end{align*}
 \end{defn}
 %
-Note that this produce subscript schemes (a form of index scheme), but
-they are not members of \textit{Interval} or $\textit{Region}_N$. In
+Note that this produces subscript schemes (a form of index scheme), but
+these are not members of \textit{Interval} or $\textit{Region}_N$. In
 the next section, we use this interpretation on array subscripts in
 the static analysis producer preceding checking and inference.
 
@@ -351,7 +351,7 @@ absolute index of array term is interpreted. In order to provide a
 finite checking procedure, we require a finite and compact
 representation for indices which accounts for this.
 
-Recall \Cref{lem:vector-intersect} states that the
+Recall that \Cref{lem:vector-intersect} states that the
 intersection of index schemes is an index scheme. When
 combined with \Cref{lem:interval-identities} (union and intersection
 on holed intervals), we can extend this closure to \emph{interval} schemes.
@@ -370,7 +370,7 @@ using the distributive law leaving only unions at the outer-level. We
 further exploit associativity of union to put unions into a cons-tree
 making the unions effectively a non-empty list.  We do not, however,
 attempt to canonicalise the representation. Later on
-\Cref{lem:vector-union} and index scheme subset are used to reduce the
+\Cref{lem:vector-union} and the index scheme subset are used to reduce the
 size of union normal form.
 
 %%% Local Variables:

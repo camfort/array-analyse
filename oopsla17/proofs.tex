@@ -1,16 +1,17 @@
 \newcommand{\off}{S}
 \newcommand{\offP}{T}
+\newcommand\MID{\;\mathrel{\Big|}\;}
 
 \vectorIntersect*
 
 \begin{proof}
   \begin{align*}
     \off \; \cap \; \offP &
-    = \{x \mid \bigwedge_{1 \leq i \leq N } x_i \in \pi_i(\off) \}
-      \;\cap\;
-      \{x \mid \bigwedge_{1 \leq i \leq N } x_i \in \pi_i(\offP) \} \\
-    & = \{x \mid \bigwedge_{1 \leq i \leq N }
-      (x_i \in \pi_i(\off) \wedge x_i \in \pi_i(\offP)) \} \\
+    = \left\{x \MID \bigwedge_{1 \leq i \leq N } x_i \in \pi_i(\off) \right\}
+      \;\bigcap\;
+      \left\{x \MID \bigwedge_{1 \leq i \leq N } x_i \in \pi_i(\offP) \right\} \\
+    & = \left\{x \MID \bigwedge_{1 \leq i \leq N }
+      (x_i \in \pi_i(\off) \wedge x_i \in \pi_i(\offP)) \right\} \\
     & = \prod_{i = 1}^{N} \pi_i(\off) \cap \pi_i(\offP)
   \end{align*}
 \end{proof}
@@ -20,22 +21,22 @@
 \begin{proof}
   \begin{align*}
     \off \; \cup \; \offP &
-    = \{x \mid
-      \bigwedge_{1 \leq i \leq N } x_i \in \pi_i(\off) \}
-      \;\cup\;
-      \{x \mid
-          \bigwedge_{1 \leq i \leq N } x_i \in \pi_i(\offP) \} \\
-    & = \{x \mid
+    = \left\{x \MID
+      \bigwedge_{1 \leq i \leq N } x_i \in \pi_i(\off) \right\}
+      \;\bigcup\;
+      \left\{x \MID
+          \bigwedge_{1 \leq i \leq N } x_i \in \pi_i(\offP) \right\} \\
+    & = \left\{x \MID
           \bigwedge_{\substack{1 \leq i \leq N \\ i \neq k}}
             x_i \in \pi_i(\off) \wedge x_k \in \pi_k(\off) \vee
           \bigwedge_{\substack{1 \leq i \leq N \\ i \neq k}} x_i \in
             \pi_i(\offP) \wedge x_k \in \pi_k(\offP)
-        \} \\
-    & = \{x \mid
+        \right\} \\
+    & = \left\{x \MID
           \bigwedge_{\substack{1 \leq i \leq N \\ i \neq k}} x_i \in
             \pi_i(\off) \wedge
             x_k \in \pi_k(\off) \cup \pi_k(\offP)
-        \} \\
+        \right\} \\
         & = \pi_1(\off) \times \cdots \times
         (\pi_k(\off) \cup \pi_k(\offP)) \times \cdots \times
         \pi_N(\off)
@@ -48,13 +49,13 @@
   We give the proof of the first identity and the second one is similar.
   \begin{align*}
     \interv{a}{b}{c} \cap \interv{d}{e}{f} = &
-      \; \{ n \;|\; a \leq n \leq b \wedge (\neg c \implies n \neq 0) \}
+      \; \left\{ n \MID a \leq n \leq b \wedge (\neg c \implies n \neq 0) \right\}
       \;\cap \\
-      & \; \{ n \;|\; d \leq n \leq e \wedge (\neg f \implies n \neq 0) \}
+      & \; \left\{ n \MID d \leq n \leq e \wedge (\neg f \implies n \neq 0) \right\}
       \\
-    = & \; \{ n \;|\; \max \{a,d\} \leq n \leq \min \{b,e\} \wedge (\neg c
-      \vee \neg f \implies n \neq 0) \} \\
-    = & \; \interv{\max{\{a,d\}}}{\min{\{b,e\}}}{c \wedge f}
+    = & \; \left\{ n \MID \max \left\{a,d\right\} \leq n \leq \min \left\{b,e\right\} \wedge (\neg c
+      \vee \neg f \implies n \neq 0) \right\} \\
+    = & \; \interv{\max{\left\{a,d\right\}}}{\min{\left\{b,e\right\}}}{c \wedge f}
   \end{align*}
 \end{proof}
 
@@ -155,7 +156,7 @@
       Using \Cref{lem:vector-union}, it is sufficient to show
       $ \interv{-k}{k}{p} \;\cup\; \interv{0}{0}{\mathsf{true}} =
         \interv{-k}{k}{\mathsf{true}} $ holds. This immediately follows from
-      \Cref{lem:zinf-identities}.
+      \Cref{lem:interval-identities}.
 %
     \item[Centered] Let $\interp{\textcap{p1}}$, $\interp{\textcap{p2}}$, and
       $\interp{\textcap{p3}}$ be $p1$, $p2$, and $p3$ respectively. We
@@ -176,7 +177,7 @@
 %
       Using \Cref{lem:vector-union}, it is sufficient to show $\interv{-k}{k}{p2
       \vee p3} = \interv{0}{k}{p2} \cup \interv{-k}{0}{p3}$ holds. This
-      immediately follows from \Cref{lem:zinf-identities}.
+      immediately follows from \Cref{lem:interval-identities}.
   \end{description}
 \end{proof}
 
@@ -187,7 +188,7 @@
   show that each inequality holds in the model.
 %
   \begin{description}
-    \item[Equivalence] Region equavilance is modeled with set equality and the
+    \item[Equivalence] Region equivalence is modeled with set equality and the
       partial order on regions is modeled with subset relation. Partial orders
       are reflexive and the model of eqivalence agrees with that of the partial
       order, so this rule holds.
@@ -209,7 +210,7 @@
       intersection of $\textit{int}_k$ and $\textit{int}_l$ is the former since
       at every point except $n$ the intervals agree, hence the intersection
       remains the same at these dimensions. Then we use
-      \Cref{lem:zinf-identities} to calculate the intersection. By assumption we
+      \Cref{lem:interval-identities} to calculate the intersection. By assumption we
       have $k \leq l$, so the maximum of the lower bounds is $-k$ and the
       minimum of lower bounds is $k$ this is same as interval $\textit{int}_k$.
       Note that pointedness is the same for both intervals and depths are

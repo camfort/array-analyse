@@ -91,8 +91,8 @@ contiguous elements with a simple static pattern. From this we
 designed a simple set of combinators to express common array patterns (\Cref{sec:lang}).
 As an example, the Laplace program is specified in our language by:
 %
-\begin{minted}[linenos=false]{fortran}
-!=  stencil centered(depth=1, dim=1) :: a
+\begin{minted}[linenos=false,xleftmargin=0em,xrightmargin=0.8em,breakindent=1.9em]{fortran}
+!= stencil centered(depth=1, dim=1) :: a
 \end{minted}
 %
 That is, \texttt{a} is accessed with a symmetrical pattern in its

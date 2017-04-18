@@ -7,7 +7,7 @@ with scientists:
 \begin{enumerate}[leftmargin=2em]
 \item Computations involving loops over arrays are common, where
   arrays are read according to a static pattern based on constant offsets
-  from (base or dervied) induction variables;
+  from (base or derived) induction variables;
 
 \item Most loop-array computations of the previous form read from
   arrays with a \emph{contiguous} pattern, \eg{}:
@@ -98,6 +98,27 @@ to parse all of the corpus, some of which contains non-standard code.
 Of the 1.4 million lines, over 1 million was parsed
 (see~Appendix~\ref{app:corpus} for exact numbers).
 
+Classifications are computed from all the information that flows into an
+assignment. For example, the following decomposes a one-dimensional
+three-point pattern across multiple intermediate assignments:
+%%
+\begin{minted}{fortran}
+do i = 1, n
+  x = a(i)
+  y = a(i+1)
+  b(i) = (a(i-1) + x + y)/3.0
+end do
+\end{minted}
+%%x
+Our analysis recognises this as a single array computation (rather
+than three), starting at line 4, and reading from subscripts
+\fortran{a(i)}, \fortran{a(i+1)}, \fortran{a(i-1)}. We
+traverse loop bodies bottom-up, using reaching-definitions to
+calculate the array subscripts that flow to an assignment. Since
+\fortran{x} and \fortran{y} flow to line 4, the intermediate
+statements on line 2 and line 3 are not classified separately, though
+multiple assignments can flow to multiple classified statements.
+
 %\paragraph{Classifications}
 Left-hand sides and right-hand sides of assignments are classified
 based on their array subscripting expressions:
@@ -132,25 +153,6 @@ based on their array subscripting expressions:
 %
 %Note \textsf{vars} and \textsf{IVs} classifications apply only to
 %left-hand sides.
-Classifications are computed from all the information that flows into an
-assignment. For example, the following decomposes a one-dimensional
-three-point pattern across multiple intermediate assignments:
-%%
-\begin{minted}{fortran}
-do i = 1, n
-  x = a(i)
-  y = a(i+1)
-  b(i) = (a(i-1) + x + y)/3.0
-end do
-\end{minted}
-%%x
-Our analysis recognises this as a single array computation (rather than three), starting at
-line 4, and reading from subscripts \fortran{a(i)}, \fortran{a(i+1)},
-\fortran{a(i-1)}. To compute this we traverse the loop body in reverse,
-using reaching-definitions to calculate the array reads that flow
-to a particular assignment. Since \fortran{x} and \fortran{y} flow to
-line 4, the intermediate statements on line 2 and line 3 are not classified separately, though multiple
-assignments can flow to multiple classified statements.
 
 We further sub-classify sets of array subscripts
 on the right-hand side based on their spatial properties: 
@@ -189,15 +191,15 @@ on the right-hand side based on their spatial properties:
 %
 %\noindent
 %
-Finally, we categorise the relationship between the left-hand side
-and right-hand side, in terms of the use of induction variables.
-The two sides are \emph{consistent} if the same induction variables
+Finally, we classify the relationship between the LHS
+and RHS in terms of the use of induction variables.
+The two sides are \emph{directly consistent} if the same induction variables
 appear in each side, used for the same dimension. This is
 weakened to a \emph{permutation} if the roles of the induction
-variables changes. This is weakened further if the left-hand side
+variables changes. This is weakened further if the LHS
 induction variables are either
-a subset or superset of the induction variables on the right-hand
-side. Otherwise, the two sides are seen as inconsistent:
+a subset or superset of the induction variables on the RHS.
+Otherwise, the two sides are seen as inconsistent:
 %
 \begin{center}
 \begin{tabular}{l|l|l}
@@ -229,7 +231,7 @@ We revisit each hypothesis and show the related data and conclusions.
 \begin{enumerate}
 \item Computations involving loops over arrays are common, where an
   arrays are read from with a static pattern based on constant offsets
-  from (base or dervied) induction variables;
+  from (base or derived) induction variables;
 \end{enumerate}
 %
 We identified \num{108773} instances of assignments within loops in
@@ -254,8 +256,8 @@ Other                           & 20196     & 18.57 \%  \\ \hline \hline
 \noindent
 Since, affine and neighbour patterns are static, we group them
 (\textit{Grouping 1}) to see that $81.43\%$ of the array computations
-(88,577) have a static pattern that comprises constant offsets of
-base/derived induction variables (potential with some absolute
+(88,577) have a static pattern that neighbourhood or affine subscript
+expressions (potential with some absolute
 indices), confirming \emph{Hypothesis 1}. Note that affine subscripts
 are rare, perhaps due to programmers relying on compilers for
 optimisation rather than hand optimising (which tends to lead to

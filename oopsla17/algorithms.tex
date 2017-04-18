@@ -82,20 +82,20 @@ space. The notion of consistency is then intuitively whether these two
 (potentially infinite) sets of points are equal. This leads to a
 simple notion of consistency, where $\mathit{consistent}(M_C, M_S)$
 tests the consistency of a modal $M_C$ of source code against
-a model $M_S$ of a specification:
-%
-\begin{align*}
-  \mathit{consistent} & :
+a model $M_S$ of a specification, where
+$\mathit{consistent} :
     \mathsf{Mult}(\mathcal{P}(\bz{}^N)) \times
-    \mathsf{Mult}(\mathsf{Approx}(\region{N})) \to \mathbb{B} & \\
-%
+    \mathsf{Mult}(\mathsf{Approx}(\region{N})) \to \mathbb{B}$ is defined:
+
+\begin{align*}
   \mathit{consistent}(\mathit{ix}, \mathit{model}) & = \begin{cases}
     \mathsf{false} & \mathit{model} = \mathsf{once}(x) \wedge ix =
     \mathsf{mult}(y) \\
     \mathsf{false} & \mathit{model} = \mathsf{mult}(x) \wedge ix = \mathsf{once}(y) \\
     \mathit{consistent'}(\mathit{peel}(ix), \mathit{peel}(model)) & \textit{otherwise}
   \end{cases} \\
-%
+\end{align*}
+\begin{align*}
   \mathit{consistent'} & :
     \mathcal{P}(\bz{}^N) \times
     \mathsf{Approx}(\region{N}) \to \mathbb{B} & \\
@@ -304,6 +304,7 @@ splitting apart interval schemes when necessary:
   \{ \interv{0}{b}{c} \times T \mid T \in \textit{split}(S) \}
   & a < 0 \vee b > 0 \vee (|a| \neq b) \\
   \{ \interv{a}{b}{c} \times T \mid T \in \textit{split}(S) \}
+  & \textit{otherwise}
 \end{cases}
 \end{align*}
 %
@@ -341,7 +342,7 @@ $\interv{0}{0}{} \times \interv{-1}{1}{}$ is similar. When combined by
   \stencil[s]{c}{1}{1}{} \texttt{*} \stencil[s]{p}{2}{}{} \; \texttt{+} \;
   \stencil[s]{p}{1}{}{}  \texttt{*} \stencil[s]{c}{2}{1}{}
 \end{equation*}
-\vspace{-1em}
+\vspace{-2em}
 \begin{restatable}[Inference soundness]{lem}{inferenceSoundness}
   For all region specs $R$, then $\textit{infer}(\interp{R}_N)_N \equiv R$
 \end{restatable}

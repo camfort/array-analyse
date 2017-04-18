@@ -50,7 +50,6 @@ dense index-manipulation:
 \begin{minted}[firstnumber=20,xleftmargin=2em]{fortran}
 du2dx = ((u(i,j)+u(i+1,j))*(u(i,j)+u(i+1,j))+gamma*abs(u(i,j)+u(i+1,j))*(u(i,j)-u(i+1,j))- &
   (u(i-1,j)+u(i,j))*(u(i-1,j)+u(i,j))-gamma*abs(u(i-1,j)+u(i,j))*(u(i-1,j)-u(i,j))) /(4.0*delx)
-
 duvdy = ((v(i,j)+v(i+1,j))*(u(i,j)+u(i,j+1))+gamma*abs(v(i,j)+v(i+1,j))*(u(i,j)-u(i,j+1))- &
   (v(i,j-1)+v(i+1,j-1))*(u(i,j-1)+u(i,j))-gamma*abs(v(i,j-1)+v(i+1,j-1))*(u(i,j-1)- u(i,j))) / (4.0*dely)
 

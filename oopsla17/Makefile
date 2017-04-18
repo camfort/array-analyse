@@ -3,7 +3,7 @@ all: oopsla17.pdf lattice-model.pdf inference.pdf
 
 oopsla17.pdf: references.bib oopsla17.tex study.tex stencilmacros.sty\
 	introduction.tex study.tex algorithms.tex lang.tex model.tex evaluation.tex results.tex\
-	theory.tex related-work.tex proofs.tex appendix.tex
+	theory.tex related-work.tex proofs.tex appendix.tex conclusions.tex
 	pdflatex -shell-escape oopsla17
 	bibtex oopsla17
 	pdflatex -shell-escape oopsla17

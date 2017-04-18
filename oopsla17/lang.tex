@@ -8,7 +8,8 @@
 \begin{array}{rl}
 \nonterm{specification} ::= & \nonterm{regionDec} \mid \nonterm{specDec} \\
 \nonterm{specDec} ::= & \term{stencil} \; \nonterm{spec} \;
-                        \texttt{::} \; v \\
+                        \texttt{::} \; v \; \mid \; \term{access} \;
+                        \nonterm{spec} \; \texttt{::} \; v \\
 \nonterm{regionDec} ::= &  \texttt{region} \; \texttt{::} \; \nonterm{rvar} \; \texttt{=} \;
                          \nonterm{region}\\[0.4em]
 %\nonterm{spec} ::= & \nonterm{spatial} \mid \nonterm{temporal}
@@ -31,23 +32,23 @@
 \label{fig:syntax}
 \end{figure}
 
-\subsection{Specification syntax}
-\label{subsec:syntax}
+%\subsection{Specification syntax}
+%\label{subsec:syntax}
 
+\noindent
 \Cref{fig:syntax} gives the syntax of stencil specifications, which is
-detailed below. The entry point is the \nonterm{specification} production which
-splits into either a \emph{region declaration} or a \emph{specification
-declaration}.
-Regions comprise \emph{region constants} which are
-combined via region operators \term{+} and \term{*}.
+detailed below. The entry point is the \nonterm{specification}
+production which splits into either a \emph{region declaration} or a
+\emph{specification declaration}.  Regions comprise \emph{region
+  constants} which are combined via
+region operators \term{+} and \term{*}.
 
-Region constants specify a finite interval in a 
-single dimension relative to the origin and are either \term{pointed},
+Region constants (non-terminal \textit{rconst}) specify a finite interval in a 
+single dimension starting at the origin and are either \term{pointed},
 \term{forward}, \term{backward}, or \term{centered}. The region names are
 inspired by numerical analysis terminology, \eg{} the standard explicit method for
 approximating PDEs is known as the \emph{Forward Time, Centered Space} (FTCS)
 scheme~\citep{dawson1991finite}.
-
 Each region
 constant has a dimension identifier $d$ given as a positive natural number.
 Each constant except \term{pointed} has a depth
@@ -179,7 +180,7 @@ the previous examples could have \texttt{readOnce} added:
 %
 \begin{minted}{fortran}
 != stencil readOnce, backward(depth=2, dim=1) :: a
-b(i+1) = a(i) + a(i-1) + a(i-2)
+b(i) = a(i) + a(i-1) + a(i-2)
 \end{minted}
 %
 This specification would be invalid if any of the
@@ -201,6 +202,39 @@ precisely in our syntax. For example:
 != stencil atMost, forward(depth=4, dim=1) :: a
 b(i) = a(i) + a(i+4)
 \end{minted}
+
+\paragraph{Relativisation}
+
+The data access pattern of a stencil is understood relative to the
+subscript on the left-hand side. If the left-hand side of a stencil
+has a neighbourhood subscript with non-zero offsets, then the
+right-hand side is understood relative to this shifted origin. For example:
+%%
+\begin{minted}{fortran}
+do i = 1, n
+   != stencil (backward(depth=2, dim=1, nonpointed))*(pointed(dim=2)) :: b
+   a(i+1, j) = b(i, j) + b(i-1, j)
+\end{minted}
+%%
+Note that the specification for dimension 1 is to a depth of 2, since
+the left-hand side is shifted forward by 1.
+
+\paragraph{Access specifications}
+
+Specifications can also be given to array computations which are not
+stencils (\ie{}, do not have a left-hand side which is an array
+subscript). For example, for a reduction:
+%%
+\begin{minted}{fortran}
+do i = 1, n
+  != access, pointed(dim=1) :: a
+  r = max(a(i), r)
+end do
+\end{minted}
+%%
+The main difference between \fortran{stencil} and \fortran{access} is
+that there is no left-hand side with which to check consistency or
+relativise against.
 
 %%% Local Variables:
 %%% mode: latex

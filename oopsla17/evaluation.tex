@@ -3,24 +3,17 @@
 \newcommand\pointed{\regname{pointed}}
 \newcommand\forward{\regname{forward}}
 
-To study the effectiveness of our approach,
-we built a corpus of over 1 million lines of Fortran code from a
-range of scientific computing packages: The Unified Model (UM)~\cite{um},
-E3ME~\cite{RePEc:aen:journl:2006se-a12}, BLAS~\cite{blas},
-Hybrid4~\cite{GBC:GBC635}, GEOS-Chem~\cite{geos-chem}, Navier (based
-on \cite{griebel1997numerical}), Computational Physics
-ed. 1~\cite{giordano1997computational},
-ARPACK-NG~\cite{arpackng}, MUDPACK~\cite{MUD}, Cliffs~\cite{Cliffs}, and
-SPECFEM3D~\cite{specfem3d}.
-
-We first examined how frequently stencil computations occur. We parsed
-\num{\overalllinesParsed} lines of Fortran code and found that \overalltickAssignPercent\%
-(\num{\overalltickAssign}) of statements have a left-hand side as an
-array subscript on neighbourhood indices. This supports the idea that
-stencil-like computations are common in scientific code.  We then used
-the inference procedure of the previous section to generate
-specifications for stencils in the corpus to assess the design of the
-language.
+To study the effectiveness of our approach, we applied our tool to the
+more than one million lines of source code contained within the corpus
+that we have assembled (\Cref{sec:study}). We first examined how
+frequently stencil computations occur. We parsed
+\num{\overalllinesParsed} lines of Fortran code and found that
+\overalltickAssignPercent\% (\num{\overalltickAssign}) of statements
+have a left-hand side as an array subscript on neighbourhood
+indices. This supports the idea that stencil-like computations are
+common in scientific code.  We then used the inference procedure of
+the previous section to generate specifications for stencils in the
+corpus to assess the design of the language.
 
 We would not expect to infer a stencil for each array statement we
 found because our analysis restricts the array-subscript-statements
@@ -57,9 +50,6 @@ any number of \pointed\ regions. We identified \num{\overallmultiAction} multi-a
 specifications out of which \num{\overallmultiActionMulOnly} had regions combined only with
 $\term{*}$ and \num{\overallmultiActionPlusAndMul} combined with a mix of $\term{*}$ and \term{+}.
 
-\textbf{Bounded} specifications occured with \num{\overallatMost}
-\texttt{atMost} bounds and \num{\overallatLeast} \texttt{atLeast}, the latter of which were
-always also paired with an upper bound.
 
 % \begin{figure}[t]\begin{minted}[fontsize=\scriptsize,breakindent=0em,linenos=false,xleftmargin=0em,breakafter=)]{fortran}
 % !=stencil readOnce,(forward(depth=1,dim=3,nonpointed))*(backward(depth=1,dim=1))*(backward(depth=1,dim=2))+(forward(depth=1,dim=3))*(backward(depth=1,dim=1))*(pointed(dim=2))+(forward(depth=1,dim=3))*(backward(depth=1,dim=1,nonpointed))*(backward(depth=1,dim=2,nonpointed))+(forward(depth=1,dim=3))*(backward(depth=1,dim=2))*(pointed(dim=1))+(backward(depth=1,dim=1))*(backward(depth=1,dim=2,nonpointed))*(pointed(dim=3))+(backward(depth=1,dim=1,nonpointed))*(backward(depth=1,dim=2))*(pointed(dim=3))::x
@@ -83,46 +73,52 @@ always also paired with an upper bound.
 % of the spatial behaviour given size and complexity of the kernel it describes.
 
 We measured the frequency at which individual specifications involved
-multiple occurences of \term{*}
- % and \term{+}:
+multiple occurrences of \term{*}
+and \term{+}:
 \begin{center}
 \vspace{0.25em}
 \setlength{\tabcolsep}{0.57em}
 {\small{
 \hspace{-1em}\begin{tabular}{c|cccccccc}
 & 0 & 1 & 2 & 3 & 4 & 5 & 6  \\ \hline
-\term{*} & \num{\overallmulOpszero} & \num{\overallmulOpsone} & \num{\overallmulOpstwo} & \num{\overallmulOpsthree} & \num{\overallmulOpsfour} & \num{0} & \num{\overallmulOpssix}
+\term{*} & \num{\overallmulOpszero} & \num{\overallmulOpsone} & \num{\overallmulOpstwo} & \num{\overallmulOpsthree} & \num{\overallmulOpsfour} &  & \num{\overallmulOpssix} \\
+\term{+} & \num{\overallplusOpszero} & \num{\overallplusOpsone} & \num{\overallplusOpstwo}
 \end{tabular}}}
 \vspace{0.2em}
 \end{center}
-\noindent
+
+\textbf{Bounded} specifications occured with \num{\overallatMost}
+\texttt{atMost} bounds and \num{\overallatLeast} \texttt{atLeast}, the latter of which were
+always also paired with an upper bound.
+
+
 % \eg{}, roughly half the specifications did not involve $\term{*}$,
 % a quarter use one $\term{*}$ and just under a quarter
 % use two $\term{*}$ operators.
 
-\paragraph{Limitations}
+\subsection{Limitations}
 
 There were various reasons why we did not infer
-specifications on every looped array computation: \\
-\noindent
-1) \textbf{Non-subset induction variables} occur when the
+specifications on every looped array computation:
+\begin{itemize}
+\item \textbf{Non-subset induction variables} occur when the
 induction variables on the RHS are not a subset of those in the LHS. These
 cases are not stencils by our definition. The degenerate case of this
 is to have only constant indices on the LHS. We see lots of examples
-of this in loops as accumulators \eg{} computing the sum over an array; \\
-\noindent
-2) \textbf{Derived induction variables} where an
+of this in loops as accumulators \eg{} computing the sum over an array;
+
+\item \textbf{Derived induction variables} where an
 index (\mintinline{fortran}{x}) is derived from an
 induction variable (\mintinline{fortran}{i}) as in
-\mintinline{fortran}{x = len - i};  \\
-\noindent
-3) \textbf{Inconsistent induction dimensions} occur when
+\mintinline{fortran}{x = len - i};
+
+\item \textbf{Inconsistent induction dimensions} occur when
 an induction variable is used to specify more than one array dimension
 on the RHS or multiple induction variables are used for the same
 dimension on the RHS. These are common in matrix operations such as
 LU-decomposition with assignments such as
 \mintinline{fortran}{a(l) = a(l) - a(m) * b(l, m)}.
-
+\end{itemize}
 
 \subsection{Detecting errors in the 2-D Jacobi iteration}
 \label{sec:jacobi}
@@ -135,7 +131,7 @@ is given by:
 \end{minted}
 We infer a precise specification of its shape as:
 \begin{minted}[breakafter=+:,breakindent=-0.6em,breaksymbolsep=0.4em,linenos=false,xleftmargin=-0.5em]{fortran}
-  != stencil pointed(dim=1)*centered(depth=1,dim=2,nonpointed)+pointed(dim=2)*centered(depth=1,dim=1,nonpointed)::a
+  != stencil pointed(dim=1)*centered(depth=1,dim=2,nonpointed)+pointed(dim=2)*centered(depth=1,dim=1,nonpointed)
 \end{minted}
 %
 To test our implementation,
@@ -176,12 +172,12 @@ that the intention had been \forward\ in the third dimension:
 
 One of the initial goals of CamFort was to provide tools that enable
 optimisation and refactoring without changing behaviour, and the
-stencil specification feature was designed with that in mind. But
+array specification feature was designed with that in mind. But
 while we were perusing real-world source bases, we realised that there
 were also many cases where CamFort could help with refactoring
 precisely because they required changes in behaviour. For example, a
 relatively common change observed in the logs of revision control for
-various projects is the refactoring of array dimensions. Either
+our corpus is the refactoring of array dimensions. Either
 re-ordering, adding or deleting dimensions. Any of these, if not
 perfectly propagated throughout all uses, could result in unexpected
 outcomes. However, CamFort will pick up the difference during its

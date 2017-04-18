@@ -1,7 +1,7 @@
 
 \noindent
 We define a lattice model of array access patterns which serves as
-a semantic model of our specification language and model of array
+a semantic model of our specification language and a model of array
 access patterns in source code. This model (1) used to explain the
 meaning of our specifications; (2) as a basis for the inference and
 checking algorithms (\Cref{sec:algorithms}); (3) justifies an equational
@@ -164,6 +164,7 @@ language model, and of the code analysis. We further wrap this in a
 labelled variant which provides information on multiplicity and approximation.
 
 \begin{defn}
+  \label{defn:modifiers}
   $\mathsf{Mult}$ and $\mathsf{Approx}$ are parametric labelled variant types
   with injections given by their definition:
 %
@@ -206,6 +207,7 @@ The interpretation is overloaded on \emph{regions} in
 
 %
 \begin{figure}[!t]
+ \label{fig:semantics}
 \begin{subfigure}[t]{0.4\textwidth}
 \begin{align*}
   \interp{-}_N & : \textit{region} \rightarrow \region{N} \\
@@ -221,7 +223,7 @@ The interpretation is overloaded on \emph{regions} in
   \\[1em]
   %%
   \interp{-}^{\mathsf{c}} & : \textit{rconst} \rightarrow
-                            \region{} \\
+                            \textit{Interval} \\
   \interp{\stencil{p}{$i$}{}{}}^{\mathsf{c}} & =
     {\interv{0}{0}{\mathsf{true}}}\\
 %
@@ -253,10 +255,23 @@ The interpretation is overloaded on \emph{regions} in
 \caption{Interpretation of modifiers}
 \label{subfig:modifier-model}
 \end{subfigure}
-\label{fig:semantics}
 \caption{Semantic model of specifications}
 \end{figure}
 
+<<<<<<< HEAD
+The intermediate interpretation $\interp{-}^{\mathsf{c}}$ of
+\Cref{subfig:region-model} models region contants. This is lifted by
+$\textit{promote}_N$ to interpret region constants in the last
+equation of $\interp{-}_N$. The \term{+} and \term{*} operators are
+modelled in terms of the join (union) and meet (intersection) of
+interval schemes. Thus the syntax of regions is modelled as members of
+$\region{N}$.
+
+We mark in our model the presence of modifiers such as
+\texttt{readOnce} and \texttt{atMost} as introduced in
+\Cref{defn:modifiers}.  Approximation modifiers are interpreted as
+injections into the $\mathsf{Approx}$ variant by $\interpApprox{}$ in
+=======
 
 The first four equations of \Cref{subfig:region-model} model region 
 constants. The final two equations model the \term{+} and \term{*}
@@ -268,6 +283,7 @@ We mark in our model the presence of modifiers such as
 \texttt{readOnce} and \texttt{atMost} as introduced in \Cref{sec:lang}.
 Approximation modifiers are interpreted as injections into the
 $\mathsf{Approx}$ variant by $\interpApprox{}$ in
+>>>>>>> 1c5b177ce9376948735768ee704c09d90f961958
 \Cref{subfig:modifier-model}.  The $\textsf{Approx}$ type corresponds
 to the presence or absence of the spatial approximation modifier, with
 \textsf{exact} when there is no such modifier and \textsf{lower} and
@@ -290,10 +306,33 @@ syntax as:
 \end{equation*}
 \end{defn}
 
-\subsection{Denotational semantics for array subscripts}
+\begin{restatable}[Equational soundness]{thm}{equationalSoundness}
+  The lattice model is sound with respect to the equational theory. Let $R$ and $S$
+  be $N$-dimensional region terms, then we have
+%
+  \begin{equation*}
+    \forall R, S, N. \; R \equiv S \implies \interp{R}_N = \interp{S}_N
+  \end{equation*}
+\end{restatable}
+
+\begin{restatable}[Approximation soundness]{thm}{approxSoundness}
+  The lattice model is sound with respect to the theory of approximation. Let $R$
+  and $S$ be $N$ dimensional regions, then we have
+%
+  \begin{equation*}
+    \forall R, S, N. \; R \preceq S \implies \interp{R}_N \subseteq \interp{S}_N
+  \end{equation*}
+\end{restatable}
+%
+Note that the model is not complete with respect to equations or
+approximations since the specification language has no model of the
+bottom element of the lattice.
+
+\subsection{Interpreting array subscripts}
 \label{sec:fromcode}
 
 \begin{defn}
+  \label{defn:subscript}
   Recall array subscript terms of the form $a(\bar{e})$ from
   \Cref{def:array-subs}. We interpret these terms with the partial
   interpretation $\interp{-}^{\mathit{aterm}} : \textit{array-term}
@@ -307,30 +346,47 @@ syntax as:
   %
     \textit{subscript}(e) = \begin{cases}
       \{ c \} & e \equiv i \pm c \\
-      \bz & e \; \mbox{is constant}
+      \bz & e \; \mbox{is absolute}
     \end{cases}
   \end{align*}
 \end{defn}
-
-\subsection{Soundness of model with respect to equational and approximation theories}
-
-\begin{restatable}[Equational soundness]{thm}{equationalSoundness}
-  Lattice model is sound with respect to the equational theory. Let $R$ and $S$
-  be $N$ dimensional regions, then we have
 %
-  \begin{equation*}
-    \forall R, S, N. \; R \equiv S \implies \interp{R}_N = \interp{S}_N
-  \end{equation*}
-\end{restatable}
+Note that this produce subscript schemes (a form of index scheme), but
+they are not members of \textit{Interval} or $\textit{Region}_N$. In
+the next section, we use this interpretation on array subscripts in
+the static analysis producer preceding checking and inference.
 
-\begin{restatable}[Approximation soundness]{thm}{approxSoundness}
-  Lattice model is sound with respect to the theory of approximation. Let $R$
-  and $S$ be $N$ dimensional regions, then we have
-%
-  \begin{equation*}
-    \forall R, S, N. \; R \preceq S \implies \interp{R}_N \subseteq \interp{S}_N
-  \end{equation*}
-\end{restatable}
+\subsection{Union Normal Form}\label{subsec:union-normal-form}
+
+\noindent
+We lastly address a problem of \emph{representation} for index schemes
+in the model. Index schemes may incorporate the infinite set \bz{} in
+their components, \eg{} when a dimension is unconstrained or when an
+absolute index of array term is interpreted. In order to provide a
+finite checking procedure, we require a finite and compact
+representation for indices which accounts for this.
+
+Recall \Cref{lem:vector-intersect} states that the
+intersection of index schemes is an index scheme. When
+combined with \Cref{lem:interval-identities} (union and intersection
+on holed intervals), we can extend this closure to \emph{interval} schemes.
+Subscripts schemes do not enjoy the same closure propery as the intersection of
+two singleton sets may be empty, disqualifying the result from 
+being a subscript index. In the following sections, we do not take
+intersection of subscript indices.
+
+Union is not as flexible as
+intersection. \Cref{lem:vector-union} does not form a closure for
+indexing schemes in general. For this reason, we represent sets of
+indexing schemes as unevaluated union terms, or \emph{union normal
+  form}.  Since the model forms a distributive lattice as established
+in \Cref{prop:region-lattice}, the intersections can be pushed inwards
+using the distributive law leaving only unions at the outer-level. We
+further exploit associativity of union to put unions into a cons-tree
+making the unions effectively a non-empty list.  We do not, however,
+attempt to canonicalise the representation. Later on
+\Cref{lem:vector-union} and index scheme subset are used to reduce the
+size of union normal form.
 
 %%% Local Variables:
 %%% mode: latex

@@ -1,13 +1,17 @@
-We now introduce the equational and approximation theory of stencil
-specifications based on $\equiv$ and $\preceq$ in the following two subsections.
+\noindent
+Our region specifications are subject to an equational theory
+$\equiv$, which explains which region specifications are equivalent,
+and a mutually-defined approximation theory $\preceq$ for
+over- and under- approximation on regions.
 
 \subsection{Equivalences}
 
-We define an equivalence relation, $\equiv$. The purpose of this relation is to
-allow programmers to write specifications with greater flexibility. It allows
-specifications to be written in various levels of compactness allowing
-optimising for space and better documentation. The relation is defined on
-regions as follows:
+\noindent
+We define an equivalence relation, $\equiv$. The purpose of this
+relation is to allow programmers to write specifications with greater
+flexibility. It allows specifications to be written in various levels
+of compactness allowing for space optimisation, or greater clarity of
+documentation. The relation is defined on regions as follows:
 
 \begin{description}
   \item[Basic] \texttt{*} and \texttt{+} are both idempotent, commutative, and
@@ -16,7 +20,7 @@ regions as follows:
   \item[Subsumption] If $S$ and $R$ are regions with $S \preceq R$, then
     $S \texttt{+} R \equiv R$ and $S \texttt{*} R \equiv S$.
 %
-  \item[Dist] \texttt{*} distributed over \texttt{+} and dually
+  \item[Distributioneq] \texttt{*} distributed over \texttt{+} and dually
     \texttt{+} distributes over \texttt{*}, meaning if \textcap{R}, \textcap{S},
     and \textcap{T} are regions, then we have the following dual equivalences:
 %
@@ -28,7 +32,7 @@ regions as follows:
     \end{align*}
 %
   \item[Overlapping pointed] If \textcap{R} is one of \texttt{forward},
-    \texttt{backward}, or \texttt{centered}, then we have
+    \texttt{backward}, or \texttt{centered}, then we have the following:
 %
     \begin{equation*}
       \stencil{\textcap{R}}{$n$}{$k$}{\texttt{nonpointed}} \;\texttt{+}\;
@@ -50,7 +54,7 @@ regions as follows:
 \end{description}
 
 \subsection{Approximations}
-
+%
 We define a partial of order of approximations, $\preceq$. The relation is used
 in equational theory and provides means of writing more compact lower and upper
 bound specifications. The relation is defined as follows:
@@ -72,8 +76,8 @@ bound specifications. The relation is defined as follows:
     \end{equation*}
 %
 \end{description}
-
-We present few inequalities that can be derived from the axioms and are useful
+%
+We present some derivable inequalities that are useful
 when writing specifications without inference:
 
 \begin{restatable}[Centered approximation]{prop}{centeredApprox}

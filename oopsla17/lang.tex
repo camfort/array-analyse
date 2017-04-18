@@ -71,7 +71,7 @@ kernels reading from arrays \term{a}, \term{b}, \term{c} and \term{d}:
 e(i, 0) = a(i, 0) + a(i+1, 0) + a(i+2, 0)
 
 != stencil backward(depth=2, dim=1) :: b
-e(i, j) = b(i, j) + b(i-1, j) + b(i-2, j)
+f(i) = b(i) + b(i-1) + b(i-2)
 
 != stencil centered(depth=1, dim=1) :: c
 e(i, j) = (c(j-1) + c(j) + c(j+1))/3.0
@@ -80,11 +80,13 @@ e(i, j) = (c(j-1) + c(j) + c(j+1))/3.0
 e(i, j) = d(0, 0, i)
 \end{minted}
 %%
-Not every dimension needs to be specified, \eg{},
-specifications on lines $1$, $4$, and $10$ leave some dimensions unspecified.
+If a dimension contains only absolute index terms then it is left
+unspecified.
+
 The \term{forward}, \term{backward}, and \term{centered} regions may
 all have an additional attribute \term{nonpointed} which marks absence
-of the origin.  For example, the following is a
+of the origin, corresponding to those array computations classified
+as \textsf{straddle} in the previous section.  For example, the following is a
 \term{nonpointed} \term{backward} stencil
 %
 \begin{minted}{fortran}
@@ -93,14 +95,13 @@ b(i) = a(i-1) + 10*a(i-2)
 \end{minted}
 %
 \paragraph{Combining regions}
-
 The region operators \term{+} and \term{*} respectively combine
 regions by union and intersection. The intersection of two regions
 $r \term{*} s$ means that any indices in the specified code must be
 consistent with both $r$ and $s$ simultaneously.
  Dually, for the union of two regions
  $r \term{+} s$ means that indices in the specified code must be
- inconsistent with one of $r$ or $s$, or both.
+ consistent with one of $r$ or $s$, or both.
 For example, the following \emph{nine-point stencil}
 has a specification given by the product of two \texttt{centered}
 regions in each dimension:
@@ -160,7 +161,7 @@ pattern, as the regions can be defined once and reused.
 Region specifications can be modified
 by \emph{approximation} and \emph{multiplicity} information
 (in \textit{spec} in \Cref{fig:syntax}).
-The \texttt{readOnce} modifier enforces that no index appears more
+The \texttt{readOnce} modifier enforces that no subscript appears more
 than once (that is, its multiplicity is one). For example, all of
 the previous examples could have \texttt{readOnce} added:
 %
@@ -173,9 +174,8 @@ This specification would be invalid if any of the
 array subscripts were repeated. This modifier provides a way to
 rule out any accidental repetition of array subscripts.
 The notion is similar to that of linear types~\cite{wadler1990linear}, where a value must be used
-exactly once. We opt for the more informative and easily understood name
-\texttt{readOnce}. This modifier is optional, so it need not
-be present even if the stencil is linear.
+exactly once. We opt for a more informative and easily understood name
+\texttt{readOnce}.
 
 In some cases, it is useful to give a lower and/or upper bound for a
 stencil. This can be done using either the \term{atMost} or

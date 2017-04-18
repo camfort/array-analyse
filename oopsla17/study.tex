@@ -529,14 +529,15 @@ of their implementation (and associated programming errors). We made the followi
   computations);
 
 \item Access patterns are mostly contiguous ($76.94\%$ of all array
-  computations) and cross or straddle the origin ($75.75\%$), thus we
-  can represent patterns by \emph{finite intervals} that meet at, or
+  computations) and cross or straddle the origin ($75.75\%$). We thus
+  represent patterns by \emph{finite intervals} that meet at, or
   are next to, the origin.  These intervals will be given
   declaratively and abstractly, avoiding replicating indexing terms at
   the specification level.
 
 \item We will support only consistent left and right-hand sides (where
-  there are common induction variables on each side) ($66.01\%$)
+  there are common induction variables on each side) ($66.01\%$ of all
+  array computations).
 
 \item Stencils will be the primary focus $(61.79\%)$ but we will also
   allow specifications on assignments where the LHS is a variable

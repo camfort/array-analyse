@@ -5,8 +5,8 @@ We start with the following hypotheses about array programming idioms
 in scientific code, formed from our observations and conversations
 with scientists:
 \begin{enumerate}[leftmargin=2em]
-\item Computations involving loops over arrays are common, where an
-  arrays are read from with a static pattern based on constant offsets
+\item Computations involving loops over arrays are common, where
+  arrays are read according to a static pattern based on constant offsets
   from (base or dervied) induction variables;
 
 \item Most loop-array computations of the previous form read from
@@ -76,7 +76,7 @@ partial differentials~\cite{MUD};
 \item Cliffs, a tsunami model~\cite{tolkova2014land}
 \end{enumerate}
 %
-These cover approximately 1.4 million lines of physical Fortran code
+These cover approximately 1.4 million lines of Fortran code
 (2.4 million including comments and white space).  The UM and
 GEOS-Chem packages are the largest at $\approx$630kloc and
 $\approx$450kloc respectively.  Appendix~\ref{app:corpus} provides
@@ -128,7 +128,7 @@ based on their array subscripting expressions:
 %
 %Note \textsf{vars} and \textsf{IVs} classifications apply only to
 %left-hand sides.
-Classifications are computed from all information that flows into an
+Classifications are computed from all the information that flows into an
 assignment. For example, the following decomposes a one-dimensional
 three-point pattern across multiple intermediate assignments:
 %%
@@ -140,12 +140,12 @@ do i = 1, n
 end do
 \end{minted}
 %%x
-Our analysis recognises this as one array computation (rather than three), starting at
+Our analysis recognises this as a single array computation (rather than three), starting at
 line 4, and reading from subscripts \fortran{a(i)}, \fortran{a(i+1)},
-\fortran{a(i-1)}. We thus traverse the body of a loop in reverse,
+\fortran{a(i-1)}. To compute this we traverse the loop body in reverse,
 using reaching-definitions to calculate the array reads that flow
 to a particular assignment. Since \fortran{x} and \fortran{y} flow to
-the line 4, line 2 and line 3 are not classified separately, though multiple
+line 4, the intermediate statements on line 2 and line 3 are not classified separately, though multiple
 assignments can flow to multiple classified statements.
 
 We further sub-classify sets of array subscripts
@@ -233,7 +233,7 @@ and grouped the data by the right-hand side classification only:
 \begin{center}
 \begin{tabular}{l|S[table-format=4]@{\extracolsep{5pt}}S[table-format=2.2]c}
 \textbf{RHS classification} & \textbf{Number} & \% &
-\textit{grouping 1} \\ \hline
+\textit{Grouping 1} \\ \hline
 Affine                          & 34        & 0.03\%
 & \multirow{3}{*}{81.43\%} \\ \cline{1-3}
 Neighbourhood                   & 65334     & 60.06 \%  \\ \cline{1-3}
@@ -245,10 +245,10 @@ Other                           & 20196     & 18.57 \%  \\ \hline \hline
 %
 \noindent
 Since, affine and neighbour patterns are static, we group them
-(\textit{grouping 1}) to see that $81.43\%$ of the array computations
+(\textit{Grouping 1}) to see that $81.43\%$ of the array computations
 (88,577) have a static pattern that comprises constant offsets of
 base/derived induction variables (potential with some absolute
-indices), confirming \emph{hypothesis 1}. Note that affine subscripts
+indices), confirming \emph{Hypothesis 1}. Note that affine subscripts
 are rare, perhaps due to programmers relying on compilers for
 optimisation rather than hand optimising (which tends to lead to
 affine indices).  Overwhelmingly, the main category is neighbourhood
@@ -265,7 +265,7 @@ from arrays with a pattern that includes the immediate
 neighbours (offsets of 1 from the induction variables);
 \end{enumerate}
 %
-We grouped the data based on subclassifications of \emph{grouping 1}
+We grouped the data based on subclassifications of \emph{Grouping 1}
 in terms of contiguity and positioning.
 %Focussing on grouping 1.
 \begin{center}
@@ -302,8 +302,8 @@ Thus, $76.94\%$ of array computations have only neighbour
 indices (which may include some absolute indices) in a contiguous
 pattern on the right hand side, with $76.80\%$ either including the origin
 ($74.75\%$) or offset by a distance of 1 from the origin
-($2.05\%$). This confirms both hypotheses 2 and 3. Only 152 instances
-of index patterns not immediately next to or over the origin were
+($2.05\%$). This confirms both Hypothesis 2 and Hypothesis 3. Only 152 instances
+of index patterns not immediately next-to or over the origin were
 found.  There is a non trivial amount of non-contiguous arrays access,
 but it is a much smaller proportion of the whole.
 
@@ -378,10 +378,10 @@ there are two categories always seen as inconsistent:
 since they comprise different indexing schemes
 on each side of the assignment, e.g. $a(i + 1) = b(2*i + 1)$. These
 appear very rarely. Thus, we find that $66.01\%$ of array computations
-have a static pattern on the left and right-hand side that is either
-affine or a constant translation. Thus, the data supports ours
-hypothesis that stencis are common. Based on this grouping, we
-considered the two subclassifications of different kinds of
+have a static pattern on the left- and right-hand side that is either
+affine or a constant translation. Thus, the data supports our
+hypothesis that stencils are common. Based on this grouping, we
+considered two subclassifications of different kinds of
 left-right-hand side relationship and contiguity:
 %%
 \begin{center}
@@ -432,6 +432,10 @@ Total                             & 108773    &
 \end{tabular}
 \end{center}
 %
-Thus, hypothesis 5 is confirmed, the majority of array computations
+Thus, Hypothesis 5 is confirmed, the majority of array computations
 have access patterns with linear usage of array subscripts.
 
+We used these results to inform the design of our specification
+language. The objective is to capture the salient aspects of the
+programming patterns we identified above whilst remaining independent
+of their implementation (and associated programming errors).

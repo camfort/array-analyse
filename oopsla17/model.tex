@@ -154,7 +154,7 @@ We define two specialisations of index schemes:
 \end{defn}
 %
 \begin{restatable}{prop}{regionLattice}
-  \label{prop:regionLattice}
+  \label{prop:region-lattice}
   $(\region{N},\cup,\cap,\subseteq)$ is a bounded distributive lattice with top
   $\top = \bz{}^N$ and bottom $\bot = \emptyset$.
 \end{restatable}
@@ -259,13 +259,13 @@ The interpretation is overloaded on \emph{regions} in
 
 
 The first four equations of \Cref{subfig:region-model} model region 
-contants. The final two equations model the \term{+} and \term{*}
+constants. The final two equations model the \term{+} and \term{*}
 operators in terms of the join (union) and meet (intersection)
 of interval schemes. Thus the syntax of regions is modelled as members 
 of $\region{N}$.
 
 We mark in our model the presence of modifiers such as
-\texttt{readOnce} and \texttt{atMost} as introduced in \Cref{}.
+\texttt{readOnce} and \texttt{atMost} as introduced in \Cref{sec:lang}.
 Approximation modifiers are interpreted as injections into the
 $\mathsf{Approx}$ variant by $\interpApprox{}$ in
 \Cref{subfig:modifier-model}.  The $\textsf{Approx}$ type corresponds

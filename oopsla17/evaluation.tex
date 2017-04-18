@@ -146,13 +146,13 @@ are correct, all of which are accepted by our checker.
 
 \subsubsection{Catching bugs}
 
-One problem we face while examining the millions of line of source
-code is that we do not have the original programmer's intention at
-hand. But sometimes we have the next best thing, the log entry in the
-revision control system. Scanning through the UM we identified an
-example of an off-by-1 error that could have been avoided through the
-use of stencil specification. The buggy code was identified as
-\pointed\ in all dimensions:
+Detecting whether an error could have been prevented by a stencil
+specification is difficult because it requires knowledge of the
+programmer's intent. However, this is occasionally captured in commit
+messages accompanying a code change. For example in the Unified Model
+we identified an example of an off-by-1 error that could have been
+avoided through the use of stencil specification. The buggy code was
+identified as \pointed\ in all dimensions:
 
 \begin{minted}[breakafter=+:,breakindent=-0.6em,breaksymbolsep=0.4em,linenos=false,xleftmargin=-0.5em]{fortran}
   != stencil readOnce, pointed(dim=1)*pointed(dim=2)*pointed(dim=3)
@@ -172,14 +172,14 @@ One of the initial goals of CamFort was to provide tools that enable
 optimisation and refactoring without changing behaviour, and the
 array specification feature was designed with that in mind. But
 while we were perusing real-world source bases, we realised that there
-were also many cases where CamFort could help with refactoring
+were also many cases where CamFort could help with refactorings
 precisely because they required changes in behaviour. For example, a
 relatively common change observed in the logs of revision control for
 our corpus is the refactoring of array dimensions. Either
 re-ordering, adding or deleting dimensions. Any of these, if not
 perfectly propagated throughout all uses, could result in unexpected
 outcomes. However, CamFort will pick up the difference during its
-stencil specification checking. Ideally, an experienced programmer may
+stencil specification checking. Ideally, an experienced programmer might
 take advantage of the region variable feature of CamFort in order to
 minimise the number of specifications that need changing and gain the
 full time-saving advantage. But even if not, a quick search for the

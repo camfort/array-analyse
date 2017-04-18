@@ -10,41 +10,23 @@ of the checking and inference procedures. At the moment, the analysis
 is largely \emph{syntactic}, with only a small amount of
 semantic interpretation of the code.
 
-\subsection{Union Normal Form}\label{subsec:union-normal-form}
-
-\noindent
-We need to address the problem of representation in the model for index schemes.
-In each case, the objects are sets and union and intersection are the
-combinators. However, they are often infinite sets due to \bz{} in Cartesian
-product. This happens when constant indices of array terms are converted to
-\bz{} in subscript schemes and when infinite interval is generated in interval
-schemes. This calls for a finite (and ideally compact) representation for
-indices.
-
-First recall \Cref{lem:vector-intersect}, which states that intersection of
-indexing schemes is still an indexing scheme. When combined with
-\Cref{lem:interval-identities}, we can extend this closure to interval schemes.
-Subscripts schemes do not enjoy the same propery as intersection of two
-singleton sets might easily be empty, which disqualifies it from being a
-subscript index. In the following sections we will not rely on intersection of
-subscript indices, so that is not a problem.
-
-Union, however, is not as flexible as intersection. \Cref{lem:vector-union} does
-not form a closure for indexing schemes in general. For this reason, we
-represent collection of all forms of indexing schemes as unevaluated unions.
-Since the model forms a distributive lattice as established in
-\Cref{prop:region-lattice}, the intersections can be pushed in using the
-distributive law leaving only unions. We further exploit associativity of union
-to put unions into a cons tree making the unions effectively a non-empty list.
-We do not, however, attempt to canonicalise the representation. Later on
-\Cref{lem:vector-union} and index scheme subset are used to reduce the size of
-union normal form.
+\begin{example}
+\label{exm:checking}
+We demonstrate the analysis and modelise procedures over the
+following example kernel which computes the mean value
+of a five-point stencil:
+%%
+\begin{minted}{fortran}
+x = a(i-1, j)+a(i+1, j); y = a(i, j-1)+a(i, j+1)
+b(i, j) = (a(i, j) + x + y) / 5.0
+\end{minted}
+\end{example}
 
 \subsection{Analysis of array accesses}
 \label{subsec:analysis}
 
 \newcommand{\neigh}{\textsf{neigh}}
-
+\noindent
 The analysis builds on standard program analyses:
 %
 \textbf{(1)} basic blocks (CFG);
@@ -57,6 +39,24 @@ The analysis builds on standard program analyses:
   closure of the flows graph);
 \textbf{(4)} type information per variable.% where we use the predicate
 %\arrayTy{} to classify variables of array type.
+
+The analyse then traverse the control-flow graph of a program and,
+traverses statements inside of loops in reverse. The right-hand side
+of an assignment statement is classified on whether it has array
+subscripts which are neighbourhood offsets (or potential absolute in
+some dimensions). These are then converted into our model domain by
+the interpretation $\interp{-}^{\mathit{aterm}}$
+(~\Cref{{defn:subscript}) and grouped into a finite
+  map from array variables to set of subscript schemes.
+
+We denote sets of index/subscripts schemes by
+$\mathcal{S}$, For our example, the initial set of subscript schemes from the analysis
+is given by $\mathcal{S}_0$ as:
+%
+\begin{equation*}
+\mathcal{S}_0 = \{\{0\} \times \{0\}, \{-1\} \times \{0\},
+\{0\} \times \{-1\}, \{0\} \times \{1\}, \{1\} \times \{0\}\}
+\end{equation*}
 
 
 \subsection{Checking code against specifications}
@@ -113,9 +113,10 @@ the worst case~\cite{fischer1974super}, performance of consistency checking
 using satisfiability is fast in practice as the length of the formula is linearly
 related with two factors: (1) dimensionality times number of regions connected
 with \texttt{+} and (2) dimensionality times the number of array terms flowing
-into an assignment assignment. In \Cref{sec:study}, we establish dimensonality
-99\% of all array variables that we can assign a specification is X, and 99\% of
-number of array terms that flows into such an assignment is Y. In
+into an assignment assignment. In \Cref{subsec:additional-data}, we
+established that  99.6\% of array computations have 
+dimensionality of at most four, and 97\% of array computations
+involve at most 4 array subscript terms. In
 \Cref{sec:evaluation}, we show the number of regions that are connected with
 \texttt{+} is Z in 99\% of the cases.
 
@@ -134,14 +135,8 @@ five-point stencil of \Cref{exm:checking}.
 The preceding source code analysis converts the concrete syntax of
 array subscripts into a set of subscript schemes in
 $\mathcal{P}(\bz)^N$. These subscripts are then coalesced iteratively
-into sets of index schemes. We denote sets of index schemes by
-$\mathcal{S}$, and initial set of subscript schemes from the analysis
-as $\mathcal{S}_0$. For our example:
-%
-\begin{equation*}
-\mathcal{S}_0 = \{\{0\} \times \{0\}, \{-1\} \times \{0\},
-\{0\} \times \{-1\}, \{0\} \times \{1\}, \{1\} \times \{0\}\}
-\end{equation*}
+into sets of index schemes.
+
 %
 %For each array variable $a \in \mathsf{dom}(U)$, the algorithm
 %constructs a set of $n$-dimensional rectangles covering all contiguous

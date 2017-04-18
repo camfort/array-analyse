@@ -28,8 +28,8 @@ main = do
         "hists" -> do
           putStrLn $ mapViewTotal "Dimensionality" (histDimensionality result)
              ++ mapViewTotal "Max depth" (histMaxDepth result)
-             ++ mapViewTotal "Number of indexing expressions" (histNumIndexExprs result)
-             ++ rline' "Length of dataflow path"  (hview . histLengthOfDataflow $ result)
+             ++ mapViewTotal "Number of indexing expressions" (M.map (cropHistogram 20) $ histNumIndexExprs result)
+             ++ rline' "Length of dataflow path"  (hview . cropHistogram 20 . histLengthOfDataflow $ result)
 
 
 regroup :: (Ord c, HistogramShow t) => (Cat -> c) -> M.Map Cat t -> M.Map c t

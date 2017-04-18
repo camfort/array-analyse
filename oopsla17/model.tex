@@ -318,6 +318,7 @@ bottom element of the lattice.
 \label{sec:fromcode}
 
 \begin{defn}
+  \label{defn:subscript}
   Recall array subscript terms of the form $a(\bar{e})$ from
   \Cref{def:array-subs}. We interpret these terms with the partial
   interpretation $\interp{-}^{\mathit{aterm}} : \textit{array-term}
@@ -331,7 +332,7 @@ bottom element of the lattice.
   %
     \textit{subscript}(e) = \begin{cases}
       \{ c \} & e \equiv i \pm c \\
-      \bz & e \; \mbox{is constant}
+      \bz & e \; \mbox{is absolute}
     \end{cases}
   \end{align*}
 \end{defn}
@@ -340,6 +341,38 @@ Note that this produce subscript schemes (a form of index scheme), but
 they are not members of \textit{Interval} or $\textit{Region}_N$. In
 the next section, we use this interpretation on array subscripts in
 the static analysis producer preceding checking and inference.
+
+\subsection{Union Normal Form}\label{subsec:union-normal-form}
+
+\noindent
+We lastly address a problem of \emph{representation} for index schemes
+in the model. Index schemes may incorporate the infinite set \bz{} in
+their components, \eg{} when a dimension is unconstrained or when an
+absolute index of array term is interpreted. In order to provide a
+finite checking procedure, we require a finite and compact
+representation for indices which accounts for this.
+
+Recall \Cref{lem:vector-intersect} states that the
+intersection of indexing schemes is still an indexing scheme. When
+combined with \Cref{lem:interval-identities} (union and intersection
+on holed intervals), we can extend this closure to interval schemes.
+Subscripts schemes do not enjoy the same propery as intersection of
+two singleton sets might easily be empty, which disqualifies it from
+being a subscript index. In the following sections we will not take
+intersection of subscript indices.
+
+Union, however, is not as flexible as
+intersection. \Cref{lem:vector-union} does not form a closure for
+indexing schemes in general. For this reason, we represent sets of
+indexing schemes as unevaluated union terms, or \emph{union normal
+  form}.  Since the model forms a distributive lattice as established
+in \Cref{prop:region-lattice}, the intersections can be pushed inwards
+using the distributive law leaving only unions at the outer-level. We
+further exploit associativity of union to put unions into a cons-tree
+making the unions effectively a non-empty list.  We do not, however,
+attempt to canonicalise the representation. Later on
+\Cref{lem:vector-union} and index scheme subset are used to reduce the
+size of union normal form.
 
 %%% Local Variables:
 %%% mode: latex

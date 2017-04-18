@@ -174,13 +174,13 @@ that the intention had been \forward\ in the third dimension:
 
 One of the initial goals of CamFort was to provide tools that enable
 optimisation and refactoring without changing behaviour, and the
-stencil specification feature was designed with that in mind. But
+array specification feature was designed with that in mind. But
 while we were perusing real-world source bases, we realised that there
 were also many cases where CamFort could help with refactoring
 precisely because they required changes in behaviour. For example, a
 relatively common change observed in the logs of revision control for
-various projects is the refactoring of array indices. Either
-re-ordering, adding or deleting indices. Any of these, if not
+our corpus is the refactoring of array indices. Either
+re-ordering (swapping dimensions), or adding or deleting indices. Any of these, if not
 perfectly propagated throughout all uses, could result in unexpected
 outcomes. However, CamFort will pick up the difference during its
 stencil specification checking. Ideally, an experienced programmer may

@@ -274,11 +274,12 @@ index schemes have all but one dimensions set to \interv{-\infty}{\infty}{}.
 Each of these interval schemes are mapped to region constants using
 \Cref{subfig:region-model} and connected with \texttt{*}.
 
-In the example, $[-1, 1] \times [0, 0]$ is decomposed into $\interv{-1}{1}{}
-\times \interv{-\infty}{\infty}{}$ and $\interv{-\infty}{\infty}{} \times
-\interv{0}{0}{}$. These are then mapped to \texttt{\stencil{c}{1}{1}{}
-* \stencil{p}{2}{}{}}. Decomposition of $[0, 0] \times [-1, 1]$ is similar. When
-combined we obtain the following specification:
+In the example, $\interv{-1}{1}{} \times \interv{0}{0}{}$ is decomposed into
+$\interv{-1}{1}{} \times \interv{-\infty}{\infty}{}$ and
+$\interv{-\infty}{\infty}{} \times \interv{0}{0}{}$. These are then mapped to
+\texttt{\stencil{c}{1}{1}{} * \stencil{p}{2}{}{}}. Decomposition of
+$\interv{0}{0}{} \times \interv{-1}{1}{}$ is similar. When combined we obtain the
+following specification:
 %
 \begin{equation*}
   \texttt{stencil readOnce,} \;

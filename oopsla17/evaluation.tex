@@ -25,13 +25,16 @@ language.
 
 We would not expect to infer a stencil for each array statement we
 found because our analysis restricts the array-subscript-statements
-that we classify as a stencil. In fact, we were able to infer a
-stencil from \overalltickAssignSuccessPercentOfTickAssign\% of these
-statements. A single statement can involve multiple arrays and we
-ended up with \num{\overallnumStencilSpecs} specifications. This shows
-that we can express a large number of stencil shapes within our
-high-level abstraction and validates our initial hypothesis that many
-stencil computations have a regular shape.
+that we classify as a stencil. For example, \num{\overalltickLHSvar}
+potential stencils were discarded because the left-hand side was not
+an array access. Overall, we were able to infer a stencil from
+\overalltickAssignSuccessPercentOfTickAssign\% of the statements
+involving an array assignment. A single statement can involve multiple
+arrays and we ended up with \num{\overallnumStencilSpecs}
+specifications. This shows that we can express a large number of
+stencil shapes within our high-level abstraction and validates our
+initial hypothesis that many stencil computations have a regular
+shape.
 
 The majority of specifications generated were relatively simple but we
 found significant numbers of more complex shapes. We grouped common

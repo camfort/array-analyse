@@ -16,7 +16,9 @@ compiler~\citep{ragan2013halide}. Thus they must capture the full meaning of a
 stencil computation which requires significant program analysis. For example,
 they report that some degenerate stencil kernels take up to 17 hours to analyse
 and others require programmer intervention for correct invariants to be
-inferred.
+inferred. By contrast, it takes roughly 1.5 hours on commodity
+hardware (3.2Ghz Intel Core i5, 16 Gb of RAM) to infer and generate
+stencil specifications for our entire corpus.
 
 % ACR-I think we could skip this in the interests of space
 %This led them to develop \textsf{STNG}, a loop invariant and postcondition
@@ -83,7 +85,7 @@ hyperspace cuts. Pochoir specifications are used for describing the kernel,
 boundary conditions, and shape of the stencil. Pochoir is aimed at programmers
 reluctant to implement the high-performance cache-oblivious ``hypertrapezoidal''
 algorithms.  Like much of the related work, the goal is optimisation rather than
-verifying program correctness.
+correctness.
 
 By contrast, the work of \citet{Abe:2013:IPDPSW} studies correctness bringing a
 form of model-checking to verify certain stencil computations in the context of

@@ -113,7 +113,7 @@ interpretations of the stencils in the code and the specifications.
   \todo{%
     We can move this explanation.
 
-    Subscript spaces model array subscript expressions in our source langauge
+    Subscript spaces model array subscript expressions in our source language
     where each subscripted expression is either a constant translation of an
     induction variable within a loop or some other expression which is constant
     with respect to the loop e.g. \texttt{a(i+1, 0)}.
@@ -382,7 +382,7 @@ We define an equivalence relation, $\equiv$, on regions as follows:
 %
     \item[Centered] Let $\interp{\textcap{p1}}$, $\interp{\textcap{p2}}$, and
       $\interp{\textcap{p3}}$ be $p1$, $p2$, and $p3$ respectively. We
-      know that $p1$ is $p2 \vee p3$ from (\textbf{Centered}) detinition. Then
+      know that $p1$ is $p2 \vee p3$ from (\textbf{Centered}) definition. Then
       we get the following interpretation for region constants involved in the
       equivalence:
 %
@@ -439,9 +439,9 @@ provides us with the following:
   show that each inequality holds in the model.
 %
   \begin{description}
-    \item[Equivalence] Region equavilance is modeled with set equality and the
+    \item[Equivalence] Region equivalence is modeled with set equality and the
       partial order on regions is modeled with subset relation. Partial orders
-      are reflexive and the model of eqivalence agrees with that of the partial
+      are reflexive and the model of equivalence agrees with that of the partial
       order, so this rule holds.
 %
     \item[Combined] \texttt{*} and \texttt{+} maps to meet and join operations
@@ -577,7 +577,7 @@ Two stage checking is outlined below.
     some indexing occur multiple times in the stencil.  Note that absence of
     \texttt{readOnce} is interpreted liberally, and if the stencil indices
     happen to occur uniquely, this does not constitute a failure.
-  \item Definition of vector intervals is completely unwinded into sets of
+  \item Definition of vector intervals is completely expanded into sets of
     offset tuples and depending the approximation modifier (or lack thereof)
     we compare these tuples to offsets of the stencil computation. Lower and
     upper bounds are checked with subset and superset relations respectively,
@@ -669,7 +669,7 @@ are infinite we might need to elaborate based on representation.}
   than a relation? Seems fine no problem to prove- }
 \end{proof}
 
-\todo{On the following, add some intutition first- what is this and
+\todo{On the following, add some intuition first- what is this and
   what is it for?}
 \begin{defn}{(Exact set)}
   The \emph{exact set} at origin distance $d$, $\mathit{ES}_{P,d}$, of a group

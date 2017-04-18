@@ -36,8 +36,8 @@ than a subscript (an \term{access} specification), leaving
 %involving an array assignment. A single statement can involve multiple
 %arrays and.
 This shows that we can express a large number of
-array access patterns within our high-level abstractions and validates our
-initial design choices informed by our data (~\Cref{subsec:choices}).
+array access patterns within our high-level abstractions and it validates our
+initial design choices informed by our data (\Cref{subsec:choices}).
 
 The majority of specifications generated were relatively simple but we
 found significant numbers of more complex shapes. We grouped common
@@ -47,7 +47,8 @@ patterns into categories:
 generated involved only \pointed\ regions.
 % 39,681 of these were pointed in all dimensions.
 Common examples of this were pointwise transformations on data (such
-as scaling).
+as scaling). The remaining \num{\overallnonTrivial} we consider to
+be non-trivial, \ie{} with a higher potential for programming error.
 
 \textbf{Single-action} specifications comprise one
 forward, backward, or centered region constant combined via \term{+}
@@ -119,7 +120,7 @@ specifications on every looped array computation:
 index (\mintinline{fortran}{x}) is computed from an
 induction variable via an intermediate definition, \eg{}, 
 \mintinline{fortran}{x = i + 1}, or using functions that
-we could analyse or classify;
+we could not analyse or classify;
 
 \item \textbf{Inconsistent LHS/RHS} occur when
 induction variable is used to specify more than one array dimension
@@ -165,15 +166,16 @@ programmer's intent. However, this is occasionally captured in commit
 messages accompanying a code change. For example in the Unified Model
 we identified an example of an off-by-1 error that could have been
 avoided through the use of stencil specification. The buggy code was
-identified as \pointed\ in all dimensions:
+identified as \pointed\ in all dimensions by our inference:
 
 \begin{minted}[breakafter=+:,breakindent=-0.6em,breaksymbolsep=0.4em,linenos=false,xleftmargin=-0.5em]{fortran}
   != stencil readOnce, pointed(dim=1)*pointed(dim=2)*pointed(dim=3)
 \end{minted}
-
+%
 But the programmer made it clear in the comments after the bug fix
-that the intention had been \forward\ in the third dimension:
-
+that the intention had been \forward\ in the third dimension, \ie{}, a
+specification:
+%
 \begin{minted}[breakafter=+:,breakindent=-0.6em,breaksymbolsep=0.4em,linenos=false,xleftmargin=-0.5em]{fortran}
   != stencil readOnce, forward(depth=1, dim=3, nonpointed)*pointed(dim=1)*pointed(dim=2)
 \end{minted}
@@ -181,8 +183,8 @@ that the intention had been \forward\ in the third dimension:
 We found a similar bug in 
 Cliffs\footnote{\url{https://github.com/Delta-function/cliffs-src/commit/e2ca312cfc5398287c7ca8594e977658617c2540}}
 where a subscript \fortran{u(i)} is corrected to \fortran{u(i-1)} which
-could have been detected by an initial specification \fortran{backward(depth = 1,
-  dim = 1, nonpointed)}.
+could have been detected by an initial specification of \fortran{!=
+  stencil backward(depth=1, dim=1, nonpointed)}.
 
 
 \subsubsection{Aiding refactoring}

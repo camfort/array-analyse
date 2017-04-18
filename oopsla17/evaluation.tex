@@ -3,37 +3,48 @@
 \newcommand\pointed{\regname{pointed}}
 \newcommand\forward{\regname{forward}}
 
-To study the effectiveness of our approach, we applied our tool to the
-more than one million lines of source code contained within the corpus
-that we have assembled (\Cref{sec:study}). We first examined how
-frequently stencil computations occur. We parsed
-\num{\overalllinesParsed} lines of Fortran code and found that
-\overalltickAssignPercent\% (\num{\overalltickAssign}) of statements
-have a left-hand side as an array subscript on neighbourhood
-indices. This supports the idea that stencil-like computations are
-common in scientific code.  We then used the inference procedure of
-the previous section to generate specifications for stencils in the
-corpus to assess the design of the language.
-
-We would not expect to infer a stencil for each array statement we
-found because our analysis restricts the array-subscript-statements
-that we classify as a stencil. For example, \num{\overalltickLHSvar}
-potential stencils were discarded because the left-hand side was not
-an array access. Overall, we were able to infer a stencil from
-\overalltickAssignSuccessPercentOfTickAssign\% of the statements
-involving an array assignment. A single statement can involve multiple
-arrays and we ended up with \num{\overallnumStencilSpecs}
-specifications. This shows that we can express a large number of
-stencil shapes within our high-level abstraction and validates our
-initial hypothesis that many stencil computations have a regular
-shape.
+\noindent
+To study the effectiveness of our approach, we applied our tool back
+onto the corpus from \Cref{sec:study}.  We used the inference
+procedure of the previous section to generate array specifications
+for the corpus to assess the design of the language.
+%
+%We first examined how
+%frequently stencil computations occur. We parsed
+%\num{\overalllinesParsed} lines of Fortran code and found that
+%\overalltickAssignPercent\% (\num{\overalltickAssign}) of statements
+%have a left-hand side as an array subscript on neighbourhood
+%indices. This supports the idea that stencil-like computations are
+%common in scientific code.  
+%
+We did not expect to infer specifications for each array computation
+we found because our analysis restricts the
+array-subscript-statements, along the lines of~\Cref{sec:study}.
+%A
+%single statement can involve multiple arrays and therefore can have
+%multiple specifications associated with it.
+Overall we ended up with
+\num{\overallnumStencilSpecs} specifications of which
+\num{\overalltickLHSvar} were with a left-hand side variable rather
+than a subscript (an \term{access} specification), leaving
+\num{\overallStencilsSpecs} \term{stencil} specifications.
+%
+%For example, \num{\overalltickLHSvar}
+%potential stencils were discarded because the left-hand side was not
+%an array access. Overall, we were able to infer a stencil from
+%\overalltickAssignSuccessPercentOfTickAssign\% of the statements
+%involving an array assignment. A single statement can involve multiple
+%arrays and.
+This shows that we can express a large number of
+array access patterns within our high-level abstractions and validates our
+initial design choices informed by our data (~\Cref{subsec:choices}).
 
 The majority of specifications generated were relatively simple but we
 found significant numbers of more complex shapes. We grouped common
 patterns into categories:
 
-\textbf{All pointed} \num{\overalljustPointed} of the stencils we
-found involved only \pointed\ regions.
+\textbf{All pointed} \num{\overalljustPointed} of the specifications we
+generated involved only \pointed\ regions.
 % 39,681 of these were pointed in all dimensions.
 Common examples of this were pointwise transformations on data (such
 as scaling).
@@ -72,7 +83,8 @@ $\term{*}$ and \num{\overallmultiActionPlusAndMul} combined with a mix of $\term
 % seen in our corpus, yet it still represents a significant abstraction
 % of the spatial behaviour given size and complexity of the kernel it describes.
 
-We measured the frequencies of occurrences of the operators \term{*} and \term{+} within stencil specifications inferred from our corpus:
+We measured the frequencies of occurrences of the operators \term{*}
+and \term{+} within the inferred specifications:
 \begin{center}
 \vspace{0.25em}
 \setlength{\tabcolsep}{0.57em}
@@ -96,16 +108,18 @@ always also paired with an upper bound.
 
 \subsection{Limitations}
 
+\noindent
 There were various reasons why we did not infer
 specifications on every looped array computation:
 \begin{itemize}
-\item \textbf{Derived induction variables} where an
-index (\mintinline{fortran}{x}) is derived from an
-induction variable (\mintinline{fortran}{i}) as in
-\mintinline{fortran}{x = len - i};
+\item \textbf{Computed induction variables} where an
+index (\mintinline{fortran}{x}) is computed from an
+induction variable via an intermediate definition, \eg{}, 
+\mintinline{fortran}{x = i + 1}, or using functions that
+we could analyse or classify;
 
-\item \textbf{Inconsistent induction dimensions} occur when
-an induction variable is used to specify more than one array dimension
+\item \textbf{Inconsistent LHS/RHS} occur when
+induction variable is used to specify more than one array dimension
 on the RHS or multiple induction variables are used for the same
 dimension on the RHS. These are common in matrix operations such as
 LU-decomposition with assignments such as
@@ -114,6 +128,8 @@ LU-decomposition with assignments such as
 
 \subsection{Detecting errors in the 2-D Jacobi iteration}
 \label{sec:jacobi}
+
+\noindent
 One common example of a stencil computation is the two-dimensional
 Jacobi iteration that repeatedly goes through each cell in a matrix
 and computes the average value of the four adjacent cells. The kernel
@@ -158,6 +174,12 @@ that the intention had been \forward\ in the third dimension:
 \begin{minted}[breakafter=+:,breakindent=-0.6em,breaksymbolsep=0.4em,linenos=false,xleftmargin=-0.5em]{fortran}
   != stencil readOnce, forward(depth=1, dim=3, nonpointed)*pointed(dim=1)*pointed(dim=2)
 \end{minted}
+%
+We found a similar bug in 
+Cliffs\footnote{\url{https://github.com/Delta-function/cliffs-src/commit/e2ca312cfc5398287c7ca8594e977658617c2540}}
+where a subscript \fortran{u(i)} is corrected to \fortran{u(i-1)} which
+could have been detected by an initial specification \fortran{backward(depth = 1,
+  dim = 1, nonpointed)}.
 
 
 \subsubsection{Aiding refactoring}

@@ -230,3 +230,21 @@
   $\mathit{coalesce}$ produces a set of index schemes. The second part
   comprises a subset of the original index schemes.
 \end{proof}
+
+\inferenceSoundness*
+
+\begin{proof}
+  This follows by induction on the definition of regions syntax
+  $R$. and by definitions of inference and the semantics sharing the
+  same underlying model and using inverse mappings between each other.
+  
+  For constants, we map to
+  $\vecgen{N}{i}{\interp{\texttt{\textcap{rconst}}}}$
+  which by \textit{convert}, in \eqref{eq:convert} is mapped
+  back to $\textcap{rconst}$ since \textit{convert} is defined
+  in terms of the inverse mapping $\interp{-}^{-1}$.
+
+  For $\interp{r \term{+} s}_N = \interp{r}_N \vee \interp{s}$
+  we map to a Union Normal Form of interval spaces which is convert
+  back directly by \textit{convert}. Similarly for $\term{*}$.
+\end{proof}

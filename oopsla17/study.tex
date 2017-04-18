@@ -93,6 +93,10 @@ analyser~\cite{camfort}. Fortran source files are parsed to an AST and
 including some of key importance for us: induction variable identification
 and reaching definitions. The resulting AST is traversed top-down and
 assignment statements inside loops are analysed and classified.
+CamFort implements standards compliant parsers, and so is not able
+to parse all of the corpus, some of which contains non-standard code.
+Of the 1.4 million lines, over 1 million was parsed
+(see~Appendix~\ref{app:corpus} for exact numbers).
 
 %\paragraph{Classifications}
 Left-hand sides and right-hand sides of assignments are classified
@@ -505,6 +509,7 @@ The rest of the data here is of use later when considering the
 performance of our checking procedure (\Cref{subsec:checking}).
 
 \subsection{From experiment to language design}
+\label{subsec:choices}
 
 \noindent
 We used these results to inform the design of our specification

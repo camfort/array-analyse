@@ -107,13 +107,13 @@ a model $M_S$ of a specification:
   \end{cases}
 \end{align*}
 %
-The first function, $\mathit{consistent}$, checks whether the linearity of the
+The $\mathit{consistent}$ function checks whether linearity of the
 specification matches that of the indices, \ie{} if the specification allows
-indices to be repeated or not. Then it delegates to $\mathit{consistent'}$
+indices to be repeated or not. It then delegates to $\mathit{consistent'}$
 to check if the points observed in the array terms match the space
-defined by the specification. Lower bounds, marked by the \texttt{atLeast}
-modifier, require the space defined by the specification to remain inside the
-set of indices, while an upper bound, market by \texttt{atMost},
+defined by the specification. Lower bounds, marked \texttt{atLeast},
+require the space defined by the specification to remain inside the
+set of indices, while an upper bound, marked by \texttt{atMost},
 requires the opposite: enclosure. In the absence of such modifiers, we expect
 the space defined by observed indices corresponds exactly with those defined by the
 region in the specification, hence requiring set equality.
@@ -125,17 +125,18 @@ interval constraints and subscript schemes into membership constraints and pass
 these to the \textsc{Z3} SMT solver~\citep{de2008z3} to see if they are equal. The
 query is expressed in quantifier-free linear arithmetic, which is decidable.
 
-Although satisfiability is super-exponential with the length of the formula in
+Although satisfiability is super-exponential in the length of the formula in
 the worst case~\cite{fischer1974super}, the performance of consistency checking
 using satisfiability is fast in practice as the length of the formula is linearly
-related with two factors: (1) dimensionality times the number of regions connected
+related with two factors: (1) dimensionality times the number of regions composed
 with \texttt{+} and (2) dimensionality times the number of array terms flowing
 into an assignment. In \Cref{subsec:additional-data}, we
-established that  99.6\% of array computations have 
-dimensionality of at most four, and 97\% of array computations
+established that 99.6\% of array computations have 
+dimensionality at most four and 97\% of array computations
 involve at most 4 array subscript terms. In
-\Cref{sec:evaluation}, we show the number of regions that are
-connected with no more than two \texttt{+} operations in 100\% of the cases.
+\Cref{sec:evaluation}, we show that all specifications in the corpus
+comprises no more than two \texttt{+} operations. Thus, our approach
+using Z3 is practical and efficient in all but corner cases.
 
 
 \subsection{Inferring specification automatically}
@@ -249,14 +250,11 @@ syntax. This happens in three stages.
 \end{enumerate}
 %
 An index scheme is an interval scheme (\Cref{def:interval-scheme}) if
-each of vector can be represented as a vector of holed intervals
-$\interv{a}{b}{c}$.  If so, we convert each index scheme to an
-interval scheme as a vector of holed interval representation.
-
-Since index schemes of the previous stage are all contiguous and form
-closed intervals, a lower bound $\leq 0$ and an upper bound $\geq 0$
-is sufficient to form an interval scheme.  Otherwise, an approximate
-specification is generated.
+each vector can be represented as a vector of holed intervals
+$\interv{a}{b}{c}$.  Since index schemes of the previous stage are all
+contiguous and form closed intervals, a lower bound $\leq 0$ and an
+upper bound $\geq 0$ is sufficient to form an interval scheme.
+Otherwise, an approximate specification is generated.
 
 An upper bound is established by
 \emph{elongating} any index schemes in multiple dimensions such that
@@ -309,31 +307,41 @@ splitting apart interval schemes when necessary:
 \end{cases}
 \end{align*}
 %
-This forms a set of interval schemes to which $\interp{-}^{-1}$ can be
-applied. In the case of our example, no splitting is necessary.
+This forms a set of interval schemes to which $\interp{-}^{-1}$
+(\Cref{subfig:region-model}) is well-defined for each component.
 
-The final stage of inference is simply mapping interval schemes into
-region constants and combining these. Each translated interval scheme
-is connected with \texttt{+}. Individual schemes are decomposed using
-\Cref{lem:vector-intersect} such that each of the resulting index
-schemes have all but one dimensions set to \interv{-\infty}{\infty}{}.
+The final stage of inference, thus maps the component
+of every interval scheme to a region constant via $\interp{-}^{-1}$,
+combining each component with \texttt{*} can combining the
+resulting regions by \texttt{+}, that is:
+%
+%interval schemes to region constants and combines them. %Individual
+%schemes are decomposed using \Cref{lem:vector-intersect} such that
+%each of the resulting index schemes have all but one dimensions set to
+%\interv{-\infty}{\infty}{}.
+%Each of these interval scheme are mapped to region constants using
+%\Cref{subfig:region-model} and connected with \texttt{*}.
+%
+\begin{align}
+\textit{convert}_N(\mathcal{S}) = \sum_{S \in \mathcal{S}} \; \prod_{\pi_i(S) \neq
+  \interv{-\infty}{\infty}{}} \interp{\pi_i(S)}^{-1}
+  \label{eq:convert}
+\end{align}
+%
+Where summation is by the syntactic \term{+} and product is by the
+syntactic \term{*}
 
-Each of these interval schemes are mapped to region constants using
-\Cref{subfig:region-model} and connected with \texttt{*}.
-%
-\begin{align*}
-\textit{convert}_N(\mathcal{S}) = \sum_{S \in S} \prod_{1 \leq i \leq N} \interp{\pi_i(S)}^{-1}
-\end{align*}
-%
-In the example, $\interv{-1}{1}{} \times \interv{0}{0}{}$ is decomposed into
-$\interv{-1}{1}{} \times \interv{-\infty}{\infty}{}$ and
-$\interv{-\infty}{\infty}{} \times \interv{0}{0}{}$. These are then mapped to
-\texttt{\stencil{c}{1}{1}{} * \stencil{p}{2}{}{}}. The decomposition of
-$\interv{0}{0}{} \times \interv{-1}{1}{}$ is similar. When combined we obtain the
-following specification:
+In the example, $\interv{-1}{1}{} \times \interv{0}{0}{}$ is mapped to
+\texttt{\stencil{c}{1}{1}{} * \stencil{p}{2}{}{}}, and
+$\interv{0}{0}{} \times \interv{-1}{1}{}$ is similar. When combined by
+\term{+} we obtain the following specification:
 %
 \begin{equation*}
   \texttt{stencil readOnce,} \;
   \stencil[s]{c}{1}{1}{} \texttt{*} \stencil[s]{p}{2}{}{} \; \texttt{+} \;
   \stencil[s]{p}{1}{}{}  \texttt{*} \stencil[s]{c}{2}{1}{}
 \end{equation*}
+\vspace{-1em}
+\begin{restatable}[Inference soundness]{lem}{inferenceSoundness}
+  For all region specs $R$, then $\textit{infer}(\interp{R}_N)_N \equiv R$
+\end{restatable}

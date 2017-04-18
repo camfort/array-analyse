@@ -12,13 +12,11 @@ semantic interpretation of the code.
 
 \begin{example}
 \label{exm:checking}
-We demonstrate the analysis and modelise procedures over the
-following example kernel which computes the mean value
-of a five-point stencil:
+We demonstrate analysis, checking, and inference on the 
+five-point stencil example:
 %%
 \begin{minted}{fortran}
-x = a(i-1, j)+a(i+1, j); y = a(i, j-1)+a(i, j+1)
-b(i, j) = (a(i, j) + x + y) / 5.0
+b(i, j) = (a(i, j) + a(i-1, j) +a (i+1, j) + a(i, j-1) + a(i, j + 1)) / 5.0
 \end{minted}
 \end{example}
 
@@ -40,32 +38,51 @@ The analysis builds on standard program analyses:
 \textbf{(4)} type information per variable.% where we use the predicate
 %\arrayTy{} to classify variables of array type.
 
-The analyse then traverse the control-flow graph of a program and,
-traverses statements inside of loops in reverse. The right-hand side
-of an assignment statement is classified on whether it has array
-subscripts which are neighbourhood offsets (or potential absolute in
-some dimensions). These are then converted into our model domain by
-the interpretation $\interp{-}^{\mathit{aterm}}$
-(~\Cref{{defn:subscript}) and grouped into a finite
-  map from array variables to set of subscript schemes.
-
+The analysis traverses the control-flow graph of a program top-down
+and traverses statements inside of loops bottom-up. The right-hand
+side of any assignment statement in a loop is classified based on
+whether it has array subscripts flowing to it which are neighbourhood
+offsets (or potential absolute in some dimensions). These are then
+converted into our model domain by the interpretation
+$\interp{-}^{\mathit{aterm}}$ (\Cref{defn:subscript}) and grouped
+into a finite map from array variables to set of subscript schemes.
 We denote sets of index/subscripts schemes by
-$\mathcal{S}$, For our example, the initial set of subscript schemes from the analysis
-is given by $\mathcal{S}_0$ as:
+$\mathcal{S}$.
+
+For our example, the set of subscript schemes from the analysis is:
 %
 \begin{equation*}
 \mathcal{S}_0 = \{\{0\} \times \{0\}, \{-1\} \times \{0\},
 \{0\} \times \{-1\}, \{0\} \times \{1\}, \{1\} \times \{0\}\}
 \end{equation*}
+%
+This set of index schemes is then augmented with multiplicity
+information (\textsf{only} or \textsf{mult}) depending on whether
+subscripts are unique or not in the analysed statement.
+Thus, for each assignment, the analysis generates a map from array
+variables to values in $\mathsf{Mult}(\mathcal{P}(\bz)^N)$.
 
+Any assignment statement from which array subscripts flow to the
+current assignment is marked as visited such that the main analysis
+does not classify it as the root of an array computation.  Thus,
+combined with the bottom-up traversal inside of loops, we assign
+specifications only to the leaves of dataflow paths in a loop.
 
 \subsection{Checking code against specifications}
 \label{subsec:checking}
-%
-In the model, we can regard both array indices and specifications as sets of
-points in $N$-dimensional space. The notion of consistency is then intuitively
-whether these two (potentially infinite) sets of points match or not.
-This leads to a simple set based consistency function defined as
+
+\noindent
+Checking verifies the access pattern of an array computation in the
+source language against any associated specifications. Checking
+proceeds by generating a model from a specification and generating a
+model from the source code (above), and comparing them for
+consistency.  Since the model of \Cref{sec:model} interprets both
+array indices and specifications as sets of points in $N$-dimensional
+space. The notion of consistency is then intuitively whether these two
+(potentially infinite) sets of points are equal. This leads to a
+simple notion of consistency, where $\mathit{consistent}(M_C, M_S)$
+tests the consistency of a modal $M_C$ of source code against
+a model $M_S$ of a specification:
 %
 \begin{align*}
   \mathit{consistent} & :
@@ -102,7 +119,7 @@ the space defined by observed indices corresponds exactly with those defined by 
 region in the specification, hence requiring set equality.
 
 As explained in \Cref{subsec:union-normal-form}, the sets being compared are
-potentially infinite and set comparisons cannot be done by exhaustively
+potentially infinite thus set comparison cannot be done by exhaustively
 comparing the points of one with the other. Instead, we compile the region into
 interval constraints and subscript schemes into membership constraints and pass
 these to the \textsc{Z3} SMT solver~\citep{de2008z3} to see if they are equal. The
@@ -120,7 +137,6 @@ involve at most 4 array subscript terms. In
 \Cref{sec:evaluation}, we show the number of regions that are connected with
 \texttt{+} is Z in 99\% of the cases.
 
-\mnote{DOMINIC fills in X, Y, and Z}
 
 \subsection{Infering specification automatically}
 \label{subsec:inference}

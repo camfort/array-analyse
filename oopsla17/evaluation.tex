@@ -1,4 +1,3 @@
-\input{results}
 
 \newcommand\regname[1]{\texttt{#1}}
 \newcommand\pointed{\regname{pointed}}
@@ -25,13 +24,16 @@ language.
 
 We would not expect to infer a stencil for each array statement we
 found because our analysis restricts the array-subscript-statements
-that we classify as a stencil. In fact, we were able to infer a
-stencil from \overalltickAssignSuccessPercentOfTickAssign\% of these
-statements. A single statement can involve multiple arrays and we
-ended up with \num{\overallnumStencilSpecs} specifications. This shows
-that we can express a large number of stencil shapes within our
-high-level abstraction and validates our initial hypothesis that many
-stencil computations have a regular shape.
+that we classify as a stencil. For example, \num{\overalltickLHSvar}
+potential stencils were discarded because the left-hand side was not
+an array access. Overall, we were able to infer a stencil from
+\overalltickAssignSuccessPercentOfTickAssign\% of the statements
+involving an array assignment. A single statement can involve multiple
+arrays and we ended up with \num{\overallnumStencilSpecs}
+specifications. This shows that we can express a large number of
+stencil shapes within our high-level abstraction and validates our
+initial hypothesis that many stencil computations have a regular
+shape.
 
 The majority of specifications generated were relatively simple but we
 found significant numbers of more complex shapes. We grouped common
@@ -159,14 +161,14 @@ use of stencil specification. The buggy code was identified as
 \pointed\ in all dimensions:
 
 \begin{minted}[breakafter=+:,breakindent=-0.6em,breaksymbolsep=0.4em,linenos=false,xleftmargin=-0.5em]{fortran}
-  !=stencil readOnce, (pointed(dim=1))*(pointed(dim=2))*(pointed(dim=3))
+  != stencil readOnce, pointed(dim=1)*pointed(dim=2)*pointed(dim=3)
 \end{minted}
 
 But the programmer made it clear in the comments after the bug fix
 that the intention had been \forward\ in the third dimension:
 
 \begin{minted}[breakafter=+:,breakindent=-0.6em,breaksymbolsep=0.4em,linenos=false,xleftmargin=-0.5em]{fortran}
-  !=stencil readOnce, (forward(depth=1, dim=3, nonpointed))*(pointed(dim=1))*(pointed(dim=2))
+  != stencil readOnce, forward(depth=1, dim=3, nonpointed)*pointed(dim=1)*pointed(dim=2)
 \end{minted}
 
 
@@ -179,8 +181,8 @@ while we were perusing real-world source bases, we realised that there
 were also many cases where CamFort could help with refactoring
 precisely because they required changes in behaviour. For example, a
 relatively common change observed in the logs of revision control for
-our corpus is the refactoring of array indices. Either
-re-ordering (swapping dimensions), or adding or deleting indices. Any of these, if not
+our corpus is the refactoring of array dimensions. Either
+re-ordering, adding or deleting dimensions. Any of these, if not
 perfectly propagated throughout all uses, could result in unexpected
 outcomes. However, CamFort will pick up the difference during its
 stencil specification checking. Ideally, an experienced programmer may
@@ -189,5 +191,14 @@ minimise the number of specifications that need changing and gain the
 full time-saving advantage. But even if not, a quick search for the
 specifications can have them updated quickly and then any code that is
 not updated will trigger an error when checked.
+
+An example of a refactored region adding a single dimension to an array, adapted from the UM:
+\begin{minted}[breakafter=+:,breakindent=-0.6em,breaksymbolsep=0.4em,linenos=false,xleftmargin=-0.5em]{fortran}
+  ! before
+  != region :: r = readOnce, pointed(dim=1)
+  ! after
+  != region :: r = readOnce, pointed(dim=1)*pointed(dim=2)
+\end{minted}
+
 
 % \subsubsection{Stress-testing CamFort}

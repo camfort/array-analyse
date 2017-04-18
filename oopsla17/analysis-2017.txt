@@ -51,9 +51,9 @@ corpus module: arpack_ng
     singleAction: 316
     singleActionIrr: 184
     somePointed: 146
-    tickAssign: 9777
-    tickAssignSuccess: 621
-    tickLHSvar: 6897
+    tickAssign: 2880
+    tickAssignSuccess: 505
+    tickLHSvar: 116
 corpus module: blas
     LHSnotHandled: 17
     depth4: 4
@@ -88,9 +88,9 @@ corpus module: blas
     sadepth5: 4
     singleAction: 8
     somePointed: 42
-    tickAssign: 3294
-    tickAssignSuccess: 794
-    tickLHSvar: 1996
+    tickAssign: 1298
+    tickAssignSuccess: 762
+    tickLHSvar: 32
 corpus module: cliffs_src
     LHSnotHandled: 75
     backward: 10
@@ -126,9 +126,9 @@ corpus module: cliffs_src
     singleAction: 18
     singleActionIrr: 18
     somePointed: 4
-    tickAssign: 590
-    tickAssignSuccess: 45
-    tickLHSvar: 447
+    tickAssign: 143
+    tickAssignSuccess: 25
+    tickLHSvar: 20
 corpus module: computational_physics_1
     LHSnotHandled: 11
     backward: 71
@@ -177,9 +177,9 @@ corpus module: computational_physics_1
     singleAction: 87
     singleActionIrr: 128
     somePointed: 41
-    tickAssign: 710
-    tickAssignSuccess: 189
-    tickLHSvar: 423
+    tickAssign: 287
+    tickAssignSuccess: 141
+    tickLHSvar: 48
 corpus module: e3me
     LHSnotHandled: 200
     atLeast: 4
@@ -210,7 +210,7 @@ corpus module: e3me
     dims2: 3884
     dims3: 148
     dims4: 1
-    emptySpec: 5217
+    emptySpec: 5207
     forward: 53
     inconsistentIV: 568
     justPointed: 7965
@@ -260,9 +260,9 @@ corpus module: e3me
     singleAction: 76
     singleActionIrr: 134
     somePointed: 2294
-    tickAssign: 9392
-    tickAssignSuccess: 4175
-    tickLHSvar: 3737
+    tickAssign: 5655
+    tickAssignSuccess: 3692
+    tickLHSvar: 483
 corpus module: geos_chem_camfort
     LHSnotHandled: 491
     atMost: 1
@@ -327,9 +327,9 @@ corpus module: geos_chem_camfort
     singleAction: 545
     singleActionIrr: 488
     somePointed: 1452
-    tickAssign: 50628
-    tickAssignSuccess: 2754
-    tickLHSvar: 8416
+    tickAssign: 42212
+    tickAssignSuccess: 2354
+    tickLHSvar: 400
 corpus module: hybrid4
     LHSnotHandled: 4
     depth1: 4
@@ -362,9 +362,9 @@ corpus module: hybrid4
     singleAction: 4
     singleActionIrr: 8
     somePointed: 2
-    tickAssign: 828
-    tickAssignSuccess: 113
-    tickLHSvar: 748
+    tickAssign: 80
+    tickAssignSuccess: 41
+    tickLHSvar: 72
 corpus module: mudpack
     atLeast: 6
     atMost: 6
@@ -429,9 +429,9 @@ corpus module: mudpack
     singleAction: 612
     singleActionIrr: 776
     somePointed: 3713
-    tickAssign: 15212
-    tickAssignSuccess: 3576
-    tickLHSvar: 9343
+    tickAssign: 5869
+    tickAssignSuccess: 3432
+    tickLHSvar: 144
 corpus module: navier
     LHSnotHandled: 18
     backward: 13
@@ -470,9 +470,9 @@ corpus module: navier
     saidepth1: 16
     singleAction: 22
     singleActionIrr: 32
-    tickAssign: 87
-    tickAssignSuccess: 40
-    tickLHSvar: 42
+    tickAssign: 45
+    tickAssignSuccess: 30
+    tickLHSvar: 10
 corpus module: specfem3d
     LHSnotHandled: 575
     atMost: 61
@@ -580,9 +580,9 @@ corpus module: specfem3d
     singleAction: 246
     singleActionIrr: 226
     somePointed: 4113
-    tickAssign: 27149
-    tickAssignSuccess: 4236
-    tickLHSvar: 12947
+    tickAssign: 14202
+    tickAssignSuccess: 3183
+    tickLHSvar: 1053
 corpus module: um
     LHSnotHandled: 3817
     atLeast: 12
@@ -673,9 +673,9 @@ corpus module: um
     singleAction: 4508
     singleActionIrr: 2738
     somePointed: 9095
-    tickAssign: 74145
-    tickAssignSuccess: 24479
-    tickLHSvar: 32004
+    tickAssign: 42141
+    tickAssignSuccess: 23244
+    tickLHSvar: 1235
 overall
     LHSnotHandled: 5393
     atLeast: 22
@@ -726,7 +726,7 @@ overall
     dims3: 15880
     dims4: 1944
     dims5: 54
-    emptySpec: 150790
+    emptySpec: 150780
     forward: 3089
     inconsistentIV: 4616
     justPointed: 73340
@@ -823,8 +823,8 @@ overall
     singleAction: 6442
     singleActionIrr: 4732
     somePointed: 20902
-    tickAssign: 191812
-    tickAssignSuccess: 41022
-    tickLHSvar: 77000
+    tickAssign: 114812
+    tickAssignSuccess: 37409
+    tickLHSvar: 3613
     numStencilSpecs (80731) <= forward (3089) + backward (3385) + centered (1133) + pointed (78932) = 86539
 

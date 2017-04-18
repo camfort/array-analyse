@@ -58,3 +58,4 @@ print "\\newcommand{\\%s}{%.2g}" % ("overalltickAssignPercent", float(totalTickA
 print "\\newcommand{\\%s}{%.2g}" % ("overalltickAssignSuccessPercent", float(totalTickAssignSuccess) / float(totalLoC) * 100)
 print "\\newcommand{\\%s}{%.2g}" % ("overalltickAssignSuccessPercentOfTickAssign", float(totalTickAssignSuccess) / float(totalTickAssign) * 100)
 print "\\newcommand{\\%s}{%d}" % ("overallmultiActionPlusAndMul", int(files["overallmultiAction"]) - int(files["overallmultiActionMulOnly"]))
+print "\\newcommand{\\%s}{%d}" % ("overallnonTrivial", int(files["overallnumStencilSpecs"]) - int(files["overalljustPointed"]))

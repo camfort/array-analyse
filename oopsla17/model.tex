@@ -219,21 +219,21 @@ The interpretation is overloaded on \emph{regions} in
    \interp{\textcap{r}}_N \wedge \interp{\textcap{s}}_N \\
 %%
   \interp{\texttt{\textcap{rconst}}}_N & =
-    \vecgen{N}{i}{\interp{\texttt{\textcap{rconst}}}^{\mathsf{c}}}
+    \vecgen{N}{i}{\interp{\texttt{\textcap{rconst}}}}
   \\[1em]
   %%
-  \interp{-}^{\mathsf{c}} & : \textit{rconst} \rightarrow
+  \interp{-} & : \textit{rconst} \rightarrow
                             \textit{Interval} \\
-  \interp{\stencil{p}{$i$}{}{}}^{\mathsf{c}} & =
+  \interp{\stencil{p}{$i$}{}{}} & =
     {\interv{0}{0}{\mathsf{true}}}\\
 %
-  \interp{\stencil{c}{$i$}{$k$}{\textcap{p}}}^{\mathsf{c}} & =
+  \interp{\stencil{c}{$i$}{$k$}{\textcap{p}}} & =
     {\interv{-k}{k}{\interp{\textcap{p}}}} \\
 %
-  \interp{\stencil{f}{$i$}{$k$}{\textcap{p}}}^{\mathsf{c}} & =
+  \interp{\stencil{f}{$i$}{$k$}{\textcap{p}}} & =
     {\interv{0}{k}{\interp{\textcap{p}}}} \\
 %
-  \interp{\stencil{b}{$i$}{$k$}{\textcap{p}}}^{\mathsf{c}} & =
+  \interp{\stencil{b}{$i$}{$k$}{\textcap{p}}} & =
     {\interv{-k}{0}{\interp{\textcap{p}}}}
 \end{align*}
 \caption{Interpretation of regions}
@@ -258,7 +258,7 @@ The interpretation is overloaded on \emph{regions} in
 \caption{Semantic model of specifications}
 \end{figure}
 
-The intermediate interpretation $\interp{-}^{\mathsf{c}}$ of
+The intermediate interpretation $\interp{-}$ of
 \Cref{subfig:region-model} models region contants. This is lifted by
 $\textit{promote}_N$ to interpret region constants in the last
 equation of $\interp{-}_N$. The \term{+} and \term{*} operators are

@@ -45,7 +45,7 @@ fine-grained indexing are involved in a single expression. For
 example, the following snippet from a Navier-Stokes
 fluid model~\cite{griebel1997numerical} has two arrays which are
 read with different data access patterns, across two dimensions, with
-dense index-manipulation code:
+dense index-manipulation:
 %%
 \begin{minted}[firstnumber=20,xleftmargin=2em]{fortran}
 du2dx = ((u(i,j)+u(i+1,j))*(u(i,j)+u(i+1,j))+gamma*abs(u(i,j)+u(i+1,j))*(u(i,j)-u(i+1,j))- &

@@ -147,7 +147,7 @@ code which are inserted automatically as comments. This supports
 maintenance of legacy code base, and aids understanding of our
 specification language. 
 
-The preceding source code analysis converts the concrete syntax of
+The program analysis converts the concrete syntax of
 array subscripts into a sets of subscript schemes. Inference then has
 two parts. First, ``adjacent'' index schemes are coalesced into a
 smaller sets of index schemes, remaining in union normal
@@ -206,7 +206,7 @@ give a covering over the initial subscript space.
 \begin{restatable}{lem}{closureInference}
   \label{lem:closuer-inference}
   For a set of index schemes $\mathcal{S}$, then
-  $\mathit{coalesceSet}(\mathcal{S})$ is well-defined and is a set of
+  $\mathit{coalesceSet}(\mathcal{S})$ is a set of
   index schemes in Union Normal Form.
 \end{restatable}
 %
@@ -228,45 +228,37 @@ steps:
 \newcommand{\finalSet}{\mathcal{S}_\omega}
 Let the covering indexing scheme from the fixed point of
 $\mathit{coalesceStep}$ on input $\mathcal{S}_0$ be written as
-$\finalSet{}$.  Next, $\finalSet{}$ the is translated into specification
-syntax. This happens in four stages.
+$\finalSet{}$.  Next, $\finalSet{}$ is translated into specification
+syntax. This happens in three stages.
 
-\begin{enumerate}[leftmargin=1.5em]
+\begin{enumerate}[leftmargin=2em]
   \item We check whether $\finalSet{}$
   is the top indexing scheme $\bz{}^N$. This occurs if absolute indices
-  occur in each of the dimensions in any of the array subscripts,
+  appear in each of the dimension across the array subscripts,
   leading to an unconstrained access pattern, which is not represented
   in our syntax, ending inference.
 
   \item Otherwise, we determine if the indexing schemes are interval
-  schemes so that they can be represented exactly. It not, they are
-  altered into interval schemes to be represented as approximations.
+  schemes (\Cref{def:interval-scheme}) so that they can be represented
+  exactly by our syntax. It not, they are altered into interval
+  schemes to be represented as approximations.
 
-  \item We split the interval schemes so that the region constants can
-  express them.
-
-  \item Finally, we convert the interval schemes into a joins of meets
-  of region constants.
+  \item Interval schemes into a joins of meets
+  of region constants, where some intervals are split into separate
+  region constants.
 \end{enumerate}
+%
+An index scheme is an interval scheme (\Cref{def:interval-scheme}) if
+each of vector can be represented as a vector of holed intervals
+$\interv{a}{b}{c}$.  If so, we convert each index scheme to an
+interval scheme as a vector of holed interval representation.
 
-If there is all infinite indexing scheme, then we cannot represent it
-syntactically. This happens when use of constant indices in one or more array
-terms causes the offsets to be subsumed. The simplest case is when there is an
-array term with all of its indices constant.
-
-In our example, there are no constant indices, so we proceed.
-
-After handling the trivial case, correct approximation is chosen. Recall
-\Cref{def:interval-scheme}, an indexing scheme is an interval scheme if each of
-the sets in products are holed intervals. If that is the case, we trivially
-convert the sets in each dimension of indexing schemes to holed interval
-representation and proceed to the next stage and output an exact specification
-at the end. If not, then the output will definitely have an upper bound and
-potentially a lower bound.
-
-Upper bound is established by \emph{elongating} index schemes in multiple
-dimensions such that they become interval schemes. The elongation function is
-given as
+Since index schemes of the previous stage are all contiguous and form
+closed intervals, a lower bound $\leq 0$ and an upper bound $\geq 0$
+is sufficient to form an interval scheme.  Otherwise, an approximation
+specification is generated. An upper bound is established by
+\emph{elongating} any index schemes in multiple dimensions such that
+they become interval schemes. This is given by the function:
 %
 \begin{align*}
   \mathit{elongate}([a,b]) = \begin{cases}
@@ -274,43 +266,67 @@ given as
     \interv{a}{0}{\textsf{false}} & b < -1
   \end{cases}
 \end{align*}
+%
+If any dimension of an index scheme is elongated, then the whole index
+scheme is elongated. In $\finalSet$, all index schemes that are
+representable as interval schemes form a lower bound, whilst those
+that do not produce an upper bound by their elongation. A lower bound
+may not be generated if all indexing schemes are not interval schemes.
+In the case of our example, the resulting $\finalSet$ comprises a set
+of interval schemes, thus we can generate an exact specification.
 
-Since index schemes of the previous stage are all contiguous and form closed
-intervals, 0 lying between the lower and upper bounds of intervals is sufficient
-to form an interval scheme. If any dimension of an index scheme is elongated,
-then the whole index scheme is elongated. In the initial set of index schemes,
-all schemes that were already interval schemes form a lower bound, while those
-schemes and the new interval schemes generated by elongation form the upper
-bound. The reason a lower bound may not be generated is all indexing schemes
-with might need elongation.
+\paragraph{Translation from interval schemes}
 
-The index schemes in the example are all interval schemes, so we proceed to the
-next stage noting the output will be exact.
+Recall the model of region constants in \Cref{subfig:region-model}
+where $\interp{-}$ maps to holed intervals which have either $0$ as
+the lower-bound or upper-bound for \fortran{forward} and
+\fortran{backward} respectively, or both $0$ for \fortran{pointed}, or
+$-k$ and $k$ lower and upper bounds for \fortran{centered}. We can
+invert this map to generate region constants from holed
+intervals. However, some intervals computed from the above steps
+may not the constraints of this interpretation,
+\eg{}, $\interv{-2}{1}{} \times \interv{-1}{1}{}$.  By
+\Cref{lem:vector-union}, we can split interval schemes into two into
+the relevant form, for example, producing
+$\interv{-2}{0}{} \times \interv{-1}{1}{}$ and
+$\interv{0}{1}{} \times \interv{-1}{1}{}$. 
+The following function
+$\textit{split}$ iterates over the components of an index scheme,
+splitting apart interval schemes when necessary:
+%
+\begin{align*}
+  %\textit{split}(\emptyset) = \emptyset \quad
+  \textit{split}(\interv{a}{b}{c} \times S) =
+   \begin{cases}
+  \{ \interv{a}{0}{c} \times T \mid T \in \textit{split}(S) \}
+  \cup
+  \{ \interv{0}{b}{c} \times T \mid T \in \textit{split}(S) \}
+  & a < 0 \vee b > 0 \vee (|a| \neq b) \\
+  \{ \interv{a}{b}{c} \times T \mid T \in \textit{split}(S) \}
+\end{cases}
+\end{align*}
+%
+This forms a set of interval schemes to which $\interp{-}^{-1}$ can be
+applied. In the case of our example, no splitting is necessary.
 
-There is no direct translation from an interval scheme such as $\interv{-2}{1}{}
-\times \interv{-1}{1}{}$ to region constants. The reason is region constants
-\texttt{forward} and \texttt{backward} require upper and lower bounds to be 0
-respectively and \texttt{centered} requires the upper bound to be the negation
-of the lower bound. The solution is to use \Cref{lem:vector-union} to break up
-interval schemes into two producing $\interv{-2}{0}{} \times \interv{-1}{1}{}$
-and $\interv{0}{1}{} \times \interv{-1}{1}{}$.
-
-The extended example does not have such representation problem, so the interval
-schemes are left as they are.
-
-The final stage of inference is simply mapping interval schemes into region
-constants. Each interval scheme is connected with \texttt{+}. Individual schemes
-are decomposed using \Cref{lem:vector-intersect} such that each of the resulting
-index schemes have all but one dimensions set to \interv{-\infty}{\infty}{}.
+The final stage of inference is simply mapping interval schemes into
+region constants and combining these. Each translated interval scheme
+is connected with \texttt{+}. Individual schemes are decomposed using
+\Cref{lem:vector-intersect} such that each of the resulting index
+schemes have all but one dimensions set to \interv{-\infty}{\infty}{}.
 Each of these interval schemes are mapped to region constants using
 \Cref{subfig:region-model} and connected with \texttt{*}.
-
+%
+\begin{align*}
+\textit{convert}_N(\mathcal{S}) = \sum_{S \in S} \prod_{1 \leq i \leq N} \interp{\pi_i(S)}^{-1}
+\end{align*}
+%
 In the example, $\interv{-1}{1}{} \times \interv{0}{0}{}$ is decomposed into
 $\interv{-1}{1}{} \times \interv{-\infty}{\infty}{}$ and
 $\interv{-\infty}{\infty}{} \times \interv{0}{0}{}$. These are then mapped to
 \texttt{\stencil{c}{1}{1}{} * \stencil{p}{2}{}{}}. Decomposition of
-$\interv{0}{0}{} \times \interv{-1}{1}{}$ is similar. When combined we obtain the
-following specification:
+$\interv{0}{0}{} \times \interv{-1}{1}{}$ is similar. When combined we
+obtain the following specification:
 %
 \begin{equation*}
   \texttt{stencil readOnce,} \;

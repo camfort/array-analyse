@@ -43,7 +43,7 @@ example we found of this in \Cref{sec:case-studies}).
 Errors also arise by simple lexical mistakes when large amounts of
 fine-grained indexing are involved in a single expression. For
 example, the following snippet from a Navier-Stokes
-fluid model~\citet{griebel1997numerical} has two arrays are
+fluid model~\cite{griebel1997numerical} has two arrays which are
 read with different data access patterns, across two dimensions, with
 dense index-manipulation code:
 %%
@@ -80,8 +80,8 @@ terms \texttt{a(i)}, \texttt{a(i-1)} and
 
 To support correct array programming, we propose a simple,
 abstract specification language for the data access pattern of
-array-loop computations. This provides a way to rule out bugs due to
-indexing errors. The language design is informed by an initial
+array-loop computations. This provides a way to prevent
+indexing errors and also to capture some of the original high-level intent of the algorithm. The language design is informed by an initial
 empirical study of array computations in a corpus of a real-world
 scientific code base, totaling 1.4 million lines of
 code (\Cref{sec:study}). We confirm our initial hypotheses of the
@@ -91,8 +91,8 @@ contiguous elements with a simple static pattern. From this we
 designed a simple set of combinators to express common array patterns (\Cref{sec:lang}).
 As an example, the Laplace program is specified in our language by:
 %
-\begin{minted}[linenos=false]{fortran}
-!=  stencil centered(depth=1, dim=1) :: a
+\begin{minted}[linenos=false,xleftmargin=0em,xrightmargin=0.8em,breakindent=1.9em]{fortran}
+!= stencil centered(depth=1, dim=1) :: a
 \end{minted}
 %
 That is, \texttt{a} is accessed with a symmetrical pattern in its
@@ -105,7 +105,7 @@ write.  The Navier-Stokes example has two specifications:
 != stencil forward(depth=1,dim=1)*backward(depth=1,dim=2) :: v
 \end{minted}
 %
-The specifications requires that \texttt{u}
+These specifications record that \texttt{u}
 is accessed with a centered pattern to depth of 1 in both dimensions
 (this is known as the \emph{five-point stencil}) and \texttt{v} is
 accessed in a neighbourhood bounded forwards to depth of $1$ in the
@@ -124,7 +124,7 @@ specifications are more lightweight to aid its adoption in science.
 
 We implemented a verification tool for our specification language as
 an extension to CamFort~\cite{camfort}, an open-source program
-analysis tool for Fortran. Specifications are associated to code via
+analysis tool for Fortran. Specifications are associated with code via
 comments, against which the tool checks the code for conformance. This
 specify-and-check approach reduces testing effort and future-proofs
 against bugs introduced during refactoring and maintenance. A
@@ -159,7 +159,7 @@ latter corrected) or would have assisted in refactoring
 
 \paragraph{Terminology and notation}
 
-We fix some terminology for syntactic constructs in our target language.
+In the remainder of this paper we apply the following terminology for syntactic constructs in our target language.
 
 \begin{defn}[Induction variables]
   An integer variable is a \emph{base induction variable} if it is the

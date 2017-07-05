@@ -2,7 +2,6 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE FlexibleInstances #-}
 {-# LANGUAGE UndecidableInstances #-}
-
 {-# LANGUAGE ScopedTypeVariables #-}
 
 import qualified Data.Map as M
@@ -11,6 +10,10 @@ import Data.List
 import System.Environment
 import Text.Printf
 
+-- This program performs some grouping and analysis on array-analysis
+-- data providing the empirical results for the OOPSLA 2017 'Verifying
+-- Spatial Properties of Array Computations'
+
 main = do
   args <- getArgs
   case args of
@@ -18,33 +21,35 @@ main = do
     [x] -> putStrLn "Specify an analysis you want to run, e.g., hyps"
     (file:study:args) -> do
       resultsString <- readFile file
-      let result = ((read resultsString) :: Result)
+      let result = read resultsString :: Result
       case study of
         "hyps" -> putStrLn $ hyps result
         "histsplot" -> do
-          let camfort h = ((M.!) (camfortableResult h) "Camfort")
-          writeFile "indexExprs.dat" (gnuplotHist (read . head $ args) .  camfort . histNumIndexExprs $ result)
-          writeFile "dimensionality.dat" (gnuplotHist (read . head $ args) . camfort . histDimensionality $ result)
-        "hists" -> do
+          let camfort h = (M.!) (camfortableResult h) "Camfort"
+          writeFile "indexExprs.dat"
+              (gnuplotHist (read . head $ args) . camfort . histNumIndexExprs $ result)
+          writeFile "dimensionality.dat"
+              (gnuplotHist (read . head $ args) . camfort . histDimensionality $ result)
+        "hists" ->
           putStrLn $ mapViewTotal "Dimensionality" (histDimensionality result)
-             ++ mapViewTotal "Max depth" (histMaxDepth result)
-             ++ mapViewTotal "Number of indexing expressions" (M.map (cropHistogram 20) $ histNumIndexExprs result)
-             ++ rline' "Length of dataflow path"  (hview . cropHistogram 20 . histLengthOfDataflow $ result)
+           ++ mapViewTotal "Max depth" (histMaxDepth result)
+           ++ mapViewTotal "Number of indexing expressions" (M.map (cropHistogram 20) $ histNumIndexExprs result)
+           ++ rline' "Length of dataflow path"  (hview . cropHistogram 20 . histLengthOfDataflow $ result)
 
 
 regroup :: (Ord c, HistogramShow t) => (Cat -> c) -> M.Map Cat t -> M.Map c t
 regroup classifier =
-  M.fromListWith histZip . map (\(k, v) -> (classifier k, v)) . M.assocs
+  M.fromListWith histZip . map (Control.Arrow.first classifier) . M.assocs
 
 regroupFilter :: (Ord c, HistogramShow t)
               => (Cat -> t -> Bool) -> (Cat -> c) -> M.Map Cat t -> M.Map c t
 regroupFilter filter classifier =
-  M.fromListWith histZip . map (\(k, v) -> (classifier k, v))
+  M.fromListWith histZip . map (Control.Arrow.first classifier)
                          . M.assocs
                          . M.filterWithKey filter
 
 resultLine cat dat = showA cat
-           ++ (replicate (35 - (length (show cat))) ' ')
+           ++ replicate (35 - (length (show cat))) ' '
            ++ " & " ++ dat ++ "  \\\\\n"
 
 class ShowA s where
@@ -59,11 +64,11 @@ instance {-# OVERLAPPABLE #-} Show a => ShowA a where
 mapViewT msg map =
        "   " ++ msg ++ ":\n"
     ++ concatMap (\(cat, dat) -> resultLine cat (showPad dat ++ "& "
-    ++ (twoDP $ (cast(dat)/cast(total))*100) ++ "\\%")) (M.assocs map)
+    ++ twoDP ((cast (dat) / cast (total))*100) ++ "\\%")) (M.assocs map)
     ++ resultLine "Total" (showPad total ++ "&")
     ++ "\n"
   where
-    showPad dat = show dat ++ replicate (10 - (length (show dat))) ' '
+    showPad dat = show dat ++ replicate (10 - length (show dat)) ' '
     twoDP = printf "%.2f"
     cast :: Int -> Float
     cast = fromInteger . toInteger
@@ -78,10 +83,8 @@ hyps r =
   ++ mapViewT "Hypothesis 3" (countWrapperFilter hypothesis1filter hypothesis3 r)
   ++ mapViewT "Hypothesis 3 - unfiltered" (countWrapper hypothesis3 r)
 
---  ++ mapViewT "Hypothesis 4" (countWrapper (interpret4 . hypothesis4) r)
---  ++ mapViewT "Hypothesis 4 finer" (countWrapper hypothesis4finer r)
+--  ++ mapViewT "Hypothesis 4A" (countWrapper hypothesis4A r)
 
-  ++ mapViewT "Hypothesis 4A" (countWrapper hypothesis4A r)
   ++ mapViewT "Hypothesis 4A" (countWrapper hypothesis4AInconsistents r)
   ++ mapViewT "Hypothesis 4B" (countWrapper hypothesis4B r)
   ++ mapViewT "Hypothesis 4 contig" (countWrapper hypothesis4contig r)
@@ -100,7 +103,8 @@ countWrapperFilter filter classifier =
     regroupFilter filter classifier . counts
 
 -- Hypothesis 1 : Loops over arrays mainly read from arrays with a
--- static pattern based on constant offsets from (base or dervied) induction variables;
+-- static pattern based on constant offsets from (base or dervied)
+-- induction variables;
 
 hypothesis1 :: (Form LHS, Form RHS, Consistency) -> String
 hypothesis1 (_, rhs, _) =
@@ -136,7 +140,7 @@ notAllConsts cat _ =
     _                 -> True
 
 hypothesis1filter cat _ =
-  case (hypothesis1finer cat) of
+  case hypothesis1finer cat of
     "Other" -> False
     "All consts" -> False
     _       -> True
@@ -176,23 +180,6 @@ hypothesis3 (_, rhs, _) =
 -- to an array at an index based on a constant offset from induction
 -- variables.
 
-interpret4 (0, b, c) = "Other"
-interpret4 (30, b, c) = "lhs(IV), RHS(affine, b, contig,I" ++ showe c ++ "), *consistent"
-interpret4 (60, b, c) = "lhs(IV), RHS(neigh, b, contig,I" ++ showe c ++ "), *consistent"
-interpret4 (50, b, c) = "lhs(affine" ++ showe b ++ "), RHS(affine, b, contig,I" ++ showe c ++ "), *consistent"
-interpret4 (100, b, c) = "lhs(affine" ++ showe b ++ "), RHS(neigh, b, contig,I" ++ showe c ++ "), *consistent"
-interpret4 (70, b, c) = "lhs(neigh" ++ showe b ++ "), RHS(affine, b, contig,I" ++ showe c ++ "), *consistent"
-interpret4 (140, b, c) = "lhs(neigh" ++ showe b ++ "), RHS(neigh, b, contig,I" ++ showe c ++ "), *consistent"
-interpret4 (110, b, c) = "lhs(vars), RHS(affine, b, contig,I" ++ showe c ++ "), *consistent"
-interpret4 (220, b, c) = "lhs(vars), RHS(neigh, b, contig,I" ++ showe c ++ "), *consistent"
-interpret4 (130, b, c) = "lhs(subs), RHS(affine, b, contig,I" ++ showe c ++ "), *consistent"
-interpret4 (260, b, c) = "lhs(subs), RHS(neigh, b, contig,I" ++ showe c ++ "), *consistent"
-interpret4 (170, b, c) = "lhs(allconst), RHS(affine, b, contig,I" ++ showe c ++ "), *consistent"
-interpret4 (340, b, c) = "lhs(allconst), RHS(neigh, b, contig,I" ++ showe c ++ "), *consistent"
-
-
-showe _ = ""
-
 hypothesis4A :: (Form LHS, Form RHS, Consistency) -> String
 hypothesis4A (Subscripts, _, _) = "other"
 hypothesis4A (AllConsts, _, _) = "other"
@@ -200,7 +187,7 @@ hypothesis4A (lhs, rhs, const) =
   if classRhs rhs == "other" then
     "other"
   else
-    "LHS " ++ classLhs ++ ", RHS " ++ (classRhs rhs)
+    "LHS " ++ classLhs ++ ", RHS " ++ classRhs rhs
   where
     classConst = show const
     classLhs =
@@ -245,7 +232,7 @@ hypothesis4B (lhs, rhs, const) =
   if classRhs rhs == "other" || const == Inconsistent then
     "other"
   else
-    classLhs ++ ", " ++ (classRhs rhs) ++ ", " ++ classConst
+    classLhs ++ ", " ++ classRhs rhs ++ ", " ++ classConst
   where
     classConst = show const
     classLhs =
@@ -283,7 +270,7 @@ hypothesis4consistency cat@(_, rhs, const) =
 hypothesis4 :: (Form LHS, Form RHS, Consistency) -> (Int, HasConstants, HasConstants)
 hypothesis4 (lhs, rhs, const) =
   case lhs of
-    (IVs           ) -> (30 * checkRHS, Normal, hasConsts rhs)
+    IVs -> (30 * checkRHS, Normal, hasConsts rhs)
     (Affines   c L)  -> (50 * checkRHS, c, hasConsts rhs)
     (Neighbours c L) -> (70 * checkRHS, c, hasConsts rhs)
     Vars             -> (110 * checkRHS, Normal, hasConsts rhs)
@@ -308,7 +295,7 @@ hypothesis4 (lhs, rhs, const) =
 hypothesis4finer :: (Form LHS, Form RHS, Consistency) -> Int
 hypothesis4finer (lhs, rhs, const) =
   case lhs of
-    (IVs           ) -> 0 + checkRHS
+    IVs -> 0 + checkRHS
     (Affines    _ L) -> 2000 + checkRHS
     (Neighbours _ L) -> 1000 + checkRHS
     _                -> 0
@@ -324,10 +311,10 @@ hypothesis4finer (lhs, rhs, const) =
         _ -> 0
     constCat =
       case const of
-        Consistent  rel -> (relToInt rel) + 1
-        Permutation rel -> (relToInt rel) + 2
-        LHSsubset   rel -> (relToInt rel) + 3
-        LHSsuperset rel -> (relToInt rel) + 4
+        Consistent  rel -> relToInt rel + 1
+        Permutation rel -> relToInt rel + 2
+        LHSsubset   rel -> relToInt rel + 3
+        LHSsuperset rel -> relToInt rel + 4
         Inconsistent    -> 0
     relToInt True = 10
     relToInt _    = 0

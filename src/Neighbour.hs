@@ -29,7 +29,7 @@ shapeAndPosition ivs =
               xs  -> (SumOfOrthotope, positioning)
           where
             regions = inferMinimalVectorRegions intIvs
-            positioning = if (any originVec intIvs)
+            positioning = if any originVec intIvs
                           then OverOrigin
                           else intervalsToPosition regions
 
@@ -55,7 +55,7 @@ originSpan _ _                     = False
 
 toList :: Vec n a -> [a]
 toList Nil = []
-toList (Cons x xs) = x : (toList xs)
+toList (Cons x xs) = x : toList xs
 
 foldVecMeet :: Vec n (Maybe Position) -> Maybe Position
 foldVecMeet Nil = Just OverOrigin
@@ -105,10 +105,10 @@ transposeVecInterval (Cons l ls, Cons u us) = Cons (l, u) intervalVec
 positionInterval :: (Int, Int) -> Maybe Position
 positionInterval (l, u)
   | l == -absoluteRep || u == absoluteRep = Nothing
-  | l <= 0 && u >= 0                      = Just $ OverOrigin
-  | l < 0  && u == (-1)                   = Just $ StraddleOrigin
-  | l == 1 && u > 0                       = Just $ StraddleOrigin
-  | otherwise                             = Just $ Elsewhere
+  | l <= 0 && u >= 0                      = Just OverOrigin
+  | l < 0  && u == (-1)                   = Just StraddleOrigin
+  | l == 1 && u > 0                       = Just StraddleOrigin
+  | otherwise                             = Just Elsewhere
 
 -- Contiguous stencil (need not include the origin)
 contiguous :: [[Neighbour]] -> Bool
@@ -124,15 +124,14 @@ contiguous xs = contiguity' xs
 -- Given an index 'ns' and a set of indices 'nss',
 -- find if 'ns' has a neighbour in 'nss'
 hasNeighbouringIx :: [Neighbour] -> [[Neighbour]] -> Bool
-hasNeighbouringIx ns [] = False
-hasNeighbouringIx ns (ns' : nss) =
-  neighbouringIxs ns ns' || hasNeighbouringIx ns nss
+hasNeighbouringIx ns nss
+  = foldr ((||) . neighbouringIxs ns) False nss
 
 -- Given two indices, find out if they are (rectilinear) neighbours
 neighbouringIxs :: [Neighbour] -> [Neighbour] -> Bool
 neighbouringIxs [] [] = True
 neighbouringIxs (x : xs) (y : ys) | x == y = neighbouringIxs xs ys
-neighbouringIxs ((Neighbour v o) : xs) ((Neighbour v' o') : ys)
+neighbouringIxs (Neighbour v o : xs) (Neighbour v' o' : ys)
   | v == v' && abs (o - o') == 1 && xs == ys = True
 neighbouringIxs _ _ = False
 
@@ -143,9 +142,9 @@ isOrigin nixs = all (\i -> case i of Neighbour _ 0 -> True; _ -> False) nixs
 -- Predicate on whether an index is rectilinearly next to the origin
 nextToOrigin :: [Neighbour] -> Bool
 nextToOrigin [] = True
-nextToOrigin ((Neighbour _ 1):nixs) = isOrigin nixs
-nextToOrigin ((Neighbour _ (-1)):nixs) = isOrigin nixs
-nextToOrigin ((Neighbour _ 0):nixs) = nextToOrigin nixs
+nextToOrigin (Neighbour _ 1:nixs) = isOrigin nixs
+nextToOrigin (Neighbour _ (-1):nixs) = isOrigin nixs
+nextToOrigin (Neighbour _ 0:nixs) = nextToOrigin nixs
 nextToOrigin _ = False
 
 -- Treat an affine index as a neighbour index

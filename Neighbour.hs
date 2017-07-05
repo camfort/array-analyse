@@ -1,4 +1,4 @@
-{-# LANGUAGE GADTs#-}
+{-# LANGUAGE GADTs #-}
 
 -- Various helpers for manipulating the 'Neighbour' data type and analysisng
 -- the shape and other spatial properties of groups of neighbours
@@ -10,7 +10,9 @@ import Results
 import Data.List
 import Camfort.Helpers.Vec hiding (toList)
 import Camfort.Specification.Stencils.Syntax
+import Camfort.Specification.Stencils.Generate
 import Camfort.Specification.Stencils.InferenceBackend
+import Camfort.Specification.Stencils.DenotationalSemantics
 import Camfort.Specification.Stencils.InferenceFrontend
 import Data.Maybe
 

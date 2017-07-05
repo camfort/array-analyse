@@ -1,8 +1,8 @@
-name:                stencil-analysis
+name:                array-analysis
 version:             0.1.0.0
 synopsis:            Analyse array computation patterns in a Fortran code
 description:         Built on the CamFort framework
-homepage:            https://github.com/camfort/stencil-analysis
+homepage:            https://github.com/camfort/array-analysis
 license:             Apache-2.0
 author:              Dominic Orchard
 maintainer:          d.a.orchard@kent.ac.uk
@@ -13,9 +13,9 @@ cabal-version:       >=1.10
 
 source-repository head
   type: git
-  location: https://github.com/camfort/stencil-analysis
+  location: https://github.com/camfort/array-analysis
 
-executable stencil-analysis
+executable array-analysis
   main-is:             Analyse.hs
   other-modules:       Indices,
                        Neighbour,

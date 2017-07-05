@@ -2,10 +2,6 @@
 
  Analysis of array usage
 
- TODO
-   * capture single non-contig
-   * Figure out whether to bin the different kinds of shape (maybe up to 3D)
-
 -}
 
 {-# LANGUAGE TupleSections #-}
@@ -40,6 +36,7 @@ import Camfort.Analysis.CommentAnnotator
 import Camfort.Specification.Stencils.InferenceBackend
 import Camfort.Specification.Stencils.InferenceFrontend
 import Camfort.Specification.Stencils.Syntax
+import Camfort.Specification.Stencils.Generate
 import Camfort.Specification.Stencils.Annotation
 import qualified Camfort.Specification.Stencils.Grammar as Gram
 import qualified Camfort.Specification.Stencils.Synthesis as Synth
@@ -89,17 +86,22 @@ main :: IO ()
 main = do
     args <- getArgs
     if null args then do
-       putStrLn "Example usages:"
-       putStrLn "    stencil-analysis dir-or-file [excluded-files]"
-       putStrLn "    stencil-analysis [-b] [-d] dir-or-file [excluded-files]"
-       putStrLn " (where -b means to print pattern bins, and -d is debug mode)"
-       putStrLn "    stencil-analysis RESTART rfile [-b] [-d] dir-or-file [excluded-files]"
-       putStrLn " (restart the analysis with rfile.restart)"
-       putStrLn "    stencil-analysis SINGLE rfile [-b] [-d] dir-or-file [excluded-files]"
-       putStrLn " (restart the analysis with rfile.restart and suprise the final file)"
-       putStrLn "    stencil-analysis VIEW rfile"
-       putStrLn " (show just the files that were analysed)"
-       putStrLn "    stencil-analysis DIRS rfile"
+       putStrLn "Example usages:\
+                \    array-analysis dir-or-file [excluded-files]\
+                \    array-analysis [-b] [-d] dir-or-file [excluded-files]\
+                \ where -b means to print pattern bins, and -d is debug mode\
+                \\
+                \ (restart the analysis with rfile.restart)\
+                \    array-analysis RESTART rfile [-b] [-d] dir-or-file [excluded-files]\
+                \\
+                \ (apply the analysis to a single file)\
+                \    array-analysis SINGLE rfile [-b] [-d] dir-or-file [excluded-files]\
+                \\
+                \ (restart the analysis with rfile.restart and suppress the final file)\
+                \    array-analysis VIEW rfile\
+                \\
+                \ (show just the files that were analysed)\
+                \    array-analysis DIRS rfile"
     else do
        let (restart, args', mode) =
             case args of
@@ -193,7 +195,7 @@ applyAnalysisToDir restart mode dir debug bins excludes = do
                putStrLn $ "Raw count (parsed):" ++ (show . numLines $ result)
 
         NormalMode -> do
-               let resultsFile = dir ++ ".stencil-analysis"
+               let resultsFile = dir ++ ".array-analysis"
                writeFile resultsFile (show result)
                putStrLn $ prettyResults result bins
 
@@ -225,38 +227,33 @@ applyAnalysisToFile (mode, restart) dir (filename, source, pf) (dbg0, result0) =
     finalResult = result0 `mappend` result'
     lines = length $ B.lines source
     pf' = FAR.analyseRenames . FA.initAnalysis $ pf
-    nameMap = FAR.extractNameMap pf'
     result' = result { numLines = lines }
     dbg' = "Analysis on file: " ++ filename ++ "\n" ++ dbg
-    (dbg, result) = stencilAnalyse nameMap . FAB.analyseBBlocks $ pf'
+    (dbg, result) = arrayAnalyse . FAB.analyseBBlocks $ pf'
 
 -- The core of the analysis works within this monad
 type Analysis = WriterT (String, Result)
-                 (ReaderT (FAD.FlowsGraph A, FAR.NameMap)
+                 (ReaderT (FAD.FlowsGraph A)
                     (State (FAD.InductionVarMapByASTBlock, [Int])))
                     -- A map of induction variables
                     -- and a list of already visisted statements
 
 runAnalysis :: FAD.InductionVarMapByASTBlock
             -> FAD.FlowsGraph A
-            -> FAR.NameMap
             -> Analysis a
             -> (a, (String, Result))
-runAnalysis ivmap flTo nameMap =
+runAnalysis ivmap flTo  =
     flip evalState (ivmap, [])
-  . flip runReaderT (flTo, nameMap)
+  . flip runReaderT flTo
   . runWriterT
 
 
-stencilAnalyse :: FAR.NameMap
-                 -> F.ProgramFile (FA.Analysis A)
-                 -> (String, Result)
-stencilAnalyse nameMap pf@(F.ProgramFile mi cm_pus blocks) =
-    (dbg1 ++ dbg2, result1 `mappend` result2)
+arrayAnalyse :: F.ProgramFile (FA.Analysis A)
+             -> (String, Result)
+arrayAnalyse pf@(F.ProgramFile mi cm_pus) =
+    (dbg, result)
   where
-    (_, (dbg1, result1)) = runWriter (transformBiM perPU cm_pus)
-    (_, (dbg2, result2)) = runAnalysis ivMap flTo nameMap
-                             (descendBiM (perBlock False) blocks)
+    (_, (dbg, result)) = runWriter (transformBiM perPU cm_pus)
 
     -- Run inference per program unit, placing the flowsmap in scope
     perPU :: F.ProgramUnit (FA.Analysis A)
@@ -264,7 +261,7 @@ stencilAnalyse nameMap pf@(F.ProgramFile mi cm_pus blocks) =
 
     perPU pu | Just _ <- FA.bBlocks $ F.getAnnotation pu = do
               let pum = descendBiM (perBlock False) pu
-              let (pu', log) = runAnalysis ivMap flTo nameMap pum
+              let (pu', log) = runAnalysis ivMap flTo pum
               tell log
               return pu'
     perPU pu = return pu
@@ -291,9 +288,7 @@ stencilAnalyse nameMap pf@(F.ProgramFile mi cm_pus blocks) =
     -- get map of variable name ==> { defining AST-Block-IDs }
     dm    = FAD.genDefMap bm
 
--- Traverse Blocks in the AST and infer stencil specifications
--- Note that this should be applied by `descendBiM`, as it does its
--- own inner traversal and relies on the order in which blocks are visited
+
 perBlock :: Bool -> F.Block (FA.Analysis A) -> Analysis (F.Block (FA.Analysis A))
 
 perBlock inDo b@(F.BlDo ann span lab cname lab' mDoSpec body tlab) = do
@@ -342,15 +337,10 @@ analyseRHS :: [F.Block (FA.Analysis A)]
            -> Analysis (String, M.Map Variable [[F.Index (FA.Analysis A)]], Int)
 analyseRHS blocks = do
     (ivs, visitedNodes) <- get
-    (flTo, nameMap) <- ask
-    let (maps, visitedNodes') =
-         let ?flowsGraph = flTo
-             ?nameMap = nameMap
-         in runState (mapM (genSubscripts True) blocks) []
-    let subscripts = M.unionsWith (++) maps
-    let subscripts' = filterOutFuns nameMap subscripts
+    flTo <- ask
+    let (subscripts, visitedNodes') = genSubscripts flTo blocks
     let lenDataflowPath = length . nub $ visitedNodes'
     put (ivs, visitedNodes ++ visitedNodes')
-    return $ ("Read arrays: " ++ show (M.keys subscripts') ++ "\n"
-             , subscripts'
+    return $ ("Read arrays: " ++ show (M.keys subscripts) ++ "\n"
+             , subscripts
              , lenDataflowPath) -- dataflow

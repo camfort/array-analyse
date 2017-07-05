@@ -11,10 +11,13 @@ There are two binaries built by this project:
 
 You can intall these via `stack`, e.g.,
 
+    stack init
     stack install
 
 or cabal
 
+    cabal configure
+    cabal build
     cabal install
 
 # Usage

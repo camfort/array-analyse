@@ -68,7 +68,7 @@ import Indices
 
 
 data Mode = SingleFile | ViewMode | SlocMode | NormalMode
-                       | CombineMode | DirMode
+                       | CombineMode | DirMode | CmpMode
   deriving (Eq)
 
 

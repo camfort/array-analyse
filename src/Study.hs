@@ -7,6 +7,7 @@
 import qualified Data.Map as M
 import Results
 import Data.List
+import Control.Arrow (first)
 import System.Environment
 import Text.Printf
 
@@ -39,12 +40,12 @@ main = do
 
 regroup :: (Ord c, HistogramShow t) => (Cat -> c) -> M.Map Cat t -> M.Map c t
 regroup classifier =
-  M.fromListWith histZip . map (Control.Arrow.first classifier) . M.assocs
+  M.fromListWith histZip . map (first classifier) . M.assocs
 
 regroupFilter :: (Ord c, HistogramShow t)
               => (Cat -> t -> Bool) -> (Cat -> c) -> M.Map Cat t -> M.Map c t
 regroupFilter filter classifier =
-  M.fromListWith histZip . map (Control.Arrow.first classifier)
+  M.fromListWith histZip . map (first classifier)
                          . M.assocs
                          . M.filterWithKey filter
 

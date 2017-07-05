@@ -11,6 +11,35 @@ import Data.List
 import Camfort.Specification.Stencils.InferenceFrontend
 import Camfort.Specification.Stencils.Syntax (absoluteRep)
 
+-- Results data type
+data Result = Result {
+    dirs                  :: [String]
+  , numLines              :: Int
+  , counts                :: M.Map Cat Int
+  ------------------------------------
+  -- Histograms
+  , histDimensionality   :: M.Map Cat [Int]
+  , histMaxDepth         :: M.Map Cat [Int]
+  , histNumIndexExprs    :: M.Map Cat [Int]
+  , histNumArraysRead    :: [Int]
+  , histLengthOfDataflow :: [Int]
+  , histAffineScale      :: [Int]
+  , patternBin1D         :: M.Map [Int] Int
+  , patternBin2D         :: M.Map [(Int,Int)] Int
+  , patternBin3D         :: M.Map [(Int, Int, Int)] Int
+  } deriving (Show, Read, Eq)
+
+camfortableResult :: HistogramShow t => M.Map Cat t -> M.Map String t
+camfortableResult =
+       M.fromList
+     . (\(a, b) -> [("Camfort", a), ("Other", b)])
+     . (foldr histZip histEmpty >< foldr histZip histEmpty)
+     . ((map snd) >< (map snd))
+     . partition (\(k, _) -> camfortable k)
+     . M.assocs
+
+
+
 -- ## Categorisations:
 
 --   * RHS shape/position/contiguity
@@ -233,33 +262,6 @@ instance Camfortable Position where
   camfortable OverOrigin     = True
   camfortable StraddleOrigin = True
   camfortable _              = False
-
--- Results data type
-data Result = Result {
-    dirs                  :: [String]
-  , numLines              :: Int
-  , counts                :: M.Map Cat Int
-  ------------------------------------
-  -- Histograms
-  , histDimensionality   :: M.Map Cat [Int]
-  , histMaxDepth         :: M.Map Cat [Int]
-  , histNumIndexExprs    :: M.Map Cat [Int]
-  , histNumArraysRead    :: [Int]
-  , histLengthOfDataflow :: [Int]
-  , histAffineScale      :: [Int]
-  , patternBin1D         :: M.Map [Int] Int
-  , patternBin2D         :: M.Map [(Int,Int)] Int
-  , patternBin3D         :: M.Map [(Int, Int, Int)] Int
-  } deriving (Show, Read)
-
-camfortableResult :: HistogramShow t => M.Map Cat t -> M.Map String t
-camfortableResult =
-       M.fromList
-     . (\(a, b) -> [("Camfort", a), ("Other", b)])
-     . (foldr histZip histEmpty >< foldr histZip histEmpty)
-     . ((map snd) >< (map snd))
-     . partition (\(k, _) -> camfortable k)
-     . M.assocs
 
 -- pre-condition: list of 1-dimensional offsets
 to1D :: [[Int]] -> [Int]

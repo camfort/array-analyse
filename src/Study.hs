@@ -18,8 +18,18 @@ import Text.Printf
 main = do
   args <- getArgs
   case args of
-    [] -> putStrLn "Specify a .restart file to analyse"
-    [x] -> putStrLn "Specify an analysis you want to run, e.g., hyps"
+    [] -> do
+      putStrLn "Usage: analysis restartfile"
+--       putStrLn "Usage: analysis restartfile [mode]"
+--      putStrLn "Available modes: "
+--      putStrLn "\t hyps (Hypothesis data, default)"
+--      putStrLn "\t histsplot (Plots)"
+--      putStrLn "\t hists (Histogram data)"
+    [file] -> do
+      resultsString <- readFile file
+      let result = read resultsString :: Result
+      putStrLn $ hyps result
+
     (file:study:args) -> do
       resultsString <- readFile file
       let result = read resultsString :: Result
@@ -76,18 +86,14 @@ mapViewT msg map =
     total = histTotal $ M.elems map
 
 hyps r =
-     mapViewT "Hypothesis 1" (countWrapper hypothesis1 r)
-  ++ mapViewT "Hypothesis 1 finer" (countWrapper hypothesis1finer r)
-  ++ mapViewT "Hypothesis 1 finer - all consts" (countWrapper hypothesis1finerA r)
-  ++ mapViewT "Hypothesis 2" (countWrapperFilter hypothesis1filter hypothesis2 r)
-  ++ mapViewT "Hypothesis 2 - unfiltered" (countWrapper hypothesis2 r)
-  ++ mapViewT "Hypothesis 3" (countWrapperFilter hypothesis1filter hypothesis3 r)
-  ++ mapViewT "Hypothesis 3 - unfiltered" (countWrapper hypothesis3 r)
+     mapViewT "Hypothesis 1 finer" (countWrapper hypothesis1finer r)
+  ++ mapViewT "Hypothesis 1" (countWrapper hypothesis1 r)
+--  ++ mapViewT "Hypothesis 2 (filtering 'other')" (countWrapperFilter hypothesis1filter hypothesis2 r)
+  ++ mapViewT "Hypothesis 2" (countWrapper hypothesis2 r)
+--  ++ mapViewT "Hypothesis 3 (filtering 'other')" (countWrapperFilter hypothesis1filter hypothesis3 r)
+  ++ mapViewT "Hypothesis 3" (countWrapper hypothesis3 r)
 
---  ++ mapViewT "Hypothesis 4A" (countWrapper hypothesis4A r)
-
-  ++ mapViewT "Hypothesis 4A" (countWrapper hypothesis4AInconsistents r)
-  ++ mapViewT "Hypothesis 4B" (countWrapper hypothesis4B r)
+  ++ mapViewT "Hypothesis 4" (countWrapper hypothesis4AInconsistents r)
   ++ mapViewT "Hypothesis 4 contig" (countWrapper hypothesis4contig r)
   ++ mapViewT "Hypothesis 4 consistency" (countWrapper hypothesis4consistency r)
 
@@ -107,8 +113,8 @@ countWrapperFilter filter classifier =
 -- static pattern based on constant offsets from (base or dervied)
 -- induction variables;
 
-hypothesis1 :: (Form LHS, Form RHS, Consistency) -> String
-hypothesis1 (_, rhs, _) =
+hypothesis1simple :: (Form LHS, Form RHS, Consistency) -> String
+hypothesis1simple (_, rhs, _) =
   case rhs of
     Affines    c (R (s, _, _, _)) | s /= Other -> "Affine RHS"
     Neighbours c (R (s, _, _, _)) | s /= Other -> "Neigh RHS"
@@ -122,8 +128,8 @@ hypothesis1finer (_, rhs, _) =
     AllConsts                                  -> "All consts"
     _                                          -> "Other"
 
-hypothesis1finerA :: (Form LHS, Form RHS, Consistency) -> String
-hypothesis1finerA (_, rhs, _) =
+hypothesis1 :: (Form LHS, Form RHS, Consistency) -> String
+hypothesis1 (_, rhs, _) =
   case rhs of
     Affines    c (R (s, _, _, _)) | s /= Other -> "Affine RHS" ++ hasConst c
     Neighbours c (R (s, _, _, _)) | s /= Other -> "Neigh RHS" ++ hasConst c
@@ -210,21 +216,22 @@ hypothesis4AInconsistents (lhs, rhs, const) =
   if classRhs rhs == "other" then
     "other"
   else
-    "LHS " ++ classLhs ++ ", RHS " ++ classRhs rhs ++ classConst const
+    "lhs(" ++ classLhs ++ "), rhs(" ++ classRhs rhs ++ "), " ++ classConst const
   where
-    classConst Inconsistent = ", inconsistent"
-    classConst _            = ", *consistent"
+    classConst Inconsistent = "inconsistent  "
+    classConst _            = "consistent    "
     classLhs =
       case lhs of
-        Neighbours _ _ -> "neigh"
+        Neighbours _ _ -> "neigh "
         Affines    _ _ -> "affine"
-        _              -> show lhs
+        _              -> padTo 6 (show lhs)
     classRhs
       (Affines c (R (s, p, con, _))) | s /= Other = "affines"
     classRhs
-      (Neighbours c (R (s, p, con, _))) | s /= Other = "neigh"
+      (Neighbours c (R (s, p, con, _))) | s /= Other = "neighs "
     classRhs
       _ = "other"
+    padTo n s = s ++ replicate (n - (length s)) ' '
 
 hypothesis4B :: (Form LHS, Form RHS, Consistency) -> String
 hypothesis4B (Subscripts, _, _) = "other"

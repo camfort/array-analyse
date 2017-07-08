@@ -123,14 +123,18 @@ arrayAnalyse :: F.ProgramFile (FA.Analysis A)
 arrayAnalyse pf@(F.ProgramFile mi cm_pus) =
     (dbg, result)
   where
-    (_, (dbg, result)) = runWriter (mapM perPU cm_pus)
+    (_, (dbg, result)) = runWriter (transformBi perPU cm_pus)
 
     -- Run inference per program unit, placing the flowsmap in scope
     perPU :: F.ProgramUnit (FA.Analysis A)
           -> Writer (String, Result) (F.ProgramUnit (FA.Analysis A))
 
     perPU pu | Just _ <- FA.bBlocks $ F.getAnnotation pu = do
-              let pum = descendBiM (perBlock False) pu
+              let -- Analysis/infer on blocks of just this program unit
+                  blocksM = mapM (perBlock False) (F.programUnitBody pu)
+                  -- Update the program unit body with these blocks
+                  pum = (F.updateProgramUnitBody pu) <$> blocksM
+
                   -- perform reaching definitions analysis
                   rd = FAD.reachingDefinitions dm gr
                   Just gr = M.lookup (FA.puName pu) bbm

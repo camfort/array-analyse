@@ -69,9 +69,19 @@ classifyArrayCode ivs lhs rhses =
                 Just scales -> result1 { histAffineScale = concatHist (map toHist scales) }
     -- pattern bins
     result = case maximum . map length $ rhses of
-               1 -> result2 { patternBin1D = M.fromList [(to1D pattern, 1)] }
-               2 -> result2 { patternBin2D = M.fromList [(to2D pattern, 1)] }
-               3 -> result2 { patternBin3D = M.fromList [(to3D pattern, 1)] }
+      -- Failure to abstract the pattern likely indicates some kind of overloaded instrinsic
+      -- being mistaken for an array, in which case we wish to skip, hence mempty here.
+               1 -> case to1D pattern of
+                     Nothing -> mempty
+                     Just pats -> result2 { patternBin1D = M.fromList [(pats, 1)] }
+
+               2 -> case to2D pattern of
+                     Nothing -> mempty
+                     Just pats -> result2 { patternBin2D = M.fromList [(pats, 1)] }
+
+               3 -> case to3D pattern of
+                     Nothing -> mempty
+                     Just pats -> result2 { patternBin3D = M.fromList [(pats, 1)] }
                _ -> result2
     ------------
     lhsRep = case isArraySubscript lhs of

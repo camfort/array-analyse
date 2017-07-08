@@ -131,9 +131,20 @@ arrayAnalyse pf@(F.ProgramFile mi cm_pus) =
 
     perPU pu | Just _ <- FA.bBlocks $ F.getAnnotation pu = do
               let pum = descendBiM (perBlock False) pu
-              let (pu', log) = runAnalysis ivMap flTo pum
+                  rd = FAD.reachingDefinitions dm gr
+                  Just gr = M.lookup (FA.puName pu) bbm
+                  flTo = FAD.genFlowsToGraph bm dm gr rd
+                  -- induction variable map
+                  beMap = FAD.genBackEdgeMap (FAD.dominators gr) gr
+                  -- identify every loop by its back-edge
+                  ivMap = FAD.genInductionVarMapByASTBlock beMap gr
+                  (pu', log) = runAnalysis ivMap flTo pum
               tell log
               return pu'
+
+
+
+
     perPU pu = return pu
 
     -- induction variable map

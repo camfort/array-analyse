@@ -264,21 +264,22 @@ instance Camfortable Position where
   camfortable _              = False
 
 -- pre-condition: list of 1-dimensional offsets
-to1D :: [[Int]] -> [Int]
-to1D [] = []
-to1D ([x]:xs) = x : to1D xs
--- pre-condition: list of 2-dimensional offsets
-to2D :: [[Int]] -> [(Int, Int)]
-to2D [] = []
-to2D ([x, y]:xs) = (x, y) : to2D xs
--- pre-condition: list of 3-dimensional offsets
-to3D :: [[Int]] -> [(Int, Int, Int)]
-to3D [] = []
-to3D ([x, y, z]:xs) = (x, y, z) : to3D xs
--- Indicates a bug in the analysed code
-to3D ([x, y]:xs)    = (x, y, absoluteRep) : to3D xs
-to3D ([x]:xs)       = (x, absoluteRep, absoluteRep) : to3D xs
+to1D :: [[Int]] -> Maybe [Int]
+to1D [] = return []
+to1D ([x]:xs) = do { xs' <- to1D xs; return $ x:xs' }
+to1D _ = Nothing
 
+-- pre-condition: list of 2-dimensional offsets
+to2D :: [[Int]] -> Maybe [(Int, Int)]
+to2D [] = return []
+to2D ([x, y]:xs) = do { xs' <- to2D xs; return $ (x, y):xs' }
+to2D _ = Nothing
+
+-- pre-condition: list of 3-dimensional offsets
+to3D :: [[Int]] -> Maybe [(Int, Int, Int)]
+to3D [] = return []
+to3D ([x, y, z]:xs) = do { xs' <- to3D xs; return $ (x, y, z) : xs' }
+to3D _ = Nothing
 
 -- Results form a monoid
 instance Monoid Result where

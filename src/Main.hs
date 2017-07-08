@@ -98,7 +98,7 @@ usage = putStrLn "Usage:\n\
                 \ Apply the analysis to a single file with restart file rfile.restart:\n\
                 \    array-analysis SINGLE rfile [OPTIONS] dir-or-file [excluded-files]\n\
                 \\n\
-                \ Restart the analysis with rfile.restart and suppress the final result file \n\
+                \  View the data in a restart file \n\
                 \    array-analysis VIEW rfile\n\
                 \\n\
                 \ Perform sloccount on the files contributing to rfile.restart\n\

@@ -133,7 +133,7 @@ readRestart fname = do
       resultsString <- Strict.readFile (fname ++ ".restart")
       return ((read resultsString) :: Result)
    else do
-     error $ fname ++ " not found."
+     mempty -- error $ fname ++ " not found."
 
 applyAnalysisToDir :: Maybe String -> Mode -> String -> Bool -> Bool -> [String] -> IO ()
 applyAnalysisToDir restart mode dir debug bins excludes = do
@@ -149,8 +149,7 @@ applyAnalysisToDir restart mode dir debug bins excludes = do
          SlocMode -> return ("", result0)
          _        -> do
              files <- readParseSrcDir dir excludes
-             let result1 = result0 `mappend` mempty { dirs = [dir] }
-             foldrM (applyAnalysisToFile (mode, restart) dir) ("", result1) files
+             foldrM (applyAnalysisToFile (mode, restart) dir) ("", result0) files
 
     when (debug || mode == SingleFile) $ putStrLn dbg
 

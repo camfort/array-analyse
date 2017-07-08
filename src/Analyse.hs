@@ -78,19 +78,23 @@ applyAnalysisToFile :: (Mode, Maybe String)
                     -> (String, Result)
                     -> IO (String, Result)
 applyAnalysisToFile (mode, restart) dir (filename, source, pf) (dbg0, result0) = do
-    -- Write results so far to the restart file
     case mode of
-      SingleFile -> do
-           putStrLn $ prettyResults finalResult False
-           writeFile (fromJust restart ++ ".restart") (show finalResult)
-      _          ->
-           dbg' `deepseq` writeFile (dir ++ ".restart") (show finalResult)
-
-    -- Return results and debugs
-    return (finalDebugs, finalResult)
+       SingleFile ->
+          if filename `elem` dirs result0
+          then do
+            putStrLn $ "Skipping " ++ filename ++ " as already analysed"
+            return (dbg0, result0)
+          else do
+            putStrLn $ prettyResults finalResult False
+            -- Write results so far to the restart file
+            writeFile (fromJust restart ++ ".restart") (show finalResult)
+            return (finalDebugs, finalResult)
+       _ -> do
+         dbg' `deepseq` writeFile (dir ++ ".restart") (show finalResult)
+         return (finalDebugs, finalResult)
   where
     finalDebugs = dbg0 ++ dbg'
-    finalResult = result0 `mappend` result'
+    finalResult = result0 `mappend` result' `mappend` mempty { dirs = [filename] }
     lines = length $ B.lines source
     pf' = FAR.analyseRenames . FA.initAnalysis $ pf
     result' = result { numLines = lines }

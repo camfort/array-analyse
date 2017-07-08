@@ -167,8 +167,6 @@ applyAnalysisToDir restart mode dir debug bins excludes = do
                putStrLn $ "Raw count (parsed):" ++ (show . numLines $ result)
 
         NormalMode -> do
-               let resultsFile = dir ++ ".array-analysis"
-               writeFile resultsFile (show result)
                putStrLn $ prettyResults result bins
 
         SingleFile -> return ()

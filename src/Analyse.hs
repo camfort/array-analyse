@@ -123,7 +123,7 @@ arrayAnalyse :: F.ProgramFile (FA.Analysis A)
 arrayAnalyse pf@(F.ProgramFile mi cm_pus) =
     (dbg, result)
   where
-    (_, (dbg, result)) = runWriter (transformBiM perPU cm_pus)
+    (_, (dbg, result)) = runWriter (mapM perPU cm_pus)
 
     -- Run inference per program unit, placing the flowsmap in scope
     perPU :: F.ProgramUnit (FA.Analysis A)

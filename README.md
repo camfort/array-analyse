@@ -21,5 +21,31 @@ or cabal
 
 # Usage
 
+Usage:
+    array-analysis [MODE] [OPTIONS] dir-or-file [excluded-files]
 
+Options: -b 	 print pattern bins
+         -d 	 debug mode
+
+Modes:
+  Restart the analysis with the intermediate file rfile.restart:
+    array-analysis RESTART rfile [OPTIONS] dir-or-file [excluded-files]
+
+ Apply the analysis to a single file with restart file rfile.restart:
+    array-analysis SINGLE rfile [OPTIONS] dir-or-file [excluded-files]
+
+ Restart the analysis with rfile.restart and suppress the final result file 
+    array-analysis VIEW rfile
+
+ Perform sloccount on the files contributing to rfile.restart
+    array-analysis SLOC rfile
+
+ Show just the file names contributed to the restart file rfile.restart
+    array-analysis DIRS rfile
+
+ Combine restart files
+   array-analysis COMBINE rfile1 rfile2...rfilen
+
+ Compare two restart files
+   array-analysis CMP rfile1 rfile2
 

@@ -145,6 +145,12 @@ arrayAnalyse pf@(F.ProgramFile mi cm_pus) =
               return pu'
     perPU pu = return pu
 
+    -- get map of AST-Block-ID ==> corresponding AST-Block
+    bm    = FAD.genBlockMap pf
+    -- get map of program unit ==> basic block graph
+    bbm   = FAB.genBBlockMap pf
+    -- get map of variable name ==> { defining AST-Block-IDs }
+    dm    = FAD.genDefMap bm
 
 
 perBlock :: Bool -> F.Block (FA.Analysis A) -> Analysis (F.Block (FA.Analysis A))

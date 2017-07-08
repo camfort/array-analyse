@@ -25,8 +25,8 @@ Usage:
     
     array-analysis [MODE] [OPTIONS] dir-or-file [excluded-files]
 
-Options: -b 	 print pattern bins
-         -d 	 debug mode
+Options: `-b` 	 print pattern bins
+         `-d` 	 debug mode
 
 Modes:
   Restart the analysis with the intermediate file rfile.restart:
@@ -37,7 +37,7 @@ Modes:
     
      array-analysis SINGLE rfile [OPTIONS] dir-or-file [excluded-files]
 
- Restart the analysis with rfile.restart and suppress the final result file 
+ View the data in a restart file
     
      array-analysis VIEW rfile
 

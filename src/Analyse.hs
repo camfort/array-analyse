@@ -131,43 +131,20 @@ arrayAnalyse pf@(F.ProgramFile mi cm_pus) =
 
     perPU pu | Just _ <- FA.bBlocks $ F.getAnnotation pu = do
               let pum = descendBiM (perBlock False) pu
+                  -- perform reaching definitions analysis
                   rd = FAD.reachingDefinitions dm gr
                   Just gr = M.lookup (FA.puName pu) bbm
+                  -- create graph of definition "flows"
                   flTo = FAD.genFlowsToGraph bm dm gr rd
-                  -- induction variable map
-                  beMap = FAD.genBackEdgeMap (FAD.dominators gr) gr
                   -- identify every loop by its back-edge
+                  beMap = FAD.genBackEdgeMap (FAD.dominators gr) gr
+                  -- induction variable map
                   ivMap = FAD.genInductionVarMapByASTBlock beMap gr
                   (pu', log) = runAnalysis ivMap flTo pum
               tell log
               return pu'
-
-
-
-
     perPU pu = return pu
 
-    -- induction variable map
-    ivMap = FAD.genInductionVarMapByASTBlock beMap gr
-    -- perform reaching definitions analysis
-    rd    = FAD.reachingDefinitions dm gr
-    -- create graph of definition "flows"
-    flTo =  FAD.genFlowsToGraph bm dm gr rd
-
-    -- identify every loop by its back-edge
-    beMap = FAD.genBackEdgeMap (FAD.dominators gr) gr
-
-    -- get map of AST-Block-ID ==> corresponding AST-Block
-    bm    = FAD.genBlockMap pf
-    -- get map of program unit ==> basic block graph
-    bbm   = FAB.genBBlockMap pf
-    -- build the supergraph of global dependency
-    sgr   = FAB.genSuperBBGr bbm
-    -- extract the supergraph itself
-    gr    = FAB.superBBGrGraph sgr
-
-    -- get map of variable name ==> { defining AST-Block-IDs }
-    dm    = FAD.genDefMap bm
 
 
 perBlock :: Bool -> F.Block (FA.Analysis A) -> Analysis (F.Block (FA.Analysis A))

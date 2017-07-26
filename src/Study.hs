@@ -10,6 +10,7 @@ import Data.List
 import Control.Arrow (first)
 import System.Environment
 import Text.Printf
+import Data.Char (toLower, toUpper, isAlpha)
 
 -- This program performs some grouping and analysis on array-analysis
 -- data providing the empirical results for the OOPSLA 2017 'Verifying
@@ -29,12 +30,15 @@ main = do
       resultsString <- readFile file
       let result = read resultsString :: Result
       putStrLn $ hyps result
+      writeFile "studyResults.tex" (hypsLaTeX result)
 
     (file:study:args) -> do
       resultsString <- readFile file
       let result = read resultsString :: Result
       case study of
-        "hyps" -> putStrLn $ hyps result
+        "hyps" -> do
+            putStrLn $ hyps result
+            writeFile "studyResults.tex" (hypsLaTeX result)
         "histsplot" -> do
           let camfort h = (M.!) (camfortableResult h) "Camfort"
           writeFile "indexExprs.dat"
@@ -84,6 +88,41 @@ mapViewT msg map =
     cast :: Int -> Float
     cast = fromInteger . toInteger
     total = histTotal $ M.elems map
+
+mapViewLaTeX prefix dats =
+    concatMap mkTexCommand keyVals
+  where
+    keyVals = nums ++ percentages ++ [("total", show total)]
+    nums = map (\(k, v) -> (k, show v)) $ M.assocs dats
+    percentages = map (\(k, v) -> (k ++ "Perc", mkPercentage v)) $ M.assocs dats
+    mkPercentage dat = twoDP ((cast (dat) / cast (total))*100) ++ "\\%"
+
+    twoDP = printf "%.2f"
+    cast :: Int -> Float
+    cast = fromInteger . toInteger
+    total = histTotal $ M.elems dats
+
+    mkTexCommand (k, v) =
+      "\\newcommand{\\" ++ prefix ++ toKeyName k ++ "}{" ++ v ++ "}\n"
+
+    toKeyName = concat . camlCase . words . (map replaceAlpha) . firstUpper
+
+    firstUpper [] = []
+    firstUpper (x:xs) = toUpper x : xs
+
+    replaceAlpha x = if (isAlpha x) then x else ' '
+    camlCase = map firstUpper
+
+hypsLaTeX r =
+     mapViewLaTeX "hypOneFine" (countWrapper hypothesis1finer r)
+  ++ mapViewLaTeX "hypOne" (countWrapper hypothesis1 r)
+  ++ mapViewLaTeX "hypTwo" (countWrapper hypothesis2 r)
+  ++ mapViewLaTeX "hypThree" (countWrapper hypothesis3 r)
+  ++ mapViewLaTeX "hypFour" (countWrapper hypothesis4AInconsistents r)
+  ++ mapViewLaTeX "hypFourContig" (countWrapper hypothesis4contig r)
+  ++ mapViewLaTeX "hypFourConsist" (countWrapper hypothesis4consistency r)
+  ++ mapViewLaTeX "hypFive" (countWrapper hypothesis5 r)
+
 
 hyps r =
      mapViewT "Hypothesis 1 finer" (countWrapper hypothesis1finer r)
@@ -135,7 +174,7 @@ hypothesis1 (_, rhs, _) =
     Neighbours c (R (s, _, _, _)) | s /= Other -> "Neigh RHS" ++ hasConst c
     _                                          -> "Other"
 
-hasConst WithConsts = " + constants"
+hasConst WithConsts = " + absolute"
 hasConst Normal = " only"
 
 -- Hypothesis 2 : Most loop-array computations of the previous form read

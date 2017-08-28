@@ -312,6 +312,11 @@ flag False = 0
 toHist :: Int -> [Int]
 toHist n = (replicate (abs n) 0) ++ [1]
 
+-- Generate a singleton histogram for value 'n'
+toHistGeneral :: Int -> Int -> [Int]
+toHistGeneral n m = (replicate (abs n) 0) ++ [m]
+
+
 -- 'zip' together a list of histograms
 concatHist :: [[Int]] -> [Int]
 concatHist = foldr histZip []

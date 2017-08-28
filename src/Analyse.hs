@@ -190,7 +190,9 @@ perBlock True b@(F.BlStatement ann span@(FU.SrcSpan lp up) _ stmnt) = do
       results <- forM lhses $ \lhs -> do
          (dbg, rhses, dflowLen) <- analyseRHS [b]
          let (dbg', result) = classify ivs lhs rhses
-         let result' = result { histLengthOfDataflow = toHist (dflowLen - 1) }
+         let result' = case M.size rhses of
+                         0 -> result
+                         n -> result { histLengthOfDataflow = toHistGeneral dflowLen n}
          return ("At: " ++ show span ++ "\n" ++ dbg ++ dbg', result')
       tell (mconcat results)
       return b

@@ -39,7 +39,7 @@ import Neighbour
 import Results
 
 -- Main function for classifying array statements
-classify :: FAD.InductionVarMapByASTBlock
+classify :: [Variable]
          -> F.Expression (FA.Analysis A)
          -> M.Map Variable [[F.Index (FA.Analysis A)]]
          -> (String, Result)
@@ -207,31 +207,40 @@ instance Relativise (Int, String, Int) where
 -- ## Classification on subscripts
 data Class = Subscript | Affine [[(Int, String, Int)]] | Neigh [[Neighbour]]
 
-classifyIxs :: FAD.InductionVarMapByASTBlock
+classifyIxs :: [Variable]
            -> [[F.Index (FA.Analysis A)]]
            -> Class
 classifyIxs ivs ixs =
-  case mapM (neighbourIndex ivs) ixs of
+  case mapM (neighbourIndex' ivs) ixs of
     Nothing ->
       case mapM (affineIndex ivs) ixs of
         Nothing -> Subscript
         Just afs -> Affine afs
     Just n -> Neigh n
 
-affineIndex :: FAD.InductionVarMapByASTBlock
+neighbourIndex' :: [Variable] -> [F.Index (FA.Analysis A)] -> Maybe [Neighbour]
+neighbourIndex' ivs ixs =
+  if NonNeighbour `notElem` neighbours
+  then Just neighbours
+  else Nothing
+    where
+      neighbours = map (\ix -> convIxToNeighbour ivs ix) ixs
+
+
+affineIndex :: [Variable]
             -> [F.Index (FA.Analysis Annotation)]
             -> Maybe [(Int, String, Int)]
 affineIndex ivs ix = mapM (ixToAffine ivs) ix
 
-ixToAffine ::  FAD.InductionVarMapByASTBlock
+ixToAffine ::  [Variable]
             -> (F.Index (FA.Analysis Annotation))
             -> Maybe (Int, String, Int)
-ixToAffine ivmap f@(F.IxSingle _ _ _ exp) =
-    matchAffine ivsList exp
+ixToAffine ivs f@(F.IxSingle _ _ _ exp) =
+    matchAffine ivs exp
   where
-    insl = FA.insLabel . F.getAnnotation $ f
-    insl' = fromJust insl
-    ivsList = S.toList $ fromMaybe S.empty $ IM.lookup insl' ivmap
+    --insl = FA.insLabel . F.getAnnotation $ f
+    --insl' = fromJust insl
+    --ivsList = S.toList $ fromMaybe S.empty $ IM.lookup insl' ivmap
 ixToAffine ivmap (F.IxRange _ _ Nothing Nothing Nothing) =
     return (1, "", 0)
 ixToAffine ivmap (F.IxRange _ _ Nothing Nothing

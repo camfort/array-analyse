@@ -181,7 +181,8 @@ perBlock True b@(F.BlStatement ann span@(FU.SrcSpan lp up) _ stmnt) = do
     -- On all StExpressionAssign that occur in a stmt within a DO
     let lhses = [lhs | (F.StExpressionAssign _ _ lhs _)
                            <- universe stmnt :: [F.Statement (FA.Analysis A)]]
-    (ivs, visitedStmts) <- get
+    (ivmap, visitedStmts) <- get
+
     let label = fromMaybe (-1) (FA.insLabel ann)
     if label `elem` visitedStmts then
       -- This statement has been part of an existing dataflow path
@@ -190,6 +191,7 @@ perBlock True b@(F.BlStatement ann span@(FU.SrcSpan lp up) _ stmnt) = do
     else do
       results <- forM lhses $ \lhs -> do
          (dbg, rhses, dflowLen) <- analyseRHS [b]
+         let ivs = extractRelevantIVS ivmap b
          let (dbg', result) = classify ivs lhs rhses
          let result' = case actualSize rhses of
                          0 -> result

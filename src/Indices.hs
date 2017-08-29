@@ -160,16 +160,16 @@ checkConsistency :: (Eq t, Relativise t, Basis t, Eq (Base t))
                  => [t] -> [[t]] -> (Consistency, [[t]])
 checkConsistency lhs rhses = (cons `setRelativised` (rel /= rhses), rel)
   where
-    cons = sideConsistency (map basis lhs) (map (map basis) rhses)
+    cons = sideConsistency (converter lhs) (map converter rhses)
     rel  = relativiseSubscripts lhs rhses
 
-sideConsistency :: Eq a => [a] -> [[a]] -> Consistency
+sideConsistency :: (Eq a) => [a] -> [[a]] -> Consistency
 sideConsistency xs xss =
   foldr (\ys a -> (sideConsistency1 xs ys) `joinConsistency` a)
     (sideConsistency1 xs (head xss)) (tail xss)
 
 -- Sets all 'relativised' information to True
-sideConsistency1 :: Eq a => [a] -> [a] -> Consistency
+sideConsistency1 :: (Eq a) => [a] -> [a] -> Consistency
 sideConsistency1 lhs rhs
     | lhs == rhs = Consistent True
     | all (`elem` rhs) lhs && all (`elem` lhs) rhs = Permutation True
@@ -180,15 +180,18 @@ sideConsistency1 lhs rhs
 class Basis t where
   type Base t
   basis :: Eq (Base t) => t -> Base t
+  converter :: [t] -> [Base t]
 
 instance Basis Neighbour where
   type Base Neighbour = String
   basis (Neighbour i _) = i
   basis (Constant _)    = ""
+  converter = filter (/= "") . map basis
 
 instance Basis (Int, String, Int) where
   type Base (Int, String, Int) = (Int, String)
   basis (a, i, b) = (a, i)
+  converter = filter (\(a, i) -> i /= "") . map basis
 
 class Relativise t where
   relativiseSubscripts :: [t] -> [[t]] -> [[t]]

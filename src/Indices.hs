@@ -89,20 +89,21 @@ classifyArrayCode ivs lhs rhses =
                   Just lhsSubscript -> Just $ classifyIxs ivs [lhsSubscript]
     rhsRep = classifyIxs ivs rhses
     (consistency, rhsRepRel) =
-      case (lhsRep, rhsRep) of
-        (Nothing, _) -> (Consistent False, rhsRep)
-        (Just (Neigh [lhsAs]), Neigh rhsAs)   -> (id >< Neigh) $ checkConsistency lhsAs rhsAs
-        (Just (Affine [lhsAs]), Affine rhsAs) -> (id >< Affine) $ checkConsistency lhsAs rhsAs
-        (_, _)                                -> (Inconsistent, rhsRep)
+      case (lhsRep, lhsForm, rhsRep) of
+        (Nothing, _, _) -> (Consistent False, rhsRep)
+        (_, Vars, _) -> (Consistent False, rhsRep)
+        (Just (Neigh [lhsAs]), _, Neigh rhsAs)   -> (id >< Neigh) $ checkConsistency lhsAs rhsAs
+        (Just (Affine [lhsAs]), _, Affine rhsAs) -> (id >< Affine) $ checkConsistency lhsAs rhsAs
+        (_, _, _)                                -> (Inconsistent, rhsRep)
     ------------
     lhsForm = case lhsRep of
                 Nothing -> Vars
                 Just Subscript  -> Subscripts
                 Just (Affine as) | allIVs as -> IVs
-                Just (Affine as) | allConstants as -> AllConsts
+                Just (Affine as) | allConstants as -> Vars
                 Just (Affine as) -> Affines (hasConstants as) L
                 Just (Neigh  ns) | allIVs ns -> IVs
-                Just (Neigh  ns) | allConstants ns -> AllConsts
+                Just (Neigh  ns) | allConstants ns -> Vars
                 Just (Neigh ns) -> Neighbours (hasConstants ns) L
     rhsForm = case rhsRep of
                 Subscript -> Subscripts

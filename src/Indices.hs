@@ -10,7 +10,7 @@ import Camfort.Specification.Stencils.InferenceFrontend
 import Camfort.Specification.Stencils.Syntax
 import Camfort.Specification.Stencils.Generate
 import Camfort.Specification.Stencils.Annotation
-import qualified Camfort.Specification.Stencils.Grammar as Gram
+import qualified Camfort.Specification.Stencils.Parser as Gram
 import qualified Camfort.Specification.Stencils.Synthesis as Synth
 import Camfort.Analysis.Annotations
 import Camfort.Helpers.Vec hiding (length)

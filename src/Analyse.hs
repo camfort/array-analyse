@@ -30,7 +30,7 @@ import Camfort.Specification.Stencils.InferenceFrontend
 import Camfort.Specification.Stencils.Syntax
 import Camfort.Specification.Stencils.Generate
 import Camfort.Specification.Stencils.Annotation
-import qualified Camfort.Specification.Stencils.Grammar as Gram
+import qualified Camfort.Specification.Stencils.Parser as Gram
 import qualified Camfort.Specification.Stencils.Synthesis as Synth
 import Camfort.Analysis.Annotations
 import Camfort.Helpers.Vec hiding (length)
@@ -74,10 +74,10 @@ data Mode = SingleFile | ViewMode | SlocMode | NormalMode
 
 applyAnalysisToFile :: (Mode, Maybe String)
                     -> String
-                    -> (Filename, SourceText, F.ProgramFile A)
+                    -> (F.ProgramFile A, SourceText)
                     -> (String, Result)
                     -> IO (String, Result)
-applyAnalysisToFile (mode, restart) dir (filename, source, pf) (dbg0, result0) = do
+applyAnalysisToFile (mode, restart) dir (pf, source) (dbg0, result0) = do
     case mode of
        SingleFile ->
           if filename `elem` dirs result0
@@ -93,6 +93,7 @@ applyAnalysisToFile (mode, restart) dir (filename, source, pf) (dbg0, result0) =
          dbg' `deepseq` writeFile (dir ++ ".restart") (show finalResult)
          return (finalDebugs, finalResult)
   where
+    filename = F.pfGetFilename pf
     finalDebugs = dbg0 ++ dbg'
     finalResult = result0 `mappend` result' `mappend` mempty { dirs = [filename] }
     lines = length $ B.lines source

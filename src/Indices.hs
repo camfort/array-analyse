@@ -158,7 +158,10 @@ classifyArrayCode ivs lhs rhses =
 
 checkConsistency :: (Eq t, Relativise t, Basis t, Eq (Base t))
                  => [t] -> [[t]] -> (Consistency, [[t]])
-checkConsistency lhs rhses = (cons `setRelativised` (rel /= rhses), rel)
+checkConsistency lhs rhses =
+  if rhsCheck lhs rhses
+   then (cons `setRelativised` (rel /= rhses), rel)
+   else (Inconsistent, rel)
   where
     cons = sideConsistency (converter lhs) (map converter rhses)
     rel  = relativiseSubscripts lhs rhses
@@ -181,17 +184,23 @@ class Basis t where
   type Base t
   basis :: Eq (Base t) => t -> Base t
   converter :: [t] -> [Base t]
+  rhsCheck :: [t] -> [[t]] -> Bool
 
 instance Basis Neighbour where
   type Base Neighbour = String
   basis (Neighbour i _) = i
   basis (Constant _)    = ""
   converter = filter (/= "") . map basis
+  rhsCheck = consistentIVSuse
 
 instance Basis (Int, String, Int) where
   type Base (Int, String, Int) = (Int, String)
   basis (a, i, b) = (a, i)
   converter = filter (\(a, i) -> i /= "") . map basis
+  rhsCheck lhs rhs = consistentIVSuse lhs' rhs'
+    where
+      lhs' = map ((\(a, i, _) -> Neighbour i a)) lhs
+      rhs' = map (map (\(a, i, _) -> Neighbour i a)) rhs
 
 class Relativise t where
   relativiseSubscripts :: [t] -> [[t]] -> [[t]]

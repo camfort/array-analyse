@@ -191,12 +191,14 @@ perBlock True b@(F.BlStatement ann span@(FU.SrcSpan lp up) _ stmnt) = do
       results <- forM lhses $ \lhs -> do
          (dbg, rhses, dflowLen) <- analyseRHS [b]
          let (dbg', result) = classify ivs lhs rhses
-         let result' = case M.size rhses of
+         let result' = case actualSize rhses of
                          0 -> result
-                         n -> result { histLengthOfDataflow = toHistGeneral dflowLen n}
+                         n -> result { histLengthOfDataflow = toHistGeneral (dflowLen - 1) n}
          return ("At: " ++ show span ++ "\n" ++ dbg ++ dbg', result')
       tell (mconcat results)
       return b
+  where
+    actualSize = M.size . M.filter (\x -> length x > 0)
 
 perBlock inDo b =
     -- Go inside child blocks
